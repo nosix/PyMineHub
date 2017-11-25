@@ -7,51 +7,62 @@ def _filter_false(value: bool) -> int:
     return 0
 
 
+_byte_data = ByteData()
+_short_data = ShortData()
+_long_data = LongData()
+_magic_data = MagicData()
+_string_data = StringData()
+
+_4bytes_data = RawData(bytes_len=4)
+_null_padding = ValueFilter(RawData(), read=lambda value: len(value), write=lambda value: b'0' * value)
+_false_data = ValueFilter(ByteData(), read=lambda value: value != 0, write=_filter_false)
+
+
 _data_structure = {
     ID.unconnected_ping: [
-        ByteData(),
-        LongData(),
-        MagicData(),
-        LongData()
+        _byte_data,
+        _long_data,
+        _magic_data,
+        _long_data
     ],
     ID.unconnected_pong: [
-        ByteData(),
-        LongData(),
-        LongData(),
-        MagicData(),
-        StringData()
+        _byte_data,
+        _long_data,
+        _long_data,
+        _magic_data,
+        _string_data
     ],
     ID.open_connection_request1: [
-        ByteData(),
-        MagicData(),
-        ByteData(),
-        ValueFilter(RawData(), read=lambda value: len(value), write=lambda value: b'0' * value)
+        _byte_data,
+        _magic_data,
+        _byte_data,
+        _null_padding
     ],
     ID.open_connection_reply1: [
-        ByteData(),
-        MagicData(),
-        LongData(),
-        ValueFilter(ByteData(), read=lambda value: value != 0, write=_filter_false),
-        ShortData()
+        _byte_data,
+        _magic_data,
+        _long_data,
+        _false_data,
+        _short_data
     ],
     ID.open_connection_request2: [
-        ByteData(),
-        MagicData(),
-        ByteData(),
-        RawData(bytes_len=4),
-        ShortData(),
-        ShortData(),
-        LongData()
+        _byte_data,
+        _magic_data,
+        _byte_data,
+        _4bytes_data,
+        _short_data,
+        _short_data,
+        _long_data
     ],
     ID.open_connection_reply2: [
-        ByteData(),
-        MagicData(),
-        LongData(),
-        ByteData(),
-        RawData(bytes_len=4),
-        ShortData(),
-        ShortData(),
-        ValueFilter(ByteData(), read=lambda value: value != 0, write=_filter_false)
+        _byte_data,
+        _magic_data,
+        _long_data,
+        _byte_data,
+        _4bytes_data,
+        _short_data,
+        _short_data,
+        _false_data
     ]
 }
 
