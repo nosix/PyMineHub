@@ -9,6 +9,22 @@ class ID(Enum):
     open_connection_reply1 = 0x06
     open_connection_request2 = 0x07
     open_connection_reply2 = 0x08
+    custom_packet_0 = 0x80
+    custom_packet_1 = 0x81
+    custom_packet_2 = 0x82
+    custom_packet_3 = 0x83
+    custom_packet_4 = 0x84
+    custom_packet_5 = 0x85
+    custom_packet_6 = 0x86
+    custom_packet_7 = 0x87
+    custom_packet_8 = 0x88
+    custom_packet_9 = 0x89
+    custom_packet_a = 0x8a
+    custom_packet_b = 0x8b
+    custom_packet_c = 0x8c
+    custom_packet_d = 0x8d
+    custom_packet_e = 0x8e
+    custom_packet_f = 0x8f
 
 
 _packet_specs = {
@@ -58,6 +74,13 @@ _packet_specs = {
         ('use_encryption', bool)
     ]
 }
+
+for n in range(16):
+    _packet_specs[ID['custom_packet_{:x}'.format(n)]] = [
+        ('id', int),
+        ('packet_sequence_num', int),
+        ('payload', bytes)
+    ]
 
 
 _factory = dict(

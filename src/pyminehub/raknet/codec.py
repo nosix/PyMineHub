@@ -9,13 +9,15 @@ def _filter_false(value: bool) -> int:
 
 _byte_data = ByteData()
 _short_data = ShortData()
+_triad_data = TriadData()
 _long_data = LongData()
 _magic_data = MagicData()
 _string_data = StringData()
+_raw_data = RawData()
 
 _4bytes_data = RawData(bytes_len=4)
-_null_padding = ValueFilter(RawData(), read=lambda value: len(value), write=lambda value: b'0' * value)
-_false_data = ValueFilter(ByteData(), read=lambda value: value != 0, write=_filter_false)
+_null_padding = ValueFilter(_raw_data, read=lambda value: len(value), write=lambda value: b'0' * value)
+_false_data = ValueFilter(_byte_data, read=lambda value: value != 0, write=_filter_false)
 
 
 _data_structure = {
@@ -65,6 +67,13 @@ _data_structure = {
         _false_data
     ]
 }
+
+for n in range(16):
+    _data_structure[ID['custom_packet_{:x}'.format(n)]] = [
+        _byte_data,
+        _triad_data,
+        _raw_data
+    ]
 
 
 def encode(packet: namedtuple) -> bytes:
