@@ -1,5 +1,7 @@
 from pyminehub.binutil import *
-from pyminehub.raknet.packet import ID, create
+from pyminehub.network.codec import Codec
+from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
+from pyminehub.raknet.packet import PacketID, packet_factory
 
 
 def _filter_false(value: bool) -> int:
@@ -20,34 +22,34 @@ _null_padding = ValueFilter(_raw_data, read=lambda value: len(value), write=lamb
 _false_data = ValueFilter(_byte_data, read=lambda value: value != 0, write=_filter_false)
 
 
-_data_structure = {
-    ID.unconnected_ping: [
+_packet_converters = {
+    PacketID.unconnected_ping: [
         _byte_data,
         _long_data,
         _magic_data,
         _long_data
     ],
-    ID.unconnected_pong: [
+    PacketID.unconnected_pong: [
         _byte_data,
         _long_data,
         _long_data,
         _magic_data,
         _string_data
     ],
-    ID.open_connection_request1: [
+    PacketID.open_connection_request1: [
         _byte_data,
         _magic_data,
         _byte_data,
         _null_padding
     ],
-    ID.open_connection_reply1: [
+    PacketID.open_connection_reply1: [
         _byte_data,
         _magic_data,
         _long_data,
         _false_data,
         _short_data
     ],
-    ID.open_connection_request2: [
+    PacketID.open_connection_request2: [
         _byte_data,
         _magic_data,
         _byte_data,
@@ -56,7 +58,7 @@ _data_structure = {
         _short_data,
         _long_data
     ],
-    ID.open_connection_reply2: [
+    PacketID.open_connection_reply2: [
         _byte_data,
         _magic_data,
         _long_data,
@@ -69,41 +71,22 @@ _data_structure = {
 }
 
 for n in range(16):
-    _data_structure[ID['custom_packet_{:x}'.format(n)]] = [
+    _packet_converters[PacketID['custom_packet_{:x}'.format(n)]] = [
         _byte_data,
         _triad_data,
         _raw_data
     ]
 
 
-def encode(packet: namedtuple) -> bytes:
-    """ Encode packet to bytes.
-
-    >>> p = create(ID.unconnected_pong, 58721, 472877960873915065, True, 'MCPE;')
-    >>> hexlify(encode(p))
-    b'1c000000000000e56106900000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
-    """
-    data = bytearray()
-    encoders = _data_structure[ID(packet.id)]
-    for (value, encoder) in zip(packet, encoders):
-        encoder.write(data, value)
-    return bytes(data)
+_capsule_converters = {
+    CapsuleID.capsule_40: [
+        _byte_data,
+        _short_data,
+        _triad_data,
+        _raw_data
+    ]
+}
 
 
-def decode(data: bytes) -> namedtuple:
-    """ Decode bytes to packet.
-
-    >>> data = unhexlify(b'1c000000000000e56100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
-    >>> decode(data)
-    unconnected_pong(id=28, time_since_start=58721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
-    """
-    buffer = bytearray(data)
-    message_id = ID(buffer.pop(0))
-    decoders = _data_structure[message_id][1:]
-    args = list(decoder.read(buffer) for decoder in decoders)
-    return create(message_id, *args)
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+packet_codec = Codec(PacketID, packet_factory, _packet_converters)
+capsule_codec = Codec(CapsuleID, capsule_factory, _capsule_converters)

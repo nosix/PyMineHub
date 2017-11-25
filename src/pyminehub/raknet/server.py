@@ -2,8 +2,8 @@ import asyncio
 from collections import namedtuple
 from logging import getLogger
 
-from pyminehub.raknet.codec import encode, decode
-from pyminehub.raknet.packet import ID, create
+from pyminehub.raknet.codec import packet_codec, capsule_codec
+from pyminehub.raknet.packet import PacketID, packet_factory
 
 _logger = getLogger(__name__)
 
@@ -22,26 +22,32 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self.transport = transport
 
     def process_unconnected_ping(self, packet: namedtuple, addr: tuple) -> None:
-        res_packet = create(ID.unconnected_pong, packet.time_since_start, self.guid, True, self.server_id)
-        self.transport.sendto(encode(res_packet), addr)
+        res_packet = packet_factory.create(
+            PacketID.unconnected_pong, packet.time_since_start, self.guid, True, self.server_id)
+        self.transport.sendto(packet_codec.encode(res_packet), addr)
 
     def process_open_connection_request1(self, packet: namedtuple, addr: tuple) -> None:
-        res_packet = create(ID.open_connection_reply1, True, self.guid, False, packet.mtu_size)
-        self.transport.sendto(encode(res_packet), addr)
+        res_packet = packet_factory.create(
+            PacketID.open_connection_reply1, True, self.guid, False, packet.mtu_size)
+        self.transport.sendto(packet_codec.encode(res_packet), addr)
 
     def process_open_connection_request2(self, packet: namedtuple, addr: tuple) -> None:
         assert packet.server_ip_version == self.IP_VERSION
         host = bytes(int(v) for v in addr[0].split('.'))
         port = addr[1]
-        res_packet = create(
-            ID.open_connection_reply2, True, self.guid, self.IP_VERSION, host, port, packet.mtu_size, False)
-        self.transport.sendto(encode(res_packet), addr)
+        res_packet = packet_factory.create(
+            PacketID.open_connection_reply2, True, self.guid, self.IP_VERSION, host, port, packet.mtu_size, False)
+        self.transport.sendto(packet_codec.encode(res_packet), addr)
+
+    def process_custom_packet_4(self, packet: namedtuple, addr: tuple) -> None:
+        capsule = capsule_codec.decode(packet.payload)
+        _logger.debug('%s', capsule)
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
-        packet = decode(data)
+        packet = packet_codec.decode(data)
         _logger.debug('%s', packet)
-        getattr(self, 'process_' + ID(packet.id).name)(packet, addr)
+        getattr(self, 'process_' + PacketID(packet.id).name)(packet, addr)
 
     def connection_lost(self, exc: Exception):
         _logger.exception('RakNet connection lost', exc_info=exc)
