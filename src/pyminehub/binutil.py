@@ -302,6 +302,19 @@ class BytesData:
     b'123456'
     >>> hexlify(data)
     b''
+
+    >>> c = BytesData(Endian.LITTLE)
+    >>> data = bytearray()
+    >>> c.write(data, unhexlify('ff00'))
+    >>> c.write(data, unhexlify('123456'))
+    >>> hexlify(data)
+    b'0200ff000300123456'
+    >>> hexlify(c.read(data))
+    b'ff00'
+    >>> hexlify(c.read(data))
+    b'123456'
+    >>> hexlify(data)
+    b''
     """
 
     def __init__(self, endian=Endian.BIG):
@@ -351,6 +364,81 @@ class StringData:
         bytes_data = bytes(value, self.encoding)
         self.len_codec.write(data, len(bytes_data))
         data += bytes_data
+
+
+class RawData:
+    """Convert N bytes data that does not have length data.
+
+    >>> c = RawData()
+    >>> data = bytearray()
+    >>> c.write(data, unhexlify('ff00'))
+    >>> c.write(data, unhexlify('123456'))
+    >>> hexlify(data)
+    b'ff00123456'
+    >>> hexlify(c.read(data))
+    b'ff00123456'
+    >>> hexlify(data)
+    b''
+
+    >>> c = RawData(bytes_len=2)
+    >>> data = bytearray()
+    >>> c.write(data, unhexlify('ff00'))
+    >>> c.write(data, unhexlify('1234'))
+    >>> hexlify(data)
+    b'ff001234'
+    >>> hexlify(c.read(data))
+    b'ff00'
+    >>> hexlify(c.read(data))
+    b'1234'
+    >>> hexlify(data)
+    b''
+    """
+
+    def __init__(self, bytes_len=None):
+        self.bytes_len = bytes_len
+
+    # noinspection PyMethodMayBeStatic
+    def read(self, data: bytearray) -> bytes:
+        if self.bytes_len is None:
+            value = bytes(data)
+            del data[:]
+            return value
+        else:
+            return _pop_first(data, self.bytes_len)
+
+    # noinspection PyMethodMayBeStatic
+    def write(self, data: bytearray, value: bytes) -> None:
+        data += value
+
+
+class ValueFilter:
+    """Convert value by filter functions.
+
+    >>> read = lambda value: len(value)  # type: (bytes) -> int
+    >>> write = lambda value: unhexlify(b'00') * value  # type: (int) -> bytes
+    >>> c = ValueFilter(RawData(), read=read, write=write)
+    >>> data = bytearray()
+    >>> c.write(data, 5)
+    >>> hexlify(data)
+    b'0000000000'
+    >>> c.read(data)
+    5
+    >>> hexlify(data)
+    b''
+    """
+
+    def __init__(self, data_codec, read=None, write=None):
+        self.data_codec = data_codec
+        self.read_filter = (lambda value: value) if read is None else read
+        self.write_filter = (lambda value: value) if write is None else write
+
+    # noinspection PyMethodMayBeStatic
+    def read(self, data: bytearray) -> Any:
+        return self.read_filter(self.data_codec.read(data))
+
+    # noinspection PyMethodMayBeStatic
+    def write(self, data: bytearray, value: Any) -> None:
+        self.data_codec.write(data, self.write_filter(value))
 
 
 if __name__ == '__main__':
