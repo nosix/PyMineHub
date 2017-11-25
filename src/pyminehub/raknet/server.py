@@ -1,6 +1,7 @@
 import asyncio
 from collections import namedtuple
-from logging import getLogger
+from logging import getLogger, basicConfig
+from multiprocessing import Queue
 
 from pyminehub.raknet.codec import packet_codec, capsule_codec
 from pyminehub.raknet.packet import PacketID, packet_factory
@@ -12,8 +13,10 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     IP_VERSION = 4
 
-    def __init__(self, loop: asyncio.events.AbstractEventLoop):
+    def __init__(self, loop: asyncio.events.AbstractEventLoop, send_queue: Queue, receive_queue: Queue):
         self.loop = loop
+        self.send_queue = send_queue
+        self.receive_queue = receive_queue
         self.guid = 472877960873915066
         self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
 
@@ -42,6 +45,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
     def process_custom_packet_4(self, packet: namedtuple, addr: tuple) -> None:
         capsule = capsule_codec.decode(packet.payload)
         _logger.debug('%s', capsule)
+        self.send_queue.put(capsule.payload)
 
     def datagram_received(self, data: bytes, addr: tuple) -> None:
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
@@ -54,20 +58,13 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self.loop.stop()
 
 
-async def hello():
-    while True:
-        print('Hello world')
-        await asyncio.sleep(1)
-
-
-def run():
+def run(send_queue, receive_queue, log_level=None):
+    not log_level or basicConfig(level=log_level)
     loop = asyncio.get_event_loop()
     listen = loop.create_datagram_endpoint(
-        lambda: _RakNetServerProtocol(loop), local_addr=('0.0.0.0', 19132))
+        lambda: _RakNetServerProtocol(loop, send_queue, receive_queue), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)
-
     try:
-        loop.run_until_complete(hello())
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -78,5 +75,5 @@ def run():
 
 if __name__ == '__main__':
     import logging
-    logging.basicConfig(level=logging.DEBUG)
-    run()
+    import multiprocessing as mp
+    run(mp.Queue(), mp.Queue(), logging.DEBUG)
