@@ -18,8 +18,9 @@ _string_data = StringData()
 _raw_data = RawData()
 
 _4bytes_data = RawData(bytes_len=4)
-_null_padding = ValueFilter(_raw_data, read=lambda value: len(value), write=lambda value: b'0' * value)
-_false_data = ValueFilter(_byte_data, read=lambda value: value != 0, write=_filter_false)
+_null_padding = ValueFilter(_raw_data, read=lambda data: len(data), write=lambda value: b'0' * value)
+_bool_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=lambda value: 1 if value else 0)
+_false_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=_filter_false)
 
 
 _packet_converters = {
@@ -78,8 +79,18 @@ for n in range(16):
     ]
 
 
+for packet_id in (PacketID.nck, PacketID.ack):
+    _packet_converters[packet_id] = [
+        _byte_data,
+        _short_data,
+        _bool_data,
+        _triad_data,
+        _triad_data
+    ]
+
+
 _capsule_converters = {
-    CapsuleID.capsule_40: [
+    CapsuleID.reliable: [
         _byte_data,
         _short_data,
         _triad_data,

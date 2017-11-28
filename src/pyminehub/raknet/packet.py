@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Union
 
 from pyminehub.network.packet import PacketFactory
 
@@ -26,6 +27,8 @@ class PacketID(Enum):
     custom_packet_d = 0x8d
     custom_packet_e = 0x8e
     custom_packet_f = 0x8f
+    nck = 0xa0
+    ack = 0xc0
 
 
 _packet_specs = {
@@ -82,6 +85,16 @@ for n in range(16):
         ('id', int),
         ('packet_sequence_num', int),
         ('payload', bytes)
+    ]
+
+
+for packet_id in (PacketID.nck, PacketID.ack):
+    _packet_specs[packet_id] = [
+        ('id', int),
+        ('record_count', int),
+        ('range_max_equals_to_min', bool),
+        ('packet_sequence_number_min', int),
+        ('packet_sequence_number_max', Union[int, None])
     ]
 
 

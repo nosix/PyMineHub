@@ -1,7 +1,7 @@
 import struct
 from binascii import hexlify, unhexlify
 from collections import namedtuple
-from typing import Any
+from typing import Any, Union
 
 
 def to_bytes(hex_str: str) -> bytes:
@@ -43,7 +43,9 @@ class Endian:
     BIG = _Converter('>', lambda l, n: slice(l-n, None), lambda buffer, zero_bytes: zero_bytes + buffer)
 
 
-def _pop_first(data: bytearray, size: int) -> bytes:
+def _pop_first(data: bytearray, size: int) -> Union[bytes, None]:
+    if len(data) < size:
+        return None
     data_slice = slice(size)
     value = data[data_slice]
     del data[data_slice]
@@ -68,12 +70,13 @@ class ByteData:
     """
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> int:
-        return data.pop(0)
+    def read(self, data: bytearray) -> Union[int, None]:
+        return data.pop(0) if len(data) > 0 else None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
-        data.append(value)
+    def write(self, data: bytearray, value: Union[int, None]) -> None:
+        if value is not None:
+            data.append(value)
 
 
 class ShortData:
@@ -110,12 +113,14 @@ class ShortData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> int:
-        return self.endian.unpack('H', _pop_first(data, 2))
+    def read(self, data: bytearray) -> Union[int, None]:
+        d = _pop_first(data, 2)
+        return self.endian.unpack('H', d) if d is not None else None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
-        data += self.endian.pack('H', value)
+    def write(self, data: bytearray, value: Union[int, None]) -> None:
+        if value is not None:
+            data += self.endian.pack('H', value)
 
 
 class TriadData:
@@ -152,12 +157,14 @@ class TriadData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> int:
-        return self.endian.unpack('I', _pop_first(data, 3), 1)
+    def read(self, data: bytearray) -> Union[int, None]:
+        d = _pop_first(data, 3)
+        return self.endian.unpack('I', d, 1) if d is not None else None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
-        data += self.endian.pack('I', value, 3)
+    def write(self, data: bytearray, value: Union[int, None]) -> None:
+        if value is not None:
+            data += self.endian.pack('I', value, 3)
 
 
 class IntData:
@@ -208,12 +215,14 @@ class IntData:
         self.unsigned = unsigned
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> int:
-        return self.endian.unpack('I' if self.unsigned else 'i', _pop_first(data, 4))
+    def read(self, data: bytearray) -> Union[int, None]:
+        d = _pop_first(data, 4)
+        return self.endian.unpack('I' if self.unsigned else 'i', d) if d is not None else None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
-        data += self.endian.pack('I' if self.unsigned else 'i', value)
+    def write(self, data: bytearray, value: Union[int, None]) -> None:
+        if value is not None:
+            data += self.endian.pack('I' if self.unsigned else 'i', value)
 
 
 class LongData:
@@ -250,12 +259,14 @@ class LongData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> int:
-        return self.endian.unpack('Q', _pop_first(data, 8))
+    def read(self, data: bytearray) -> Union[int, None]:
+        d = _pop_first(data, 8)
+        return self.endian.unpack('Q', d) if d is not None else None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
-        data += self.endian.pack('Q', value)
+    def write(self, data: bytearray, value: Union[int, None]) -> None:
+        if value is not None:
+            data += self.endian.pack('Q', value)
 
 
 class MagicData:
@@ -429,7 +440,7 @@ class ValueFilter:
 
     def __init__(self, data_codec, read=None, write=None):
         self.data_codec = data_codec
-        self.read_filter = (lambda value: value) if read is None else read
+        self.read_filter = (lambda data: data) if read is None else read
         self.write_filter = (lambda value: value) if write is None else write
 
     # noinspection PyMethodMayBeStatic
