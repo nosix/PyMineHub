@@ -15,6 +15,14 @@ _capsule_specs = {
         ('payload_length', int),
         ('reliable_message_num', int),
         ('payload', bytes)
+    ],
+    CapsuleID.reliable_ordered: [
+        ('id', int),
+        ('payload_length', int),
+        ('reliable_message_num', int),
+        ('message_ordering_index', int),
+        ('message_ordering_chanel', int),
+        ('payload', bytes)
     ]
 }
 

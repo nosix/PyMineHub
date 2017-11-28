@@ -1,8 +1,10 @@
 import asyncio
+import queue
 from collections import namedtuple
 from logging import getLogger, basicConfig
 from multiprocessing import Queue
 
+from pyminehub.network.address import IP_VERSION, to_address
 from pyminehub.raknet.codec import packet_codec, capsule_codec
 from pyminehub.raknet.packet import PacketID, packet_factory
 from pyminehub.raknet.session import Session
@@ -11,8 +13,6 @@ _logger = getLogger(__name__)
 
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
-
-    IP_VERSION = 4
 
     def __init__(self, loop: asyncio.events.AbstractEventLoop, send_queue: Queue, receive_queue: Queue):
         self._loop = loop
@@ -36,37 +36,45 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
-    def sendto(self, packet: namedtuple, addr: tuple) -> None:
+    def send_to_client(self, packet: namedtuple, addr: tuple) -> None:
         _logger.debug('< %s %s', addr, packet)
         self._transport.sendto(packet_codec.encode(packet), addr)
 
-    def send_encapsulated_payload(self, payload: bytes, addr: tuple) -> None:
+    def send_to_game_server(self, payload: bytes, addr: tuple) -> None:
         self._send_queue.put_nowait((addr, payload))
+
+    def receive_from_game_server(self) -> None:
+        try:
+            addr, payload = self._receive_queue.get_nowait()
+            session = self._sessions[addr]
+            session.send_custom_packet(payload)
+        except queue.Empty:
+            pass
 
     def send_ack_and_nck(self) -> None:
         for addr, session in self._sessions.items():
             def sendto(res_packet):
-                self.sendto(res_packet, addr)
+                self.send_to_client(res_packet, addr)
             session.send_ack_and_nck(sendto)
 
     def _process_unconnected_ping(self, packet: namedtuple, addr: tuple) -> None:
         res_packet = packet_factory.create(
             PacketID.unconnected_pong, packet.time_since_start, self.guid, True, self.server_id)
-        self.sendto(res_packet, addr)
+        self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: namedtuple, addr: tuple) -> None:
         res_packet = packet_factory.create(
             PacketID.open_connection_reply1, True, self.guid, False, packet.mtu_size)
-        self.sendto(res_packet, addr)
+        self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: namedtuple, addr: tuple) -> None:
-        assert packet.server_ip_version == self.IP_VERSION
-        host = bytes(int(v) for v in addr[0].split('.'))
-        port = addr[1]
+        assert packet.server_address.ip_version == IP_VERSION
         res_packet = packet_factory.create(
-            PacketID.open_connection_reply2, True, self.guid, self.IP_VERSION, host, port, packet.mtu_size, False)
-        self.sendto(res_packet, addr)
-        self._sessions[addr] = Session(lambda payload: self.send_encapsulated_payload(payload, addr))
+            PacketID.open_connection_reply2, True, self.guid, to_address(addr), packet.mtu_size, False)
+        self.send_to_client(res_packet, addr)
+        self._sessions[addr] = Session(
+            lambda payload: self.send_to_game_server(payload, addr),
+            lambda packet: self.send_to_client(packet, addr))
 
     def _process_custom_packet_4(self, packet: namedtuple, addr: tuple) -> None:
         session = self._sessions[addr]
@@ -75,17 +83,18 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def _process_nck(self, packet: namedtuple, addr: tuple) -> None:
         session = self._sessions[addr]
-        session.remove_nck(packet)
+        session.nck_received(packet)
 
     def _process_ack(self, packet: namedtuple, addr: tuple) -> None:
         session = self._sessions[addr]
-        session.remove_ack(packet)
+        session.ack_received(packet)
 
 
 async def send(protocol: _RakNetServerProtocol):
     while True:
         await asyncio.sleep(0.1)
         protocol.send_ack_and_nck()
+        protocol.receive_from_game_server()
 
 
 def run(send_queue, receive_queue, log_level=None):

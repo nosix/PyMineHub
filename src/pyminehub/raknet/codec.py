@@ -1,5 +1,5 @@
 from pyminehub.binutil import *
-from pyminehub.network.codec import Codec
+from pyminehub.network.codec import Codec, AddressData
 from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
 from pyminehub.raknet.packet import PacketID, packet_factory
 
@@ -16,8 +16,8 @@ _long_data = LongData()
 _magic_data = MagicData()
 _string_data = StringData()
 _raw_data = RawData()
+_address_data = AddressData()
 
-_4bytes_data = RawData(bytes_len=4)
 _null_padding = ValueFilter(_raw_data, read=lambda data: len(data), write=lambda value: b'0' * value)
 _bool_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=lambda value: 1 if value else 0)
 _false_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=_filter_false)
@@ -53,9 +53,7 @@ _packet_converters = {
     PacketID.open_connection_request2: [
         _byte_data,
         _magic_data,
-        _byte_data,
-        _4bytes_data,
-        _short_data,
+        _address_data,
         _short_data,
         _long_data
     ],
@@ -63,9 +61,7 @@ _packet_converters = {
         _byte_data,
         _magic_data,
         _long_data,
-        _byte_data,
-        _4bytes_data,
-        _short_data,
+        _address_data,
         _short_data,
         _false_data
     ]
@@ -94,6 +90,14 @@ _capsule_converters = {
         _byte_data,
         _short_data,
         _triad_data,
+        _raw_data
+    ],
+    CapsuleID.reliable_ordered: [
+        _byte_data,
+        _short_data,
+        _triad_data,
+        _triad_data,
+        _byte_data,
         _raw_data
     ]
 }
