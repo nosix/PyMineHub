@@ -20,7 +20,7 @@ class GameDataHandler:
         self._protocol.game_data_received(data, addr)
 
     def data_received(self, data: bytes, addr: tuple) -> None:
-        pass
+        raise NotImplemented
 
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
@@ -119,7 +119,8 @@ def run(handler, log_level=None):
 if __name__ == '__main__':
     import logging
 
-    class MockHandler:
-        pass
+    class MockHandler(GameDataHandler):
+        def data_received(self, data: bytes, addr: tuple) -> None:
+            print('{} {}'.format(addr, data.hex()))
 
     run(MockHandler(), logging.DEBUG)
