@@ -1,8 +1,6 @@
 import asyncio
-import queue
 from collections import namedtuple
 from logging import getLogger, basicConfig
-from multiprocessing import Queue
 
 from pyminehub.network.address import IP_VERSION, to_address
 from pyminehub.raknet.codec import packet_codec, capsule_codec
@@ -12,15 +10,32 @@ from pyminehub.raknet.session import Session
 _logger = getLogger(__name__)
 
 
+class GameDataHandler:
+
+    def register_protocol(self, protocol):
+        # noinspection PyAttributeOutsideInit
+        self._protocol = protocol
+
+    def sendto(self, data: bytes, addr: tuple) -> None:
+        self._protocol.game_data_received(data, addr)
+
+    def data_received(self, data: bytes, addr: tuple) -> None:
+        pass
+
+
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
-    def __init__(self, loop: asyncio.events.AbstractEventLoop, send_queue: Queue, receive_queue: Queue):
+    def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler):
+        handler.register_protocol(self)
         self._loop = loop
-        self._send_queue = send_queue
-        self._receive_queue = receive_queue
+        self._handler = handler
         self._sessions = {}
         self.guid = 472877960873915066
         self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
+
+    def game_data_received(self, data: bytes, addr: tuple) -> None:
+        session = self._sessions[addr]
+        session.send_custom_packet(data)
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         # noinspection PyAttributeOutsideInit
@@ -39,17 +54,6 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
     def send_to_client(self, packet: namedtuple, addr: tuple) -> None:
         _logger.debug('< %s %s', addr, packet)
         self._transport.sendto(packet_codec.encode(packet), addr)
-
-    def send_to_game_server(self, payload: bytes, addr: tuple) -> None:
-        self._send_queue.put_nowait((addr, payload))
-
-    def receive_from_game_server(self) -> None:
-        try:
-            addr, payload = self._receive_queue.get_nowait()
-            session = self._sessions[addr]
-            session.send_custom_packet(payload)
-        except queue.Empty:
-            pass
 
     def send_ack_and_nck(self) -> None:
         for addr, session in self._sessions.items():
@@ -73,7 +77,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             PacketID.open_connection_reply2, True, self.guid, to_address(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
-            lambda payload: self.send_to_game_server(payload, addr),
+            lambda payload: self._handler.data_received(payload, addr),
             lambda packet: self.send_to_client(packet, addr))
 
     def _process_custom_packet_4(self, packet: namedtuple, addr: tuple) -> None:
@@ -94,14 +98,13 @@ async def send(protocol: _RakNetServerProtocol):
     while True:
         await asyncio.sleep(0.1)
         protocol.send_ack_and_nck()
-        protocol.receive_from_game_server()
 
 
-def run(send_queue, receive_queue, log_level=None):
+def run(handler, log_level=None):
     not log_level or basicConfig(level=log_level)
     loop = asyncio.get_event_loop()
     listen = loop.create_datagram_endpoint(
-        lambda: _RakNetServerProtocol(loop, send_queue, receive_queue), local_addr=('0.0.0.0', 19132))
+        lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)
     try:
         loop.run_until_complete(send(protocol))
@@ -115,5 +118,8 @@ def run(send_queue, receive_queue, log_level=None):
 
 if __name__ == '__main__':
     import logging
-    import multiprocessing as mp
-    run(mp.Queue(), mp.Queue(), logging.DEBUG)
+
+    class MockHandler:
+        pass
+
+    run(MockHandler(), logging.DEBUG)
