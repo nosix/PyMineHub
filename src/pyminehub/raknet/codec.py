@@ -89,7 +89,7 @@ for packet_id in (PacketID.nck, PacketID.ack):
 class _CapsulePayload:
 
     @classmethod
-    def read(cls, data: bytearray, context: ReadContext) -> Union[bytes, None]:
+    def read(cls, data: bytearray, context: ReadContext) -> Optional[bytes]:
         payload_length = context.values[1] // 8
         d = pop_first(data, payload_length)
         if d is None:

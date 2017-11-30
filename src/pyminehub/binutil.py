@@ -1,7 +1,7 @@
 import struct
 from binascii import hexlify, unhexlify
 from collections import namedtuple
-from typing import Any, Union
+from typing import Any, Optional
 
 
 def to_bytes(hex_str: str) -> bytes:
@@ -13,7 +13,7 @@ def to_bytes(hex_str: str) -> bytes:
     return bytes.fromhex(hex_str.replace(':', ''))
 
 
-def pop_first(data: bytearray, size: int) -> Union[bytes, None]:
+def pop_first(data: bytearray, size: int) -> Optional[bytes]:
     if len(data) < size:
         return None
     data_slice = slice(size)
@@ -83,7 +83,7 @@ class ByteData:
     """
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
         if len(data) > 0:
             context.length += 1
             return data.pop(0)
@@ -91,7 +91,7 @@ class ByteData:
             return None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Union[int, None]) -> None:
+    def write(self, data: bytearray, value: Optional[int]) -> None:
         if value is not None:
             data.append(value)
 
@@ -136,7 +136,7 @@ class ShortData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
         d = pop_first(data, 2)
         if d is not None:
             context.length += len(d)
@@ -145,7 +145,7 @@ class ShortData:
             return None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Union[int, None]) -> None:
+    def write(self, data: bytearray, value: Optional[int]) -> None:
         if value is not None:
             data += self.endian.pack('H', value)
 
@@ -190,7 +190,7 @@ class TriadData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
         d = pop_first(data, 3)
         if d is not None:
             context.length += len(d)
@@ -199,7 +199,7 @@ class TriadData:
             return None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Union[int, None]) -> None:
+    def write(self, data: bytearray, value: Optional[int]) -> None:
         if value is not None:
             data += self.endian.pack('I', value, 3)
 
@@ -261,7 +261,7 @@ class IntData:
         self.unsigned = unsigned
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
         d = pop_first(data, 4)
         if d is not None:
             context.length += len(d)
@@ -270,7 +270,7 @@ class IntData:
             return None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Union[int, None]) -> None:
+    def write(self, data: bytearray, value: Optional[int]) -> None:
         if value is not None:
             data += self.endian.pack('I' if self.unsigned else 'i', value)
 
@@ -315,7 +315,7 @@ class LongData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
         d = pop_first(data, 8)
         if d is not None:
             context.length += len(d)
@@ -324,7 +324,7 @@ class LongData:
             return None
 
     # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Union[int, None]) -> None:
+    def write(self, data: bytearray, value: Optional[int]) -> None:
         if value is not None:
             data += self.endian.pack('Q', value)
 
@@ -404,7 +404,7 @@ class BytesData:
         self.len_codec = ShortData(endian)
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[bytes, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[bytes]:
         bytes_len = self.len_codec.read(data, context)
         if bytes_len is None:
             return None
@@ -445,7 +445,7 @@ class StringData:
         self.len_codec = ShortData(endian)
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[str, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[str]:
         bytes_len = self.len_codec.read(data, context)
         if bytes_len is None:
             return None
@@ -500,7 +500,7 @@ class RawData:
         self.bytes_len = bytes_len
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Union[bytes, None]:
+    def read(self, data: bytearray, context: ReadContext) -> Optional[bytes]:
         if self.bytes_len is None:
             value = bytes(data)
             del data[:]

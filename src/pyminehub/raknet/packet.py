@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Union
+from typing import Optional
 
 from pyminehub.network.address import Address
 from pyminehub.network.packet import PacketFactory
@@ -91,7 +91,7 @@ for packet_id in (PacketID.nck, PacketID.ack):
         ('record_count', int),
         ('range_max_equals_to_min', bool),
         ('packet_sequence_number_min', int),
-        ('packet_sequence_number_max', Union[int, None])
+        ('packet_sequence_number_max', Optional[int])
     ]
 
 
