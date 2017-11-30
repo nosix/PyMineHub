@@ -1,9 +1,10 @@
 from collections import namedtuple
 from logging import getLogger
-from typing import Callable
+from typing import List, Callable
 
 from pyminehub.raknet.codec import capsule_codec
 from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
+from pyminehub.raknet.fragment import MessageFragment
 from pyminehub.raknet.packet import PacketID, packet_factory
 
 _logger = getLogger(__name__)
@@ -11,8 +12,8 @@ _logger = getLogger(__name__)
 
 class Session:
 
-    def __init__(self, send_to_game_server: Callable[[bytes], None], send_to_client: Callable[[namedtuple], None]):
-        self._send_to_game_server = send_to_game_server
+    def __init__(self, send_to_game_handler: Callable[[bytes], None], send_to_client: Callable[[namedtuple], None]):
+        self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0
         self._ack_set = set()
@@ -22,32 +23,53 @@ class Session:
         self._message_ordering_index = 0
         self._sequence_num = 0
         self._resend_queue = {}
+        self._fragment = MessageFragment()
 
-    def capsule_received(self, packet_sequence_num: int, capsule: namedtuple) -> None:
-        _logger.debug('> %d:%s', packet_sequence_num, capsule)
-        getattr(self, '_process_' + CapsuleID(capsule.id).name)(packet_sequence_num, capsule)
-
-    def _process_reliable(self, packet_sequence_num: int, capsule: namedtuple) -> None:
-        assert capsule.payload_length / 8 == len(capsule.payload)
+    def capsule_received(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
-            self._send_to_game_server(capsule.payload)
+            self._process_capsules(packet_sequence_num, capsules)
             self._expected_sequence_num += 1
             self._ack_set.add(packet_sequence_num)
             self._process_cache()
         elif packet_sequence_num > self._expected_sequence_num:
-            self._capsule_cache[packet_sequence_num] = capsule
+            self._capsule_cache[packet_sequence_num] = capsules
             for nck_sequence_num in range(self._expected_sequence_num, packet_sequence_num):
                 self._nck_set.add(nck_sequence_num)
             self._ack_set.add(packet_sequence_num)
         else:
             _logger.warning('Packet that has old packet sequence number was received.')
-            _logger.warning('[%d] %s', packet_sequence_num, capsule)
+            for capsule in capsules:
+                _logger.warning('[%d] %s', packet_sequence_num, capsule)
 
     def _process_cache(self) -> None:
         while self._expected_sequence_num in self._capsule_cache:
-            capsule = self._capsule_cache.pop(self._expected_sequence_num)
-            self._send_to_game_server(capsule.payload)
+            capsules = self._capsule_cache.pop(self._expected_sequence_num)
+            self._process_capsules(self._expected_sequence_num, capsules)
             self._expected_sequence_num += 1
+
+    def _process_capsules(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
+        for capsule in capsules:
+            _logger.debug('> %d:%s', packet_sequence_num, capsule)
+            getattr(self, '_process_' + CapsuleID(capsule.id).name)(capsule)
+
+    def _process_unreliable(self, capsule: namedtuple) -> None:
+        self._send_to_game_handler(capsule.payload)
+
+    def _process_reliable(self, capsule: namedtuple) -> None:
+        self._send_to_game_handler(capsule.payload)
+
+    def _process_reliable_ordered(self, capsule: namedtuple) -> None:
+        self._send_to_game_handler(capsule.payload)
+
+    def _process_reliable_ordered_has_split(self, capsule: namedtuple) -> None:
+        self._fragment.append(
+            capsule.split_packet_id,
+            capsule.split_packet_count,
+            capsule.split_packet_index,
+            capsule.payload)
+        payload = self._fragment.pop(capsule.split_packet_id)
+        if payload is not None:
+            self._send_to_game_handler(payload)
 
     @staticmethod
     def _nck_or_ack_received(packet: namedtuple, action: Callable[[int], None]) -> None:

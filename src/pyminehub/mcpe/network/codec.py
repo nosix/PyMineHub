@@ -24,8 +24,8 @@ class _AddressList:
     def __init__(self, size: int):
         self._size = size
 
-    def read(self, data: bytearray) -> Tuple[Address, ...]:
-        return tuple(_address_data.read(data) for i in range(self._size))
+    def read(self, data: bytearray, context: ReadContext) -> Tuple[Address, ...]:
+        return tuple(_address_data.read(data, context) for _ in range(self._size))
 
     def write(self, data: bytearray, value: Tuple[Address, ...]) -> None:
         for i in range(self._size):
@@ -33,6 +33,15 @@ class _AddressList:
 
 
 _packet_converters = {
+    PacketID.connected_ping: [
+        _byte_data,
+        _long_data
+    ],
+    PacketID.connected_pong: [
+        _byte_data,
+        _long_data,
+        _long_data
+    ],
     PacketID.connection_request: [
         _byte_data,
         _long_data,
@@ -43,6 +52,13 @@ _packet_converters = {
         _byte_data,
         _address_data,
         _short_data,
+        _AddressList(20),
+        _long_data,
+        _long_data
+    ],
+    PacketID.new_incoming_connection: [
+        _byte_data,
+        _address_data,
         _AddressList(20),
         _long_data,
         _long_data

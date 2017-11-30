@@ -23,7 +23,7 @@ if __name__ == '__main__':
     class ID(Enum):
         unconnected_pong = 0x1c
 
-    packet_specs = {
+    _packet_specs = {
         ID.unconnected_pong: [
             ('id', int),
             ('time_since_start', int),
@@ -33,7 +33,7 @@ if __name__ == '__main__':
         ]
     }
 
-    factory = PacketFactory(packet_specs)
+    factory = PacketFactory(_packet_specs)
 
     import doctest
     doctest.testmod()

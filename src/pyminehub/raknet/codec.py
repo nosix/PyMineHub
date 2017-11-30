@@ -12,6 +12,7 @@ def _filter_false(value: bool) -> int:
 _byte_data = ByteData()
 _short_data = ShortData()
 _triad_data = TriadData()
+_int_data = IntData()
 _long_data = LongData()
 _magic_data = MagicData()
 _string_data = StringData()
@@ -85,12 +86,33 @@ for packet_id in (PacketID.nck, PacketID.ack):
     ]
 
 
+class _CapsulePayload:
+
+    @classmethod
+    def read(cls, data: bytearray, context: ReadContext) -> Union[bytes, None]:
+        payload_length = context.values[1] // 8
+        d = pop_first(data, payload_length)
+        if d is None:
+            return None
+        context.length += len(d)
+        return bytes(d)
+
+    @classmethod
+    def write(cls, data: bytearray, value: bytes) -> None:
+        data += value
+
+
 _capsule_converters = {
+    CapsuleID.unreliable: [
+        _byte_data,
+        _short_data,
+        _CapsulePayload
+    ],
     CapsuleID.reliable: [
         _byte_data,
         _short_data,
         _triad_data,
-        _raw_data
+        _CapsulePayload
     ],
     CapsuleID.reliable_ordered: [
         _byte_data,
@@ -98,7 +120,18 @@ _capsule_converters = {
         _triad_data,
         _triad_data,
         _byte_data,
-        _raw_data
+        _CapsulePayload
+    ],
+    CapsuleID.reliable_ordered_has_split: [
+        _byte_data,
+        _short_data,
+        _triad_data,
+        _triad_data,
+        _byte_data,
+        _int_data,
+        _short_data,
+        _int_data,
+        _CapsulePayload
     ]
 }
 

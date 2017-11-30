@@ -2,6 +2,7 @@ import asyncio
 from collections import namedtuple
 from logging import getLogger, basicConfig
 
+from pyminehub.binutil import ReadContext
 from pyminehub.network.address import IP_VERSION, to_address
 from pyminehub.raknet.codec import packet_codec, capsule_codec
 from pyminehub.raknet.packet import PacketID, packet_factory
@@ -29,7 +30,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         handler.register_protocol(self)
         self._loop = loop
         self._handler = handler
-        self._sessions = {}
+        self._sessions = {}  # TODO session timeout
         self.guid = 472877960873915066
         self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
 
@@ -77,13 +78,27 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             PacketID.open_connection_reply2, True, self.guid, to_address(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
-            lambda payload: self._handler.data_received(payload, addr),
-            lambda packet: self.send_to_client(packet, addr))
+            lambda _data: self._handler.data_received(_data, addr),
+            lambda _packet: self.send_to_client(_packet, addr))
+
+    def _process_custom_packet(self, packet: namedtuple, addr: tuple) -> None:
+        session = self._sessions[addr]
+        context = ReadContext()
+        capsules = []
+        length = 0
+        while length < len(packet.payload):
+            payload = packet.payload[length:]
+            _logger.debug('%s', payload.hex())
+            capsules.append(capsule_codec.decode(payload, context))
+            length += context.length
+            context.clear()
+        session.capsule_received(packet.packet_sequence_num, capsules)
 
     def _process_custom_packet_4(self, packet: namedtuple, addr: tuple) -> None:
-        session = self._sessions[addr]
-        capsule = capsule_codec.decode(packet.payload)
-        session.capsule_received(packet.packet_sequence_num, capsule)
+        self._process_custom_packet(packet, addr)
+
+    def _process_custom_packet_c(self, packet: namedtuple, addr: tuple) -> None:
+        self._process_custom_packet(packet, addr)
 
     def _process_nck(self, packet: namedtuple, addr: tuple) -> None:
         session = self._sessions[addr]

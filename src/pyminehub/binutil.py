@@ -13,6 +13,15 @@ def to_bytes(hex_str: str) -> bytes:
     return bytes.fromhex(hex_str.replace(':', ''))
 
 
+def pop_first(data: bytearray, size: int) -> Union[bytes, None]:
+    if len(data) < size:
+        return None
+    data_slice = slice(size)
+    value = data[data_slice]
+    del data[data_slice]
+    return value
+
+
 class _Converter(namedtuple('Converter', ['byte_order', 'slice_pack', 'fill_zero'])):
     __slots__ = ()
 
@@ -43,13 +52,14 @@ class Endian:
     BIG = _Converter('>', lambda l, n: slice(l-n, None), lambda buffer, zero_bytes: zero_bytes + buffer)
 
 
-def _pop_first(data: bytearray, size: int) -> Union[bytes, None]:
-    if len(data) < size:
-        return None
-    data_slice = slice(size)
-    value = data[data_slice]
-    del data[data_slice]
-    return value
+class ReadContext:
+
+    def __init__(self):
+        self.values = []
+        self.length = 0
+
+    def clear(self):
+        self.__init__()
 
 
 class ByteData:
@@ -61,17 +71,24 @@ class ByteData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'ff7f'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    2
     >>> hexlify(data)
     b''
     """
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Union[int, None]:
-        return data.pop(0) if len(data) > 0 else None
+    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+        if len(data) > 0:
+            context.length += 1
+            return data.pop(0)
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Union[int, None]) -> None:
@@ -88,10 +105,13 @@ class ShortData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'00ff007f'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    4
     >>> hexlify(data)
     b''
 
@@ -101,10 +121,13 @@ class ShortData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'ff007f00'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    4
     >>> hexlify(data)
     b''
     """
@@ -113,9 +136,13 @@ class ShortData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Union[int, None]:
-        d = _pop_first(data, 2)
-        return self.endian.unpack('H', d) if d is not None else None
+    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+        d = pop_first(data, 2)
+        if d is not None:
+            context.length += len(d)
+            return self.endian.unpack('H', d)
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Union[int, None]) -> None:
@@ -132,10 +159,13 @@ class TriadData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'ff00007f0000'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    6
     >>> hexlify(data)
     b''
 
@@ -145,10 +175,13 @@ class TriadData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'0000ff00007f'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    6
     >>> hexlify(data)
     b''
     """
@@ -157,9 +190,13 @@ class TriadData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Union[int, None]:
-        d = _pop_first(data, 3)
-        return self.endian.unpack('I', d, 1) if d is not None else None
+    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+        d = pop_first(data, 3)
+        if d is not None:
+            context.length += len(d)
+            return self.endian.unpack('I', d, 1)
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Union[int, None]) -> None:
@@ -176,10 +213,13 @@ class IntData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'000000ff0000007f'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    8
     >>> hexlify(data)
     b''
 
@@ -189,10 +229,13 @@ class IntData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'ff0000007f000000'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    8
     >>> hexlify(data)
     b''
 
@@ -202,10 +245,13 @@ class IntData:
     >>> c.write(data, -1)
     >>> hexlify(data)
     b'000000ffffffffff'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     -1
+    >>> context.length
+    8
     >>> hexlify(data)
     b''
     """
@@ -215,9 +261,13 @@ class IntData:
         self.unsigned = unsigned
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Union[int, None]:
-        d = _pop_first(data, 4)
-        return self.endian.unpack('I' if self.unsigned else 'i', d) if d is not None else None
+    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+        d = pop_first(data, 4)
+        if d is not None:
+            context.length += len(d)
+            return self.endian.unpack('I' if self.unsigned else 'i', d)
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Union[int, None]) -> None:
@@ -234,10 +284,13 @@ class LongData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'00000000000000ff000000000000007f'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    16
     >>> hexlify(data)
     b''
 
@@ -247,10 +300,13 @@ class LongData:
     >>> c.write(data, 127)
     >>> hexlify(data)
     b'ff000000000000007f00000000000000'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     255
-    >>> c.read(data)
+    >>> c.read(data, context)
     127
+    >>> context.length
+    16
     >>> hexlify(data)
     b''
     """
@@ -259,9 +315,13 @@ class LongData:
         self.endian = endian
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Union[int, None]:
-        d = _pop_first(data, 8)
-        return self.endian.unpack('Q', d) if d is not None else None
+    def read(self, data: bytearray, context: ReadContext) -> Union[int, None]:
+        d = pop_first(data, 8)
+        if d is not None:
+            context.length += len(d)
+            return self.endian.unpack('Q', d)
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Union[int, None]) -> None:
@@ -277,20 +337,25 @@ class MagicData:
     >>> c.write(data, True)
     >>> hexlify(data)
     b'00ffff00fefefefefdfdfdfd12345678'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     True
+    >>> context.length
+    16
     >>> hexlify(data)
     b''
-
-    >>> c.read(bytearray(b'ffffff00fefefefefdfdfdfd12345678'))
+    >>> c.read(bytearray(b'ffffff00fefefefefdfdfdfd12345678'), context)
     False
     """
 
     BYTES = unhexlify(b'00ffff00fefefefefdfdfdfd12345678')
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> bool:
-        return _pop_first(data, 16) == MagicData.BYTES
+    def read(self, data: bytearray, context: ReadContext) -> bool:
+        d = pop_first(data, 16)
+        if d is not None:
+            context.length += len(d)
+        return d == MagicData.BYTES
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, is_valid: bool) -> None:
@@ -307,10 +372,13 @@ class BytesData:
     >>> c.write(data, unhexlify('123456'))
     >>> hexlify(data)
     b'0002ff000003123456'
-    >>> hexlify(c.read(data))
+    >>> context = ReadContext()
+    >>> hexlify(c.read(data, context))
     b'ff00'
-    >>> hexlify(c.read(data))
+    >>> hexlify(c.read(data, context))
     b'123456'
+    >>> context.length
+    9
     >>> hexlify(data)
     b''
 
@@ -320,10 +388,13 @@ class BytesData:
     >>> c.write(data, unhexlify('123456'))
     >>> hexlify(data)
     b'0200ff000300123456'
-    >>> hexlify(c.read(data))
+    >>> context = ReadContext()
+    >>> hexlify(c.read(data, context))
     b'ff00'
-    >>> hexlify(c.read(data))
+    >>> hexlify(c.read(data, context))
     b'123456'
+    >>> context.length
+    9
     >>> hexlify(data)
     b''
     """
@@ -333,9 +404,14 @@ class BytesData:
         self.len_codec = ShortData(endian)
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> bytes:
-        bytes_len = self.len_codec.read(data)
-        return _pop_first(data, bytes_len)
+    def read(self, data: bytearray, context: ReadContext) -> Union[bytes, None]:
+        bytes_len = self.len_codec.read(data, context)
+        if bytes_len is None:
+            return None
+        d = pop_first(data, bytes_len)
+        if d is not None:
+            context.length += len(d)
+        return d
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: bytes) -> None:
@@ -352,10 +428,13 @@ class StringData:
     >>> c.write(data, 'マイクラ')
     >>> hexlify(data)
     b'000548656c6c6f000ce3839ee382a4e382afe383a9'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     'Hello'
-    >>> c.read(data)
+    >>> c.read(data, context)
     'マイクラ'
+    >>> context.length
+    21
     >>> hexlify(data)
     b''
     """
@@ -366,9 +445,15 @@ class StringData:
         self.len_codec = ShortData(endian)
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> str:
-        bytes_len = self.len_codec.read(data)
-        return str(_pop_first(data, bytes_len), self.encoding)
+    def read(self, data: bytearray, context: ReadContext) -> Union[str, None]:
+        bytes_len = self.len_codec.read(data, context)
+        if bytes_len is None:
+            return None
+        d = pop_first(data, bytes_len)
+        if d is None:
+            return None
+        context.length += len(d)
+        return str(d, self.encoding)
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: str) -> None:
@@ -386,8 +471,11 @@ class RawData:
     >>> c.write(data, unhexlify('123456'))
     >>> hexlify(data)
     b'ff00123456'
-    >>> hexlify(c.read(data))
+    >>> context = ReadContext()
+    >>> hexlify(c.read(data, context))
     b'ff00123456'
+    >>> context.length
+    5
     >>> hexlify(data)
     b''
 
@@ -397,10 +485,13 @@ class RawData:
     >>> c.write(data, unhexlify('1234'))
     >>> hexlify(data)
     b'ff001234'
-    >>> hexlify(c.read(data))
+    >>> context = ReadContext()
+    >>> hexlify(c.read(data, context))
     b'ff00'
-    >>> hexlify(c.read(data))
+    >>> hexlify(c.read(data, context))
     b'1234'
+    >>> context.length
+    4
     >>> hexlify(data)
     b''
     """
@@ -409,13 +500,18 @@ class RawData:
         self.bytes_len = bytes_len
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> bytes:
+    def read(self, data: bytearray, context: ReadContext) -> Union[bytes, None]:
         if self.bytes_len is None:
             value = bytes(data)
             del data[:]
+            context.length += len(value)
             return value
         else:
-            return _pop_first(data, self.bytes_len)
+            d = pop_first(data, self.bytes_len)
+            if d is None:
+                return None
+            context.length += len(d)
+            return bytes(d)
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: bytes) -> None:
@@ -432,7 +528,8 @@ class ValueFilter:
     >>> c.write(data, 5)
     >>> hexlify(data)
     b'0000000000'
-    >>> c.read(data)
+    >>> context = ReadContext()
+    >>> c.read(data, context)
     5
     >>> hexlify(data)
     b''
@@ -444,8 +541,8 @@ class ValueFilter:
         self.write_filter = (lambda value: value) if write is None else write
 
     # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray) -> Any:
-        return self.read_filter(self.data_codec.read(data))
+    def read(self, data: bytearray, context: ReadContext) -> Any:
+        return self.read_filter(self.data_codec.read(data, context))
 
     # noinspection PyMethodMayBeStatic
     def write(self, data: bytearray, value: Any) -> None:

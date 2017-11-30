@@ -1,5 +1,6 @@
 from typing import NamedTuple
 
+from pyminehub.binutil import ReadContext
 from pyminehub.network.address import Address
 
 
@@ -24,21 +25,45 @@ class Codec:
             encoder.write(data, value)
         return bytes(data)
 
-    def decode(self, data: bytes) -> NamedTuple:
+    def decode(self, data: bytes, context: ReadContext=None) -> NamedTuple:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
-        >>> codec.decode(data)
+        >>> context = ReadContext()
+        >>> codec.decode(data, context)
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
+        >>> context.length
+        40
         """
+        if context is None:
+            context = ReadContext()
         buffer = bytearray(data)
         packet_id = self._packet_id_cls(buffer.pop(0))
         decoders = self._data_converters[packet_id][1:]
-        args = list(decoder.read(buffer) for decoder in decoders)
-        return self._packet_factory.create(packet_id, *args)
+        context.length += 1
+        context.values.append(packet_id)
+        for decoder in decoders:
+            context.values.append(decoder.read(buffer, context))
+        return self._packet_factory.create(*context.values)
 
 
 class AddressData:
+    """Convert ipv4 address.
+
+    >>> from pyminehub.network.address import to_address
+    >>> c = AddressData()
+    >>> data = bytearray()
+    >>> c.write(data, to_address(('127.0.0.1', 34000)))
+    >>> hexlify(data)
+    b'047f00000184d0'
+    >>> context = ReadContext()
+    >>> c.read(data, context)
+    Address(ip_version=4, address=b'\\x7f\\x00\\x00\\x01', port=34000)
+    >>> context.length
+    7
+    >>> hexlify(data)
+    b''
+    """
 
     from pyminehub.binutil import ByteData, ShortData, RawData
 
@@ -46,10 +71,10 @@ class AddressData:
     _ipv4_address_data = RawData(4)
     _port_data = ShortData()
 
-    def read(self, data: bytearray) -> Address:
-        ip_version = self._ip_version_data.read(data)
-        ipv4_address = self._ipv4_address_data.read(data)
-        port = self._port_data.read(data)
+    def read(self, data: bytearray, context: ReadContext) -> Address:
+        ip_version = self._ip_version_data.read(data, context)
+        ipv4_address = self._ipv4_address_data.read(data, context)
+        port = self._port_data.read(data, context)
         return Address(ip_version, ipv4_address, port)
 
     def write(self, data: bytearray, value: Address) -> None:
@@ -60,7 +85,8 @@ class AddressData:
 
 if __name__ == '__main__':
     from enum import Enum
-    from pyminehub.binutil import *
+    from binascii import hexlify, unhexlify
+    from pyminehub.binutil import ByteData, LongData, MagicData, StringData
     from pyminehub.network.packet import PacketFactory
 
     class ID(Enum):
