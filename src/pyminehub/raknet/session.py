@@ -94,13 +94,13 @@ class Session:
     @staticmethod
     def _send_ack_or_nck(packet_id, ack_set, sendto: Callable[[namedtuple], None]):
         def send_ack_or_nck():
-            record_count = max_sequence_num - min_sequence_num + 1
+            diff_sequence_num = max_sequence_num - min_sequence_num + 1
             packet = packet_factory.create(
                 packet_id,
-                record_count,
-                record_count == 1,
+                1,
+                diff_sequence_num == 1,
                 min_sequence_num,
-                max_sequence_num if record_count > 1 else None
+                max_sequence_num if diff_sequence_num > 1 else None
             )
             sendto(packet)
 

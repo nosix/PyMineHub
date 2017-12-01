@@ -58,3 +58,7 @@ class MCPEHandler(GameDataHandler):
                             self._accepted_time[addr], packet.server_time_since_start)
             return
         self._players[addr] = Player()
+
+    def _process_batch(self, packet: namedtuple, addr: tuple) -> None:
+        for payload in packet.payloads:
+            _logger.debug('%s comp %s', addr, payload.hex())

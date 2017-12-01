@@ -462,6 +462,60 @@ class StringData:
         data += bytes_data
 
 
+class VarIntData:
+    """Convert variable length unsigned N bytes data.
+
+    >>> c = VarIntData()
+    >>> data = bytearray()
+    >>> c.write(data, 0)
+    >>> c.write(data, 127)  # 7f (0111 1111)
+    >>> c.write(data, 128)  # 80 (1000 0000)
+    >>> c.write(data, 16383)  # 3f (11 1111 1111 1111)
+    >>> c.write(data, 16384)  # 40 (100 0000 0000 0000)
+    >>> hexlify(data)
+    b'007f8001ff7f808001'
+    >>> context = ReadContext()
+    >>> c.read(data, context)
+    0
+    >>> c.read(data, context)
+    127
+    >>> c.read(data, context)
+    128
+    >>> c.read(data, context)
+    16383
+    >>> c.read(data, context)
+    16384
+    >>> context.length
+    9
+    >>> hexlify(data)
+    b''
+    """
+
+    # noinspection PyMethodMayBeStatic
+    def read(self, data: bytearray, context: ReadContext) -> int:
+        value = 0
+        shift = 0
+        while True:
+            d = data.pop(0)
+            context.length += 1
+            value += (d & 0x7f) << shift
+            if d & 0x80 == 0:
+                break
+            shift += 7
+        return value
+
+    # noinspection PyMethodMayBeStatic
+    def write(self, data: bytearray, value: int) -> None:
+        while True:
+            d = value & 0x7f
+            value >>= 7
+            if value != 0:
+                data.append(d | 0x80)
+            else:
+                data.append(d)
+                break
+
+
 class RawData:
     """Convert N bytes data that does not have length data.
 

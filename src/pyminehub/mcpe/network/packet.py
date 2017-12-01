@@ -11,6 +11,7 @@ class PacketID(Enum):
     connection_request = 0x09
     connection_request_accepted = 0x10
     new_incoming_connection = 0x13
+    batch = 0xfe
 
 
 _packet_specs = {
@@ -43,6 +44,10 @@ _packet_specs = {
         ('internal_address', Tuple[Address, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
+    ],
+    PacketID.batch: [
+        ('id', int),
+        ('payloads', Tuple[bytes, ...])
     ]
 }
 

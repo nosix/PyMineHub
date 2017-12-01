@@ -1,3 +1,4 @@
+import zlib
 from typing import Tuple
 
 from pyminehub.binutil import *
@@ -14,9 +15,10 @@ def _filter_false(value: bool) -> int:
 _byte_data = ByteData()
 _short_data = ShortData()
 _long_data = LongData()
+_raw_data = RawData()
 _address_data = AddressData()
 
-_false_data = ValueFilter(_byte_data, read=lambda value: value != 0, write=_filter_false)
+_false_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=_filter_false)
 
 
 class _AddressList:
@@ -30,6 +32,34 @@ class _AddressList:
     def write(self, data: bytearray, value: Tuple[Address, ...]) -> None:
         for i in range(self._size):
             _address_data.write(data, value[i])
+
+
+class _CompressedPacketList:
+
+    _COMPRESS_LEVEL = 7
+
+    _length_data = VarIntData()
+
+    @classmethod
+    def read(cls, data: bytearray, context: ReadContext) -> Tuple[bytes, ...]:
+        payload = bytearray(zlib.decompress(data))
+        payloads = []
+        while len(payload) > 0:
+            length = cls._length_data.read(payload, context)
+            d = pop_first(payload, length)
+            if d is None:
+                break
+            payloads.append(d)
+            context.length += length
+        return tuple(payloads)
+
+    @classmethod
+    def write(cls, data: bytearray, value: Tuple[bytes, ...]) -> None:
+        payload = bytearray()
+        for v in value:
+            cls._length_data.write(data, len(v))
+            payload += v
+        data += zlib.compress(payload, cls._COMPRESS_LEVEL)
 
 
 _packet_converters = {
@@ -62,6 +92,10 @@ _packet_converters = {
         _AddressList(20),
         _long_data,
         _long_data
+    ],
+    PacketID.batch: [
+        _byte_data,
+        _CompressedPacketList
     ]
 }
 
