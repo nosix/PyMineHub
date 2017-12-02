@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Tuple
+from typing import NamedTuple, Tuple
 
 from pyminehub.network.address import Address
 from pyminehub.network.packet import PacketFactory
@@ -12,6 +12,14 @@ class PacketID(Enum):
     connection_request_accepted = 0x10
     new_incoming_connection = 0x13
     batch = 0xfe
+
+
+class GamePacketID(Enum):
+    login = 0x01
+
+
+class ConnectionRequest(NamedTuple('ConnectionRequest', [('chain', Tuple[dict, ...]), ('client', dict)])):
+    pass
 
 
 _packet_specs = {
@@ -52,4 +60,15 @@ _packet_specs = {
 }
 
 
+_game_packet_specs = {
+    GamePacketID.login: [
+        ('id', int),
+        ('extra', bytes),
+        ('protocol', int),
+        ('connection_request', ConnectionRequest)
+    ]
+}
+
+
 packet_factory = PacketFactory(_packet_specs)
+game_packet_factory = PacketFactory(_game_packet_specs)

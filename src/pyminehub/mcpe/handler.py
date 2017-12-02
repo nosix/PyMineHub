@@ -2,7 +2,8 @@ import time
 from collections import namedtuple
 from logging import getLogger
 
-from pyminehub.mcpe.network.codec import packet_codec
+from pyminehub.mcpe.network.codec import packet_codec, game_packet_codec
+from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.mcpe.network.packet import PacketID, packet_factory
 from pyminehub.mcpe.player import Player
 from pyminehub.network.address import to_address
@@ -60,5 +61,11 @@ class MCPEHandler(GameDataHandler):
         self._players[addr] = Player()
 
     def _process_batch(self, packet: namedtuple, addr: tuple) -> None:
-        for payload in packet.payloads:
-            _logger.debug('%s comp %s', addr, payload.hex())
+        for data in packet.payloads:
+            _logger.debug('%s [%d] %s', addr, len(data), data.hex())
+            packet = game_packet_codec.decode(data)
+            _logger.debug('> %s %s', addr, packet)
+            getattr(self, '_process_' + GamePacketID(packet.id).name)(packet, addr)
+
+    def _process_login(self, packet: namedtuple, addr: tuple) -> None:
+        pass
