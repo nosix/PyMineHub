@@ -3,7 +3,7 @@ from binascii import unhexlify as unhex
 
 from pyminehub.mcpe.network.packet import GamePacketID as MCPEGamePacketID
 from pyminehub.mcpe.network.packet import PacketID as MCPEPacketID
-from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.codec import PacketCodecContext, BYTE_DATA
 from pyminehub.raknet.encapsulation import CapsuleID as RakNetCapsuleID
 from pyminehub.raknet.packet import PacketID as RakNetPacketID
 
@@ -15,12 +15,20 @@ class GamePacket:
 
     def __init__(self, packet_id: MCPEGamePacketID):
         self._packet_id = packet_id
+        self._data = None
+        self._mcpe_game_packet = None
 
     def on(self, test_case: unittest.TestCase, data: bytes):
         context = PacketCodecContext()
-        mcpe_game_packet = self.game_packet_codec.decode(data, context=context)
-        test_case.assertEqual(MCPEGamePacketID(mcpe_game_packet.id), self._packet_id)
+        self._data = data
+        self._mcpe_game_packet = self.game_packet_codec.decode(data, context=context)
+        test_case.assertEqual(MCPEGamePacketID(self._mcpe_game_packet.id), self._packet_id)
         test_case.assertEqual(context.length, len(data))
+
+    def verify(self, test_case: unittest.TestCase):
+        assert self._data is not None and self._mcpe_game_packet is not None
+        data = self.game_packet_codec.encode(self._mcpe_game_packet, BYTE_DATA)
+        test_case.assertEqual(data, self._data)
 
 
 class Batch:
@@ -30,6 +38,8 @@ class Batch:
 
     def __init__(self):
         self._packet_validators = []
+        self._data = None
+        self._mcpe_packet = None
 
     def that_has(self, game_packet: GamePacket):
         self._packet_validators.append(game_packet)
@@ -40,12 +50,24 @@ class Batch:
 
     def on(self, test_case: unittest.TestCase, data: bytes):
         context = PacketCodecContext()
-        mcpe_packet = self.packet_codec.decode(data, context=context)
-        test_case.assertEqual(MCPEPacketID(mcpe_packet.id), MCPEPacketID.batch)
+        self._data = data
+        self._mcpe_packet = self.packet_codec.decode(data, context=context)
+        test_case.assertEqual(MCPEPacketID(self._mcpe_packet.id), MCPEPacketID.batch)
         test_case.assertEqual(context.length, len(data))
-        test_case.assertEqual(len(mcpe_packet.payloads), len(self._packet_validators))
-        for payload, validator in zip(mcpe_packet.payloads, self._packet_validators):
-            validator.on(test_case, payload)
+        test_case.assertEqual(len(self._mcpe_packet.payloads), len(self._packet_validators))
+        for payload, validator in zip(self._mcpe_packet.payloads, self._packet_validators):
+            try:
+                validator.on(test_case, payload)
+            except Exception as e:
+                e.args += (self._mcpe_packet, )
+                raise e
+
+    def verify(self, test_case: unittest.TestCase):
+        assert self._data is not None and self._mcpe_packet is not None
+        data = self.packet_codec.encode(self._mcpe_packet, BYTE_DATA)
+        test_case.assertEqual(data, self._data)
+        for validator in self._packet_validators:
+            validator.verify(test_case)
 
 
 class Capsule:
@@ -56,6 +78,8 @@ class Capsule:
     def __init__(self, capsule_id: RakNetCapsuleID):
         self._capsule_id = capsule_id
         self._batch = None
+        self._data = None
+        self._capsule = None
 
     def that_has(self, batch: Batch):
         self._batch = batch
@@ -63,11 +87,23 @@ class Capsule:
 
     def on(self, test_case: unittest.TestCase, data: bytes):
         context = PacketCodecContext()
-        capsule = self.capsule_codec.decode(data, context=context)
-        test_case.assertEqual(RakNetCapsuleID(capsule.id), self._capsule_id)
+        self._data = data
+        self._capsule = self.capsule_codec.decode(data, context=context)
+        test_case.assertEqual(RakNetCapsuleID(self._capsule.id), self._capsule_id)
         if self._batch is not None:
-            self._batch.on(test_case, capsule.payload)
+            try:
+                self._batch.on(test_case, self._capsule.payload)
+            except Exception as e:
+                e.args += (self._capsule, )
+                raise e
         return context.length
+
+    def verify(self, test_case: unittest.TestCase):
+        assert self._data is not None and self._capsule is not None
+        data = self.capsule_codec.encode(self._capsule, BYTE_DATA)
+        test_case.assertEqual(data, self._data)
+        if self._batch is not None:
+            self._batch.verify(test_case)
 
 
 class TestPacket:
@@ -79,6 +115,7 @@ class TestPacket:
         self._data = unhex(data)
         self._packet_id = None
         self._capsule_validators = []
+        self._raknet_packet = None
 
     def is_(self, packet_id: RakNetPacketID):
         self._packet_id = packet_id
@@ -94,17 +131,30 @@ class TestPacket:
     def _test_raknet_packet(self, test_case: unittest.TestCase):
         assert self._packet_id is not None
         context = PacketCodecContext()
-        packet = self.packet_codec.decode(self._data, context=context)
-        test_case.assertEqual(RakNetPacketID(packet.id), self._packet_id)
+        self._raknet_packet = self.packet_codec.decode(self._data, context=context)
+        test_case.assertEqual(RakNetPacketID(self._raknet_packet.id), self._packet_id, self._raknet_packet)
         test_case.assertEqual(context.length, len(self._data))
-        return packet.payload
 
     def on(self, test_case: unittest.TestCase):
-        data = self._test_raknet_packet(test_case)
+        self._test_raknet_packet(test_case)
+        assert self._raknet_packet is not None
+        data = self._raknet_packet.payload
         payload_length = 0
-        for validator in self._capsule_validators:
-            payload_length += validator.on(test_case, data)
+        try:
+            for validator in self._capsule_validators:
+                payload_length += validator.on(test_case, data)
+        except Exception as e:
+            e.args += (self._raknet_packet, )
+            raise e
         test_case.assertEqual(payload_length, len(data))
+        return self
+
+    def and_verify_encoded_data_on(self, test_case: unittest.TestCase):
+        assert self._raknet_packet is not None
+        data = self.packet_codec.encode(self._raknet_packet, BYTE_DATA)
+        test_case.assertEqual(data, self._data)
+        for validator in self._capsule_validators:
+            validator.verify(test_case)
 
 
 class TestDecode(unittest.TestCase):
@@ -128,7 +178,7 @@ class TestDecode(unittest.TestCase):
                     GamePacket(MCPEGamePacketID.login)  # TODO change packet ID
                 )
             )
-        ).on(self)
+        ).on(self).and_verify_encoded_data_on(self)
 
 
 if __name__ == '__main__':
