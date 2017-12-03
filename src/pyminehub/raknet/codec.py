@@ -1,137 +1,107 @@
-from pyminehub.binutil import *
-from pyminehub.network.codec import Codec, AddressData
+from pyminehub.network.codec import *
 from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
 from pyminehub.raknet.packet import PacketID, packet_factory
 
 
-def _filter_false(value: bool) -> int:
-    assert not value
-    return 0
-
-
-_byte_data = ByteData()
-_short_data = ShortData()
-_triad_data = TriadData()
-_int_data = IntData()
-_long_data = LongData()
-_magic_data = MagicData()
-_string_data = StringData()
-_raw_data = RawData()
-_address_data = AddressData()
-
-_null_padding = ValueFilter(_raw_data, read=lambda data: len(data), write=lambda value: b'0' * value)
-_bool_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=lambda value: 1 if value else 0)
-_false_data = ValueFilter(_byte_data, read=lambda data: data != 0, write=_filter_false)
+_NULL_PADDING = ValueFilter(RAW_DATA, read=lambda _data: len(_data), write=lambda _value: b'0' * _value)
 
 
 _packet_converters = {
     PacketID.unconnected_ping: [
-        _byte_data,
-        _long_data,
-        _magic_data,
-        _long_data
+        LONG_DATA,
+        MAGIC_DATA,
+        LONG_DATA
     ],
     PacketID.unconnected_pong: [
-        _byte_data,
-        _long_data,
-        _long_data,
-        _magic_data,
-        _string_data
+        LONG_DATA,
+        LONG_DATA,
+        MAGIC_DATA,
+        STRING_DATA
     ],
     PacketID.open_connection_request1: [
-        _byte_data,
-        _magic_data,
-        _byte_data,
-        _null_padding
+        MAGIC_DATA,
+        BYTE_DATA,
+        _NULL_PADDING
     ],
     PacketID.open_connection_reply1: [
-        _byte_data,
-        _magic_data,
-        _long_data,
-        _false_data,
-        _short_data
+        MAGIC_DATA,
+        LONG_DATA,
+        FALSE_DATA,
+        SHORT_DATA
     ],
     PacketID.open_connection_request2: [
-        _byte_data,
-        _magic_data,
-        _address_data,
-        _short_data,
-        _long_data
+        MAGIC_DATA,
+        ADDRESS_DATA,
+        SHORT_DATA,
+        LONG_DATA
     ],
     PacketID.open_connection_reply2: [
-        _byte_data,
-        _magic_data,
-        _long_data,
-        _address_data,
-        _short_data,
-        _false_data
+        MAGIC_DATA,
+        LONG_DATA,
+        ADDRESS_DATA,
+        SHORT_DATA,
+        FALSE_DATA
     ]
 }
 
 for n in range(16):
     _packet_converters[PacketID['custom_packet_{:x}'.format(n)]] = [
-        _byte_data,
-        _triad_data,
-        _raw_data
+        TRIAD_DATA,
+        RAW_DATA
     ]
 
 
 for packet_id in (PacketID.nck, PacketID.ack):
     _packet_converters[packet_id] = [
-        _byte_data,
-        _short_data,
-        _bool_data,
-        _triad_data,
-        _triad_data
+        SHORT_DATA,
+        BOOL_DATA,
+        TRIAD_DATA,
+        PassIf(TRIAD_DATA, lambda _context: _context.values[2])
     ]
 
 
-class _CapsulePayload:
+class _CapsulePayload(DataCodec[bytes]):
 
-    @classmethod
-    def read(cls, data: bytearray, context: ReadContext) -> Optional[bytes]:
+    def read(self, data: bytearray, context: PacketCodecContext) -> bytes:
         payload_length = context.values[1] // 8
         d = pop_first(data, payload_length)
-        if d is None:
-            return None
-        context.length += len(d)
+        context.length += payload_length
         return bytes(d)
 
-    @classmethod
-    def write(cls, data: bytearray, value: bytes) -> None:
+    def write(self, data: bytearray, value: bytes, context: PacketCodecContext) -> None:
         data += value
+        context.length += len(value)
+
+
+_CAPSULE_PAYLOAD = _CapsulePayload()
 
 
 _capsule_converters = {
     CapsuleID.unreliable: [
-        _byte_data,
-        _short_data,
-        _CapsulePayload
+        SHORT_DATA,
+        _CAPSULE_PAYLOAD
     ],
     CapsuleID.reliable: [
-        _byte_data,
-        _short_data,
-        _triad_data,
-        _CapsulePayload
+        SHORT_DATA,
+        TRIAD_DATA,
+        _CAPSULE_PAYLOAD
     ],
     CapsuleID.reliable_ordered: [
-        _byte_data,
-        _short_data,
-        _triad_data,
-        _triad_data,
-        _byte_data,
-        _CapsulePayload
+        SHORT_DATA,
+        TRIAD_DATA,
+        TRIAD_DATA,
+        BYTE_DATA,
+        _CAPSULE_PAYLOAD
     ],
     CapsuleID.reliable_ordered_has_split: [
-        _byte_data,
-        _short_data,
-        _triad_data,
-        _triad_data,
-        _byte_data,
-        _int_data,
-        _short_data,
-        _int_data,
-        _CapsulePayload
+        SHORT_DATA,
+        TRIAD_DATA,
+        TRIAD_DATA,
+        BYTE_DATA,
+        INT_DATA,
+        SHORT_DATA,
+        INT_DATA,
+        _CAPSULE_PAYLOAD
     ]
 }
 

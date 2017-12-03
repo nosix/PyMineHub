@@ -1,7 +1,11 @@
 import struct
 from binascii import hexlify, unhexlify
 from collections import namedtuple
-from typing import Any, Optional
+from typing import Any, Callable, Generic, TypeVar
+
+
+class BytesOperationError(Exception):
+    pass
 
 
 def to_bytes(hex_str: str) -> bytes:
@@ -13,9 +17,9 @@ def to_bytes(hex_str: str) -> bytes:
     return bytes.fromhex(hex_str.replace(':', ''))
 
 
-def pop_first(data: bytearray, size: int) -> Optional[bytes]:
+def pop_first(data: bytearray, size: int) -> bytearray:
     if len(data) < size:
-        return None
+        raise BytesOperationError('Data length is less than specified size. ({} < {})'.format(len(data), size))
     data_slice = slice(size)
     value = data[data_slice]
     del data[data_slice]
@@ -52,26 +56,40 @@ class Endian:
     BIG = _Converter('>', lambda l, n: slice(l-n, None), lambda buffer, zero_bytes: zero_bytes + buffer)
 
 
-class ReadContext:
+class DataCodecContext:
 
     def __init__(self):
-        self.values = []
         self.length = 0
 
     def clear(self):
         self.__init__()
 
 
-class ByteData:
+T = TypeVar('T')
+
+
+class DataCodec(Generic[T]):
+
+    def read(self, data: bytearray, context: DataCodecContext) -> T:
+        raise NotImplemented
+
+    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+        raise NotImplemented
+
+
+class ByteData(DataCodec[int]):
     """Convert unsigned 1 byte data.
 
     >>> c = ByteData()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    2
     >>> hexlify(data)
     b'ff7f'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -82,30 +100,31 @@ class ByteData:
     b''
     """
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
-        if len(data) > 0:
-            context.length += 1
-            return data.pop(0)
-        else:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        if not len(data) > 0:
+            raise BytesOperationError('Data is empty.')
+        value = data.pop(0)
+        context.length += 1
+        return value
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Optional[int]) -> None:
-        if value is not None:
-            data.append(value)
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        data.append(value)
+        context.length += 1
 
 
-class ShortData:
+class ShortData(DataCodec[int]):
     """Convert unsigned 2 bytes data.
 
     >>> c = ShortData()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    4
     >>> hexlify(data)
     b'00ff007f'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -117,11 +136,14 @@ class ShortData:
 
     >>> c = ShortData(Endian.LITTLE)
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    4
     >>> hexlify(data)
     b'ff007f00'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -132,34 +154,34 @@ class ShortData:
     b''
     """
 
+    _LENGTH = 2
+
     def __init__(self, endian=Endian.BIG):
         self.endian = endian
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
-        d = pop_first(data, 2)
-        if d is not None:
-            context.length += len(d)
-            return self.endian.unpack('H', d)
-        else:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return self.endian.unpack('H', d)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Optional[int]) -> None:
-        if value is not None:
-            data += self.endian.pack('H', value)
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        data += self.endian.pack('H', value)
+        context.length += self._LENGTH
 
 
-class TriadData:
+class TriadData(DataCodec[int]):
     """Convert unsigned 3 bytes data.
 
     >>> c = TriadData()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    6
     >>> hexlify(data)
     b'ff00007f0000'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -171,11 +193,14 @@ class TriadData:
 
     >>> c = TriadData(Endian.BIG)
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    6
     >>> hexlify(data)
     b'0000ff00007f'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -186,34 +211,34 @@ class TriadData:
     b''
     """
 
+    _LENGTH = 3
+
     def __init__(self, endian=Endian.LITTLE):
         self.endian = endian
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
-        d = pop_first(data, 3)
-        if d is not None:
-            context.length += len(d)
-            return self.endian.unpack('I', d, 1)
-        else:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return self.endian.unpack('I', d, 1)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Optional[int]) -> None:
-        if value is not None:
-            data += self.endian.pack('I', value, 3)
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        data += self.endian.pack('I', value, 3)
+        context.length += self._LENGTH
 
 
-class IntData:
+class IntData(DataCodec[int]):
     """Convert unsigned and signed 4 bytes data.
 
     >>> c = IntData()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    8
     >>> hexlify(data)
     b'000000ff0000007f'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -225,11 +250,14 @@ class IntData:
 
     >>> c = IntData(Endian.LITTLE)
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    8
     >>> hexlify(data)
     b'ff0000007f000000'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -241,11 +269,14 @@ class IntData:
 
     >>> c = IntData(unsigned=False)
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, -1)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, -1, context)
+    >>> context.length
+    8
     >>> hexlify(data)
     b'000000ffffffffff'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -256,35 +287,35 @@ class IntData:
     b''
     """
 
+    _LENGTH = 4
+
     def __init__(self, endian=Endian.BIG, unsigned=True):
         self.endian = endian
         self.unsigned = unsigned
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
-        d = pop_first(data, 4)
-        if d is not None:
-            context.length += len(d)
-            return self.endian.unpack('I' if self.unsigned else 'i', d)
-        else:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return self.endian.unpack('I' if self.unsigned else 'i', d)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Optional[int]) -> None:
-        if value is not None:
-            data += self.endian.pack('I' if self.unsigned else 'i', value)
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        data += self.endian.pack('I' if self.unsigned else 'i', value)
+        context.length += self._LENGTH
 
 
-class LongData:
+class LongData(DataCodec[int]):
     """Convert unsigned 8 bytes data.
 
     >>> c = LongData()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    16
     >>> hexlify(data)
     b'00000000000000ff000000000000007f'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -295,12 +326,15 @@ class LongData:
     b''
 
     >>> c = LongData(Endian.LITTLE)
+    >>> context = DataCodecContext()
     >>> data = bytearray()
-    >>> c.write(data, 255)
-    >>> c.write(data, 127)
+    >>> c.write(data, 255, context)
+    >>> c.write(data, 127, context)
+    >>> context.length
+    16
     >>> hexlify(data)
     b'ff000000000000007f00000000000000'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     255
     >>> c.read(data, context)
@@ -311,68 +345,34 @@ class LongData:
     b''
     """
 
+    _LENGTH = 8
+
     def __init__(self, endian=Endian.BIG):
         self.endian = endian
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[int]:
-        d = pop_first(data, 8)
-        if d is not None:
-            context.length += len(d)
-            return self.endian.unpack('Q', d)
-        else:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return self.endian.unpack('Q', d)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Optional[int]) -> None:
-        if value is not None:
-            data += self.endian.pack('Q', value)
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        data += self.endian.pack('Q', value)
+        context.length += self._LENGTH
 
 
-class MagicData:
-    """Check MAGIC data that is '00:ff:ff:00:fe:fe:fe:fe:fd:fd:fd:fd:12:34:56:78'.
-
-    >>> c = MagicData()
-    >>> data = bytearray()
-    >>> c.write(data, True)
-    >>> hexlify(data)
-    b'00ffff00fefefefefdfdfdfd12345678'
-    >>> context = ReadContext()
-    >>> c.read(data, context)
-    True
-    >>> context.length
-    16
-    >>> hexlify(data)
-    b''
-    >>> c.read(bytearray(b'ffffff00fefefefefdfdfdfd12345678'), context)
-    False
-    """
-
-    BYTES = unhexlify(b'00ffff00fefefefefdfdfdfd12345678')
-
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> bool:
-        d = pop_first(data, 16)
-        if d is not None:
-            context.length += len(d)
-        return d == MagicData.BYTES
-
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, is_valid: bool) -> None:
-        assert is_valid
-        data += MagicData.BYTES
-
-
-class BytesData:
+class BytesData(DataCodec[bytes]):
     """Convert N bytes data that has 2 bytes length data.
 
     >>> c = BytesData()
     >>> data = bytearray()
-    >>> c.write(data, unhexlify('ff00'))
-    >>> c.write(data, unhexlify('123456'))
+    >>> context = DataCodecContext()
+    >>> c.write(data, unhexlify('ff00'), context)
+    >>> c.write(data, unhexlify('123456'), context)
+    >>> context.length
+    9
     >>> hexlify(data)
     b'0002ff000003123456'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> hexlify(c.read(data, context))
     b'ff00'
     >>> hexlify(c.read(data, context))
@@ -384,11 +384,14 @@ class BytesData:
 
     >>> c = BytesData(Endian.LITTLE)
     >>> data = bytearray()
-    >>> c.write(data, unhexlify('ff00'))
-    >>> c.write(data, unhexlify('123456'))
+    >>> context = DataCodecContext()
+    >>> c.write(data, unhexlify('ff00'), context)
+    >>> c.write(data, unhexlify('123456'), context)
+    >>> context.length
+    9
     >>> hexlify(data)
     b'0200ff000300123456'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> hexlify(c.read(data, context))
     b'ff00'
     >>> hexlify(c.read(data, context))
@@ -401,34 +404,34 @@ class BytesData:
 
     def __init__(self, endian=Endian.BIG):
         self.endian = endian
-        self.len_codec = ShortData(endian)
+        self._len_codec = ShortData(endian)
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[bytes]:
-        bytes_len = self.len_codec.read(data, context)
-        if bytes_len is None:
-            return None
+    def read(self, data: bytearray, context: DataCodecContext) -> bytes:
+        bytes_len = self._len_codec.read(data, context)
         d = pop_first(data, bytes_len)
-        if d is not None:
-            context.length += len(d)
-        return d
+        context.length += len(d)
+        return bytes(d)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: bytes) -> None:
-        self.len_codec.write(data, len(value))
+    def write(self, data: bytearray, value: bytes, context: DataCodecContext) -> None:
+        length = len(value)
+        self._len_codec.write(data, length, context)
         data += value
+        context.length += length
 
 
-class StringData:
+class StringData(DataCodec[str]):
     """Convert N bytes string that has 2 bytes length data.
 
     >>> c = StringData()
     >>> data = bytearray()
-    >>> c.write(data, 'Hello')
-    >>> c.write(data, 'マイクラ')
+    >>> context = DataCodecContext()
+    >>> c.write(data, 'Hello', context)
+    >>> c.write(data, 'マイクラ', context)
+    >>> context.length
+    21
     >>> hexlify(data)
     b'000548656c6c6f000ce3839ee382a4e382afe383a9'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     'Hello'
     >>> c.read(data, context)
@@ -442,39 +445,38 @@ class StringData:
     def __init__(self, endian=Endian.BIG, encoding='utf8'):
         self.endian = endian
         self.encoding = encoding
-        self.len_codec = ShortData(endian)
+        self._len_codec = ShortData(endian)
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[str]:
-        bytes_len = self.len_codec.read(data, context)
-        if bytes_len is None:
-            return None
-        d = pop_first(data, bytes_len)
-        if d is None:
-            return None
-        context.length += len(d)
+    def read(self, data: bytearray, context: DataCodecContext) -> str:
+        length = self._len_codec.read(data, context)
+        d = pop_first(data, length)
+        context.length += length
         return str(d, self.encoding)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: str) -> None:
+    def write(self, data: bytearray, value: str, context: DataCodecContext) -> None:
         bytes_data = bytes(value, self.encoding)
-        self.len_codec.write(data, len(bytes_data))
+        length = len(bytes_data)
+        self._len_codec.write(data, length, context)
         data += bytes_data
+        context.length += length
 
 
-class VarIntData:
+class VarIntData(DataCodec[int]):
     """Convert variable length unsigned N bytes data.
 
     >>> c = VarIntData()
     >>> data = bytearray()
-    >>> c.write(data, 0)
-    >>> c.write(data, 127)  # 7f (0111 1111)
-    >>> c.write(data, 128)  # 80 (1000 0000)
-    >>> c.write(data, 16383)  # 3f (11 1111 1111 1111)
-    >>> c.write(data, 16384)  # 40 (100 0000 0000 0000)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 0, context)
+    >>> c.write(data, 127, context)  # 7f (0111 1111)
+    >>> c.write(data, 128, context)  # 80 (1000 0000)
+    >>> c.write(data, 16383, context)  # 3f (11 1111 1111 1111)
+    >>> c.write(data, 16384, context)  # 40 (100 0000 0000 0000)
+    >>> context.length
+    9
     >>> hexlify(data)
     b'007f8001ff7f808001'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     0
     >>> c.read(data, context)
@@ -491,11 +493,12 @@ class VarIntData:
     b''
     """
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> int:
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
         value = 0
         shift = 0
         while True:
+            if not len(data) > 0:
+                raise BytesOperationError('Invalid data format.')
             d = data.pop(0)
             context.length += 1
             value += (d & 0x7f) << shift
@@ -504,28 +507,32 @@ class VarIntData:
             shift += 7
         return value
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: int) -> None:
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
         while True:
             d = value & 0x7f
             value >>= 7
             if value != 0:
                 data.append(d | 0x80)
+                context.length += 1
             else:
                 data.append(d)
+                context.length += 1
                 break
 
 
-class RawData:
+class RawData(DataCodec[bytes]):
     """Convert N bytes data that does not have length data.
 
     >>> c = RawData()
     >>> data = bytearray()
-    >>> c.write(data, unhexlify('ff00'))
-    >>> c.write(data, unhexlify('123456'))
+    >>> context = DataCodecContext()
+    >>> c.write(data, unhexlify('ff00'), context)
+    >>> c.write(data, unhexlify('123456'), context)
+    >>> context.length
+    5
     >>> hexlify(data)
     b'ff00123456'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> hexlify(c.read(data, context))
     b'ff00123456'
     >>> context.length
@@ -533,13 +540,16 @@ class RawData:
     >>> hexlify(data)
     b''
 
-    >>> c = RawData(bytes_len=2)
+    >>> c = RawData(data_len=2)
     >>> data = bytearray()
-    >>> c.write(data, unhexlify('ff00'))
-    >>> c.write(data, unhexlify('1234'))
+    >>> context = DataCodecContext()
+    >>> c.write(data, unhexlify('ff00'), context)
+    >>> c.write(data, unhexlify('1234'), context)
+    >>> context.length
+    4
     >>> hexlify(data)
     b'ff001234'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> hexlify(c.read(data, context))
     b'ff00'
     >>> hexlify(c.read(data, context))
@@ -550,57 +560,59 @@ class RawData:
     b''
     """
 
-    def __init__(self, bytes_len=None):
-        self.bytes_len = bytes_len
+    def __init__(self, data_len=None):
+        self.data_len = data_len
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Optional[bytes]:
-        if self.bytes_len is None:
+    def read(self, data: bytearray, context: DataCodecContext) -> bytes:
+        if self.data_len is None:
             value = bytes(data)
             del data[:]
             context.length += len(value)
             return value
         else:
-            d = pop_first(data, self.bytes_len)
-            if d is None:
-                return None
+            d = pop_first(data, self.data_len)
             context.length += len(d)
             return bytes(d)
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: bytes) -> None:
+    def write(self, data: bytearray, value: bytes, context: DataCodecContext) -> None:
+        length = len(value)
+        if self.data_len is not None and length != self.data_len:
+            raise BytesOperationError('Invalid value data length. ({} != {})'.format(length, self.data_len))
         data += value
+        context.length += length
 
 
-class ValueFilter:
+BT = TypeVar('BT')
+
+
+class ValueFilter(DataCodec[T]):
     """Convert value by filter functions.
 
-    >>> read = lambda value: len(value)  # type: (bytes) -> int
-    >>> write = lambda value: unhexlify(b'00') * value  # type: (int) -> bytes
+    >>> read = lambda _data: len(_data)  # type: Callable[[bytes], int]
+    >>> write = lambda _value: unhexlify(b'00') * _value  # type: Callable[[int], bytes]
     >>> c = ValueFilter(RawData(), read=read, write=write)
     >>> data = bytearray()
-    >>> c.write(data, 5)
+    >>> context = DataCodecContext()
+    >>> c.write(data, 5, context)
     >>> hexlify(data)
     b'0000000000'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     5
     >>> hexlify(data)
     b''
     """
 
-    def __init__(self, data_codec, read=None, write=None):
-        self.data_codec = data_codec
-        self.read_filter = (lambda data: data) if read is None else read
-        self.write_filter = (lambda value: value) if write is None else write
+    def __init__(self, data_codec: DataCodec[BT], read: Callable[[BT], T]=None, write: Callable[[T], BT]=None):
+        self._data_codec = data_codec
+        self._read_filter = (lambda data: data) if read is None else read
+        self._write_filter = (lambda value: value) if write is None else write
 
-    # noinspection PyMethodMayBeStatic
-    def read(self, data: bytearray, context: ReadContext) -> Any:
-        return self.read_filter(self.data_codec.read(data, context))
+    def read(self, data: bytearray, context: DataCodecContext) -> T:
+        return self._read_filter(self._data_codec.read(data, context))
 
-    # noinspection PyMethodMayBeStatic
-    def write(self, data: bytearray, value: Any) -> None:
-        self.data_codec.write(data, self.write_filter(value))
+    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+        self._data_codec.write(data, self._write_filter(value), context)
 
 
 if __name__ == '__main__':

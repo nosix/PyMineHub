@@ -1,62 +1,138 @@
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 
-from pyminehub.binutil import ReadContext
+from pyminehub.binutil import *
 from pyminehub.network.address import Address
+
+BYTE_DATA = ByteData()
+SHORT_DATA = ShortData()
+TRIAD_DATA = TriadData()
+INT_DATA = IntData()
+LONG_DATA = LongData()
+BYTES_DATA = BytesData()
+STRING_DATA = StringData()
+VAR_INT_DATA = VarIntData()
+RAW_DATA = RawData()
+
+
+class PacketCodecContext(DataCodecContext):
+
+    def __init__(self):
+        super().__init__()
+        self.values = []
 
 
 class Codec:
 
-    def __init__(self, packet_id_cls, packet_factory, data_converters):
+    def __init__(self, packet_id_cls, packet_factory, data_codecs):
         self._packet_id_cls = packet_id_cls
         self._packet_factory = packet_factory
-        self._data_converters = data_converters
+        self._data_codecs = data_codecs
 
-    def encode(self, packet: NamedTuple) -> bytes:
+    def encode(self, packet: NamedTuple, id_encoder: DataCodec[int]=None, context: PacketCodecContext=None) -> bytes:
         """ Encode packet to bytes.
 
-        >>> p = factory.create(ID.unconnected_pong, 58721, 472877960873915065, True, 'MCPE;')
-        >>> hexlify(codec.encode(p))
-        b'1c000000000000e56106900000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
+        >>> p = factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
+        >>> context = PacketCodecContext()
+        >>> hexlify(codec.encode(p, BYTE_DATA, context))
+        b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
+        >>> context.length
+        40
+        >>> context.values
+        [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
+
+        :param packet: encoding target
+        :param id_encoder: a DataCodec to write packet ID
+        :param context: if context is None then create a DataCodecContext
+        :return: bytes data obtained by encoding
         """
+        id_encoder = id_encoder or BYTE_DATA
+        context = context or PacketCodecContext()
         data = bytearray()
-        # noinspection PyUnresolvedReferences
-        encoders = self._data_converters[self._packet_id_cls(packet.id)]
-        for (value, encoder) in zip(packet, encoders):
-            encoder.write(data, value)
+        packet_id = self._packet_id_cls(packet[0])
+        id_encoder.write(data, packet_id.value, context)
+        context.values.append(packet_id)
+        for (value, encoder) in zip(packet[1:], self._data_codecs[packet_id]):
+            encoder.write(data, value, context)
+            context.values.append(value)
         return bytes(data)
 
-    def decode(self, data: bytes, context: ReadContext=None) -> NamedTuple:
+    def decode(self, data: bytes, id_decoder: DataCodec[int]=None, context: PacketCodecContext=None) -> NamedTuple:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
-        >>> context = ReadContext()
-        >>> codec.decode(data, context)
+        >>> context = PacketCodecContext()
+        >>> codec.decode(data, BYTE_DATA, context)
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
+        >>> context.values
+        [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
+
+        :param data: decoding target
+        :param id_decoder: a DataCodec to read packet ID
+        :param context: if context is None then create a DataCodecContext
+        :return: a packet obtained by decoding
         """
-        if context is None:
-            context = ReadContext()
+        id_decoder = id_decoder or BYTE_DATA
+        context = context or PacketCodecContext()
         buffer = bytearray(data)
-        packet_id = self._packet_id_cls(buffer.pop(0))
-        decoders = self._data_converters[packet_id][1:]
-        context.length += 1
+        packet_id = self._packet_id_cls(id_decoder.read(buffer, context))
         context.values.append(packet_id)
-        for decoder in decoders:
+        for decoder in self._data_codecs[packet_id]:
             context.values.append(decoder.read(buffer, context))
         return self._packet_factory.create(*context.values)
 
 
-class AddressData:
+class MagicData(DataCodec[bool]):
+    """Check MAGIC data that is '00:ff:ff:00:fe:fe:fe:fe:fd:fd:fd:fd:12:34:56:78'.
+
+    >>> c = MagicData()
+    >>> data = bytearray()
+    >>> context = DataCodecContext()
+    >>> c.write(data, True, context)
+    >>> context.length
+    16
+    >>> hexlify(data)
+    b'00ffff00fefefefefdfdfdfd12345678'
+    >>> context.clear()
+    >>> c.read(data, context)
+    True
+    >>> context.length
+    16
+    >>> hexlify(data)
+    b''
+    >>> c.read(bytearray(b'ffffff00fefefefefdfdfdfd12345678'), context)
+    False
+    """
+
+    BYTES = unhexlify(b'00ffff00fefefefefdfdfdfd12345678')
+
+    _LENGTH = len(BYTES)
+
+    def read(self, data: bytearray, context: DataCodecContext) -> bool:
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return d == MagicData.BYTES
+
+    def write(self, data: bytearray, is_valid: bool, context: DataCodecContext) -> None:
+        assert is_valid
+        data += MagicData.BYTES
+        context.length += self._LENGTH
+
+
+class AddressData(DataCodec[Address]):
     """Convert ipv4 address.
 
     >>> from pyminehub.network.address import to_address
     >>> c = AddressData()
     >>> data = bytearray()
-    >>> c.write(data, to_address(('127.0.0.1', 34000)))
+    >>> context = DataCodecContext()
+    >>> c.write(data, to_address(('127.0.0.1', 34000)), context)
+    >>> context.length
+    7
     >>> hexlify(data)
     b'047f00000184d0'
-    >>> context = ReadContext()
+    >>> context.clear()
     >>> c.read(data, context)
     Address(ip_version=4, address=b'\\x7f\\x00\\x00\\x01', port=34000)
     >>> context.length
@@ -65,28 +141,83 @@ class AddressData:
     b''
     """
 
-    from pyminehub.binutil import ByteData, ShortData, RawData
+    _IPV4_ADDRESS_DATA = RawData(4)
 
-    _ip_version_data = ByteData()
-    _ipv4_address_data = RawData(4)
-    _port_data = ShortData()
-
-    def read(self, data: bytearray, context: ReadContext) -> Address:
-        ip_version = self._ip_version_data.read(data, context)
-        ipv4_address = self._ipv4_address_data.read(data, context)
-        port = self._port_data.read(data, context)
+    def read(self, data: bytearray, context: DataCodecContext) -> Address:
+        ip_version = BYTE_DATA.read(data, context)
+        ipv4_address = self._IPV4_ADDRESS_DATA.read(data, context)
+        port = SHORT_DATA.read(data, context)
         return Address(ip_version, ipv4_address, port)
 
-    def write(self, data: bytearray, value: Address) -> None:
-        self._ip_version_data.write(data, value.ip_version)
-        self._ipv4_address_data.write(data, value.address)
-        self._port_data.write(data, value.port)
+    def write(self, data: bytearray, value: Address, context: DataCodecContext) -> None:
+        BYTE_DATA.write(data, value.ip_version, context)
+        self._IPV4_ADDRESS_DATA.write(data, value.address, context)
+        SHORT_DATA.write(data, value.port, context)
+
+
+class PassIf(DataCodec[T]):
+    """Pass if predicate is true.
+
+    >>> c = PassIf(BYTE_DATA, lambda _context: _context.values[0])
+    >>> data = bytearray()
+    >>> context = DataCodecContext()
+    >>> context.values = [False]
+    >>> c.write(data, 255, context)
+    >>> context.length
+    1
+    >>> hexlify(data)
+    b'ff'
+    >>> context.clear()
+    >>> c.read(data, context)
+    255
+    >>> context.length
+    1
+    >>> hexlify(data)
+    b''
+    >>> context.clear()
+    >>> context.values = [True]
+    >>> c.write(data, 255, context)
+    >>> context.length
+    0
+    >>> hexlify(data)
+    b''
+    >>> context.clear()
+    >>> c.read(data, context)
+    >>> context.length
+    0
+    >>> hexlify(data)
+    b''
+    """
+
+    def __init__(self, data_codec: DataCodec[T], predicate: Callable[[DataCodecContext], bool]):
+        self._data_codec = data_codec
+        self._predicate = predicate
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Optional[T]:
+        return self._data_codec.read(data, context) if not self._predicate(context) else None
+
+    def write(self, data: bytearray, value: Optional[T], context: DataCodecContext) -> None:
+        if not self._predicate(context):
+            if value is None:
+                raise BytesOperationError('Decoding needs the Value.')
+            # noinspection PyTypeChecker
+            self._data_codec.write(data, value, context)
+
+
+def _only_false(value: bool) -> int:
+    assert not value
+    return 0
+
+
+MAGIC_DATA = MagicData()
+ADDRESS_DATA = AddressData()
+BOOL_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data != 0, write=lambda _value: 1 if _value else 0)
+FALSE_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data != 0, write=_only_false)
 
 
 if __name__ == '__main__':
     from enum import Enum
     from binascii import hexlify, unhexlify
-    from pyminehub.binutil import ByteData, LongData, MagicData, StringData
     from pyminehub.network.packet import PacketFactory
 
     class ID(Enum):
@@ -102,18 +233,17 @@ if __name__ == '__main__':
         ]
     }
 
-    _data_converters = {
+    _data_codecs = {
         ID.unconnected_pong: [
-            ByteData(),
-            LongData(),
-            LongData(),
-            MagicData(),
-            StringData()
+            LONG_DATA,
+            LONG_DATA,
+            MAGIC_DATA,
+            STRING_DATA
         ]
     }
 
     factory = PacketFactory(_packet_specs)
-    codec = Codec(ID, factory, _data_converters)
+    codec = Codec(ID, factory, _data_codecs)
 
     import doctest
     doctest.testmod()

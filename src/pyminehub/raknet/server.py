@@ -2,8 +2,8 @@ import asyncio
 from collections import namedtuple
 from logging import getLogger, basicConfig
 
-from pyminehub.binutil import ReadContext
 from pyminehub.network.address import IP_VERSION, to_address
+from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import packet_codec, capsule_codec
 from pyminehub.raknet.packet import PacketID, packet_factory
 from pyminehub.raknet.session import Session
@@ -83,13 +83,13 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def _process_custom_packet(self, packet: namedtuple, addr: tuple) -> None:
         session = self._sessions[addr]
-        context = ReadContext()
+        context = PacketCodecContext()
         capsules = []
         length = 0
         while length < len(packet.payload):
             payload = packet.payload[length:]
             _logger.debug('%s', payload.hex())
-            capsules.append(capsule_codec.decode(payload, context))
+            capsules.append(capsule_codec.decode(payload, context=context))
             length += context.length
             context.clear()
         session.capsule_received(packet.packet_sequence_num, capsules)
