@@ -64,6 +64,9 @@ class DataCodecContext:
     def clear(self):
         self.__init__()
 
+    def __repr__(self):
+        return str(self.__dict__)
+
 
 T = TypeVar('T')
 

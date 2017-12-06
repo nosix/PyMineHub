@@ -28,12 +28,12 @@ class Codec:
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs
 
-    def encode(self, packet: NamedTuple, id_encoder: DataCodec[int]=None, context: PacketCodecContext=None) -> bytes:
+    def encode(self, packet: NamedTuple, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
         >>> p = factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
         >>> context = PacketCodecContext()
-        >>> hexlify(codec.encode(p, BYTE_DATA, context))
+        >>> hexlify(codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
         >>> context.length
         40
@@ -41,8 +41,8 @@ class Codec:
         [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
 
         :param packet: encoding target
-        :param id_encoder: a DataCodec to write packet ID
         :param context: if context is None then create a DataCodecContext
+        :param id_encoder: a DataCodec to write packet ID
         :return: bytes data obtained by encoding
         """
         id_encoder = id_encoder or BYTE_DATA
@@ -56,12 +56,12 @@ class Codec:
             context.values.append(value)
         return bytes(data)
 
-    def decode(self, data: bytes, id_decoder: DataCodec[int]=None, context: PacketCodecContext=None) -> NamedTuple:
+    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> NamedTuple:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
         >>> context = PacketCodecContext()
-        >>> codec.decode(data, BYTE_DATA, context)
+        >>> codec.decode(data, context, BYTE_DATA)
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
@@ -69,8 +69,8 @@ class Codec:
         [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
 
         :param data: decoding target
-        :param id_decoder: a DataCodec to read packet ID
         :param context: if context is None then create a DataCodecContext
+        :param id_decoder: a DataCodec to read packet ID
         :return: a packet obtained by decoding
         """
         id_decoder = id_decoder or BYTE_DATA

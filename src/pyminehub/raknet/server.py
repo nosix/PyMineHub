@@ -89,7 +89,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         while length < len(packet.payload):
             payload = packet.payload[length:]
             _logger.debug('%s', payload.hex())
-            capsules.append(capsule_codec.decode(payload, context=context))
+            capsules.append(capsule_codec.decode(payload, context))
             length += context.length
             context.clear()
         session.capsule_received(packet.packet_sequence_num, capsules)

@@ -1,11 +1,8 @@
 import base64
 import json
 import zlib
-from typing import Tuple
 
-from pyminehub.mcpe.network.packet import ConnectionRequest
-from pyminehub.mcpe.network.packet import GamePacketID, game_packet_factory
-from pyminehub.mcpe.network.packet import PacketID, packet_factory
+from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *
 
 
@@ -24,7 +21,7 @@ class _AddressList(DataCodec[Tuple[Address, ...]]):
 
 class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
-    _COMPRESS_LEVEL = 7
+    _COMPRESS_LEVEL = 0
 
     def read(self, data: bytearray, context: DataCodecContext) -> Tuple[bytes, ...]:
         payload = bytearray(zlib.decompress(data))
@@ -81,7 +78,11 @@ _packet_converters = {
 }
 
 
+_LITTLE_ENDIAN_SHORT_DATA = ShortData(endian=Endian.LITTLE)
 _LITTLE_ENDIAN_INT_DATA = IntData(endian=Endian.LITTLE)
+_LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
+
+_HEADER_EXTRA_DATA = RawData(2)
 
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
@@ -110,11 +111,50 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         raise NotImplemented
 
 
+class _PackEntries(DataCodec[Tuple[PackEntry, ...]]):
+
+    @classmethod
+    def _read_entry(cls, data: bytearray, context: DataCodecContext) -> PackEntry:
+        pack_id = STRING_DATA.read(data, context)
+        pack_version = STRING_DATA.read(data, context)
+        pack_size = _LITTLE_ENDIAN_LONG_DATA.read(data, context)
+        STRING_DATA.read(data, context)  # TODO
+        STRING_DATA.read(data, context)  # TODO
+        return PackEntry(pack_id, pack_version, pack_size)
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[PackEntry, ...]:
+        count = _LITTLE_ENDIAN_SHORT_DATA.read(data, context)
+        return tuple(self._read_entry(data, context) for _ in range(count))
+
+    @classmethod
+    def _write_entry(cls, data: bytearray, value: PackEntry, context:DataCodecContext) -> None:
+        STRING_DATA.write(data, value.id, context)
+        STRING_DATA.write(data, value.version, context)
+        _LITTLE_ENDIAN_LONG_DATA.write(data, value.size, context)
+        STRING_DATA.write(data, '', context)
+        STRING_DATA.write(data, '', context)
+
+    def write(self, data: bytearray, value: Tuple[PackEntry, ...], context: DataCodecContext) -> None:
+        _LITTLE_ENDIAN_SHORT_DATA.write(data, len(value), context)
+        for entry in value:
+            self._write_entry(data, entry, context)
+
+
 _game_packet_converters = {
     GamePacketID.login: [
-        RawData(2),
+        _HEADER_EXTRA_DATA,
         INT_DATA,
         _ConnectionRequest()
+    ],
+    GamePacketID.play_status: [
+        _HEADER_EXTRA_DATA,
+        ValueFilter(INT_DATA, read=lambda _data: PlayStatus(_data), write=lambda _value: _value.value)
+    ],
+    GamePacketID.resource_packs_info: [
+        _HEADER_EXTRA_DATA,
+        BOOL_DATA,
+        _PackEntries(),
+        _PackEntries()
     ]
 }
 
