@@ -139,6 +139,13 @@ class PlayStatus(Enum):
 PackEntry = NamedTuple('PackEntry', [('id', 'str'), ('version', 'str'), ('size', 'int')])
 
 
+class ResourcePackStatus(Enum):
+    refused = 1
+    send_packs = 2
+    have_all_packs = 3
+    completed = 4
+
+    
 _packet_specs = {
     PacketID.connected_ping: [
         ('id', int),
@@ -195,6 +202,12 @@ _game_packet_specs = {
         ('must_accept', bool),
         ('behavior_pack_entries', Tuple[PackEntry, ...]),
         ('resource_pack_entries', Tuple[PackEntry, ...])
+    ],
+    GamePacketID.resource_pack_client_response: [
+        ('id', int),
+        ('extra', bytes),
+        ('status', ResourcePackStatus),
+        ('pack_ids', Tuple[str, ...])
     ]
 }
 

@@ -9,6 +9,7 @@ import traceback
 from binascii import unhexlify as unhex
 from unittest import TestCase
 
+from pyminehub import config
 from pyminehub.mcpe.network.codec import game_packet_codec as mcpe_game_packet_codec
 from pyminehub.mcpe.network.codec import packet_codec as mcpe_packet_codec
 from pyminehub.mcpe.network.packet import GamePacketID as MCPEGamePacketID
@@ -239,11 +240,12 @@ class TestDecode(TestCase):
         _logger.setLevel(logging.INFO)
         self._handler = logging.StreamHandler(sys.stdout)
         _logger.addHandler(self._handler)
+        config.reset()
 
     def tearDown(self):
-        _logger.addHandler(self._handler)
+        _logger.removeHandler(self._handler)
 
-    def test_(self):
+    def test_login_logout_01(self):
         assertion = EncodedData(
             '840400006000a000000000000000fe7801010800f7ff0702000000000000004e'
             '000a6000a801000001000000fe7801010900f6ff080600000000000000008100'
@@ -259,6 +261,21 @@ class TestDecode(TestCase):
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
                         GamePacket(MCPEGamePacketID.resource_packs_info)
+                    )
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verify_encoded_data=True)
+
+    def test_login_logout_02(self):
+        config.set_config(batch_compress_threshold=0)  # TODO
+        assertion = EncodedData(
+            '840d00006000800b000002000000fe78da63e360606066600000006a0012'
+        ).is_(
+            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.resource_pack_client_response, True)
                     )
                 )
             )

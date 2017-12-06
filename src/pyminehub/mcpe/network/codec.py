@@ -2,6 +2,7 @@ import base64
 import json
 import zlib
 
+from pyminehub.config import get_value, ConfigKey
 from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *
 
@@ -21,7 +22,11 @@ class _AddressList(DataCodec[Tuple[Address, ...]]):
 
 class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
-    _COMPRESS_LEVEL = 0
+    _COMPRESS_LEVEL = 7
+
+    @staticmethod
+    def _does_compress(payload: bytes) -> bool:
+        return len(payload) >= get_value(ConfigKey.batch_compress_threshold)
 
     def read(self, data: bytearray, context: DataCodecContext) -> Tuple[bytes, ...]:
         payload = bytearray(zlib.decompress(data))
@@ -41,7 +46,7 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
         for v in value:
             VAR_INT_DATA.write(payload, len(v), local_context)
             payload += v
-        compressed_data = zlib.compress(payload, self._COMPRESS_LEVEL)
+        compressed_data = zlib.compress(payload, self._COMPRESS_LEVEL if self._does_compress(payload) else 0)
         data += compressed_data
         context.length += len(compressed_data)
 
@@ -111,10 +116,25 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         raise NotImplemented
 
 
-class _PackEntries(DataCodec[Tuple[PackEntry, ...]]):
+class _VarListData(DataCodec[Tuple[T, ...]]):
 
-    @classmethod
-    def _read_entry(cls, data: bytearray, context: DataCodecContext) -> PackEntry:
+    def __init__(self, item_codec: DataCodec[T], count_codec: DataCodec[int]=_LITTLE_ENDIAN_SHORT_DATA):
+        self._item_codec = item_codec
+        self._count_codec = count_codec
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[PackEntry, ...]:
+        count = self._count_codec.read(data, context)
+        return tuple(self._item_codec.read(data, context) for _ in range(count))
+
+    def write(self, data: bytearray, value: Tuple[T, ...], context: DataCodecContext) -> None:
+        self._count_codec.write(data, len(value), context)
+        for entry in value:
+            self._item_codec.write(data, entry, context)
+
+
+class _PackEntry(DataCodec[PackEntry]):
+
+    def read(self, data: bytearray, context: DataCodecContext) -> PackEntry:
         pack_id = STRING_DATA.read(data, context)
         pack_version = STRING_DATA.read(data, context)
         pack_size = _LITTLE_ENDIAN_LONG_DATA.read(data, context)
@@ -122,22 +142,21 @@ class _PackEntries(DataCodec[Tuple[PackEntry, ...]]):
         STRING_DATA.read(data, context)  # TODO
         return PackEntry(pack_id, pack_version, pack_size)
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[PackEntry, ...]:
-        count = _LITTLE_ENDIAN_SHORT_DATA.read(data, context)
-        return tuple(self._read_entry(data, context) for _ in range(count))
-
-    @classmethod
-    def _write_entry(cls, data: bytearray, value: PackEntry, context:DataCodecContext) -> None:
+    def write(self, data: bytearray, value: PackEntry, context:DataCodecContext) -> None:
         STRING_DATA.write(data, value.id, context)
         STRING_DATA.write(data, value.version, context)
         _LITTLE_ENDIAN_LONG_DATA.write(data, value.size, context)
         STRING_DATA.write(data, '', context)
         STRING_DATA.write(data, '', context)
 
-    def write(self, data: bytearray, value: Tuple[PackEntry, ...], context: DataCodecContext) -> None:
-        _LITTLE_ENDIAN_SHORT_DATA.write(data, len(value), context)
-        for entry in value:
-            self._write_entry(data, entry, context)
+
+class PackIds(DataCodec[Tuple[str, ...]]):
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[str, ...]:
+        pass
+
+    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+        pass
 
 
 _game_packet_converters = {
@@ -153,8 +172,13 @@ _game_packet_converters = {
     GamePacketID.resource_packs_info: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
-        _PackEntries(),
-        _PackEntries()
+        _VarListData(_PackEntry()),
+        _VarListData(_PackEntry())
+    ],
+    GamePacketID.resource_pack_client_response: [
+        _HEADER_EXTRA_DATA,
+        ValueFilter(BYTE_DATA, read=lambda _data: ResourcePackStatus(_data), write=lambda _value: _value.value),
+        _VarListData(STRING_DATA)
     ]
 }
 
