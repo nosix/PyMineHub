@@ -23,6 +23,23 @@ from pyminehub.raknet.packet import PacketID as RakNetPacketID
 _logger = logging.getLogger(__name__)
 
 
+def interrupt_for_pycharm(exc: Exception, called, packet_info=None):
+    if type(exc).__name__ == 'EqualsAssertionError':
+        attrs = exc.__dict__
+        if 'called' not in attrs:
+            attrs['called'] = called
+        if 'stack' not in attrs:
+            attrs['stack'] = []
+        if packet_info is not None:
+            attrs['stack'].append(packet_info)
+        else:
+            messages = ['AssertionError occurred while testing', attrs['called'][:-1]]  # remove \n
+            messages.extend(attrs['stack'])
+            messages.append(attrs['msg'])
+            attrs['msg'] = '\n'.join(messages)
+        raise exc
+
+
 class _WrappedException(Exception):
 
     def __init__(self, exc: Exception, tb: traceback, message: str):
@@ -88,8 +105,9 @@ class Batch:
             try:
                 assertion.is_correct_on(test_case, payload)
             except Exception as e:
-                message = '{} occurred while testing\n{}  MCPE packet {}'.format(
-                    repr(e), assertion.called, self._mcpe_packet)
+                packet_info = '  MCPE packet {}'.format(self._mcpe_packet)
+                interrupt_for_pycharm(e, assertion.called, packet_info)
+                message = '{} occurred while testing\n{}{}'.format(repr(e), assertion.called, packet_info)
                 raise _WrappedException(e, sys.exc_info()[2], message) from None
         self._data = data[:context.length]
 
@@ -132,8 +150,9 @@ class Capsule:
                 message = '{}\n  RakNet encapsulation {}'.format(e.args[0], self._capsule)
                 raise _WrappedException(e.exc, e.tb, message) from None
             except Exception as e:
-                message = '{} occurred while testing\n{}  RakNet encapsulation {}'.format(
-                    repr(e), self._assertion.called, self._capsule)
+                packet_info = '  RakNet encapsulation {}'.format(self._capsule)
+                interrupt_for_pycharm(e, self._assertion.called, packet_info)
+                message = '{} occurred while testing\n{}'.format(repr(e), self._assertion.called, packet_info)
                 raise _WrappedException(e, sys.exc_info()[2], message) from None
         self._data = data[:context.length]
         return context.length
@@ -187,8 +206,9 @@ class RakNetPacket:
                 message = '{}\n  RakNet packet {}'.format(e.args[0], self._raknet_packet)
                 raise _WrappedException(e.exc, e.tb, message) from None
             except Exception as e:
-                message = '{} occurred while testing\n{}  RakNet packet {}'.format(
-                    repr(e), assertion.called, self._raknet_packet)
+                packet_info = '  RakNet packet {}'.format(self._raknet_packet)
+                interrupt_for_pycharm(e, assertion.called, packet_info)
+                message = '{} occurred while testing\n{}{}'.format(repr(e), assertion.called, packet_info)
                 raise _WrappedException(e, sys.exc_info()[2], message) from None
         test_case.assertEqual(len(data), payload_length, data.hex())
 
@@ -201,6 +221,7 @@ class RakNetPacket:
             message = '{}'.format(e.args[0])
             raise test_case.failureException(message).with_traceback(e.tb) from None
         except Exception as e:
+            interrupt_for_pycharm(e, self.called)
             message = '{} occurred while testing\n{}'.format(repr(e), self.called)
             raise test_case.failureException(message).with_traceback(sys.exc_info()[2]) from None
 
@@ -291,6 +312,21 @@ class TestDecode(TestCase):
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
                         GamePacket(MCPEGamePacketID.resource_pack_stack)
+                    )
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verify_encoded_data=True)
+
+    def test_login_logout_04(self):
+        config.set_config(batch_compress_threshold=0)  # TODO
+        assertion = EncodedData(
+            '841100006000800d000003000000fe78da63e360606061600000006d0013'
+        ).is_(
+            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.resource_pack_client_response)
                     )
                 )
             )
