@@ -3,6 +3,7 @@ import runpy
 
 if __name__ == '__main__':
     files = [
+        'pyminehub/config',
         'pyminehub/binutil',
         'pyminehub/network/codec',
         'pyminehub/network/packet'
