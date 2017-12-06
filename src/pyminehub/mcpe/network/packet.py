@@ -136,7 +136,8 @@ class PlayStatus(Enum):
     login_failed_edu_vanilla = 6
 
 
-PackEntry = NamedTuple('PackEntry', [('id', 'str'), ('version', 'str'), ('size', 'int')])
+PackEntry = NamedTuple('PackEntry', [('id', str), ('version', str), ('size', int)])
+PackStack = NamedTuple('PackStack', [('id', str), ('version', str)])
 
 
 class ResourcePackStatus(Enum):
@@ -202,6 +203,13 @@ _game_packet_specs = {
         ('must_accept', bool),
         ('behavior_pack_entries', Tuple[PackEntry, ...]),
         ('resource_pack_entries', Tuple[PackEntry, ...])
+    ],
+    GamePacketID.resource_pack_stack: [
+        ('id', int),
+        ('extra', bytes),
+        ('must_accept', bool),
+        ('behavior_pack_stack', Tuple[PackStack, ...]),
+        ('resource_pack_stack', Tuple[PackStack, ...])
     ],
     GamePacketID.resource_pack_client_response: [
         ('id', int),

@@ -275,7 +275,22 @@ class TestDecode(TestCase):
             RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.resource_pack_client_response, True)
+                        GamePacket(MCPEGamePacketID.resource_pack_client_response)
+                    )
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verify_encoded_data=True)
+
+    def test_login_logout_03(self):
+        assertion = EncodedData(
+            '8405000060009802000002000000fe7801010700f8ff06070000000000005b00'
+            '0e'
+        ).is_(
+            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.resource_pack_stack)
                     )
                 )
             )

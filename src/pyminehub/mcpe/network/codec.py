@@ -150,13 +150,18 @@ class _PackEntry(DataCodec[PackEntry]):
         STRING_DATA.write(data, '', context)
 
 
-class PackIds(DataCodec[Tuple[str, ...]]):
+class _PackStack(DataCodec[PackStack]):
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[str, ...]:
-        pass
+    def read(self, data: bytearray, context: DataCodecContext) -> PackStack:
+        pack_id = STRING_DATA.read(data, context)
+        pack_version = STRING_DATA.read(data, context)
+        STRING_DATA.read(data, context)  # TODO
+        return PackStack(pack_id, pack_version)
 
-    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
-        pass
+    def write(self, data: bytearray, value: PackStack, context: DataCodecContext) -> None:
+        STRING_DATA.write(data, value.id, context)
+        STRING_DATA.write(data, value.version, context)
+        STRING_DATA.write(data, '', context)
 
 
 _game_packet_converters = {
@@ -174,6 +179,12 @@ _game_packet_converters = {
         BOOL_DATA,
         _VarListData(_PackEntry()),
         _VarListData(_PackEntry())
+    ],
+    GamePacketID.resource_pack_stack: [
+        _HEADER_EXTRA_DATA,
+        BOOL_DATA,
+        _VarListData(_PackStack(), VAR_INT_DATA),
+        _VarListData(_PackStack(), VAR_INT_DATA)
     ],
     GamePacketID.resource_pack_client_response: [
         _HEADER_EXTRA_DATA,
