@@ -14,10 +14,10 @@ _LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
 _LITTLE_ENDIAN_FLOAT_DATA = FloatData(endian=Endian.LITTLE)
 
 
-class VarIntData(DataCodec[int]):
+class _VarIntData(DataCodec[int]):
     """Convert variable length unsigned N bytes data.
 
-    >>> c = VarIntData()
+    >>> c = _VarIntData()
     >>> data = bytearray()
     >>> context = DataCodecContext()
     >>> c.write(data, 0, context)
@@ -73,8 +73,8 @@ class VarIntData(DataCodec[int]):
                 break
 
 
-_VAR_INT_DATA = VarIntData()
-_VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=VarIntData())
+_VAR_INT_DATA = _VarIntData()
+_VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=_VarIntData())
 
 
 class _AddressList(DataCodec[Tuple[Address, ...]]):
