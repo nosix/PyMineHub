@@ -30,9 +30,9 @@ class Codec:
     def encode(self, packet: NamedTuple, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
-        >>> p = factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
+        >>> p = packet_factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
         >>> context = PacketCodecContext()
-        >>> hexlify(codec.encode(p, context, BYTE_DATA))
+        >>> hexlify(packet_codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
         >>> context.length
         40
@@ -60,7 +60,7 @@ class Codec:
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
         >>> context = PacketCodecContext()
-        >>> codec.decode(data, context, BYTE_DATA)
+        >>> packet_codec.decode(data, context, BYTE_DATA)
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
@@ -241,8 +241,8 @@ if __name__ == '__main__':
         ]
     }
 
-    factory = PacketFactory(_packet_specs)
-    codec = Codec(ID, factory, _data_codecs)
+    packet_factory = PacketFactory(_packet_specs)
+    packet_codec = Codec(ID, packet_factory, _data_codecs)
 
     import doctest
     doctest.testmod()

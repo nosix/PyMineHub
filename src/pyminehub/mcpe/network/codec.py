@@ -181,9 +181,9 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
 
 class _VarListData(DataCodec[Tuple[T, ...]]):
 
-    def __init__(self, item_codec: DataCodec[T], count_codec: DataCodec[int]=_LITTLE_ENDIAN_SHORT_DATA):
-        self._item_codec = item_codec
+    def __init__(self, count_codec: DataCodec[int], item_codec: DataCodec[T]):
         self._count_codec = count_codec
+        self._item_codec = item_codec
 
     def read(self, data: bytearray, context: DataCodecContext) -> Tuple[PackEntry, ...]:
         count = self._count_codec.read(data, context)
@@ -195,50 +195,22 @@ class _VarListData(DataCodec[Tuple[T, ...]]):
             self._item_codec.write(data, entry, context)
 
 
-class _PackEntry(DataCodec[PackEntry]):
-
-    def read(self, data: bytearray, context: DataCodecContext) -> PackEntry:
-        pack_id = STRING_DATA.read(data, context)
-        pack_version = STRING_DATA.read(data, context)
-        pack_size = _LITTLE_ENDIAN_LONG_DATA.read(data, context)
-        STRING_DATA.read(data, context)  # TODO
-        STRING_DATA.read(data, context)  # TODO
-        return PackEntry(pack_id, pack_version, pack_size)
-
-    def write(self, data: bytearray, value: PackEntry, context: DataCodecContext) -> None:
-        STRING_DATA.write(data, value.id, context)
-        STRING_DATA.write(data, value.version, context)
-        _LITTLE_ENDIAN_LONG_DATA.write(data, value.size, context)
-        STRING_DATA.write(data, '', context)
-        STRING_DATA.write(data, '', context)
+TT = TypeVar('TT', bound=namedtuple)
 
 
-class _PackStack(DataCodec[PackStack]):
+class _CompositeData(DataCodec[TT]):
 
-    def read(self, data: bytearray, context: DataCodecContext) -> PackStack:
-        pack_id = STRING_DATA.read(data, context)
-        pack_version = STRING_DATA.read(data, context)
-        STRING_DATA.read(data, context)  # TODO
-        return PackStack(pack_id, pack_version)
+    def __init__(self, factory: Callable[..., TT], data_codecs: Tuple[DataCodec[Any], ...]):
+        self._factory = factory
+        self._data_codecs = data_codecs
 
-    def write(self, data: bytearray, value: PackStack, context: DataCodecContext) -> None:
-        STRING_DATA.write(data, value.id, context)
-        STRING_DATA.write(data, value.version, context)
-        STRING_DATA.write(data, '', context)
+    def read(self, data: bytearray, context: DataCodecContext) -> TT:
+        args = tuple(data_codec.read(data, context) for data_codec in self._data_codecs)
+        return self._factory(*args)
 
-
-class _Vector3Data(DataCodec[Vector3]):
-
-    def read(self, data: bytearray, context: DataCodecContext) -> Vector3:
-        x = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
-        z = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
-        y = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
-        return Vector3(x, z, y)
-
-    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
-        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.x, context)
-        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.z, context)
-        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.y, context)
+    def write(self, data: bytearray, value: TT, context: DataCodecContext) -> None:
+        for v, data_codec in zip(value, self._data_codecs):
+            data_codec.write(data, v, context)
 
 
 class _GameRule(DataCodec[GameRule]):
@@ -261,7 +233,46 @@ class _GameRule(DataCodec[GameRule]):
         self._TYPE_MAP[value.type].write(data, value.value, context)
 
 
-_VECTOR3_DATA = _Vector3Data()
+class _CommandEnumIndex(DataCodec[int]):
+
+    def read(self, data: bytearray, context: PacketCodecContext) -> int:
+        enum_values_length = len(context.values[2])
+        if enum_values_length < 256:
+            return BYTE_DATA.read(data, context)
+        elif enum_values_length < 65536:
+            return _LITTLE_ENDIAN_SHORT_DATA.read(data, context)
+        else:
+            return _LITTLE_ENDIAN_INT_DATA.read(data, context)
+
+    def write(self, data: bytearray, value: int, context: PacketCodecContext) -> None:
+        enum_values_length = len(context.values[2])
+        if enum_values_length < 256:
+            BYTE_DATA.write(data, value, context)
+        elif enum_values_length < 65536:
+            _LITTLE_ENDIAN_SHORT_DATA.write(data, value, context)
+        else:
+            _LITTLE_ENDIAN_INT_DATA.write(data, value, context)
+
+
+_VECTOR3_DATA = _CompositeData(Vector3, (
+    _LITTLE_ENDIAN_FLOAT_DATA,
+    _LITTLE_ENDIAN_FLOAT_DATA,
+    _LITTLE_ENDIAN_FLOAT_DATA
+))
+
+_PACK_ENTRY_DATA = _VarListData(_LITTLE_ENDIAN_SHORT_DATA, _CompositeData(PackEntry, (
+    STRING_DATA,
+    STRING_DATA,
+    _LITTLE_ENDIAN_LONG_DATA,
+    STRING_DATA,
+    STRING_DATA
+)))
+
+_PACK_STACK_DATA = _VarListData(_VAR_INT_DATA, _CompositeData(PackStack, (
+    STRING_DATA,
+    STRING_DATA,
+    STRING_DATA
+)))
 
 
 _game_data_codecs = {
@@ -277,19 +288,19 @@ _game_data_codecs = {
     GamePacketID.resource_packs_info: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
-        _VarListData(_PackEntry()),
-        _VarListData(_PackEntry())
+        _PACK_ENTRY_DATA,
+        _PACK_ENTRY_DATA
     ],
     GamePacketID.resource_pack_stack: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
-        _VarListData(_PackStack(), _VAR_INT_DATA),
-        _VarListData(_PackStack(), _VAR_INT_DATA)
+        _PACK_STACK_DATA,
+        _PACK_STACK_DATA
     ],
     GamePacketID.resource_pack_client_response: [
         _HEADER_EXTRA_DATA,
         ValueFilter(BYTE_DATA, read=lambda _data: ResourcePackStatus(_data), write=lambda _value: _value.value),
-        _VarListData(STRING_DATA)
+        _VarListData(_LITTLE_ENDIAN_SHORT_DATA, STRING_DATA)
     ],
     GamePacketID.start_game: [
         _HEADER_EXTRA_DATA,
@@ -306,17 +317,18 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
+        _VAR_INT_DATA,
         BOOL_DATA,
         _VAR_INT_DATA,
         BOOL_DATA,
-        _LITTLE_ENDIAN_FLOAT_DATA,  # TODO confirm correctness
+        _LITTLE_ENDIAN_FLOAT_DATA,
         _LITTLE_ENDIAN_FLOAT_DATA,
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
-        _VarListData(_GameRule(), _VAR_INT_DATA),
+        _VarListData(_VAR_INT_DATA, _GameRule()),
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
@@ -325,10 +337,54 @@ _game_data_codecs = {
         _VAR_INT_LENGTH_STRING_DATA,
         _VAR_INT_LENGTH_STRING_DATA,
         _VAR_INT_LENGTH_STRING_DATA,
-        BOOL_DATA,
         BOOL_DATA,
         _LITTLE_ENDIAN_LONG_DATA,
         _VAR_INT_DATA
+    ],
+    GamePacketID.set_time: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA
+    ],
+    GamePacketID.update_attributes: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _VarListData(_VAR_INT_DATA, _CompositeData(Attribute, (
+            _LITTLE_ENDIAN_FLOAT_DATA,
+            _LITTLE_ENDIAN_FLOAT_DATA,
+            _LITTLE_ENDIAN_FLOAT_DATA,
+            _LITTLE_ENDIAN_FLOAT_DATA,
+            _VAR_INT_LENGTH_STRING_DATA
+        )))
+    ],
+    GamePacketID.available_commands: [
+        _HEADER_EXTRA_DATA,
+        _VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
+        _VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
+        _VarListData(_VAR_INT_DATA, _CompositeData(CommandEnum, (
+            _VAR_INT_LENGTH_STRING_DATA,
+            _VarListData(_VAR_INT_DATA, _CommandEnumIndex())
+        ))),
+        _VarListData(_VAR_INT_DATA, _CompositeData(CommandData, (
+            _VAR_INT_LENGTH_STRING_DATA,
+            _VAR_INT_LENGTH_STRING_DATA,
+            BYTE_DATA,
+            BYTE_DATA,
+            _LITTLE_ENDIAN_INT_DATA,  # TODO confirm
+            _VarListData(_VAR_INT_DATA, _VarListData(_VAR_INT_DATA, _CompositeData(CommandParameter, (
+                _VAR_INT_LENGTH_STRING_DATA,
+                _LITTLE_ENDIAN_INT_DATA,  # TODO confirm
+                BOOL_DATA
+            ))))
+        )))
+    ],
+    GamePacketID.adventure_settings: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _VAR_INT_DATA,
+        _VAR_INT_DATA,  # TODO confirm
+        _VAR_INT_DATA,
+        _VAR_INT_DATA,
+        _LITTLE_ENDIAN_LONG_DATA
     ]
 }
 

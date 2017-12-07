@@ -365,9 +365,24 @@ class TestDecode(TestCase):
                 ),
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.start_game, True)  # TODO
+                        GamePacket(MCPEGamePacketID.set_time, True)
                     )
-                )
+                ),
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.update_attributes, True)
+                    )
+                ),
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.available_commands, True)
+                    )
+                ),
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.adventure_settings, True)
+                    )
+                ),
             )
         )
         assertion.is_correct_on(self, and_verify_encoded_data=True)

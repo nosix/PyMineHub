@@ -137,8 +137,13 @@ class PlayStatus(Enum):
     login_failed_edu_vanilla = 6
 
 
-PackEntry = NamedTuple('PackEntry', [('id', str), ('version', str), ('size', int)])
-PackStack = NamedTuple('PackStack', [('id', str), ('version', str)])
+PackEntry = NamedTuple('PackEntry', [
+    ('id', str), ('version', str), ('size', int), ('unknown1', str), ('unknown2', str)
+])
+
+PackStack = NamedTuple('PackStack', [
+    ('id', str), ('version', str), ('unknown1', str)
+])
 
 
 class ResourcePackStatus(Enum):
@@ -155,6 +160,37 @@ class Generator(Enum):
 
 
 class GameRule(NamedTuple('GameRule', [('name', str), ('type', int), ('value', Union[bool, int, float])])):
+    pass
+
+
+Attribute = NamedTuple('Attribute', [
+    ('min', float), ('max', float), ('current', float), ('default', float), ('name', str)
+])
+
+
+class CommandEnum(NamedTuple('CommandEnum', [
+    ('name', str),
+    ('index', Tuple[int, ...])
+])):
+    pass
+
+
+class CommandParameter(NamedTuple('CommandParameter', [
+    ('name', str),
+    ('type', int),
+    ('is_optional', bool)
+])):
+    pass
+
+
+class CommandData(NamedTuple('CommandData', [
+    ('name', str),
+    ('description', str),
+    ('flags', int),
+    ('permission', int),
+    ('aliases', int),
+    ('overloads', Tuple[Tuple[CommandParameter], ...])
+])):
     pass
 
 
@@ -267,6 +303,35 @@ _game_packet_specs = {
         ('unknown_bool', bool),
         ('current_tick', int),
         ('enchantment_seed', int)
+    ],
+    GamePacketID.set_time: [
+        ('id', int),
+        ('extra', bytes),
+        ('time', int)
+    ],
+    GamePacketID.update_attributes: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', int),
+        ('entries', Tuple[Attribute, ...])
+    ],
+    GamePacketID.available_commands: [
+        ('id', int),
+        ('extra', bytes),
+        ('enum_values', Tuple[str, ...]),
+        ('postfixes', Tuple[str, ...]),
+        ('enums', Tuple[CommandEnum, ...]),
+        ('command_data', Tuple[CommandData, ...])
+    ],
+    GamePacketID.adventure_settings: [
+        ('id', int),
+        ('extra', bytes),
+        ('flags', int),
+        ('command_permission', int),
+        ('flags2', int),
+        ('player_permission', int),
+        ('custom_flags', int),
+        ('entity_unique_id', int)
     ]
 }
 
