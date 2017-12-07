@@ -13,6 +13,8 @@ _LITTLE_ENDIAN_INT_DATA = IntData(endian=Endian.LITTLE)
 _LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
 _LITTLE_ENDIAN_FLOAT_DATA = FloatData(endian=Endian.LITTLE)
 
+_LITTLE_ENDIAN_SIGNED_INT_DATA = IntData(endian=Endian.LITTLE, unsigned=False)
+
 
 class _VarIntData(DataCodec[int]):
     """Convert variable length unsigned N bytes data.
@@ -46,6 +48,13 @@ class _VarIntData(DataCodec[int]):
     b''
     """
 
+    def __init__(self, unsigned=True):
+        self._unsigned = unsigned
+
+    @staticmethod
+    def _invert_sign(value: int) -> int:
+        return - ((value ^ 0xffff_ffff) + 1)
+
     def read(self, data: bytearray, context: DataCodecContext) -> int:
         value = 0
         shift = 0
@@ -58,9 +67,11 @@ class _VarIntData(DataCodec[int]):
             if d & 0x80 == 0:
                 break
             shift += 7
-        return value
+        return value if self._unsigned or (value & 0x8000_0000) == 0 else self._invert_sign(value)
 
     def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        if not self._unsigned and value < 0:
+            value = self._invert_sign(value)
         while True:
             d = value & 0x7f
             value >>= 7
@@ -74,6 +85,7 @@ class _VarIntData(DataCodec[int]):
 
 
 _VAR_INT_DATA = _VarIntData()
+_VAR_SIGNED_INT_DATA = _VarIntData(unsigned=False)
 _VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=_VarIntData())
 
 
@@ -369,10 +381,10 @@ _game_data_codecs = {
             _VAR_INT_LENGTH_STRING_DATA,
             BYTE_DATA,
             BYTE_DATA,
-            _LITTLE_ENDIAN_INT_DATA,  # TODO confirm
+            _LITTLE_ENDIAN_SIGNED_INT_DATA,
             _VarListData(_VAR_INT_DATA, _VarListData(_VAR_INT_DATA, _CompositeData(CommandParameter, (
                 _VAR_INT_LENGTH_STRING_DATA,
-                _LITTLE_ENDIAN_INT_DATA,  # TODO confirm
+                _LITTLE_ENDIAN_SIGNED_INT_DATA,
                 BOOL_DATA
             ))))
         )))
@@ -381,7 +393,7 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
-        _VAR_INT_DATA,  # TODO confirm
+        _VAR_SIGNED_INT_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _LITTLE_ENDIAN_LONG_DATA

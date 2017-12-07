@@ -360,27 +360,27 @@ class TestDecode(TestCase):
             RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.start_game, True)
+                        GamePacket(MCPEGamePacketID.start_game)
                     )
                 ),
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.set_time, True)
+                        GamePacket(MCPEGamePacketID.set_time)
                     )
                 ),
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.update_attributes, True)
+                        GamePacket(MCPEGamePacketID.update_attributes)
                     )
                 ),
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.available_commands, True)
+                        GamePacket(MCPEGamePacketID.available_commands)
                     )
                 ),
                 Capsule(RakNetCapsuleID.reliable_ordered).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.adventure_settings, True)
+                        GamePacket(MCPEGamePacketID.adventure_settings)
                     )
                 ),
             )
