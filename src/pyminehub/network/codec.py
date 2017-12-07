@@ -10,7 +10,6 @@ INT_DATA = IntData()
 LONG_DATA = LongData()
 BYTES_DATA = BytesData()
 STRING_DATA = StringData()
-VAR_INT_DATA = VarIntData()
 RAW_DATA = RawData()
 
 

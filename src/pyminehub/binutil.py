@@ -521,65 +521,6 @@ class StringData(DataCodec[str]):
         context.length += length
 
 
-class VarIntData(DataCodec[int]):
-    """Convert variable length unsigned N bytes data.
-
-    >>> c = VarIntData()
-    >>> data = bytearray()
-    >>> context = DataCodecContext()
-    >>> c.write(data, 0, context)
-    >>> c.write(data, 127, context)  # 7f (0111 1111)
-    >>> c.write(data, 128, context)  # 80 (1000 0000)
-    >>> c.write(data, 16383, context)  # 3f (11 1111 1111 1111)
-    >>> c.write(data, 16384, context)  # 40 (100 0000 0000 0000)
-    >>> context.length
-    9
-    >>> hexlify(data)
-    b'007f8001ff7f808001'
-    >>> context.clear()
-    >>> c.read(data, context)
-    0
-    >>> c.read(data, context)
-    127
-    >>> c.read(data, context)
-    128
-    >>> c.read(data, context)
-    16383
-    >>> c.read(data, context)
-    16384
-    >>> context.length
-    9
-    >>> hexlify(data)
-    b''
-    """
-
-    def read(self, data: bytearray, context: DataCodecContext) -> int:
-        value = 0
-        shift = 0
-        while True:
-            if not len(data) > 0:
-                raise BytesOperationError('Invalid data format.')
-            d = data.pop(0)
-            context.length += 1
-            value += (d & 0x7f) << shift
-            if d & 0x80 == 0:
-                break
-            shift += 7
-        return value
-
-    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
-        while True:
-            d = value & 0x7f
-            value >>= 7
-            if value != 0:
-                data.append(d | 0x80)
-                context.length += 1
-            else:
-                data.append(d)
-                context.length += 1
-                break
-
-
 class RawData(DataCodec[bytes]):
     """Convert N bytes data that does not have length data.
 
