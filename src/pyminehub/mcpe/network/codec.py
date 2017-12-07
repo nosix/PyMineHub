@@ -6,6 +6,15 @@ from pyminehub.config import get_value, ConfigKey
 from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *
 
+_LITTLE_ENDIAN_SHORT_DATA = ShortData(endian=Endian.LITTLE)
+_LITTLE_ENDIAN_INT_DATA = IntData(endian=Endian.LITTLE)
+_LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
+_LITTLE_ENDIAN_FLOAT_DATA = FloatData(endian=Endian.LITTLE)
+
+_VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=VarIntData())
+
+_HEADER_EXTRA_DATA = RawData(2)
+
 
 class _AddressList(DataCodec[Tuple[Address, ...]]):
 
@@ -51,7 +60,7 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
         context.length += len(compressed_data)
 
 
-_packet_converters = {
+_packet_data_codecs = {
     PacketID.connected_ping: [
         LONG_DATA
     ],
@@ -81,13 +90,6 @@ _packet_converters = {
         _CompressedPacketList()
     ]
 }
-
-
-_LITTLE_ENDIAN_SHORT_DATA = ShortData(endian=Endian.LITTLE)
-_LITTLE_ENDIAN_INT_DATA = IntData(endian=Endian.LITTLE)
-_LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
-
-_HEADER_EXTRA_DATA = RawData(2)
 
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
@@ -142,7 +144,7 @@ class _PackEntry(DataCodec[PackEntry]):
         STRING_DATA.read(data, context)  # TODO
         return PackEntry(pack_id, pack_version, pack_size)
 
-    def write(self, data: bytearray, value: PackEntry, context:DataCodecContext) -> None:
+    def write(self, data: bytearray, value: PackEntry, context: DataCodecContext) -> None:
         STRING_DATA.write(data, value.id, context)
         STRING_DATA.write(data, value.version, context)
         _LITTLE_ENDIAN_LONG_DATA.write(data, value.size, context)
@@ -164,7 +166,44 @@ class _PackStack(DataCodec[PackStack]):
         STRING_DATA.write(data, '', context)
 
 
-_game_packet_converters = {
+class _Vector3Data(DataCodec[Vector3]):
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Vector3:
+        x = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
+        z = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
+        y = _LITTLE_ENDIAN_FLOAT_DATA.read(data, context)
+        return Vector3(x, z, y)
+
+    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.x, context)
+        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.z, context)
+        _LITTLE_ENDIAN_FLOAT_DATA.write(data, value.y, context)
+
+
+class _GameRule(DataCodec[GameRule]):
+
+    _TYPE_MAP = {
+        1: BOOL_DATA,
+        2: VAR_INT_DATA,
+        3: _LITTLE_ENDIAN_FLOAT_DATA
+    }
+
+    def read(self, data: bytearray, context: DataCodecContext) -> GameRule:
+        rule_name = _VAR_INT_LENGTH_STRING_DATA.read(data, context)
+        rule_type = VAR_INT_DATA.read(data, context)
+        rule_value = self._TYPE_MAP[rule_type].read(data, context)
+        return GameRule(rule_name, rule_type, rule_value)
+
+    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+        _VAR_INT_LENGTH_STRING_DATA.write(data, value.name, context)
+        VAR_INT_DATA.write(data, value.type, context)
+        self._TYPE_MAP[value.type].write(data, value.value, context)
+
+
+_VECTOR3_DATA = _Vector3Data()
+
+
+_game_data_codecs = {
     GamePacketID.login: [
         _HEADER_EXTRA_DATA,
         INT_DATA,
@@ -190,9 +229,63 @@ _game_packet_converters = {
         _HEADER_EXTRA_DATA,
         ValueFilter(BYTE_DATA, read=lambda _data: ResourcePackStatus(_data), write=lambda _value: _value.value),
         _VarListData(STRING_DATA)
+    ],
+    GamePacketID.start_game: [
+        _HEADER_EXTRA_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        _VECTOR3_DATA,
+        _LITTLE_ENDIAN_FLOAT_DATA,
+        _LITTLE_ENDIAN_FLOAT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        ValueFilter(VAR_INT_DATA, read=lambda _data: Generator(_data), write=lambda _value: _value.value),
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        BOOL_DATA,
+        VAR_INT_DATA,
+        BOOL_DATA,
+        _LITTLE_ENDIAN_FLOAT_DATA,  # TODO confirm correctness
+        _LITTLE_ENDIAN_FLOAT_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        _VarListData(_GameRule(), VAR_INT_DATA),
+        BOOL_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        _VAR_INT_LENGTH_STRING_DATA,
+        _VAR_INT_LENGTH_STRING_DATA,
+        _VAR_INT_LENGTH_STRING_DATA,
+        BOOL_DATA,
+        BOOL_DATA,
+        _LITTLE_ENDIAN_LONG_DATA,
+        VAR_INT_DATA
     ]
 }
 
 
-packet_codec = Codec(PacketID, packet_factory, _packet_converters)
-game_packet_codec = Codec(GamePacketID, game_packet_factory, _game_packet_converters)
+packet_codec = Codec(PacketID, packet_factory, _packet_data_codecs)
+game_packet_codec = Codec(GamePacketID, game_packet_factory, _game_data_codecs)
+
+
+if __name__ == '__main__':
+    def print_packet_info(specs, data_codecs):
+        for packet_id, spec in specs.items():
+            data_codec = data_codecs[packet_id]
+            print(packet_id, ':')
+            assert len(spec[1:]) == len(data_codec), '{} != {}'.format(len(spec[1:]), len(data_codec))
+            for data_spec, data_codec in zip(spec[1:], data_codec):
+                orig_base = str(type(data_codec).__dict__['__orig_bases__'][0])
+                print('  ', data_spec[0], ':', data_spec[1].__name__, '=',
+                      type(data_codec).__name__ + orig_base.split('DataCodec')[-1])
+    # noinspection PyProtectedMember
+    from pyminehub.mcpe.network.packet import _game_packet_specs
+    print_packet_info(_game_packet_specs, _game_data_codecs)

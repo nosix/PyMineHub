@@ -363,6 +363,63 @@ class LongData(DataCodec[int]):
         context.length += self._LENGTH
 
 
+class FloatData(DataCodec[float]):
+    """Convert signed 4 bytes data.
+
+    >>> c = FloatData()
+    >>> data = bytearray()
+    >>> context = DataCodecContext()
+    >>> c.write(data, 1.75, context)
+    >>> c.write(data, -1.75, context)
+    >>> context.length
+    8
+    >>> hexlify(data)
+    b'3fe00000bfe00000'
+    >>> context.clear()
+    >>> c.read(data, context)
+    1.75
+    >>> c.read(data, context)
+    -1.75
+    >>> context.length
+    8
+    >>> hexlify(data)
+    b''
+
+    >>> c = FloatData(Endian.LITTLE)
+    >>> context = DataCodecContext()
+    >>> data = bytearray()
+    >>> c.write(data, 1.75, context)
+    >>> c.write(data, -1.75, context)
+    >>> context.length
+    8
+    >>> hexlify(data)
+    b'0000e03f0000e0bf'
+    >>> context.clear()
+    >>> c.read(data, context)
+    1.75
+    >>> c.read(data, context)
+    -1.75
+    >>> context.length
+    8
+    >>> hexlify(data)
+    b''
+    """
+
+    _LENGTH = 4
+
+    def __init__(self, endian=Endian.BIG):
+        self.endian = endian
+
+    def read(self, data: bytearray, context: DataCodecContext):
+        d = pop_first(data, self._LENGTH)
+        context.length += self._LENGTH
+        return self.endian.unpack('f', d)
+
+    def write(self, data: bytearray, value: T, context: DataCodecContext):
+        data += self.endian.pack('f', value)
+        context.length += self._LENGTH
+
+
 class BytesData(DataCodec[bytes]):
     """Convert N bytes data that has 2 bytes length data.
 
@@ -445,10 +502,10 @@ class StringData(DataCodec[str]):
     b''
     """
 
-    def __init__(self, endian=Endian.BIG, encoding='utf8'):
+    def __init__(self, endian=Endian.BIG, encoding='utf8', len_codec: DataCodec=None):
         self.endian = endian
         self.encoding = encoding
-        self._len_codec = ShortData(endian)
+        self._len_codec = ShortData(endian) if len_codec is None else len_codec
 
     def read(self, data: bytearray, context: DataCodecContext) -> str:
         length = self._len_codec.read(data, context)

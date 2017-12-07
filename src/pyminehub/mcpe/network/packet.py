@@ -1,6 +1,7 @@
 from enum import Enum
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Union
 
+from pyminehub.mcpe.position import Vector3
 from pyminehub.network.address import Address
 from pyminehub.network.packet import PacketFactory
 
@@ -146,7 +147,17 @@ class ResourcePackStatus(Enum):
     have_all_packs = 3
     completed = 4
 
-    
+
+class Generator(Enum):
+    old = 0
+    infinite = 1
+    flat = 2
+
+
+class GameRule(NamedTuple('GameRule', [('name', str), ('type', int), ('value', Union[bool, int, float])])):
+    pass
+
+
 _packet_specs = {
     PacketID.connected_ping: [
         ('id', int),
@@ -216,6 +227,46 @@ _game_packet_specs = {
         ('extra', bytes),
         ('status', ResourcePackStatus),
         ('pack_ids', Tuple[str, ...])
+    ],
+    GamePacketID.start_game: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_unique_id', int),
+        ('entity_runtime_id', int),
+        ('player_game_mode', int),
+        ('player_position', Vector3),
+        ('pitch', float),
+        ('yaw', float),
+        ('seed', int),
+        ('dimension', int),
+        ('generator', Generator),
+        ('world_game_mode', int),
+        ('difficulty', int),
+        ('spawnX', int),
+        ('spawnY', int),
+        ('spawnZ', int),
+        ('has_achievements_disabled', bool),
+        ('time', int),
+        ('edu_mode', bool),
+        ('rain_level', float),
+        ('lightning_level', float),
+        ('is_multi_player_game', bool),
+        ('has_lan_broadcast', bool),
+        ('has_xbox_live_broadcast', bool),
+        ('commands_enabled', bool),
+        ('is_texture_packs_required', bool),
+        ('game_rules', Tuple[GameRule, ...]),
+        ('has_bonus_chest_enabled', bool),
+        ('has_start_with_map_enabled', bool),
+        ('has_trust_players_enabled', bool),
+        ('default_player_permission', int),
+        ('xbox_live_broadcast_mode', int),
+        ('level_id', str),
+        ('world_name', str),
+        ('premium_world_template_id', str),
+        ('unknown_bool', bool),
+        ('current_tick', int),
+        ('enchantment_seed', int)
     ]
 }
 

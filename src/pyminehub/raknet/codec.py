@@ -6,7 +6,7 @@ from pyminehub.raknet.packet import PacketID, packet_factory
 _NULL_PADDING = ValueFilter(RAW_DATA, read=lambda _data: len(_data), write=lambda _value: b'0' * _value)
 
 
-_packet_converters = {
+_packet_data_codecs = {
     PacketID.unconnected_ping: [
         LONG_DATA,
         MAGIC_DATA,
@@ -45,14 +45,14 @@ _packet_converters = {
 }
 
 for n in range(16):
-    _packet_converters[PacketID['custom_packet_{:x}'.format(n)]] = [
+    _packet_data_codecs[PacketID['custom_packet_{:x}'.format(n)]] = [
         TRIAD_DATA,
         RAW_DATA
     ]
 
 
 for packet_id in (PacketID.nck, PacketID.ack):
-    _packet_converters[packet_id] = [
+    _packet_data_codecs[packet_id] = [
         SHORT_DATA,
         BOOL_DATA,
         TRIAD_DATA,
@@ -76,7 +76,7 @@ class _CapsulePayload(DataCodec[bytes]):
 _CAPSULE_PAYLOAD = _CapsulePayload()
 
 
-_capsule_converters = {
+_capsule_data_codecs = {
     CapsuleID.unreliable: [
         SHORT_DATA,
         _CAPSULE_PAYLOAD
@@ -106,5 +106,5 @@ _capsule_converters = {
 }
 
 
-packet_codec = Codec(PacketID, packet_factory, _packet_converters)
-capsule_codec = Codec(CapsuleID, capsule_factory, _capsule_converters)
+packet_codec = Codec(PacketID, packet_factory, _packet_data_codecs)
+capsule_codec = Codec(CapsuleID, capsule_factory, _capsule_data_codecs)
