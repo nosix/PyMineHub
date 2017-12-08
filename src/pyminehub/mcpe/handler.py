@@ -36,7 +36,7 @@ class MCPEHandler(GameDataHandler):
 
     def _process_connected_ping(self, packet: namedtuple, addr: tuple) -> None:
         res_packet = packet_factory.create(
-            PacketID.connected_pong,
+            PacketID.CONNECTED_PONG,
             packet.ping_time_since_start,
             self._get_current_time())
         self.send_to_client(res_packet, addr)
@@ -44,7 +44,7 @@ class MCPEHandler(GameDataHandler):
     def _process_connection_request(self, packet: namedtuple, addr: tuple) -> None:
         self._accepted_time[addr] = self._get_current_time()
         res_packet = packet_factory.create(
-            PacketID.connection_request_accepted,
+            PacketID.CONNECTION_REQUEST_ACCEPTED,
             to_address(addr),
             0,
             self._INTERNAL_ADDRESSES,

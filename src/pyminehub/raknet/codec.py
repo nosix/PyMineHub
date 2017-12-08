@@ -7,35 +7,35 @@ _NULL_PADDING = ValueFilter(RAW_DATA, read=lambda _data: len(_data), write=lambd
 
 
 _packet_data_codecs = {
-    PacketID.unconnected_ping: [
+    PacketID.UNCONNECTED_PING: [
         LONG_DATA,
         MAGIC_DATA,
         LONG_DATA
     ],
-    PacketID.unconnected_pong: [
+    PacketID.UNCONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA,
         MAGIC_DATA,
         STRING_DATA
     ],
-    PacketID.open_connection_request1: [
+    PacketID.OPEN_CONNECTION_REQUEST1: [
         MAGIC_DATA,
         BYTE_DATA,
         _NULL_PADDING
     ],
-    PacketID.open_connection_reply1: [
+    PacketID.OPEN_CONNECTION_REPLY1: [
         MAGIC_DATA,
         LONG_DATA,
         FALSE_DATA,
         SHORT_DATA
     ],
-    PacketID.open_connection_request2: [
+    PacketID.OPEN_CONNECTION_REQUEST2: [
         MAGIC_DATA,
         ADDRESS_DATA,
         SHORT_DATA,
         LONG_DATA
     ],
-    PacketID.open_connection_reply2: [
+    PacketID.OPEN_CONNECTION_REPLY2: [
         MAGIC_DATA,
         LONG_DATA,
         ADDRESS_DATA,
@@ -45,13 +45,13 @@ _packet_data_codecs = {
 }
 
 for n in range(16):
-    _packet_data_codecs[PacketID['custom_packet_{:x}'.format(n)]] = [
+    _packet_data_codecs[PacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
         TRIAD_DATA,
         RAW_DATA
     ]
 
 
-for packet_id in (PacketID.nck, PacketID.ack):
+for packet_id in (PacketID.NCK, PacketID.ACK):
     _packet_data_codecs[packet_id] = [
         SHORT_DATA,
         BOOL_DATA,
@@ -77,23 +77,23 @@ _CAPSULE_PAYLOAD = _CapsulePayload()
 
 
 _capsule_data_codecs = {
-    CapsuleID.unreliable: [
+    CapsuleID.UNRELIABLE: [
         SHORT_DATA,
         _CAPSULE_PAYLOAD
     ],
-    CapsuleID.reliable: [
+    CapsuleID.RELIABLE: [
         SHORT_DATA,
         TRIAD_DATA,
         _CAPSULE_PAYLOAD
     ],
-    CapsuleID.reliable_ordered: [
+    CapsuleID.RELIABLE_ORDERED: [
         SHORT_DATA,
         TRIAD_DATA,
         TRIAD_DATA,
         BYTE_DATA,
         _CAPSULE_PAYLOAD
     ],
-    CapsuleID.reliable_ordered_has_split: [
+    CapsuleID.RELIABLE_ORDERED_HAS_SPLIT: [
         SHORT_DATA,
         TRIAD_DATA,
         TRIAD_DATA,

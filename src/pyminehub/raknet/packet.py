@@ -6,67 +6,67 @@ from pyminehub.network.packet import PacketFactory
 
 
 class PacketID(Enum):
-    unconnected_ping = 0x01
-    unconnected_pong = 0x1c
-    open_connection_request1 = 0x05
-    open_connection_reply1 = 0x06
-    open_connection_request2 = 0x07
-    open_connection_reply2 = 0x08
-    custom_packet_0 = 0x80
-    custom_packet_1 = 0x81
-    custom_packet_2 = 0x82
-    custom_packet_3 = 0x83
-    custom_packet_4 = 0x84
-    custom_packet_5 = 0x85
-    custom_packet_6 = 0x86
-    custom_packet_7 = 0x87
-    custom_packet_8 = 0x88
-    custom_packet_9 = 0x89
-    custom_packet_a = 0x8a
-    custom_packet_b = 0x8b
-    custom_packet_c = 0x8c
-    custom_packet_d = 0x8d
-    custom_packet_e = 0x8e
-    custom_packet_f = 0x8f
-    nck = 0xa0
-    ack = 0xc0
+    UNCONNECTED_PING = 0x01
+    UNCONNECTED_PONG = 0x1c
+    OPEN_CONNECTION_REQUEST1 = 0x05
+    OPEN_CONNECTION_REPLY1 = 0x06
+    OPEN_CONNECTION_REQUEST2 = 0x07
+    OPEN_CONNECTION_REPLY2 = 0x08
+    CUSTOM_PACKET_0 = 0x80
+    CUSTOM_PACKET_1 = 0x81
+    CUSTOM_PACKET_2 = 0x82
+    CUSTOM_PACKET_3 = 0x83
+    CUSTOM_PACKET_4 = 0x84
+    CUSTOM_PACKET_5 = 0x85
+    CUSTOM_PACKET_6 = 0x86
+    CUSTOM_PACKET_7 = 0x87
+    CUSTOM_PACKET_8 = 0x88
+    CUSTOM_PACKET_9 = 0x89
+    CUSTOM_PACKET_A = 0x8a
+    CUSTOM_PACKET_B = 0x8b
+    CUSTOM_PACKET_C = 0x8c
+    CUSTOM_PACKET_D = 0x8d
+    CUSTOM_PACKET_E = 0x8e
+    CUSTOM_PACKET_F = 0x8f
+    NCK = 0xa0
+    ACK = 0xc0
 
 
 _packet_specs = {
-    PacketID.unconnected_ping: [
+    PacketID.UNCONNECTED_PING: [
         ('id', int),
         ('time_since_start', int),
         ('valid_message_data_id', bool),
         ('client_guid', bytes)
     ],
-    PacketID.unconnected_pong: [
+    PacketID.UNCONNECTED_PONG: [
         ('id', int),
         ('time_since_start', int),
         ('server_guid', bytes),
         ('valid_message_data_id', bool),
         ('server_id', str)
     ],
-    PacketID.open_connection_request1: [
+    PacketID.OPEN_CONNECTION_REQUEST1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('raknet_protocol_version', int),
         ('mtu_size', int)
     ],
-    PacketID.open_connection_reply1: [
+    PacketID.OPEN_CONNECTION_REPLY1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
         ('use_encryption', bool),
         ('mtu_size', int)
     ],
-    PacketID.open_connection_request2: [
+    PacketID.OPEN_CONNECTION_REQUEST2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_address', Address),
         ('mtu_size', int),
         ('client_guid', int)
     ],
-    PacketID.open_connection_reply2: [
+    PacketID.OPEN_CONNECTION_REPLY2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
@@ -78,14 +78,14 @@ _packet_specs = {
 
 
 for n in range(16):
-    _packet_specs[PacketID['custom_packet_{:x}'.format(n)]] = [
+    _packet_specs[PacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
         ('id', int),
         ('packet_sequence_num', int),
         ('payload', bytes)
     ]
 
 
-for packet_id in (PacketID.nck, PacketID.ack):
+for packet_id in (PacketID.NCK, PacketID.ACK):
     _packet_specs[packet_id] = [
         ('id', int),
         ('record_count', int),

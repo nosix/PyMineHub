@@ -120,21 +120,21 @@ class Session:
             send_ack_or_nck()
 
     def send_ack_and_nck(self, sendto: Callable[[namedtuple], None]) -> None:
-        self._send_ack_or_nck(PacketID.ack, self._ack_set, sendto)
-        self._send_ack_or_nck(PacketID.nck, self._nck_set, sendto)
+        self._send_ack_or_nck(PacketID.ACK, self._ack_set, sendto)
+        self._send_ack_or_nck(PacketID.NCK, self._nck_set, sendto)
         self._ack_set.clear()
         self._nck_set.clear()
 
     def send_custom_packet(self, payload: bytes) -> None:
         capsule = capsule_factory.create(
-            CapsuleID.reliable_ordered,
+            CapsuleID.RELIABLE_ORDERED,
             len(payload) * 8,
             self._reliable_message_num,
             self._message_ordering_index,
             0,
             payload
         )
-        packet = packet_factory.create(PacketID.custom_packet_4, self._sequence_num, capsule_codec.encode(capsule))
+        packet = packet_factory.create(PacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
         _logger.debug('< %d:%s', packet.packet_sequence_num, capsule)
         self._send_to_client(packet)
         self._resend_queue[packet.packet_sequence_num] = packet

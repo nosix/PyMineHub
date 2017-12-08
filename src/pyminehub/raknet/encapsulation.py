@@ -4,25 +4,25 @@ from pyminehub.network.packet import PacketFactory
 
 
 class CapsuleID(Enum):
-    unreliable = 0x00
-    reliable = 0x40
-    reliable_ordered = 0x60
-    reliable_ordered_has_split = 0x70
+    UNRELIABLE = 0x00
+    RELIABLE = 0x40
+    RELIABLE_ORDERED = 0x60
+    RELIABLE_ORDERED_HAS_SPLIT = 0x70
 
 
 _capsule_specs = {
-    CapsuleID.unreliable: [
+    CapsuleID.UNRELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('payload', bytes)
     ],
-    CapsuleID.reliable: [
+    CapsuleID.RELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('payload', bytes)
     ],
-    CapsuleID.reliable_ordered: [
+    CapsuleID.RELIABLE_ORDERED: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
@@ -30,7 +30,7 @@ _capsule_specs = {
         ('message_ordering_chanel', int),
         ('payload', bytes)
     ],
-    CapsuleID.reliable_ordered_has_split: [
+    CapsuleID.RELIABLE_ORDERED_HAS_SPLIT: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),

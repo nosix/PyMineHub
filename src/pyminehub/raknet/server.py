@@ -64,18 +64,18 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def _process_unconnected_ping(self, packet: namedtuple, addr: tuple) -> None:
         res_packet = packet_factory.create(
-            PacketID.unconnected_pong, packet.time_since_start, self.guid, True, self.server_id)
+            PacketID.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: namedtuple, addr: tuple) -> None:
         res_packet = packet_factory.create(
-            PacketID.open_connection_reply1, True, self.guid, False, packet.mtu_size)
+            PacketID.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: namedtuple, addr: tuple) -> None:
         assert packet.server_address.ip_version == IP_VERSION
         res_packet = packet_factory.create(
-            PacketID.open_connection_reply2, True, self.guid, to_address(addr), packet.mtu_size, False)
+            PacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_address(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
             lambda _data: self._handler.data_received(_data, addr),

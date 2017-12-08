@@ -135,32 +135,32 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
 
 _packet_data_codecs = {
-    PacketID.connected_ping: [
+    PacketID.CONNECTED_PING: [
         LONG_DATA
     ],
-    PacketID.connected_pong: [
+    PacketID.CONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.connection_request: [
+    PacketID.CONNECTION_REQUEST: [
         LONG_DATA,
         LONG_DATA,
         FALSE_DATA
     ],
-    PacketID.connection_request_accepted: [
+    PacketID.CONNECTION_REQUEST_ACCEPTED: [
         ADDRESS_DATA,
         SHORT_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.new_incoming_connection: [
+    PacketID.NEW_INCOMING_CONNECTION: [
         ADDRESS_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.batch: [
+    PacketID.BATCH: [
         _CompressedPacketList()
     ]
 }
@@ -324,15 +324,15 @@ _SLOT_DATA = _CompositeData(Slot, (
 class _MetaDataValue(DataCodec[MetaDataValue]):
 
     _DATA_CODEC_MAP = {
-        MetaDataType.byte: BYTE_DATA,
-        MetaDataType.short: _LITTLE_ENDIAN_SHORT_DATA,
-        MetaDataType.int: _VAR_INT_DATA,
-        MetaDataType.float: _LITTLE_ENDIAN_FLOAT_DATA,
-        MetaDataType.string: _VAR_INT_LENGTH_STRING_DATA,
-        MetaDataType.slot: _SLOT_DATA,
-        MetaDataType.int_vector3: _INT_VECTOR3_DATA,
-        MetaDataType.long: _VAR_INT_DATA,
-        MetaDataType.float_vector3: _FLOAT_VECTOR3_DATA
+        MetaDataType.BYTE: BYTE_DATA,
+        MetaDataType.SHORT: _LITTLE_ENDIAN_SHORT_DATA,
+        MetaDataType.INT: _VAR_INT_DATA,
+        MetaDataType.FLOAT: _LITTLE_ENDIAN_FLOAT_DATA,
+        MetaDataType.STRING: _VAR_INT_LENGTH_STRING_DATA,
+        MetaDataType.SLOT: _SLOT_DATA,
+        MetaDataType.INT_VECTOR3: _INT_VECTOR3_DATA,
+        MetaDataType.LONG: _VAR_INT_DATA,
+        MetaDataType.FLOAT_VECTOR3: _FLOAT_VECTOR3_DATA
     }
 
     def read(self, data: bytearray, context: PacketCodecContext) -> MetaDataValue:
@@ -345,37 +345,37 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
 
 
 def _is_type_remove(context: PacketCodecContext) -> bool:
-    return context.values[2] == PlayerListType.remove
+    return context.values[2] == PlayerListType.REMOVE
 
 
 _game_data_codecs = {
-    GamePacketID.login: [
+    GamePacketID.LOGIN: [
         _HEADER_EXTRA_DATA,
         INT_DATA,
         _ConnectionRequest()
     ],
-    GamePacketID.play_status: [
+    GamePacketID.PLAY_STATUS: [
         _HEADER_EXTRA_DATA,
         ValueFilter(INT_DATA, read=lambda _data: PlayStatus(_data), write=lambda _value: _value.value)
     ],
-    GamePacketID.resource_packs_info: [
+    GamePacketID.RESOURCE_PACKS_INFO: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
         _PACK_ENTRY_DATA,
         _PACK_ENTRY_DATA
     ],
-    GamePacketID.resource_pack_stack: [
+    GamePacketID.RESOURCE_PACK_STACK: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
         _PACK_STACK_DATA,
         _PACK_STACK_DATA
     ],
-    GamePacketID.resource_pack_client_response: [
+    GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE: [
         _HEADER_EXTRA_DATA,
         ValueFilter(BYTE_DATA, read=lambda _data: ResourcePackStatus(_data), write=lambda _value: _value.value),
         _VarListData(_LITTLE_ENDIAN_SHORT_DATA, STRING_DATA)
     ],
-    GamePacketID.start_game: [
+    GamePacketID.START_GAME: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
@@ -412,11 +412,11 @@ _game_data_codecs = {
         _LITTLE_ENDIAN_LONG_DATA,
         _VAR_INT_DATA
     ],
-    GamePacketID.set_time: [
+    GamePacketID.SET_TIME: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA
     ],
-    GamePacketID.update_attributes: [
+    GamePacketID.UPDATE_ATTRIBUTES: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VarListData(_VAR_INT_DATA, _CompositeData(Attribute, (
@@ -427,7 +427,7 @@ _game_data_codecs = {
             _VAR_INT_LENGTH_STRING_DATA
         )))
     ],
-    GamePacketID.available_commands: [
+    GamePacketID.AVAILABLE_COMMANDS: [
         _HEADER_EXTRA_DATA,
         _VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
         _VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
@@ -448,7 +448,7 @@ _game_data_codecs = {
             ))))
         )))
     ],
-    GamePacketID.adventure_settings: [
+    GamePacketID.ADVENTURE_SETTINGS: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
@@ -457,7 +457,7 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _LITTLE_ENDIAN_LONG_DATA
     ],
-    GamePacketID.set_entity_data: [
+    GamePacketID.SET_ENTITY_DATA: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VarListData(_VAR_INT_DATA, _CompositeData(EntityMetaData, (
@@ -466,12 +466,12 @@ _game_data_codecs = {
             _MetaDataValue()
         )))
     ],
-    GamePacketID.inventory_content: [
+    GamePacketID.INVENTORY_CONTENT: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VarListData(_VAR_INT_DATA, _SLOT_DATA)
     ],
-    GamePacketID.mob_equipment: [
+    GamePacketID.MOB_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _SLOT_DATA,
@@ -479,13 +479,13 @@ _game_data_codecs = {
         BYTE_DATA,
         BYTE_DATA
     ],
-    GamePacketID.inventory_slot: [
+    GamePacketID.INVENTORY_SLOT: [
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _SLOT_DATA
     ],
-    GamePacketID.player_list: [
+    GamePacketID.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
         ValueFilter(BYTE_DATA, read=lambda _data: PlayerListType(_data), write=lambda _value: _value.value),
         _VarListData(_VAR_INT_DATA, _CompositeData(PlayerListEntry, (

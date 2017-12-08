@@ -7,120 +7,120 @@ from pyminehub.network.packet import PacketFactory
 
 
 class PacketID(Enum):
-    connected_ping = 0x00
-    connected_pong = 0x03
-    connection_request = 0x09
-    connection_request_accepted = 0x10
-    new_incoming_connection = 0x13
-    batch = 0xfe
+    CONNECTED_PING = 0x00
+    CONNECTED_PONG = 0x03
+    CONNECTION_REQUEST = 0x09
+    CONNECTION_REQUEST_ACCEPTED = 0x10
+    NEW_INCOMING_CONNECTION = 0x13
+    BATCH = 0xfe
 
 
 class GamePacketID(Enum):
-    login = 0x01
-    play_status = 0x02
-    server_to_client_handshake = 0x03
-    client_to_server_handshake = 0x04
-    disconnect = 0x05
-    resource_packs_info = 0x06
-    resource_pack_stack = 0x07
-    resource_pack_client_response = 0x08
-    text = 0x09
-    set_time = 0x0a
-    start_game = 0x0b
-    add_player = 0x0c
-    add_entity = 0x0d
-    remove_entity = 0x0e
-    add_item_entity = 0x0f
-    add_hanging_entity = 0x10
-    take_item_entity = 0x11
-    move_entity = 0x12
-    move_player = 0x13
-    rider_jump = 0x14
-    update_block = 0x15
-    add_painting = 0x16
-    explode = 0x17
-    level_sound_event = 0x18
-    level_event = 0x19
-    block_event = 0x1a
-    entity_event = 0x1b
-    mob_effect = 0x1c
-    update_attributes = 0x1d
-    inventory_transaction = 0x1e
-    mob_equipment = 0x1f
-    mob_armor_equipment = 0x20
-    interact = 0x21
-    block_pick_request = 0x22
-    entity_pick_request = 0x23
-    player_action = 0x24
-    entity_fall = 0x25
-    hurt_armor = 0x26
-    set_entity_data = 0x27
-    set_entity_motion = 0x28
-    set_entity_link = 0x29
-    set_health = 0x2a
-    set_spawn_position = 0x2b
-    animate = 0x2c
-    respawn = 0x2d
-    container_open = 0x2e
-    container_close = 0x2f
-    player_hotbar = 0x30
-    inventory_content = 0x31
-    inventory_slot = 0x32
-    container_set_data = 0x33
-    crafting_data = 0x34
-    crafting_event = 0x35
-    gui_data_pick_item = 0x36
-    adventure_settings = 0x37
-    block_entity_data = 0x38
-    player_input = 0x39
-    full_chunk_data = 0x3a
-    set_commands_enabled = 0x3b
-    set_difficulty = 0x3c
-    change_dimension = 0x3d
-    set_player_game_type = 0x3e
-    player_list = 0x3f
-    simple_event = 0x40
-    event = 0x41
-    spawn_experience_orb = 0x42
-    clientbound_map_item_data = 0x43
-    map_info_request = 0x44
-    request_chunk_radius = 0x45
-    chunk_radius_updated = 0x46
-    item_frame_drop_item = 0x47
-    game_rules_changed = 0x48
-    camera = 0x49
-    boss_event = 0x4a
-    show_credits = 0x4b
-    available_commands = 0x4c
-    command_request = 0x4d
-    command_block_update = 0x4e
-    command_output = 0x4f
-    update_trade = 0x50
-    update_equip = 0x51
-    resource_pack_data_info = 0x52
-    resource_pack_chunk_data = 0x53
-    resource_pack_chunk_request = 0x54
-    transfer = 0x55
-    play_sound = 0x56
-    stop_sound = 0x57
-    set_title = 0x58
-    add_behavior_tree = 0x59
-    structure_block_update = 0x5a
-    show_store_offer = 0x5b
-    purchase_receipt = 0x5c
-    player_skin = 0x5d
-    sub_client_login = 0x5e
-    w_s_connect = 0x5f
-    set_last_hurt_by = 0x60
-    book_edit = 0x61
-    npc_request = 0x62
-    photo_transfer = 0x63
-    modal_form_request = 0x64
-    modal_form_response = 0x65
-    server_settings_request = 0x66
-    server_settings_response = 0x67
-    show_profile = 0x68
-    set_default_game_type = 0x69
+    LOGIN = 0x01
+    PLAY_STATUS = 0x02
+    SERVER_TO_CLIENT_HANDSHAKE = 0x03
+    CLIENT_TO_SERVER_HANDSHAKE = 0x04
+    DISCONNECT = 0x05
+    RESOURCE_PACKS_INFO = 0x06
+    RESOURCE_PACK_STACK = 0x07
+    RESOURCE_PACK_CLIENT_RESPONSE = 0x08
+    TEXT = 0x09
+    SET_TIME = 0x0a
+    START_GAME = 0x0b
+    ADD_PLAYER = 0x0c
+    ADD_ENTITY = 0x0d
+    REMOVE_ENTITY = 0x0e
+    ADD_ITEM_ENTITY = 0x0f
+    ADD_HANGING_ENTITY = 0x10
+    TAKE_ITEM_ENTITY = 0x11
+    MOVE_ENTITY = 0x12
+    MOVE_PLAYER = 0x13
+    RIDER_JUMP = 0x14
+    UPDATE_BLOCK = 0x15
+    ADD_PAINTING = 0x16
+    EXPLODE = 0x17
+    LEVEL_SOUND_EVENT = 0x18
+    LEVEL_EVENT = 0x19
+    BLOCK_EVENT = 0x1a
+    ENTITY_EVENT = 0x1b
+    MOB_EFFECT = 0x1c
+    UPDATE_ATTRIBUTES = 0x1d
+    INVENTORY_TRANSACTION = 0x1e
+    MOB_EQUIPMENT = 0x1f
+    MOB_ARMOR_EQUIPMENT = 0x20
+    INTERACT = 0x21
+    BLOCK_PICK_REQUEST = 0x22
+    ENTITY_PICK_REQUEST = 0x23
+    PLAYER_ACTION = 0x24
+    ENTITY_FALL = 0x25
+    HURT_ARMOR = 0x26
+    SET_ENTITY_DATA = 0x27
+    SET_ENTITY_MOTION = 0x28
+    SET_ENTITY_LINK = 0x29
+    SET_HEALTH = 0x2a
+    SET_SPAWN_POSITION = 0x2b
+    ANIMATE = 0x2c
+    RESPAWN = 0x2d
+    CONTAINER_OPEN = 0x2e
+    CONTAINER_CLOSE = 0x2f
+    PLAYER_HOTBAR = 0x30
+    INVENTORY_CONTENT = 0x31
+    INVENTORY_SLOT = 0x32
+    CONTAINER_SET_DATA = 0x33
+    CRAFTING_DATA = 0x34
+    CRAFTING_EVENT = 0x35
+    GUI_DATA_PICK_ITEM = 0x36
+    ADVENTURE_SETTINGS = 0x37
+    BLOCK_ENTITY_DATA = 0x38
+    PLAYER_INPUT = 0x39
+    FULL_CHUNK_DATA = 0x3a
+    SET_COMMANDS_ENABLED = 0x3b
+    SET_DIFFICULTY = 0x3c
+    CHANGE_DIMENSION = 0x3d
+    SET_PLAYER_GAME_TYPE = 0x3e
+    PLAYER_LIST = 0x3f
+    SIMPLE_EVENT = 0x40
+    EVENT = 0x41
+    SPAWN_EXPERIENCE_ORB = 0x42
+    CLIENTBOUND_MAP_ITEM_DATA = 0x43
+    MAP_INFO_REQUEST = 0x44
+    REQUEST_CHUNK_RADIUS = 0x45
+    CHUNK_RADIUS_UPDATED = 0x46
+    ITEM_FRAME_DROP_ITEM = 0x47
+    GAME_RULES_CHANGED = 0x48
+    CAMERA = 0x49
+    BOSS_EVENT = 0x4a
+    SHOW_CREDITS = 0x4b
+    AVAILABLE_COMMANDS = 0x4c
+    COMMAND_REQUEST = 0x4d
+    COMMAND_BLOCK_UPDATE = 0x4e
+    COMMAND_OUTPUT = 0x4f
+    UPDATE_TRADE = 0x50
+    UPDATE_EQUIP = 0x51
+    RESOURCE_PACK_DATA_INFO = 0x52
+    RESOURCE_PACK_CHUNK_DATA = 0x53
+    RESOURCE_PACK_CHUNK_REQUEST = 0x54
+    TRANSFER = 0x55
+    PLAY_SOUND = 0x56
+    STOP_SOUND = 0x57
+    SET_TITLE = 0x58
+    ADD_BEHAVIOR_TREE = 0x59
+    STRUCTURE_BLOCK_UPDATE = 0x5a
+    SHOW_STORE_OFFER = 0x5b
+    PURCHASE_RECEIPT = 0x5c
+    PLAYER_SKIN = 0x5d
+    SUB_CLIENT_LOGIN = 0x5e
+    W_S_CONNECT = 0x5f
+    SET_LAST_HURT_BY = 0x60
+    BOOK_EDIT = 0x61
+    NPC_REQUEST = 0x62
+    PHOTO_TRANSFER = 0x63
+    MODAL_FORM_REQUEST = 0x64
+    MODAL_FORM_RESPONSE = 0x65
+    SERVER_SETTINGS_REQUEST = 0x66
+    SERVER_SETTINGS_RESPONSE = 0x67
+    SHOW_PROFILE = 0x68
+    SET_DEFAULT_GAME_TYPE = 0x69
 
 
 class ConnectionRequest(NamedTuple('ConnectionRequest', [('chain', Tuple[dict, ...]), ('client', dict)])):
@@ -128,13 +128,13 @@ class ConnectionRequest(NamedTuple('ConnectionRequest', [('chain', Tuple[dict, .
 
 
 class PlayStatus(Enum):
-    login_success = 0
-    login_failed_client = 1
-    login_failed_server = 2
-    player_spawn = 3
-    login_failed_invalid_tenant = 4
-    login_failed_vanilla_edu = 5
-    login_failed_edu_vanilla = 6
+    LOGIN_SUCCESS = 0
+    LOGIN_FAILED_CLIENT = 1
+    LOGIN_FAILED_SERVER = 2
+    PLAYER_SPAWN = 3
+    LOGIN_FAILED_INVALID_TENANT = 4
+    LOGIN_FAILED_VANILLA_EDU = 5
+    LOGIN_FAILED_EDU_VANILLA = 6
 
 
 PackEntry = NamedTuple('PackEntry', [
@@ -147,16 +147,16 @@ PackStack = NamedTuple('PackStack', [
 
 
 class ResourcePackStatus(Enum):
-    refused = 1
-    send_packs = 2
-    have_all_packs = 3
-    completed = 4
+    REFUSED = 1
+    SEND_PACKS = 2
+    HAVE_ALL_PACKS = 3
+    COMPLETED = 4
 
 
 class Generator(Enum):
-    old = 0
-    infinite = 1
-    flat = 2
+    OLD = 0
+    INFINITE = 1
+    FLAT = 2
 
 
 class GameRule(NamedTuple('GameRule', [('name', str), ('type', int), ('value', Union[bool, int, float])])):
@@ -205,15 +205,15 @@ class Slot(NamedTuple('Slot', [
 
 
 class MetaDataType(Enum):
-    byte = 0
-    short = 1
-    int = 2
-    float = 3
-    string = 4
-    slot = 5
-    int_vector3 = 6
-    long = 7
-    float_vector3 = 8
+    BYTE = 0
+    SHORT = 1
+    INT = 2
+    FLOAT = 3
+    STRING = 4
+    SLOT = 5
+    INT_VECTOR3 = 6
+    LONG = 7
+    FLOAT_VECTOR3 = 8
 
 
 MetaDataValue = Union[int, float, str, Vector3, Slot]
@@ -228,8 +228,8 @@ class EntityMetaData(NamedTuple('EntityMetaData', [
 
 
 class PlayerListType(Enum):
-    add = 0
-    remove = 1
+    ADD = 0
+    REMOVE = 1
 
 
 class UUID(NamedTuple('UUID', [
@@ -262,22 +262,22 @@ class PlayerListEntry(NamedTuple('PlayerListEntry', [
 
 
 _packet_specs = {
-    PacketID.connected_ping: [
+    PacketID.CONNECTED_PING: [
         ('id', int),
         ('ping_time_since_start', int)
     ],
-    PacketID.connected_pong: [
+    PacketID.CONNECTED_PONG: [
         ('id', int),
         ('ping_time_since_start', int),
         ('pong_time_since_start', int)
     ],
-    PacketID.connection_request: [
+    PacketID.CONNECTION_REQUEST: [
         ('id', int),
         ('client_guid', int),
         ('client_time_since_start', int),
         ('use_encryption', bool)
     ],
-    PacketID.connection_request_accepted: [
+    PacketID.CONNECTION_REQUEST_ACCEPTED: [
         ('id', int),
         ('client_address', Address),
         ('system_index', int),
@@ -285,14 +285,14 @@ _packet_specs = {
         ('client_time_since_start', int),
         ('server_time_since_start', int)
     ],
-    PacketID.new_incoming_connection: [
+    PacketID.NEW_INCOMING_CONNECTION: [
         ('id', int),
         ('server_address', Address),
         ('internal_address', Tuple[Address, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
     ],
-    PacketID.batch: [
+    PacketID.BATCH: [
         ('id', int),
         ('payloads', Tuple[bytes, ...])
     ]
@@ -300,38 +300,38 @@ _packet_specs = {
 
 
 _game_packet_specs = {
-    GamePacketID.login: [
+    GamePacketID.LOGIN: [
         ('id', int),
         ('extra', bytes),
         ('protocol', int),
         ('connection_request', ConnectionRequest)
     ],
-    GamePacketID.play_status: [
+    GamePacketID.PLAY_STATUS: [
         ('id', int),
         ('extra', bytes),
         ('status', PlayStatus)
     ],
-    GamePacketID.resource_packs_info: [
+    GamePacketID.RESOURCE_PACKS_INFO: [
         ('id', int),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_entries', Tuple[PackEntry, ...]),
         ('resource_pack_entries', Tuple[PackEntry, ...])
     ],
-    GamePacketID.resource_pack_stack: [
+    GamePacketID.RESOURCE_PACK_STACK: [
         ('id', int),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_stack', Tuple[PackStack, ...]),
         ('resource_pack_stack', Tuple[PackStack, ...])
     ],
-    GamePacketID.resource_pack_client_response: [
+    GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE: [
         ('id', int),
         ('extra', bytes),
         ('status', ResourcePackStatus),
         ('pack_ids', Tuple[str, ...])
     ],
-    GamePacketID.start_game: [
+    GamePacketID.START_GAME: [
         ('id', int),
         ('extra', bytes),
         ('entity_unique_id', int),
@@ -369,18 +369,18 @@ _game_packet_specs = {
         ('current_tick', int),
         ('enchantment_seed', int)
     ],
-    GamePacketID.set_time: [
+    GamePacketID.SET_TIME: [
         ('id', int),
         ('extra', bytes),
         ('time', int)
     ],
-    GamePacketID.update_attributes: [
+    GamePacketID.UPDATE_ATTRIBUTES: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
         ('entries', Tuple[Attribute, ...])
     ],
-    GamePacketID.available_commands: [
+    GamePacketID.AVAILABLE_COMMANDS: [
         ('id', int),
         ('extra', bytes),
         ('enum_values', Tuple[str, ...]),
@@ -388,7 +388,7 @@ _game_packet_specs = {
         ('enums', Tuple[CommandEnum, ...]),
         ('command_data', Tuple[CommandData, ...])
     ],
-    GamePacketID.adventure_settings: [
+    GamePacketID.ADVENTURE_SETTINGS: [
         ('id', int),
         ('extra', bytes),
         ('flags', int),
@@ -398,19 +398,19 @@ _game_packet_specs = {
         ('custom_flags', int),
         ('entity_unique_id', int)
     ],
-    GamePacketID.set_entity_data: [
+    GamePacketID.SET_ENTITY_DATA: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
         ('meta_data', Tuple[EntityMetaData, ...])
     ],
-    GamePacketID.inventory_content: [
+    GamePacketID.INVENTORY_CONTENT: [
         ('id', int),
         ('extra', bytes),
         ('window_id', int),
         ('items', Tuple[Slot, ...])
     ],
-    GamePacketID.mob_equipment: [
+    GamePacketID.MOB_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
@@ -419,14 +419,14 @@ _game_packet_specs = {
         ('hotbar_slot', int),
         ('window_id', int)
     ],
-    GamePacketID.inventory_slot: [
+    GamePacketID.INVENTORY_SLOT: [
         ('id', int),
         ('extra', bytes),
         ('window_id', int),
         ('inventory_slot', int),
         ('item', Slot)
     ],
-    GamePacketID.player_list: [
+    GamePacketID.PLAYER_LIST: [
         ('id', int),
         ('extra', bytes),
         ('type', PlayerListType),

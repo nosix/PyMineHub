@@ -106,7 +106,7 @@ class Batch(PacketAssertion):
     def is_correct_on(self, test_case: TestCase, data: bytes):
         context = PacketCodecContext()
         self._mcpe_packet = mcpe_packet_codec.decode(data, context)
-        test_case.assertEqual(MCPEPacketID.batch, MCPEPacketID(self._mcpe_packet.id))
+        test_case.assertEqual(MCPEPacketID.BATCH, MCPEPacketID(self._mcpe_packet.id))
         test_case.assertEqual(len(data), context.length)
         test_case.assertEqual(len(self._assertions), len(self._mcpe_packet.payloads))
         for payload, assertion in zip(self._mcpe_packet.payloads, self._assertions):

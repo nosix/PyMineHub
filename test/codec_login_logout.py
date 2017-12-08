@@ -9,15 +9,15 @@ class LoginLogoutTestCase(CodecTestCase):
             '000a6000a801000001000000fe7801010900f6ff080600000000000000008100'
             '0f'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.play_status)
+                        GamePacket(MCPEGamePacketID.PLAY_STATUS)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.resource_packs_info)
+                        GamePacket(MCPEGamePacketID.RESOURCE_PACKS_INFO)
                     )
                 )
             )
@@ -29,10 +29,10 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '840d00006000800b000002000000fe78da63e360606066600000006a0012'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.resource_pack_client_response)
+                        GamePacket(MCPEGamePacketID.RESOURCE_PACK_CLIENT_RESPONSE)
                     )
                 )
             )
@@ -44,10 +44,10 @@ class LoginLogoutTestCase(CodecTestCase):
             '8405000060009802000002000000fe7801010700f8ff06070000000000005b00'
             '0e'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.resource_pack_stack)
+                        GamePacket(MCPEGamePacketID.RESOURCE_PACK_STACK)
                     )
                 )
             )
@@ -100,30 +100,30 @@ class LoginLogoutTestCase(CodecTestCase):
             '5e1a60010807000007000000fe7801011500eaff143700002000ffffffff0f01'
             '0001000000000000003ea60479'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.start_game)
+                        GamePacket(MCPEGamePacketID.START_GAME)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.set_time)
+                        GamePacket(MCPEGamePacketID.SET_TIME)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.update_attributes)
+                        GamePacket(MCPEGamePacketID.UPDATE_ATTRIBUTES)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.available_commands)
+                        GamePacket(MCPEGamePacketID.AVAILABLE_COMMANDS)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.adventure_settings)
+                        GamePacket(MCPEGamePacketID.ADVENTURE_SETTINGS)
                     )
                 ),
             )
@@ -139,20 +139,20 @@ class LoginLogoutTestCase(CodecTestCase):
             '0000000000000000000000000013f1007f6000b00a00000a000000fe7801010a'
             '00f5ff09310000780400000000050100b7'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.set_entity_data)
+                        GamePacket(MCPEGamePacketID.SET_ENTITY_DATA)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.inventory_content)
+                        GamePacket(MCPEGamePacketID.INVENTORY_CONTENT)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.inventory_content)
+                        GamePacket(MCPEGamePacketID.INVENTORY_CONTENT)
                     )
                 )
             )
@@ -211,7 +211,7 @@ class LoginLogoutTestCase(CodecTestCase):
             'daadad5aec857f0132c2c56d'
         ).is_(
             Batch().that_has(
-                GamePacket(MCPEGamePacketID.inventory_content)
+                GamePacket(MCPEGamePacketID.INVENTORY_CONTENT)
             )
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
@@ -221,15 +221,15 @@ class LoginLogoutTestCase(CodecTestCase):
             '840d00006000a80d00000c000000fe7801010900f6ff081f0000010000000001'
             '4e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039'
         ).is_(
-            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.mob_equipment)
+                        GamePacket(MCPEGamePacketID.MOB_EQUIPMENT)
                     )
                 ),
-                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
-                        GamePacket(MCPEGamePacketID.inventory_slot)
+                        GamePacket(MCPEGamePacketID.INVENTORY_SLOT)
                     )
                 )
             )
@@ -326,7 +326,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '779b33bb2d18ff03d0d504c3'
         ).is_(
             Batch().that_has(
-                GamePacket(MCPEGamePacketID.player_list)
+                GamePacket(MCPEGamePacketID.PLAYER_LIST)
             )
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
