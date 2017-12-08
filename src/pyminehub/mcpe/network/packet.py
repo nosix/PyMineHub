@@ -227,6 +227,40 @@ class EntityMetaData(NamedTuple('EntityMetaData', [
     pass
 
 
+class PlayerListType(Enum):
+    add = 0
+    remove = 1
+
+
+class UUID(NamedTuple('UUID', [
+    ('part1', int),
+    ('part0', int),
+    ('part3', int),
+    ('part2', int)
+])):
+    pass
+
+
+class Skin(NamedTuple('Skin', [
+    ('id', str),
+    ('data', bytes),
+    ('cape', str),
+    ('geometry_name', str),
+    ('geometry_data', str)
+])):
+    pass
+
+
+class PlayerListEntry(NamedTuple('PlayerListEntry', [
+    ('uuid', UUID),
+    ('entity_unique_id', Optional[int]),
+    ('user_name', Optional[str]),
+    ('skin', Optional[Skin]),
+    ('xbox_user_id', Optional[str])
+])):
+    pass
+
+
 _packet_specs = {
     PacketID.connected_ping: [
         ('id', int),
@@ -391,6 +425,12 @@ _game_packet_specs = {
         ('window_id', int),
         ('inventory_slot', int),
         ('item', Slot)
+    ],
+    GamePacketID.player_list: [
+        ('id', int),
+        ('extra', bytes),
+        ('type', PlayerListType),
+        ('entries', Tuple[PlayerListEntry, ...])
     ]
 }
 

@@ -86,6 +86,7 @@ class _VarIntData(DataCodec[int]):
 
 _VAR_INT_DATA = _VarIntData()
 _VAR_SIGNED_INT_DATA = _VarIntData(unsigned=False)
+_VAR_INT_LENGTH_BYTES_DATA = BytesData(len_codec=_VarIntData())
 _VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=_VarIntData())
 
 
@@ -343,6 +344,10 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
         self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
 
 
+def _is_type_remove(context: PacketCodecContext) -> bool:
+    return context.values[2] == PlayerListType.remove
+
+
 _game_data_codecs = {
     GamePacketID.login: [
         _HEADER_EXTRA_DATA,
@@ -479,6 +484,28 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _SLOT_DATA
+    ],
+    GamePacketID.player_list: [
+        _HEADER_EXTRA_DATA,
+        ValueFilter(BYTE_DATA, read=lambda _data: PlayerListType(_data), write=lambda _value: _value.value),
+        _VarListData(_VAR_INT_DATA, _CompositeData(PlayerListEntry, (
+            _CompositeData(UUID, (
+                _LITTLE_ENDIAN_INT_DATA,
+                _LITTLE_ENDIAN_INT_DATA,
+                _LITTLE_ENDIAN_INT_DATA,
+                _LITTLE_ENDIAN_INT_DATA
+            )),
+            OptionalData(_VAR_INT_DATA, _is_type_remove),
+            OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove),
+            OptionalData(_CompositeData(Skin, (
+                _VAR_INT_LENGTH_STRING_DATA,
+                _VAR_INT_LENGTH_BYTES_DATA,
+                _VAR_INT_LENGTH_STRING_DATA,
+                _VAR_INT_LENGTH_STRING_DATA,
+                _VAR_INT_LENGTH_STRING_DATA
+            )), _is_type_remove),
+            OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove)
+        )))
     ]
 }
 

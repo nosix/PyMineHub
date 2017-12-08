@@ -8,6 +8,7 @@ import re
 import sys
 import traceback
 from binascii import unhexlify as unhex
+from os.path import dirname
 from unittest import TestCase
 
 from pyminehub import config
@@ -27,12 +28,13 @@ _logger = logging.getLogger(__name__)
 def interrupt_for_pycharm(exc: Exception, called, packet_info=None):
     if type(exc).__name__ == 'EqualsAssertionError':
         attrs = exc.__dict__
-        if 'called' not in attrs:
-            attrs['called'] = called
-        if 'stack' not in attrs:
-            attrs['stack'] = []
-        if packet_info is not None:
-            attrs['stack'].append(packet_info)
+        if called is not None:
+            if 'called' not in attrs:
+                attrs['called'] = called
+            if 'stack' not in attrs:
+                attrs['stack'] = []
+            if packet_info is not None:
+                attrs['stack'].append(packet_info)
         else:
             messages = ['AssertionError occurred while testing', attrs['called'][:-1]]  # remove \n
             messages.extend(attrs['stack'])
@@ -54,7 +56,7 @@ class PacketAssertion:
     def __init__(self, stack_depth=3):
         called_line = traceback.format_stack()[-stack_depth]
         m = re.search(r'File "(.+)/.+\.py"', called_line)
-        self.called_line = called_line.replace(m[1], '.')
+        self.called_line = called_line.replace(m[1], '.', 1)
 
     def is_correct_on(self, test_case: TestCase, data: bytes):
         raise NotImplemented
@@ -246,7 +248,11 @@ class EncodedData:
         return self
 
     def is_correct_on(self, test_case: TestCase, and_verified_with_encoded_data=False):
-        self._assertion.is_correct_on(test_case, self._data)
+        try:
+            self._assertion.is_correct_on(test_case, self._data)
+        except Exception as e:
+            interrupt_for_pycharm(e, None)
+            raise e
         if and_verified_with_encoded_data:
             self._assertion.verify_on(test_case)
 
@@ -255,7 +261,8 @@ class CodecTestCase(TestCase):
 
     def setUp(self):
         _logger.setLevel(logging.INFO)
-        self._file_handler = logging.FileHandler('./codec_result/{}.txt'.format(self._testMethodName), mode='w')
+        self._file_handler = logging.FileHandler(
+            '{}/codec_result/{}.txt'.format(dirname(__file__), self._testMethodName), mode='w')
         _logger.addHandler(self._file_handler)
         config.reset()
 
