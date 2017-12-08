@@ -18,6 +18,7 @@ class PacketCodecContext(DataCodecContext):
     def __init__(self):
         super().__init__()
         self.values = []
+        self.stack = []
 
 
 class Codec:
@@ -30,9 +31,9 @@ class Codec:
     def encode(self, packet: NamedTuple, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
-        >>> p = packet_factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
+        >>> p = _packet_factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
         >>> context = PacketCodecContext()
-        >>> hexlify(packet_codec.encode(p, context, BYTE_DATA))
+        >>> hexlify(_packet_codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
         >>> context.length
         40
@@ -60,7 +61,7 @@ class Codec:
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
         >>> context = PacketCodecContext()
-        >>> packet_codec.decode(data, context, BYTE_DATA)
+        >>> _packet_codec.decode(data, context, BYTE_DATA)
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
@@ -154,10 +155,10 @@ class AddressData(DataCodec[Address]):
         SHORT_DATA.write(data, value.port, context)
 
 
-class PassIf(DataCodec[T]):
+class OptionalData(DataCodec[T]):
     """Pass if predicate is true.
 
-    >>> c = PassIf(BYTE_DATA, lambda _context: _context.values[0])
+    >>> c = OptionalData(BYTE_DATA, lambda _context: _context.values[0])
     >>> data = bytearray()
     >>> context = DataCodecContext()
     >>> context.values = [False]
@@ -241,8 +242,8 @@ if __name__ == '__main__':
         ]
     }
 
-    packet_factory = PacketFactory(_packet_specs)
-    packet_codec = Codec(ID, packet_factory, _data_codecs)
+    _packet_factory = PacketFactory(_packet_specs)
+    _packet_codec = Codec(ID, _packet_factory, _data_codecs)
 
     import doctest
     doctest.testmod()

@@ -56,7 +56,7 @@ for packet_id in (PacketID.nck, PacketID.ack):
         SHORT_DATA,
         BOOL_DATA,
         TRIAD_DATA,
-        PassIf(TRIAD_DATA, lambda _context: _context.values[2])
+        OptionalData(TRIAD_DATA, lambda _context: _context.values[2])
     ]
 
 

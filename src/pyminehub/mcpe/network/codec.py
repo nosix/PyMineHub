@@ -59,8 +59,8 @@ class _VarIntData(DataCodec[int]):
         value = 0
         shift = 0
         while True:
-            if not len(data) > 0:
-                raise BytesOperationError('Invalid data format.')
+            if len(data) == 0:
+                raise BytesOperationError('Invalid data format. (context = {})'.format(context))
             d = data.pop(0)
             context.length += 1
             value += (d & 0x7f) << shift
@@ -216,13 +216,27 @@ class _CompositeData(DataCodec[TT]):
         self._factory = factory
         self._data_codecs = data_codecs
 
-    def read(self, data: bytearray, context: DataCodecContext) -> TT:
-        args = tuple(data_codec.read(data, context) for data_codec in self._data_codecs)
+    def read(self, data: bytearray, context: PacketCodecContext) -> TT:
+        values = []
+        context.stack.append(values)
+
+        def generate():
+            for data_codec in self._data_codecs:
+                value = data_codec.read(data, context)
+                values.append(value)
+                yield value
+
+        args = tuple(generate())
+        context.stack.pop()
         return self._factory(*args)
 
-    def write(self, data: bytearray, value: TT, context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: TT, context: PacketCodecContext) -> None:
+        values = []
+        context.stack.append(values)
         for v, data_codec in zip(value, self._data_codecs):
             data_codec.write(data, v, context)
+            values.append(v)
+        context.stack.pop()
 
 
 class _GameRule(DataCodec[GameRule]):
@@ -266,7 +280,13 @@ class _CommandEnumIndex(DataCodec[int]):
             _LITTLE_ENDIAN_INT_DATA.write(data, value, context)
 
 
-_VECTOR3_DATA = _CompositeData(Vector3, (
+_INT_VECTOR3_DATA = _CompositeData(Vector3, (
+    _VAR_INT_DATA,
+    _VAR_INT_DATA,
+    _VAR_INT_DATA
+))
+
+_FLOAT_VECTOR3_DATA = _CompositeData(Vector3, (
     _LITTLE_ENDIAN_FLOAT_DATA,
     _LITTLE_ENDIAN_FLOAT_DATA,
     _LITTLE_ENDIAN_FLOAT_DATA
@@ -285,6 +305,42 @@ _PACK_STACK_DATA = _VarListData(_VAR_INT_DATA, _CompositeData(PackStack, (
     STRING_DATA,
     STRING_DATA
 )))
+
+
+def _is_zero_first_value(_context: PacketCodecContext):
+    return _context.stack[-1][0] == 0
+
+
+_SLOT_DATA = _CompositeData(Slot, (
+    _VAR_INT_DATA,
+    OptionalData(_VAR_INT_DATA, _is_zero_first_value),
+    OptionalData(BytesData(len_codec=_LITTLE_ENDIAN_SHORT_DATA), _is_zero_first_value),
+    OptionalData(_VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value),
+    OptionalData(_VarListData(_VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value)
+))
+
+
+class _MetaDataValue(DataCodec[MetaDataValue]):
+
+    _DATA_CODEC_MAP = {
+        MetaDataType.byte: BYTE_DATA,
+        MetaDataType.short: _LITTLE_ENDIAN_SHORT_DATA,
+        MetaDataType.int: _VAR_INT_DATA,
+        MetaDataType.float: _LITTLE_ENDIAN_FLOAT_DATA,
+        MetaDataType.string: _VAR_INT_LENGTH_STRING_DATA,
+        MetaDataType.slot: _SLOT_DATA,
+        MetaDataType.int_vector3: _INT_VECTOR3_DATA,
+        MetaDataType.long: _VAR_INT_DATA,
+        MetaDataType.float_vector3: _FLOAT_VECTOR3_DATA
+    }
+
+    def read(self, data: bytearray, context: PacketCodecContext) -> MetaDataValue:
+        meta_data_type = context.stack[-1][1]
+        return self._DATA_CODEC_MAP[meta_data_type].read(data, context)
+
+    def write(self, data: bytearray, value: MetaDataValue, context: PacketCodecContext) -> None:
+        meta_data_type = context.stack[-1][1]
+        self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
 
 
 _game_data_codecs = {
@@ -319,7 +375,7 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
-        _VECTOR3_DATA,
+        _FLOAT_VECTOR3_DATA,
         _LITTLE_ENDIAN_FLOAT_DATA,
         _LITTLE_ENDIAN_FLOAT_DATA,
         _VAR_INT_DATA,
@@ -327,9 +383,7 @@ _game_data_codecs = {
         ValueFilter(_VAR_INT_DATA, read=lambda _data: Generator(_data), write=lambda _value: _value.value),
         _VAR_INT_DATA,
         _VAR_INT_DATA,
-        _VAR_INT_DATA,
-        _VAR_INT_DATA,
-        _VAR_INT_DATA,
+        _INT_VECTOR3_DATA,
         BOOL_DATA,
         _VAR_INT_DATA,
         BOOL_DATA,
@@ -397,6 +451,20 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _LITTLE_ENDIAN_LONG_DATA
+    ],
+    GamePacketID.set_entity_data: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _VarListData(_VAR_INT_DATA, _CompositeData(EntityMetaData, (
+            _VAR_INT_DATA,
+            ValueFilter(_VAR_INT_DATA, read=lambda _data: MetaDataType(_data), write=lambda _value: _value.value),
+            _MetaDataValue()
+        )))
+    ],
+    GamePacketID.inventory_content: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _VarListData(_VAR_INT_DATA, _SLOT_DATA)
     ]
 }
 

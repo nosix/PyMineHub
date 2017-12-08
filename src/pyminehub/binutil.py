@@ -442,7 +442,7 @@ class BytesData(DataCodec[bytes]):
     >>> hexlify(data)
     b''
 
-    >>> c = BytesData(Endian.LITTLE)
+    >>> c = BytesData(ShortData(Endian.LITTLE))
     >>> data = bytearray()
     >>> context = DataCodecContext()
     >>> c.write(data, unhexlify('ff00'), context)
@@ -462,9 +462,8 @@ class BytesData(DataCodec[bytes]):
     b''
     """
 
-    def __init__(self, endian=Endian.BIG):
-        self.endian = endian
-        self._len_codec = ShortData(endian)
+    def __init__(self, len_codec: DataCodec[int]=None):
+        self._len_codec = ShortData(Endian.BIG) if len_codec is None else len_codec
 
     def read(self, data: bytearray, context: DataCodecContext) -> bytes:
         bytes_len = self._len_codec.read(data, context)
@@ -502,10 +501,9 @@ class StringData(DataCodec[str]):
     b''
     """
 
-    def __init__(self, endian=Endian.BIG, encoding='utf8', len_codec: DataCodec=None):
-        self.endian = endian
+    def __init__(self, len_codec: DataCodec[int]=None, encoding='utf8'):
+        self._len_codec = ShortData(Endian.BIG) if len_codec is None else len_codec
         self.encoding = encoding
-        self._len_codec = ShortData(endian) if len_codec is None else len_codec
 
     def read(self, data: bytearray, context: DataCodecContext) -> str:
         length = self._len_codec.read(data, context)

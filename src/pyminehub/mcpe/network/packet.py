@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, Tuple, Union
+from typing import NamedTuple, Tuple, Union, Optional
 
 from pyminehub.mcpe.position import Vector3
 from pyminehub.network.address import Address
@@ -194,6 +194,39 @@ class CommandData(NamedTuple('CommandData', [
     pass
 
 
+class Slot(NamedTuple('Slot', [
+    ('id', int),
+    ('aux_value', Optional[int]),
+    ('nbt', Optional[bytes]),
+    ('place_on', Optional[str]),
+    ('destroy', Optional[str])
+])):
+    pass
+
+
+class MetaDataType(Enum):
+    byte = 0
+    short = 1
+    int = 2
+    float = 3
+    string = 4
+    slot = 5
+    int_vector3 = 6
+    long = 7
+    float_vector3 = 8
+
+
+MetaDataValue = Union[int, float, str, Vector3, Slot]
+
+
+class EntityMetaData(NamedTuple('EntityMetaData', [
+    ('key', int),
+    ('type', MetaDataType),
+    ('value', MetaDataValue)
+])):
+    pass
+
+
 _packet_specs = {
     PacketID.connected_ping: [
         ('id', int),
@@ -270,7 +303,7 @@ _game_packet_specs = {
         ('entity_unique_id', int),
         ('entity_runtime_id', int),
         ('player_game_mode', int),
-        ('player_position', Vector3),
+        ('player_position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
         ('seed', int),
@@ -278,9 +311,7 @@ _game_packet_specs = {
         ('generator', Generator),
         ('world_game_mode', int),
         ('difficulty', int),
-        ('spawnX', int),
-        ('spawnY', int),
-        ('spawnZ', int),
+        ('spawn', Vector3[int]),
         ('has_achievements_disabled', bool),
         ('time', int),
         ('edu_mode', bool),
@@ -332,6 +363,18 @@ _game_packet_specs = {
         ('player_permission', int),
         ('custom_flags', int),
         ('entity_unique_id', int)
+    ],
+    GamePacketID.set_entity_data: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', id),
+        ('meta_data', Tuple[EntityMetaData, ...])
+    ],
+    GamePacketID.inventory_content: [
+        ('id', int),
+        ('extra', bytes),
+        ('window_id', int),
+        ('items', Tuple[Slot, ...])
     ]
 }
 
