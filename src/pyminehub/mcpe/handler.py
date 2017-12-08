@@ -7,7 +7,7 @@ from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.mcpe.network.packet import PacketID, packet_factory
 from pyminehub.mcpe.player import Player
 from pyminehub.network.address import to_address
-from pyminehub.raknet.server import GameDataHandler
+from pyminehub.raknet import GameDataHandler
 
 _logger = getLogger(__name__)
 

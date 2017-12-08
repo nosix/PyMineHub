@@ -109,7 +109,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         session.ack_received(packet)
 
 
-async def send(protocol: _RakNetServerProtocol):
+async def _send(protocol: _RakNetServerProtocol):
     while True:
         await asyncio.sleep(0.1)
         protocol.send_ack_and_nck()
@@ -122,7 +122,7 @@ def run(handler, log_level=None):
         lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)
     try:
-        loop.run_until_complete(send(protocol))
+        loop.run_until_complete(_send(protocol))
         loop.run_forever()
     except KeyboardInterrupt:
         pass

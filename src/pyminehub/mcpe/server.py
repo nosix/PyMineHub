@@ -1,5 +1,5 @@
 from pyminehub.mcpe.handler import MCPEHandler
-from pyminehub.raknet.server import run as run_raknet
+from pyminehub.raknet import run as run_raknet
 
 
 def run():
