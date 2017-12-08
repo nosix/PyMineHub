@@ -367,7 +367,7 @@ _game_packet_specs = {
     GamePacketID.set_entity_data: [
         ('id', int),
         ('extra', bytes),
-        ('entity_runtime_id', id),
+        ('entity_runtime_id', int),
         ('meta_data', Tuple[EntityMetaData, ...])
     ],
     GamePacketID.inventory_content: [
@@ -375,6 +375,22 @@ _game_packet_specs = {
         ('extra', bytes),
         ('window_id', int),
         ('items', Tuple[Slot, ...])
+    ],
+    GamePacketID.mob_equipment: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', int),
+        ('item', Slot),
+        ('inventory_slot', int),
+        ('hotbar_slot', int),
+        ('window_id', int)
+    ],
+    GamePacketID.inventory_slot: [
+        ('id', int),
+        ('extra', bytes),
+        ('window_id', int),
+        ('inventory_slot', int),
+        ('item', Slot)
     ]
 }
 

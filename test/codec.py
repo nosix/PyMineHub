@@ -257,15 +257,8 @@ class CodecTestCase(TestCase):
         _logger.setLevel(logging.INFO)
         self._file_handler = logging.FileHandler('./codec_result/{}.txt'.format(self._testMethodName), mode='w')
         _logger.addHandler(self._file_handler)
-        self._stream_handler = logging.StreamHandler(sys.stdout)
-        _logger.addHandler(self._stream_handler)
         config.reset()
 
     def tearDown(self):
         _logger.removeHandler(self._file_handler)
         self._file_handler.close()
-        if self._stream_handler is not None:
-            _logger.removeHandler(self._stream_handler)
-
-    def disable_console_log(self):
-        _logger.removeHandler(self._stream_handler)

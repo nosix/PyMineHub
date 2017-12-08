@@ -4,8 +4,6 @@ from codec import *
 class LoginLogoutTestCase(CodecTestCase):
 
     def test_login_logout_01(self):
-        self.disable_console_log()
-
         assertion = EncodedData(
             '840400006000a000000000000000fe7801010800f7ff0702000000000000004e'
             '000a6000a801000001000000fe7801010900f6ff080600000000000000008100'
@@ -27,9 +25,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_02(self):
-        self.disable_console_log()
         config.set_config(batch_compress_threshold=0)  # TODO
-
         assertion = EncodedData(
             '840d00006000800b000002000000fe78da63e360606066600000006a0012'
         ).is_(
@@ -44,8 +40,6 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_03(self):
-        self.disable_console_log()
-
         assertion = EncodedData(
             '8405000060009802000002000000fe7801010700f8ff06070000000000005b00'
             '0e'
@@ -61,8 +55,6 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_04(self):
-        self.disable_console_log()
-
         assertion = EncodedData(
             '8409000060035003000003000000fe7801015e00a1ff5d0b0000020100000080'
             '430080664200008043000000000000b3430100020004800438800401cc880200'
@@ -139,8 +131,6 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_05(self):
-        self.disable_console_log()
-
         assertion = EncodedData(
             '840a000060021808000008000000fe7801013700c8ff36270000010700078080'
             'c680808030070100002b01900104040f4d617474654d757373656c3336323026'
@@ -170,8 +160,6 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_06(self):
-        self.disable_console_log()
-
         assertion = EncodedData(
             'fe78da3dd851641d5918c0f1e636e9465d2b0f798815ab2a2a561eb22b561ea2'
             'fa5057ad6bd5ea43ac58b1f2102b0fb1f2d05d7da8888a888a8a8aa88a888a8a'
@@ -224,6 +212,26 @@ class LoginLogoutTestCase(CodecTestCase):
         ).is_(
             Batch().that_has(
                 GamePacket(MCPEGamePacketID.inventory_content)
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
+    def test_login_logout_07(self):
+        assertion = EncodedData(
+            '840d00006000a80d00000c000000fe7801010900f6ff081f0000010000000001'
+            '4e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039'
+        ).is_(
+            RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.mob_equipment)
+                    )
+                ),
+                Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.inventory_slot)
+                    )
+                )
             )
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)

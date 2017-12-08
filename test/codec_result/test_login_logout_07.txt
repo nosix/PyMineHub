@@ -1,0 +1,35 @@
+custom_packet_4(id=132, packet_sequence_num=13, payload=b'`\x00\xa8\r\x00\x00\x0c\x00\x00\x00\xfex\x01\x01\t\x00\xf6\xff\x08\x1f\x00\x00\x01\x00\x00\x00\x00\x01N\x00)`\x00\x98\x0e\x00\x00\r\x00\x00\x00\xfex\x01\x01\x07\x00\xf8\xff\x062\x00\x00\x00\x00\x00\x01]\x009')
+  -> 840d00006000a80d00000c000000fe7801010900f6ff081f00000100000000014e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039
+  File "./codec_login_logout.py", line 224, in test_login_logout_07
+    RakNetPacket(RakNetPacketID.custom_packet_4).that_has(
+
+reliable_ordered(id=96, payload_length=168, reliable_message_num=13, message_ordering_index=12, message_ordering_chanel=0, payload=b'\xfex\x01\x01\t\x00\xf6\xff\x08\x1f\x00\x00\x01\x00\x00\x00\x00\x01N\x00)')
+  -> 6000a80d00000c000000fe7801010900f6ff081f00000100000000014e0029
+  File "./codec_login_logout.py", line 225, in test_login_logout_07
+    Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+
+batch(id=254, payloads=(bytearray(b'\x1f\x00\x00\x01\x00\x00\x00\x00'),))
+  -> fe7801010900f6ff081f00000100000000014e0029
+  File "./codec_login_logout.py", line 226, in test_login_logout_07
+    Batch().that_has(
+
+mob_equipment(id=31, extra=b'\x00\x00', entity_runtime_id=1, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), inventory_slot=0, hotbar_slot=0, window_id=0)
+  -> 1f00000100000000
+  File "./codec_login_logout.py", line 227, in test_login_logout_07
+    GamePacket(MCPEGamePacketID.mob_equipment)
+
+reliable_ordered(id=96, payload_length=152, reliable_message_num=14, message_ordering_index=13, message_ordering_chanel=0, payload=b'\xfex\x01\x01\x07\x00\xf8\xff\x062\x00\x00\x00\x00\x00\x01]\x009')
+  -> 6000980e00000d000000fe7801010700f8ff06320000000000015d0039
+  File "./codec_login_logout.py", line 230, in test_login_logout_07
+    Capsule(RakNetCapsuleID.reliable_ordered).that_has(
+
+batch(id=254, payloads=(bytearray(b'2\x00\x00\x00\x00\x00'),))
+  -> fe7801010700f8ff06320000000000015d0039
+  File "./codec_login_logout.py", line 231, in test_login_logout_07
+    Batch().that_has(
+
+inventory_slot(id=50, extra=b'\x00\x00', window_id=0, inventory_slot=0, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None))
+  -> 320000000000
+  File "./codec_login_logout.py", line 232, in test_login_logout_07
+    GamePacket(MCPEGamePacketID.inventory_slot)
+

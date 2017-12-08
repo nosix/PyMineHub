@@ -465,6 +465,20 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VarListData(_VAR_INT_DATA, _SLOT_DATA)
+    ],
+    GamePacketID.mob_equipment: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _SLOT_DATA,
+        BYTE_DATA,
+        BYTE_DATA,
+        BYTE_DATA
+    ],
+    GamePacketID.inventory_slot: [
+        _HEADER_EXTRA_DATA,
+        _VAR_INT_DATA,
+        _VAR_INT_DATA,
+        _SLOT_DATA
     ]
 }
 
