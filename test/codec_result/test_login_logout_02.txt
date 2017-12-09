@@ -3,7 +3,7 @@ RESOURCE_PACK_CLIENT_RESPONSE(id=8, extra=b'\x00\x00', status=<ResourcePackStatu
   File "./codec_login_logout.py", line 35, in test_login_logout_02
     GamePacket(MCPEGamePacketID.RESOURCE_PACK_CLIENT_RESPONSE)
 
-BATCH(id=254, payloads=([35 bytes],))
+BATCH(id=254, payloads=(bytearray(b'\x08\x00\x00\x03\x00\x00'),))
   -> fe78da63e360606066600000006a0012
   File "./codec_login_logout.py", line 34, in test_login_logout_02
     Batch().that_has(
@@ -13,7 +13,7 @@ RELIABLE_ORDERED(id=96, payload_length=128, reliable_message_num=11, message_ord
   File "./codec_login_logout.py", line 33, in test_login_logout_02
     Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
 
-CUSTOM_PACKET_4(id=132, packet_sequence_num=13, payload=b'`\x00\x80\x0b\x00\x00\x02\x00\x00\x00\xfex\xdac\xe3```f`\x00\x00\x00j\x00\x12')
+CUSTOM_PACKET_4(id=132, packet_sequence_num=13, payload=[26 bytes])
   -> 840d00006000800b000002000000fe78da63e360606066600000006a0012
   File "./codec_login_logout.py", line 32, in test_login_logout_02
     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
