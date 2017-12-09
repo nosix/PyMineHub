@@ -94,3 +94,28 @@ PlayerListEntry = NamedTuple('PlayerListEntry', [
     ('skin', Optional[Skin]),
     ('xbox_user_id', Optional[str])
 ])
+
+RecipeForNormal = NamedTuple('RecipeForNormal', [
+    ('width', Optional[int]),
+    ('height', Optional[int]),
+    ('input', Tuple[Slot, ...]),
+    ('output', Tuple[Slot, ...]),
+    ('uuid', UUID)
+])
+
+RecipeForFurnace = NamedTuple('RecipeForFurnace', [
+    ('input_id', int),
+    ('input_damage', Optional[int]),
+    ('output', Slot)
+])
+
+RecipeForMulti = NamedTuple('RecipeForMulti', [
+    ('uuid', UUID)
+])
+
+RecipeData = Union[RecipeForNormal, RecipeForFurnace, RecipeForMulti]
+
+Recipe = NamedTuple('Recipe', [
+    ('type', RecipeType),
+    ('data', RecipeData)
+])

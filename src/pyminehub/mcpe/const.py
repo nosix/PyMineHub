@@ -39,3 +39,12 @@ class MetaDataType(Enum):
 class PlayerListType(Enum):
     ADD = 0
     REMOVE = 1
+
+
+class RecipeType(Enum):
+    SHAPELESS = 0
+    SHAPED = 1
+    FURNACE = 2
+    FURNACE_DATA = 3
+    MULTI = 4
+    SHULKER_BOX = 5

@@ -17,16 +17,16 @@ _LITTLE_ENDIAN_SIGNED_INT_DATA = IntData(endian=Endian.LITTLE, unsigned=False)
 
 
 class _VarIntData(DataCodec[int]):
-    """Convert variable length unsigned N bytes data.
+    """Convert variable length N bytes data.
 
     >>> c = _VarIntData()
     >>> data = bytearray()
     >>> context = DataCodecContext()
-    >>> c.write(data, 0, context)
-    >>> c.write(data, 127, context)  # 7f (0111 1111)
-    >>> c.write(data, 128, context)  # 80 (1000 0000)
-    >>> c.write(data, 16383, context)  # 3f (11 1111 1111 1111)
-    >>> c.write(data, 16384, context)  # 40 (100 0000 0000 0000)
+    >>> c.write(data, 0, context)  # 0000_0000 -> 0 (0000_0000)
+    >>> c.write(data, 127, context)  # 0111_1111 -> 7f (0111_1111)
+    >>> c.write(data, 128, context)  # 1000_0000 -> 8001 (1000_000 0000_0001)
+    >>> c.write(data, 16383, context)  # 0011_1111 1111_1111 -> 01ff7f (0000_0001 1111_1111 0111_ffff)
+    >>> c.write(data, 16384, context)  # 0100_0000 0000_0000 -> 808001 (1000_0000 8000_0000 0000_0001)
     >>> context.length
     9
     >>> hexlify(data)
@@ -46,14 +46,56 @@ class _VarIntData(DataCodec[int]):
     9
     >>> hexlify(data)
     b''
+
+    >>> c = _VarIntData(unsigned=False)
+    >>> data = bytearray()
+    >>> context = DataCodecContext()
+    >>> c.write(data, 0, context)  # 0000_0001 -> 00 (0000_0000)
+    >>> c.write(data, 1, context)  # 0000_0001 -> 02 (0000_0010)
+    >>> c.write(data, -1, context)  # 1111_1111 1111_1111 -> 01 (0000_0001)
+    >>> c.write(data, 32767, context)  # 0111_1111 1111_1111 -> feff03 (1111_1110 1111_1111 0000_0011)
+    >>> c.write(data, -32768, context)  # 1000_0000 0000_0001 -> ffff03 (1111_1111 1111_1111 0000_0011)
+    >>> context.length
+    9
+    >>> hexlify(data)
+    b'000201feff03ffff03'
+    >>> context.clear()
+    >>> c.read(data, context)
+    0
+    >>> c.read(data, context)
+    1
+    >>> c.read(data, context)
+    -1
+    >>> c.read(data, context)
+    32767
+    >>> c.read(data, context)
+    -32768
+    >>> context.length
+    9
+    >>> hexlify(data)
+    b''
     """
 
     def __init__(self, unsigned=True):
         self._unsigned = unsigned
 
     @staticmethod
-    def _invert_sign(value: int) -> int:
-        return - ((value ^ 0xffff_ffff) + 1)
+    def _exchange_for_reading(value: int) -> int:
+        """
+        Mark [] shows sign bit. Negative value inverts bits.
+        0000 001[0] -> [0]000 0001 (1)
+        0000 000[1] -> [1]111 1111 (-1)
+        """
+        return ~(value >> 1) if value & 1 else (value >> 1)
+
+    @staticmethod
+    def _exchange_for_writing(value: int) -> int:
+        """
+        Mark [] shows sign bit. Negative value inverts bits.
+        [0]000 0001 -> 0000 001[0] (1)
+        [1]111 1111 -> 0000 000[1] (-1)
+        """
+        return ~(value << 1) if value < 0 else (value << 1)
 
     def read(self, data: bytearray, context: DataCodecContext) -> int:
         value = 0
@@ -67,11 +109,11 @@ class _VarIntData(DataCodec[int]):
             if d & 0x80 == 0:
                 break
             shift += 7
-        return value if self._unsigned or (value & 0x8000_0000) == 0 else self._invert_sign(value)
+        return value if self._unsigned else self._exchange_for_reading(value)
 
     def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
-        if not self._unsigned and value < 0:
-            value = self._invert_sign(value)
+        if not self._unsigned:
+            value = self._exchange_for_writing(value)
         while True:
             d = value & 0x7f
             value >>= 7
@@ -190,6 +232,21 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
 
     def write(self, data: bytearray, value: ConnectionRequest, context: DataCodecContext) -> None:
         raise NotImplemented
+
+
+ET = TypeVar('ET', bound=Enum)
+
+
+class _EnumData(DataCodec[ET]):
+
+    def __init__(self, data_codec: DataCodec[int], factory: Callable[[int], ET]):
+        self._filter = ValueFilter(data_codec, read=lambda _data: factory(_data), write=lambda _value: _value.value)
+
+    def read(self, data: bytearray, context: DataCodecContext) -> ET:
+        return self._filter.read(data, context)
+
+    def write(self, data: bytearray, value: ET, context: DataCodecContext):
+        self._filter.write(data, value, context)
 
 
 class _VarListData(DataCodec[Tuple[T, ...]]):
@@ -348,6 +405,62 @@ def _is_type_remove(context: PacketCodecContext) -> bool:
     return context.values[2] == PlayerListType.REMOVE
 
 
+_UUID_DATA = _CompositeData(UUID, (
+    _LITTLE_ENDIAN_INT_DATA,
+    _LITTLE_ENDIAN_INT_DATA,
+    _LITTLE_ENDIAN_INT_DATA,
+    _LITTLE_ENDIAN_INT_DATA
+))
+
+
+class _RecipeData(DataCodec[RecipeData]):
+
+    _SLOTS = _VarListData(_VAR_INT_DATA, _SLOT_DATA)
+
+    def read(self, data: bytearray, context: PacketCodecContext) -> RecipeData:
+        recipe_type = context.stack[-1][0]
+        if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
+            width, height = None, None
+            if recipe_type == RecipeType.SHAPED:
+                width = _VAR_SIGNED_INT_DATA.read(data, context)
+                height = _VAR_SIGNED_INT_DATA.read(data, context)
+                input_slots = tuple(_SLOT_DATA.read(data, context) for _ in range(width * height))
+            else:
+                input_slots = self._SLOTS.read(data, context)
+            output_slots = self._SLOTS.read(data, context)
+            uuid = _UUID_DATA.read(data, context)
+            return RecipeForNormal(width, height, input_slots, output_slots, uuid)
+        if recipe_type in (RecipeType.FURNACE, RecipeType.FURNACE_DATA):
+            input_id = _VAR_SIGNED_INT_DATA.read(data, context)
+            input_damage = _VAR_SIGNED_INT_DATA.read(data, context) if recipe_type == RecipeType.FURNACE_DATA else None
+            output_slot = _SLOT_DATA.read(data, context)
+            return RecipeForFurnace(input_id, input_damage, output_slot)
+        if recipe_type == RecipeType.MULTI:
+            return RecipeForMulti(_UUID_DATA.read(data, context))
+
+    def write(self, data: bytearray, value: RecipeData, context: PacketCodecContext):
+        recipe_type = context.stack[-1][0]
+        if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
+            if recipe_type == RecipeType.SHAPED:
+                _VAR_SIGNED_INT_DATA.write(data, value.width, context)
+                _VAR_SIGNED_INT_DATA.write(data, value.height, context)
+                for slot in value.input:
+                    _SLOT_DATA.write(data, slot, context)
+            else:
+                self._SLOTS.write(data, value.input, context)
+            self._SLOTS.write(data, value.output, context)
+            _UUID_DATA.write(data, value.uuid, context)
+            return
+        if recipe_type in (RecipeType.FURNACE, RecipeType.FURNACE_DATA):
+            _VAR_SIGNED_INT_DATA.write(data, value.input_id, context)
+            if recipe_type == RecipeType.FURNACE_DATA:
+                _VAR_SIGNED_INT_DATA.write(data, value.input_damage, context)
+            _SLOT_DATA.write(data, value.output, context)
+            return
+        if recipe_type == RecipeType.MULTI:
+            _UUID_DATA.write(data, value.uuid, context)
+
+
 _game_data_codecs = {
     GamePacketID.LOGIN: [
         _HEADER_EXTRA_DATA,
@@ -356,7 +469,7 @@ _game_data_codecs = {
     ],
     GamePacketID.PLAY_STATUS: [
         _HEADER_EXTRA_DATA,
-        ValueFilter(INT_DATA, read=lambda _data: PlayStatus(_data), write=lambda _value: _value.value)
+        _EnumData(INT_DATA, PlayStatus)
     ],
     GamePacketID.RESOURCE_PACKS_INFO: [
         _HEADER_EXTRA_DATA,
@@ -372,7 +485,7 @@ _game_data_codecs = {
     ],
     GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE: [
         _HEADER_EXTRA_DATA,
-        ValueFilter(BYTE_DATA, read=lambda _data: ResourcePackStatus(_data), write=lambda _value: _value.value),
+        _EnumData(BYTE_DATA, ResourcePackStatus),
         _VarListData(_LITTLE_ENDIAN_SHORT_DATA, STRING_DATA)
     ],
     GamePacketID.START_GAME: [
@@ -385,7 +498,7 @@ _game_data_codecs = {
         _LITTLE_ENDIAN_FLOAT_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
-        ValueFilter(_VAR_INT_DATA, read=lambda _data: Generator(_data), write=lambda _value: _value.value),
+        _EnumData(_VAR_INT_DATA, Generator),
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _INT_VECTOR3_DATA,
@@ -452,7 +565,7 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
-        _VAR_SIGNED_INT_DATA,
+        _VAR_INT_DATA,
         _VAR_INT_DATA,
         _VAR_INT_DATA,
         _LITTLE_ENDIAN_LONG_DATA
@@ -462,7 +575,7 @@ _game_data_codecs = {
         _VAR_INT_DATA,
         _VarListData(_VAR_INT_DATA, _CompositeData(EntityMetaData, (
             _VAR_INT_DATA,
-            ValueFilter(_VAR_INT_DATA, read=lambda _data: MetaDataType(_data), write=lambda _value: _value.value),
+            _EnumData(_VAR_INT_DATA, MetaDataType),
             _MetaDataValue()
         )))
     ],
@@ -487,14 +600,9 @@ _game_data_codecs = {
     ],
     GamePacketID.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
-        ValueFilter(BYTE_DATA, read=lambda _data: PlayerListType(_data), write=lambda _value: _value.value),
+        _EnumData(BYTE_DATA, PlayerListType),
         _VarListData(_VAR_INT_DATA, _CompositeData(PlayerListEntry, (
-            _CompositeData(UUID, (
-                _LITTLE_ENDIAN_INT_DATA,
-                _LITTLE_ENDIAN_INT_DATA,
-                _LITTLE_ENDIAN_INT_DATA,
-                _LITTLE_ENDIAN_INT_DATA
-            )),
+            _UUID_DATA,
             OptionalData(_VAR_INT_DATA, _is_type_remove),
             OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove),
             OptionalData(_CompositeData(Skin, (
@@ -506,6 +614,14 @@ _game_data_codecs = {
             )), _is_type_remove),
             OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove)
         )))
+    ],
+    GamePacketID.CRAFTING_DATA: [
+        _HEADER_EXTRA_DATA,
+        _VarListData(_VAR_INT_DATA, _CompositeData(Recipe, (
+            _EnumData(_VAR_SIGNED_INT_DATA, RecipeType),
+            _RecipeData()
+        ))),
+        BOOL_DATA
     ]
 }
 

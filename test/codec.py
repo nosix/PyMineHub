@@ -3,6 +3,7 @@ Test cases for codec.
 
 When debugging, execute `from codec import *` in REPL.
 """
+import inspect
 import logging
 import re
 import sys
@@ -23,6 +24,23 @@ from pyminehub.raknet.encapsulation import CapsuleID as RakNetCapsuleID
 from pyminehub.raknet.packet import PacketID as RakNetPacketID
 
 _logger = logging.getLogger(__name__)
+
+
+class CodecTestCase(TestCase):
+
+    def get_file_name(self, kind: str, ext='txt'):
+        module_file_name = inspect.getmodule(self).__file__
+        return '{}/{}/{}.{}'.format(dirname(module_file_name), kind, self._testMethodName, ext)
+
+    def setUp(self):
+        _logger.setLevel(logging.INFO)
+        self._file_handler = logging.FileHandler(self.get_file_name('codec_result'), 'w')
+        _logger.addHandler(self._file_handler)
+        config.reset()
+
+    def tearDown(self):
+        _logger.removeHandler(self._file_handler)
+        self._file_handler.close()
 
 
 def interrupt_for_pycharm(exc: Exception, called, packet_info=None):
@@ -86,7 +104,8 @@ class GamePacket(PacketAssertion):
     def verify_on(self, test_case: TestCase):
         assert self._data is not None and self._mcpe_game_packet is not None
         data = mcpe_game_packet_codec.encode(self._mcpe_game_packet)
-        test_case.assertEqual(self._data, data, '{}\n{}'.format(self.called_line, self._mcpe_game_packet))
+        test_case.assertEqual(
+            self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, self._mcpe_game_packet))
         _logger.info('%s\n  -> %s\n%s', self._mcpe_game_packet, self._data.hex(), self.called_line)
 
 
@@ -121,11 +140,22 @@ class Batch(PacketAssertion):
 
     def verify_on(self, test_case: TestCase):
         assert self._data is not None and self._mcpe_packet is not None
-        data = mcpe_packet_codec.encode(self._mcpe_packet)
-        test_case.assertEqual(self._data, data, '{}\n{}'.format(self.called_line, self._mcpe_packet))
-        _logger.info('%s\n  -> %s\n%s', self._mcpe_packet, self._data.hex(), self.called_line)
         for assertion in self._assertions:
             assertion.verify_on(test_case)
+        data = mcpe_packet_codec.encode(self._mcpe_packet)
+        try:
+            test_case.assertEqual(
+                self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, self._mcpe_packet))
+            import re
+            reduced = re.sub(
+                r"bytearray\((b'.*')\)",
+                lambda m: '[{} bytes]'.format(len(repr(m[1]))),
+                str(self._mcpe_packet))
+            _logger.info('%s\n  -> %s\n%s', reduced, self._data.hex(), self.called_line)
+        except AssertionError as e:
+            print('There may be differences in compression results:', e, file=sys.stderr)
+            self.is_correct_on(test_case, data)
+            self.verify_on(test_case)
 
 
 class Capsule(PacketAssertion):
@@ -164,11 +194,11 @@ class Capsule(PacketAssertion):
 
     def verify_on(self, test_case: TestCase):
         assert self._data is not None and self._capsule is not None
-        data = raknet_capsule_codec.encode(self._capsule)
-        test_case.assertEqual(self._data, data, '{}\n{}'.format(self.called_line, self._capsule))
-        _logger.info('%s\n  -> %s\n%s', self._capsule, self._data.hex(), self.called_line)
         if self._assertion is not None:
             self._assertion.verify_on(test_case)
+        data = raknet_capsule_codec.encode(self._capsule)
+        test_case.assertEqual(self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, self._capsule))
+        _logger.info('%s\n  -> %s\n%s', self._capsule, self._data.hex(), self.called_line)
 
 
 class RakNetPacket(PacketAssertion):
@@ -218,19 +248,19 @@ class RakNetPacket(PacketAssertion):
             self._test_raknet_encapsulation(test_case)
         except _WrappedException as e:
             message = '{}'.format(e.args[0])
-            raise test_case.failureException(message).with_traceback(e.tb) from None
+            raise _WrappedException(e.exc, e.tb, message) from None
         except Exception as e:
             interrupt_for_pycharm(e, self.called_line)
             message = '{} occurred while testing\n{}'.format(repr(e), self.called_line)
-            raise test_case.failureException(message).with_traceback(sys.exc_info()[2]) from None
+            raise _WrappedException(e, sys.exc_info()[2], message) from None
 
     def verify_on(self, test_case: TestCase):
         assert self._raknet_packet is not None
-        data = raknet_packet_codec.encode(self._raknet_packet)
-        test_case.assertEqual(self._data, data, '{}\n{}'.format(self.called_line, self._raknet_packet))
-        _logger.info('%s\n  -> %s\n%s', self._raknet_packet, self._data.hex(), self.called_line)
         for assertion in self._assertions:
             assertion.verify_on(test_case)
+        data = raknet_packet_codec.encode(self._raknet_packet)
+        test_case.assertEqual(self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, self._raknet_packet))
+        _logger.info('%s\n  -> %s\n%s', self._raknet_packet, self._data.hex(), self.called_line)
 
 
 class EncodedData:
@@ -250,6 +280,9 @@ class EncodedData:
     def is_correct_on(self, test_case: TestCase, and_verified_with_encoded_data=False):
         try:
             self._assertion.is_correct_on(test_case, self._data)
+        except _WrappedException as e:
+            message = '{}'.format(e.args[0])
+            raise test_case.failureException(message).with_traceback(e.tb) from None
         except Exception as e:
             interrupt_for_pycharm(e, None)
             raise e
@@ -257,15 +290,13 @@ class EncodedData:
             self._assertion.verify_on(test_case)
 
 
-class CodecTestCase(TestCase):
+class EncodedDataInFile(EncodedData):
 
-    def setUp(self):
-        _logger.setLevel(logging.INFO)
-        self._file_handler = logging.FileHandler(
-            '{}/codec_result/{}.txt'.format(dirname(__file__), self._testMethodName), mode='w')
-        _logger.addHandler(self._file_handler)
-        config.reset()
+    def __init__(self, test_case: CodecTestCase):
+        """ Encoded data validator.
 
-    def tearDown(self):
-        _logger.removeHandler(self._file_handler)
-        self._file_handler.close()
+        Data is read from the file '{test_case_module_dir}/codec_data/{test_name}.txt'
+        """
+        with open(test_case.get_file_name('codec_data'), 'r') as file:
+            data = ''.join(file.readlines())
+        super().__init__(data)

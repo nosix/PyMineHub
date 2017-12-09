@@ -331,6 +331,14 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_login_logout_09(self):
+        assertion = EncodedDataInFile(self).is_(
+            Batch().that_has(
+                GamePacket(MCPEGamePacketID.CRAFTING_DATA)
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest

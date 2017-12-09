@@ -290,6 +290,12 @@ _game_packet_specs = {
         ('extra', bytes),
         ('type', PlayerListType),
         ('entries', Tuple[PlayerListEntry, ...])
+    ],
+    GamePacketID.CRAFTING_DATA: [
+        ('id', int),
+        ('extra', bytes),
+        ('recipe', Recipe),
+        ('clean_recipes', bool)
     ]
 }
 
