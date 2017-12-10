@@ -9,6 +9,7 @@ class PacketID(Enum):
     CONNECTION_REQUEST = 0x09
     CONNECTION_REQUEST_ACCEPTED = 0x10
     NEW_INCOMING_CONNECTION = 0x13
+    DISCONNECTION_NOTIFICATION = 0x15
     BATCH = 0xfe
 
 
@@ -150,6 +151,9 @@ _packet_specs = {
         ('internal_address', Tuple[Address, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
+    ],
+    PacketID.DISCONNECTION_NOTIFICATION: [
+        ('id', int)
     ],
     PacketID.BATCH: [
         ('id', int),

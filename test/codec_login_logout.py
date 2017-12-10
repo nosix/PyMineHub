@@ -222,6 +222,18 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_login_logout_14(self):
+        assertion = EncodedData(
+            '84850100600008a002008402000015'
+        ).is_(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
+                    ConnectionPacket(MCPEPacketID.DISCONNECTION_NOTIFICATION)
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest

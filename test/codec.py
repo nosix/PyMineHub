@@ -11,7 +11,7 @@ import traceback
 from binascii import unhexlify as unhex
 from collections import namedtuple
 from os.path import dirname
-from typing import Callable, Any
+from typing import Callable, Union, Any
 from unittest import TestCase
 
 from pyminehub import config
@@ -137,12 +137,12 @@ class PacketAssertion:
                 self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, packet_str))
             _logger.info('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
         except AssertionError as e:
-            self.verify_error_hook(test_case, e, data)
+            self.verify_error_hook(test_case, e, data, self.called_line)
 
     def verify_children(self, test_case: CodecTestCase) -> None:
         pass
 
-    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes) -> None:
+    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes, called_line: str) -> None:
         raise exc
 
     def try_child_assertion(self, assertion_method: Callable[..., None], *args) -> Any:
@@ -179,6 +179,24 @@ class GamePacket(PacketAssertion):
         return context.length
 
 
+class ConnectionPacket(PacketAssertion):
+
+    def __init__(self, packet_id: MCPEPacketID):
+        """ Connection packet validator.
+        :param packet_id: expected packet ID
+        """
+        super().__init__('MCPE packet')
+        self._packet_id = packet_id
+
+    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+        context = PacketCodecContext()
+        packet = mcpe_packet_codec.decode(data, context)
+        test_case.assertEqual(self._packet_id, MCPEPacketID(packet.id))
+        test_case.assertEqual(len(data), context.length)
+        self.record_decoded(data[:context.length], packet, mcpe_packet_codec)
+        return context.length
+
+
 class Batch(PacketAssertion):
 
     def __init__(self):
@@ -205,8 +223,8 @@ class Batch(PacketAssertion):
         for assertion in self._assertions:
             self.try_child_assertion(assertion.verify_on, test_case)
 
-    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes):
-        print('Warning: There may be differences in compression results:', exc, file=sys.stderr)
+    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes, called_line: str):
+        print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
         self.is_correct_on(test_case, data)
         self.verify_on(test_case)
 
@@ -221,8 +239,8 @@ class Capsule(PacketAssertion):
         self._capsule_id = capsule_id
         self._assertion = None
 
-    def that_has(self, batch: Batch):
-        self._assertion = batch
+    def that_has(self, packet: Union[ConnectionPacket, Batch]):
+        self._assertion = packet
         return self
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):

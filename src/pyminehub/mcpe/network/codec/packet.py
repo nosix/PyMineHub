@@ -78,6 +78,8 @@ _packet_data_codecs = {
         LONG_DATA,
         LONG_DATA
     ],
+    PacketID.DISCONNECTION_NOTIFICATION: [
+    ],
     PacketID.BATCH: [
         _CompressedPacketList()
     ]
