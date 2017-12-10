@@ -24,6 +24,12 @@ class Generator(Enum):
     FLAT = 2
 
 
+class GameRuleType(Enum):
+    BOOL = 1
+    INT = 2
+    FLOAT = 3
+
+
 class MetaDataType(Enum):
     BYTE = 0
     SHORT = 1

@@ -136,25 +136,27 @@ _PACK_STACK_DATA = _VarListData(VAR_INT_DATA, _CompositeData(PackStack, (
     STRING_DATA
 )))
 
+_GAME_RULE_TYPE_DATA = _EnumData(VAR_INT_DATA, GameRuleType)
+
 
 class _GameRule(DataCodec[GameRule]):
 
-    _TYPE_MAP = {
-        1: BOOL_DATA,
-        2: VAR_INT_DATA,
-        3: _LITTLE_ENDIAN_FLOAT_DATA
+    _VALUE_DATA_MAP = {
+        GameRuleType.BOOL: BOOL_DATA,
+        GameRuleType.INT: VAR_INT_DATA,
+        GameRuleType.FLOAT: _LITTLE_ENDIAN_FLOAT_DATA
     }
 
     def read(self, data: bytearray, context: DataCodecContext) -> GameRule:
         rule_name = _VAR_INT_LENGTH_STRING_DATA.read(data, context)
-        rule_type = VAR_INT_DATA.read(data, context)
-        rule_value = self._TYPE_MAP[rule_type].read(data, context)
+        rule_type = _GAME_RULE_TYPE_DATA.read(data, context)
+        rule_value = self._VALUE_DATA_MAP[rule_type].read(data, context)
         return GameRule(rule_name, rule_type, rule_value)
 
     def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
         _VAR_INT_LENGTH_STRING_DATA.write(data, value.name, context)
-        VAR_INT_DATA.write(data, value.type, context)
-        self._TYPE_MAP[value.type].write(data, value.value, context)
+        _GAME_RULE_TYPE_DATA.write(data, value.type, context)
+        self._VALUE_DATA_MAP[value.type].write(data, value.value, context)
 
 
 class _CommandEnumIndex(DataCodec[int]):

@@ -24,7 +24,7 @@ PackStack = NamedTuple('PackStack', [
 
 GameRule = NamedTuple('GameRule', [
     ('name', str),
-    ('type', int),
+    ('type', GameRuleType),
     ('value', Union[bool, int, float])
 ])
 
