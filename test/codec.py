@@ -15,11 +15,11 @@ from typing import Callable, Any
 from unittest import TestCase
 
 from pyminehub import config
-from pyminehub.mcpe.network.codec import Codec
 from pyminehub.mcpe.network.codec import game_packet_codec as mcpe_game_packet_codec
 from pyminehub.mcpe.network.codec import packet_codec as mcpe_packet_codec
 from pyminehub.mcpe.network.packet import GamePacketID as MCPEGamePacketID
 from pyminehub.mcpe.network.packet import PacketID as MCPEPacketID
+from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import capsule_codec as raknet_capsule_codec
 from pyminehub.raknet.codec import packet_codec as raknet_packet_codec
