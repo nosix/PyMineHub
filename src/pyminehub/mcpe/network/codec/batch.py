@@ -274,6 +274,12 @@ class _RecipeData(DataCodec[RecipeData]):
             _UUID_DATA.write(data, value.uuid, context)
 
 
+_CHUNK_POSITION = _CompositeData(ChunkPosition, (
+    VAR_SIGNED_INT_DATA,
+    VAR_SIGNED_INT_DATA
+))
+
+
 _game_data_codecs = {
     GamePacketID.LOGIN: [
         _HEADER_EXTRA_DATA,
@@ -449,6 +455,11 @@ _game_data_codecs = {
         _INT_VECTOR3_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA
+    ],
+    GamePacketID.FULL_CHUNK_DATA: [
+        _HEADER_EXTRA_DATA,
+        _CHUNK_POSITION,
+        _VAR_INT_LENGTH_BYTES_DATA
     ]
 }
 

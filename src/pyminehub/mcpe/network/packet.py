@@ -313,6 +313,12 @@ _game_packet_specs = {
         ('position', Vector3[int]),
         ('block_id', int),
         ('aux', int)
+    ],
+    GamePacketID.FULL_CHUNK_DATA: [
+        ('id', int),
+        ('extra', bytes),
+        ('position', ChunkPosition),
+        ('data', bytes)
     ]
 }
 

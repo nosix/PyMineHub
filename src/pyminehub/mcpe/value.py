@@ -1,7 +1,7 @@
-from typing import NamedTuple, Tuple, Union, Optional
+from typing import Tuple, Union, Optional
 
 from pyminehub.mcpe.const import *
-from pyminehub.mcpe.geometry import Vector3
+from pyminehub.mcpe.geometry import *
 
 ConnectionRequest = NamedTuple('ConnectionRequest', [
     ('chain', Tuple[dict, ...]),  # NOTE: dict is mutable
