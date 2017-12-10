@@ -13,7 +13,7 @@ class LoginLogoutTestCase(CodecTestCase):
                 )
             )
         )
-        assertion.is_correct_on(self, and_verified_with_encoded_data=False)
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_s01(self):
         assertion = EncodedDataInFile(self).is_(
@@ -23,7 +23,7 @@ class LoginLogoutTestCase(CodecTestCase):
                 )
             )
         )
-        assertion.is_correct_on(self, and_verified_with_encoded_data=False)
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_c01(self):
         assertion = EncodedDataInFile(self).is_(
@@ -39,7 +39,7 @@ class LoginLogoutTestCase(CodecTestCase):
                 ),
             )
         )
-        assertion.is_correct_on(self, and_verified_with_encoded_data=False)
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_c0c(self):
         assertion = EncodedDataInFile(self).is_(

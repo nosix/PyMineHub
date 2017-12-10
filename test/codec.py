@@ -120,22 +120,11 @@ class PacketAssertion:
         assert self.has_record()
         self.verify_children(test_case)
         data = self._codec.encode(self._packet)
-
-        def reduce_bytes(m):
-            bytes_data = eval(m[1])  # type: bytes
-            length = len(bytes_data)
-            return repr(bytes_data) if length <= self._MAX_BYTES_LEN else '[{} bytes]'.format(length)
-
-        if test_case.is_enabled_bytes_mask():
-            packet_str = str(self._packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
-            packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(reduce_bytes, packet_str)
-            packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(reduce_bytes, packet_str)
-        else:
-            packet_str = str(self._packet)
         try:
-            test_case.assertEqual(
-                self._data.hex(), data.hex(), '\n{}\n  {}'.format(self.called_line, packet_str))
-            _logger.info('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
+            packet_str = self._get_packet_str(test_case)
+            message = '\n{}\n  {}'.format(self.called_line, packet_str)
+            test_case.assertEqual(self._data.hex(), data.hex(), message)
+            self._log(packet_str)
         except AssertionError as e:
             self.verify_error_hook(test_case, e, data, self.called_line)
 
@@ -159,6 +148,26 @@ class PacketAssertion:
             interrupt_for_pycharm(e, assertion.called_line, packet_info)
             message = '{} occurred while testing\n{}'.format(repr(e), assertion.called_line, packet_info)
             raise _WrappedException(e, sys.exc_info()[2], message) from None
+
+    def _summarize_bytes(self, m: re.match) -> str:
+        bytes_data = eval(m[1])  # type: bytes
+        length = len(bytes_data)
+        return repr(bytes_data) if length <= self._MAX_BYTES_LEN else '[{} bytes]'.format(length)
+
+    def _get_packet_str(self, test_case: CodecTestCase) -> str:
+        if test_case.is_enabled_bytes_mask():
+            packet_str = str(self._packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
+            packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(self._summarize_bytes, packet_str)
+            packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(self._summarize_bytes, packet_str)
+        else:
+            packet_str = str(self._packet)
+        return packet_str
+
+    def _log(self, packet_str: str) -> None:
+        _logger.info('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
+
+    def print_packet(self, test_case: CodecTestCase) -> None:
+        self._log(self._get_packet_str(test_case))
 
 
 class GamePacket(PacketAssertion):
@@ -336,6 +345,8 @@ class EncodedData:
         self._try_child_assertion(test_case, self._assertion.is_correct_on, test_case, self._data)
         if and_verified_with_encoded_data:
             self._try_child_assertion(test_case, self._assertion.verify_on, test_case)
+        else:
+            self._assertion.print_packet(test_case)
 
 
 class EncodedDataInFile(EncodedData):
