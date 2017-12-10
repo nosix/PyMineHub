@@ -21,7 +21,7 @@ class GameDataHandler:
         self._protocol.game_data_received(data, addr)
 
     def data_received(self, data: bytes, addr: tuple) -> None:
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):

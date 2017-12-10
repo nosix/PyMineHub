@@ -11,6 +11,7 @@ import traceback
 from binascii import unhexlify as unhex
 from collections import namedtuple
 from os.path import dirname
+from typing import Callable, Any
 from unittest import TestCase
 
 from pyminehub import config
@@ -95,10 +96,11 @@ class PacketAssertion:
 
     _MAX_BYTES_LEN = 16
 
-    def __init__(self, stack_depth=3):
+    def __init__(self, packet_type: str, stack_depth=3):
         called_line = traceback.format_stack()[-stack_depth]
         m = re.search(r'File "(.+)/.+\.py"', called_line)
         self.called_line = called_line.replace(m[1], '.', 1)
+        self._packet_type = packet_type
         self._data = None
         self._packet = None
         self._codec = None
@@ -143,6 +145,21 @@ class PacketAssertion:
     def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes) -> None:
         raise exc
 
+    def try_child_assertion(self, assertion_method: Callable[..., None], *args) -> Any:
+        assert self.has_record()
+        # noinspection PyUnresolvedReferences
+        assertion = assertion_method.__self__
+        packet_info = '  {} {}'.format(self._packet_type, self._packet)
+        try:
+            return assertion_method(*args)
+        except _WrappedException as e:
+            message = '{}\n'.format(e.args[0], packet_info)
+            raise _WrappedException(e.exc, e.tb, message) from None
+        except Exception as e:
+            interrupt_for_pycharm(e, assertion.called_line, packet_info)
+            message = '{} occurred while testing\n{}'.format(repr(e), assertion.called_line, packet_info)
+            raise _WrappedException(e, sys.exc_info()[2], message) from None
+
 
 class GamePacket(PacketAssertion):
 
@@ -150,7 +167,7 @@ class GamePacket(PacketAssertion):
         """ Game packet validator.
         :param packet_id: expected packet ID
         """
-        super().__init__()
+        super().__init__('MCPE game packet')
         self._packet_id = packet_id
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
@@ -166,7 +183,7 @@ class Batch(PacketAssertion):
 
     def __init__(self):
         """ Batch packet validator."""
-        super().__init__()
+        super().__init__('MCPE packet')
         self._assertions = []
 
     def that_has(self, *game_packet: GamePacket):
@@ -179,23 +196,17 @@ class Batch(PacketAssertion):
         test_case.assertEqual(MCPEPacketID.BATCH, MCPEPacketID(packet.id))
         test_case.assertEqual(len(data), context.length)
         test_case.assertEqual(len(self._assertions), len(packet.payloads))
-        packet_info = '  MCPE packet {}'.format(packet)
-        for payload, assertion in zip(packet.payloads, self._assertions):
-            try:
-                assertion.is_correct_on(test_case, payload)
-            except Exception as e:
-                interrupt_for_pycharm(e, assertion.called_line, packet_info)
-                message = '{} occurred while testing\n{}{}'.format(repr(e), assertion.called_line, packet_info)
-                raise _WrappedException(e, sys.exc_info()[2], message) from None
         self.record_decoded(data[:context.length], packet, mcpe_packet_codec)
+        for payload, assertion in zip(packet.payloads, self._assertions):
+            self.try_child_assertion(assertion.is_correct_on, test_case, payload)
         return context.length
 
     def verify_children(self, test_case: CodecTestCase):
         for assertion in self._assertions:
-            assertion.verify_on(test_case)
+            self.try_child_assertion(assertion.verify_on, test_case)
 
     def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes):
-        print('There may be differences in compression results:', exc, file=sys.stderr)
+        print('Warning: There may be differences in compression results:', exc, file=sys.stderr)
         self.is_correct_on(test_case, data)
         self.verify_on(test_case)
 
@@ -206,7 +217,7 @@ class Capsule(PacketAssertion):
         """ Encapsulation of RakNet packet validator.
         :param capsule_id: expected encapsulation ID
         """
-        super().__init__()
+        super().__init__('RakNet encapsulation')
         self._capsule_id = capsule_id
         self._assertion = None
 
@@ -218,23 +229,14 @@ class Capsule(PacketAssertion):
         context = PacketCodecContext()
         capsule = raknet_capsule_codec.decode(data, context)
         test_case.assertEqual(self._capsule_id, RakNetCapsuleID(capsule.id))
-        capsule_info = '  RakNet encapsulation {}'.format(capsule)
-        if self._assertion is not None:
-            try:
-                self._assertion.is_correct_on(test_case, capsule.payload)
-            except _WrappedException as e:
-                message = '{}\n'.format(e.args[0], capsule_info)
-                raise _WrappedException(e.exc, e.tb, message) from None
-            except Exception as e:
-                interrupt_for_pycharm(e, self._assertion.called, capsule_info)
-                message = '{} occurred while testing\n{}'.format(repr(e), self._assertion.called, capsule_info)
-                raise _WrappedException(e, sys.exc_info()[2], message) from None
         self.record_decoded(data[:context.length], capsule, raknet_capsule_codec)
+        if self._assertion is not None:
+            self.try_child_assertion(self._assertion.is_correct_on, test_case, capsule.payload)
         return context.length
 
     def verify_children(self, test_case: CodecTestCase):
         if self._assertion is not None:
-            self._assertion.verify_on(test_case)
+            self.try_child_assertion(self._assertion.verify_on, test_case)
 
 
 class RakNetPacket(PacketAssertion):
@@ -243,7 +245,7 @@ class RakNetPacket(PacketAssertion):
         """ RakNet packet validator.
         :param packet_id: expected packet ID
         """
-        super().__init__()
+        super().__init__('RakNet packet')
         self._packet_id = packet_id
         self._assertions = []
 
@@ -263,18 +265,9 @@ class RakNetPacket(PacketAssertion):
     def _test_raknet_encapsulation(self, test_case: CodecTestCase, packet: namedtuple):
         assert self.has_record()
         data = packet.payload
-        packet_info = '  RakNet packet {}'.format(packet)
         payload_length = 0
         for assertion in self._assertions:
-            try:
-                payload_length += assertion.is_correct_on(test_case, data[payload_length:])
-            except _WrappedException as e:
-                message = '{}\n{}'.format(e.args[0], packet_info)
-                raise _WrappedException(e.exc, e.tb, message) from None
-            except Exception as e:
-                interrupt_for_pycharm(e, assertion.called_line, packet_info)
-                message = '{} occurred while testing\n{}{}'.format(repr(e), assertion.called_line, packet_info)
-                raise _WrappedException(e, sys.exc_info()[2], message) from None
+            payload_length += self.try_child_assertion(assertion.is_correct_on, test_case, data[payload_length:])
         test_case.assertEqual(len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
@@ -293,7 +286,7 @@ class RakNetPacket(PacketAssertion):
 
     def verify_children(self, test_case: CodecTestCase):
         for assertion in self._assertions:
-            assertion.verify_on(test_case)
+            self.try_child_assertion(assertion.verify_on, test_case)
 
 
 class EncodedData:
@@ -310,17 +303,21 @@ class EncodedData:
         self._assertion = assertion
         return self
 
-    def is_correct_on(self, test_case: CodecTestCase, and_verified_with_encoded_data=False):
+    @staticmethod
+    def _try_child_assertion(test_case: CodecTestCase, assertion_method: Callable[..., None], *args):
         try:
-            self._assertion.is_correct_on(test_case, self._data)
+            assertion_method(*args)
         except _WrappedException as e:
             message = '{}'.format(e.args[0])
             raise test_case.failureException(message).with_traceback(e.tb) from None
         except Exception as e:
             interrupt_for_pycharm(e, None)
             raise e
+
+    def is_correct_on(self, test_case: CodecTestCase, and_verified_with_encoded_data=False):
+        self._try_child_assertion(test_case, self._assertion.is_correct_on, test_case, self._data)
         if and_verified_with_encoded_data:
-            self._assertion.verify_on(test_case)
+            self._try_child_assertion(test_case, self._assertion.verify_on, test_case)
 
 
 class EncodedDataInFile(EncodedData):

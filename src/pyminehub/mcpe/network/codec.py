@@ -231,7 +231,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         return ConnectionRequest(chain_list, client_data)
 
     def write(self, data: bytearray, value: ConnectionRequest, context: DataCodecContext) -> None:
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 ET = TypeVar('ET', bound=Enum)

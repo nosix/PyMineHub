@@ -74,10 +74,10 @@ T = TypeVar('T')
 class DataCodec(Generic[T]):
 
     def read(self, data: bytearray, context: DataCodecContext) -> T:
-        raise NotImplemented
+        raise NotImplementedError()
 
     def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
-        raise NotImplemented
+        raise NotImplementedError()
 
 
 class ByteData(DataCodec[int]):
