@@ -1,20 +1,20 @@
 UPDATE_BLOCK(id=21, extra=b'\x00\x00', position=Vector3(x=502, y=55, z=482), block_id=3, aux=48)
   -> 150000f60337e2030330
-  File "./codec_login_logout.py", line 206, in test_login_logout_12
+  File "./codec_login_logout.py", line 244, in test_login_logout_s22
     GamePacket(MCPEGamePacketID.UPDATE_BLOCK)
 
 BATCH(id=254, payloads=(bytearray(b'\x15\x00\x00\xf6\x037\xe2\x03\x030'),))
   -> fe7801010b00f4ff0a150000f60337e20303300cf10268
-  File "./codec_login_logout.py", line 205, in test_login_logout_12
+  File "./codec_login_logout.py", line 243, in test_login_logout_s22
     Batch().that_has(
 
 RELIABLE_ORDERED(id=96, payload_length=184, reliable_message_num=35, message_ordering_index=17, message_ordering_chanel=0, payload=[23 bytes])
   -> 6000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
-  File "./codec_login_logout.py", line 204, in test_login_logout_12
+  File "./codec_login_logout.py", line 242, in test_login_logout_s22
     Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=34, payload=[33 bytes])
   -> 842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
-  File "./codec_login_logout.py", line 203, in test_login_logout_12
+  File "./codec_login_logout.py", line 241, in test_login_logout_s22
     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
 
