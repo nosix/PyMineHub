@@ -26,7 +26,7 @@ class _VarListData(DataCodec[Tuple[T, ...]]):
         self._count_codec = count_codec
         self._item_codec = item_codec
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[PackEntry, ...]:
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[T, ...]:
         count = self._count_codec.read(data, context)
         return tuple(self._item_codec.read(data, context) for _ in range(count))
 
