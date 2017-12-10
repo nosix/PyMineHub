@@ -439,6 +439,10 @@ _game_data_codecs = {
     GamePacketID.REQUEST_CHUNK_RADIUS: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA
+    ],
+    GamePacketID.CHUNK_RADIUS_UPDATED: [
+        _HEADER_EXTRA_DATA,
+        VAR_SIGNED_INT_DATA
     ]
 }
 

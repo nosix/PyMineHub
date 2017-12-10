@@ -301,6 +301,11 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('radius', int)
+    ],
+    GamePacketID.CHUNK_RADIUS_UPDATED: [
+        ('id', int),
+        ('extra', bytes),
+        ('radius', int)
     ]
 }
 
