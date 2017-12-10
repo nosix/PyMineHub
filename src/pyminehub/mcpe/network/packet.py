@@ -296,6 +296,11 @@ _game_packet_specs = {
         ('extra', bytes),
         ('recipe', Recipe),
         ('clean_recipes', bool)
+    ],
+    GamePacketID.REQUEST_CHUNK_RADIUS: [
+        ('id', int),
+        ('extra', bytes),
+        ('radius', int)
     ]
 }
 

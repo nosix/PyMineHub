@@ -622,6 +622,10 @@ _game_data_codecs = {
             _RecipeData()
         ))),
         BOOL_DATA
+    ],
+    GamePacketID.REQUEST_CHUNK_RADIUS: [
+        _HEADER_EXTRA_DATA,
+        _VAR_SIGNED_INT_DATA
     ]
 }
 
