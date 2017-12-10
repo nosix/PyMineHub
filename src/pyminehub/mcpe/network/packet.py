@@ -306,6 +306,13 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('radius', int)
+    ],
+    GamePacketID.UPDATE_BLOCK: [
+        ('id', int),
+        ('extra', bytes),
+        ('position', Vector3[int]),
+        ('block_id', int),
+        ('aux', int)
     ]
 }
 

@@ -195,6 +195,21 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_login_logout_12(self):
+        assertion = EncodedData(
+            '842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303'
+            '300cf10268'
+        ).is_(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(MCPEGamePacketID.UPDATE_BLOCK)
+                    )
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest

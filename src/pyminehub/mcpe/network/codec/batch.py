@@ -443,6 +443,12 @@ _game_data_codecs = {
     GamePacketID.CHUNK_RADIUS_UPDATED: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA
+    ],
+    GamePacketID.UPDATE_BLOCK: [
+        _HEADER_EXTRA_DATA,
+        _INT_VECTOR3_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA
     ]
 }
 
