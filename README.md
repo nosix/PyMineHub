@@ -9,17 +9,18 @@
 Modules depend only on parents or siblings.
 
 ```
-binutil
+binutil -> typing
 config
+typing
 mcpe
   const
   handler -> .network.[codec, packet], network.[address], raknet, .player
   player
-  geometry
+  geometry -> typing
   server -> .handler, raknet
   network
     codec
-      batch -> mcpe.network.packet, .common
+      batch -> typing mcpe.network.packet, .common
       common -> network.codec
       packet -> config, mcpe.network.packet, .common
     packet -> mcpe.[value, geometry], network.[address, packet]
