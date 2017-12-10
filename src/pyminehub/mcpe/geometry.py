@@ -1,10 +1,9 @@
-from typing import NamedTuple, Generic, TypeVar
+from typing import NamedTuple, Generic
+
+from pyminehub.typing import NT
 
 
-T = TypeVar('T', int, float)
-
-
-class Vector3(NamedTuple('Vector3', [('x', T), ('y', T), ('z', T)]), Generic[T]):
+class Vector3(NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):
     pass
 
 

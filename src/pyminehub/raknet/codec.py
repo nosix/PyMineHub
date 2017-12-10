@@ -63,7 +63,7 @@ for packet_id in (PacketID.NCK, PacketID.ACK):
 class _CapsulePayload(DataCodec[bytes]):
 
     def read(self, data: bytearray, context: PacketCodecContext) -> bytes:
-        payload_length = context.values[1] // 8
+        payload_length = context['payload_length'] // 8
         d = pop_first(data, payload_length)
         context.length += payload_length
         return bytes(d)
@@ -73,28 +73,29 @@ class _CapsulePayload(DataCodec[bytes]):
         context.length += len(value)
 
 
+_PAYLOAD_LENGTH = NamedData('payload_length', SHORT_DATA)
 _CAPSULE_PAYLOAD = _CapsulePayload()
 
 
 _capsule_data_codecs = {
     CapsuleID.UNRELIABLE: [
-        SHORT_DATA,
+        _PAYLOAD_LENGTH,
         _CAPSULE_PAYLOAD
     ],
     CapsuleID.RELIABLE: [
-        SHORT_DATA,
+        _PAYLOAD_LENGTH,
         TRIAD_DATA,
         _CAPSULE_PAYLOAD
     ],
     CapsuleID.RELIABLE_ORDERED: [
-        SHORT_DATA,
+        _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
         BYTE_DATA,
         _CAPSULE_PAYLOAD
     ],
     CapsuleID.RELIABLE_ORDERED_HAS_SPLIT: [
-        SHORT_DATA,
+        _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
         BYTE_DATA,

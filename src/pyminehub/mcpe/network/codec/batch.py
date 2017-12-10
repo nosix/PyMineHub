@@ -6,6 +6,7 @@ import json
 
 from pyminehub.mcpe.network.codec.common import *
 from pyminehub.mcpe.network.packet import *
+from pyminehub.typing import TT, ET
 
 _HEADER_EXTRA_DATA = RawData(2)
 
@@ -36,9 +37,6 @@ class _VarListData(DataCodec[Tuple[T, ...]]):
             self._item_codec.write(data, entry, context)
 
 
-TT = TypeVar('TT', bound=namedtuple)
-
-
 class _CompositeData(DataCodec[TT]):
 
     def __init__(self, factory: Callable[..., TT], data_codecs: Tuple[DataCodec[Any], ...]):
@@ -46,26 +44,22 @@ class _CompositeData(DataCodec[TT]):
         self._data_codecs = data_codecs
 
     def read(self, data: bytearray, context: PacketCodecContext) -> TT:
-        values = []
-        context.stack.append(values)
+        context.push_stack()
 
         def generate():
             for data_codec in self._data_codecs:
                 value = data_codec.read(data, context)
-                values.append(value)
                 yield value
 
         args = tuple(generate())
-        context.stack.pop()
+        context.pop_stack()
         return self._factory(*args)
 
     def write(self, data: bytearray, value: TT, context: PacketCodecContext) -> None:
-        values = []
-        context.stack.append(values)
+        context.push_stack()
         for v, data_codec in zip(value, self._data_codecs):
             data_codec.write(data, v, context)
-            values.append(v)
-        context.stack.pop()
+        context.pop_stack()
 
 
 _INT_VECTOR3_DATA = _CompositeData(Vector3, (
@@ -79,9 +73,6 @@ _FLOAT_VECTOR3_DATA = _CompositeData(Vector3, (
     _LITTLE_ENDIAN_FLOAT_DATA,
     _LITTLE_ENDIAN_FLOAT_DATA
 ))
-
-
-ET = TypeVar('ET', bound=Enum)
 
 
 class _EnumData(DataCodec[ET]):
@@ -162,7 +153,7 @@ class _GameRule(DataCodec[GameRule]):
 class _CommandEnumIndex(DataCodec[int]):
 
     def read(self, data: bytearray, context: PacketCodecContext) -> int:
-        enum_values_length = len(context.values[2])
+        enum_values_length = len(context['enum_values'])
         if enum_values_length < 256:
             return BYTE_DATA.read(data, context)
         elif enum_values_length < 65536:
@@ -171,7 +162,7 @@ class _CommandEnumIndex(DataCodec[int]):
             return _LITTLE_ENDIAN_INT_DATA.read(data, context)
 
     def write(self, data: bytearray, value: int, context: PacketCodecContext) -> None:
-        enum_values_length = len(context.values[2])
+        enum_values_length = len(context['enum_values'])
         if enum_values_length < 256:
             BYTE_DATA.write(data, value, context)
         elif enum_values_length < 65536:
@@ -181,11 +172,11 @@ class _CommandEnumIndex(DataCodec[int]):
 
 
 def _is_zero_first_value(_context: PacketCodecContext):
-    return _context.stack[-1][0] == 0
+    return _context['slot_id'] == 0
 
 
 _SLOT_DATA = _CompositeData(Slot, (
-    VAR_INT_DATA,
+    NamedData('slot_id', VAR_INT_DATA),
     OptionalData(VAR_INT_DATA, _is_zero_first_value),
     OptionalData(BytesData(len_codec=_LITTLE_ENDIAN_SHORT_DATA), _is_zero_first_value),
     OptionalData(_VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value),
@@ -210,11 +201,11 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
     }
 
     def read(self, data: bytearray, context: PacketCodecContext) -> MetaDataValue:
-        meta_data_type = context.stack[-1][1]
+        meta_data_type = context['meta_data_type']
         return self._DATA_CODEC_MAP[meta_data_type].read(data, context)
 
     def write(self, data: bytearray, value: MetaDataValue, context: PacketCodecContext) -> None:
-        meta_data_type = context.stack[-1][1]
+        meta_data_type = context['meta_data_type']
         self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
 
 
@@ -227,13 +218,13 @@ _UUID_DATA = _CompositeData(UUID, (
 
 
 def _is_type_remove(context: PacketCodecContext) -> bool:
-    return context.values[2] == PlayerListType.REMOVE
+    return context['player_list_type'] == PlayerListType.REMOVE
 
 
 class _RecipeData(DataCodec[RecipeData]):
 
     def read(self, data: bytearray, context: PacketCodecContext) -> RecipeData:
-        recipe_type = context.stack[-1][0]
+        recipe_type = context['recipe_type']
         if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
             width, height = None, None
             if recipe_type == RecipeType.SHAPED:
@@ -254,7 +245,7 @@ class _RecipeData(DataCodec[RecipeData]):
             return RecipeForMulti(_UUID_DATA.read(data, context))
 
     def write(self, data: bytearray, value: RecipeData, context: PacketCodecContext):
-        recipe_type = context.stack[-1][0]
+        recipe_type = context['recipe_type']
         if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
             if recipe_type == RecipeType.SHAPED:
                 VAR_SIGNED_INT_DATA.write(data, value.width, context)
@@ -363,7 +354,7 @@ _game_data_codecs = {
     ],
     GamePacketID.AVAILABLE_COMMANDS: [
         _HEADER_EXTRA_DATA,
-        _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
+        NamedData('enum_values', _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA)),
         _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
         _VarListData(VAR_INT_DATA, _CompositeData(CommandEnum, (
             _VAR_INT_LENGTH_STRING_DATA,
@@ -396,7 +387,7 @@ _game_data_codecs = {
         VAR_INT_DATA,
         _VarListData(VAR_INT_DATA, _CompositeData(EntityMetaData, (
             VAR_INT_DATA,
-            _EnumData(VAR_INT_DATA, MetaDataType),
+            NamedData('meta_data_type', _EnumData(VAR_INT_DATA, MetaDataType)),
             _MetaDataValue()
         )))
     ],
@@ -421,7 +412,7 @@ _game_data_codecs = {
     ],
     GamePacketID.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
-        _EnumData(BYTE_DATA, PlayerListType),
+        NamedData('player_list_type', _EnumData(BYTE_DATA, PlayerListType)),
         _VarListData(VAR_INT_DATA, _CompositeData(PlayerListEntry, (
             _UUID_DATA,
             OptionalData(VAR_INT_DATA, _is_type_remove),
@@ -439,7 +430,7 @@ _game_data_codecs = {
     GamePacketID.CRAFTING_DATA: [
         _HEADER_EXTRA_DATA,
         _VarListData(VAR_INT_DATA, _CompositeData(Recipe, (
-            _EnumData(VAR_SIGNED_INT_DATA, RecipeType),
+            NamedData('recipe_type', _EnumData(VAR_SIGNED_INT_DATA, RecipeType)),
             _RecipeData()
         ))),
         BOOL_DATA

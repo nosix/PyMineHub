@@ -17,8 +17,29 @@ class PacketCodecContext(DataCodecContext):
 
     def __init__(self):
         super().__init__()
-        self.values = []
-        self.stack = []
+        self._values = []
+        self._stack = []
+
+    def append_value(self, value):
+        self._values.append(value)
+
+    def get_values(self):
+        return tuple(self._values)
+
+    def push_stack(self):
+        self._stack.append({})
+
+    def pop_stack(self):
+        self._stack.pop()
+
+    def __setitem__(self, key, value):
+        self._stack[-1][key] = value
+
+    def __getitem__(self, key):
+        for d in reversed(self._stack):
+            if key in d:
+                return d[key]
+        raise KeyError(key)
 
 
 class Codec:
@@ -37,8 +58,8 @@ class Codec:
         b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
         >>> context.length
         40
-        >>> context.values
-        [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
+        >>> context.get_values()
+        (<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
 
         :param packet: encoding target
         :param context: if context is None then create a DataCodecContext
@@ -47,13 +68,15 @@ class Codec:
         """
         id_encoder = id_encoder or BYTE_DATA
         context = context or PacketCodecContext()
+        context.push_stack()
         data = bytearray()
         packet_id = self._packet_id_cls(packet[0])
         id_encoder.write(data, packet_id.value, context)
-        context.values.append(packet_id)
+        context.append_value(packet_id)
         for (value, encoder) in zip(packet[1:], self._data_codecs[packet_id]):
             encoder.write(data, value, context)
-            context.values.append(value)
+            context.append_value(value)
+        context.pop_stack()
         return bytes(data)
 
     def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> NamedTuple:
@@ -65,8 +88,8 @@ class Codec:
         unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
-        >>> context.values
-        [<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;']
+        >>> context.get_values()
+        (<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
 
         :param data: decoding target
         :param context: if context is None then create a DataCodecContext
@@ -75,12 +98,14 @@ class Codec:
         """
         id_decoder = id_decoder or BYTE_DATA
         context = context or PacketCodecContext()
+        context.push_stack()
         buffer = bytearray(data)
         packet_id = self._packet_id_cls(id_decoder.read(buffer, context))
-        context.values.append(packet_id)
+        context.append_value(packet_id)
         for decoder in self._data_codecs[packet_id]:
-            context.values.append(decoder.read(buffer, context))
-        return self._packet_factory.create(*context.values)
+            context.append_value(decoder.read(buffer, context))
+        context.pop_stack()
+        return self._packet_factory.create(*context.get_values())
 
 
 class MagicData(DataCodec[bool]):
@@ -202,6 +227,22 @@ class OptionalData(DataCodec[T]):
                 raise BytesOperationError('Decoding needs the Value.')
             # noinspection PyTypeChecker
             self._data_codec.write(data, value, context)
+
+
+class NamedData(DataCodec[T]):
+
+    def __init__(self, name: str, data_codec: DataCodec[T]):
+        self._name = name
+        self._data_codec = data_codec
+
+    def read(self, data: bytearray, context: PacketCodecContext) -> T:
+        value = self._data_codec.read(data, context)
+        context[self._name] = value
+        return value
+
+    def write(self, data: bytearray, value: T, context: PacketCodecContext) -> None:
+        self._data_codec.write(data, value, context)
+        context[self._name] = value
 
 
 def _only_false(value: bool) -> int:

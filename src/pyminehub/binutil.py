@@ -1,7 +1,9 @@
 import struct
 from binascii import hexlify, unhexlify
 from collections import namedtuple
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Callable, Generic
+
+from pyminehub.typing import T, BT
 
 
 class BytesOperationError(Exception):
@@ -66,9 +68,6 @@ class DataCodecContext:
 
     def __repr__(self):
         return str(self.__dict__)
-
-
-T = TypeVar('T')
 
 
 class DataCodec(Generic[T]):
@@ -579,9 +578,6 @@ class RawData(DataCodec[bytes]):
             raise BytesOperationError('Invalid value data length. ({} != {})'.format(length, self.data_len))
         data += value
         context.length += length
-
-
-BT = TypeVar('BT')
 
 
 class ValueFilter(DataCodec[T]):
