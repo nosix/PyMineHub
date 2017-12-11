@@ -3,7 +3,7 @@ from pyminehub.network.address import Address
 from pyminehub.network.packet import PacketFactory
 
 
-class PacketID(Enum):
+class ConnectionPacketID(Enum):
     CONNECTED_PING = 0x00
     CONNECTED_PONG = 0x03
     CONNECTION_REQUEST = 0x09
@@ -121,23 +121,23 @@ class GamePacketID(Enum):
     SET_DEFAULT_GAME_TYPE = 0x69
 
 
-_packet_specs = {
-    PacketID.CONNECTED_PING: [
+_connection_packet_specs = {
+    ConnectionPacketID.CONNECTED_PING: [
         ('id', int),
         ('ping_time_since_start', int)
     ],
-    PacketID.CONNECTED_PONG: [
+    ConnectionPacketID.CONNECTED_PONG: [
         ('id', int),
         ('ping_time_since_start', int),
         ('pong_time_since_start', int)
     ],
-    PacketID.CONNECTION_REQUEST: [
+    ConnectionPacketID.CONNECTION_REQUEST: [
         ('id', int),
         ('client_guid', int),
         ('client_time_since_start', int),
         ('use_encryption', bool)
     ],
-    PacketID.CONNECTION_REQUEST_ACCEPTED: [
+    ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED: [
         ('id', int),
         ('client_address', Address),
         ('system_index', int),
@@ -145,17 +145,17 @@ _packet_specs = {
         ('client_time_since_start', int),
         ('server_time_since_start', int)
     ],
-    PacketID.NEW_INCOMING_CONNECTION: [
+    ConnectionPacketID.NEW_INCOMING_CONNECTION: [
         ('id', int),
         ('server_address', Address),
         ('internal_address', Tuple[Address, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
     ],
-    PacketID.DISCONNECTION_NOTIFICATION: [
+    ConnectionPacketID.DISCONNECTION_NOTIFICATION: [
         ('id', int)
     ],
-    PacketID.BATCH: [
+    ConnectionPacketID.BATCH: [
         ('id', int),
         ('payloads', Tuple[bytes, ...])
     ]
@@ -329,5 +329,5 @@ _game_packet_specs = {
 
 EXTRA_DATA = b'\x00\x00'
 
-packet_factory = PacketFactory(_packet_specs)
+connection_packet_factory = PacketFactory(_connection_packet_specs)
 game_packet_factory = PacketFactory(_game_packet_specs)

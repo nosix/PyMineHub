@@ -1,35 +1,35 @@
 CONNECTED_PONG(id=3, ping_time_since_start=50683, pong_time_since_start=4012048)
   -> 03000000000000c5fb00000000003d3810
   File "./codec_login_logout.py", line 32, in test_login_logout_c01
-    ConnectionPacket(MCPEPacketID.CONNECTED_PONG)
+    ConnectionPacket(ConnectionPacketID.CONNECTED_PONG)
 
 UNRELIABLE(id=0, payload_length=136, payload=[17 bytes])
   -> 00008803000000000000c5fb00000000003d3810
   File "./codec_login_logout.py", line 31, in test_login_logout_c01
-    Capsule(RakNetCapsuleID.UNRELIABLE).that_has(
+    Capsule(CapsuleID.UNRELIABLE).that_has(
 
 NEW_INCOMING_CONNECTION(id=19, server_address=Address(ip_version=4, address=b'?WL\xfc', port=19132), internal_address=(Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0), Address(ip_version=4, address=b'\xff\xff\xff\xff', port=0)), server_time_since_start=50684, client_time_since_start=4012048)
   -> 13043f574cfc4abc04ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff0000000000000000c5fc00000000003d3810
   File "./codec_login_logout.py", line 35, in test_login_logout_c01
-    ConnectionPacket(MCPEPacketID.NEW_INCOMING_CONNECTION)
+    ConnectionPacket(ConnectionPacketID.NEW_INCOMING_CONNECTION)
 
 RELIABLE_ORDERED(id=96, payload_length=1312, reliable_message_num=1, message_ordering_index=0, message_ordering_chanel=0, payload=[164 bytes])
   -> 6005200100000000000013043f574cfc4abc04ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff0000000000000000c5fc00000000003d3810
   File "./codec_login_logout.py", line 34, in test_login_logout_c01
-    Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
+    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
 
 CONNECTED_PING(id=0, ping_time_since_start=4012048)
   -> 0000000000003d3810
   File "./codec_login_logout.py", line 38, in test_login_logout_c01
-    ConnectionPacket(MCPEPacketID.CONNECTED_PING)
+    ConnectionPacket(ConnectionPacketID.CONNECTED_PING)
 
 UNRELIABLE(id=0, payload_length=72, payload=b'\x00\x00\x00\x00\x00\x00=8\x10')
   -> 0000480000000000003d3810
   File "./codec_login_logout.py", line 37, in test_login_logout_c01
-    Capsule(RakNetCapsuleID.UNRELIABLE).that_has(
+    Capsule(CapsuleID.UNRELIABLE).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=1, payload=[206 bytes])
   -> 8401000000008803000000000000c5fb00000000003d38106005200100000000000013043f574cfc4abc04ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff0000000000000000c5fc00000000003d38100000480000000000003d3810
   File "./codec_login_logout.py", line 30, in test_login_logout_c01
-    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
 

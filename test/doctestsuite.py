@@ -8,7 +8,7 @@ if __name__ == '__main__':
         'pyminehub/network/codec',
         'pyminehub/network/packet',
         'pyminehub/mcpe/network/codec/common',
-        'pyminehub/mcpe/network/codec/packet',
+        'pyminehub/mcpe/network/codec/connection',
     ]
     for f in files:
         runpy.run_path('../src/{}.py'.format(f), run_name='__main__')

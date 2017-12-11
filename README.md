@@ -9,33 +9,36 @@
 Modules depend only on parents or siblings.
 
 ```
-binutil -> typing
-config
-typing
 mcpe
-  const
-  handler -> .network.[codec, packet], network.[address], raknet, .player
-  player
-  geometry -> typing
-  server -> .handler, raknet
   network
-    codec
-      batch -> typing mcpe.network.packet, .common
-      common -> network.codec
-      packet -> config, mcpe.network.packet, .common
-    packet -> mcpe.[value, geometry], network.[address, packet]
+    - codec
+      - batch -> typing, mcpe.network.packet, .common
+      - common -> network.codec
+      - connection -> config, mcpe.network.packet, .common
+    - handler -> typing, raknet, network.[address], mcpe.[const, player, world], .codec, .packet
+    - packet -> mcpe.[value, geometry], network.[address, packet]
+  const
+  geometry -> typing
+  player -> .const, .geometry, .value
+  server -> raknet, .network
   value -> .const .geometry
+  world -> config, .const
 network -> binutil
   address
   codec -> binutil, .address
   packet
 raknet -> network
-  codec -> network.[codec], .encapsulation, .packet
-  encapsulation -> .packet
-  fragment
-  packet -> network.[address, packet]
-  server -> network.[address, codec], .codec, .packet, .session
-  session -> .codec, .encapsulation, .fragment, .packet
+  - codec -> network.[codec], .encapsulation, .packet
+  - encapsulation -> .packet
+  - fragment
+  - packet -> network.[address, packet]
+  - server -> network.[address, codec], .codec, .packet, .session
+  - session -> .codec, .encapsulation, .fragment, .packet
+binutil -> typing
+config
+typing
+
+- : Hidden from outside modules
 ```
 
 ### Reference

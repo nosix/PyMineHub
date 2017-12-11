@@ -15,16 +15,16 @@ from typing import Callable, Union, Any
 from unittest import TestCase
 
 from pyminehub import config
-from pyminehub.mcpe.network.codec import game_packet_codec as mcpe_game_packet_codec
-from pyminehub.mcpe.network.codec import packet_codec as mcpe_packet_codec
-from pyminehub.mcpe.network.packet import GamePacketID as MCPEGamePacketID
-from pyminehub.mcpe.network.packet import PacketID as MCPEPacketID
+from pyminehub.mcpe.network.codec import connection_packet_codec
+from pyminehub.mcpe.network.codec import game_packet_codec
+from pyminehub.mcpe.network.packet import ConnectionPacketID
+from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import capsule_codec as raknet_capsule_codec
 from pyminehub.raknet.codec import packet_codec as raknet_packet_codec
-from pyminehub.raknet.encapsulation import CapsuleID as RakNetCapsuleID
-from pyminehub.raknet.packet import PacketID as RakNetPacketID
+from pyminehub.raknet.encapsulation import CapsuleID
+from pyminehub.raknet.packet import PacketID
 
 _logger = logging.getLogger(__name__)
 
@@ -172,37 +172,37 @@ class PacketAssertion:
 
 class GamePacket(PacketAssertion):
 
-    def __init__(self, packet_id: MCPEGamePacketID):
+    def __init__(self, packet_id: GamePacketID):
         """ Game packet validator.
         :param packet_id: expected packet ID
         """
-        super().__init__('MCPE game packet')
+        super().__init__('Game packet')
         self._packet_id = packet_id
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
         context = PacketCodecContext()
-        packet = mcpe_game_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, MCPEGamePacketID(packet.id))
+        packet = game_packet_codec.decode(data, context)
+        test_case.assertEqual(self._packet_id, GamePacketID(packet.id))
         test_case.assertEqual(len(data), context.length)
-        self.record_decoded(data[:context.length], packet, mcpe_game_packet_codec)
+        self.record_decoded(data[:context.length], packet, game_packet_codec)
         return context.length
 
 
 class ConnectionPacket(PacketAssertion):
 
-    def __init__(self, packet_id: MCPEPacketID):
+    def __init__(self, packet_id: ConnectionPacketID):
         """ Connection packet validator.
         :param packet_id: expected packet ID
         """
-        super().__init__('MCPE packet')
+        super().__init__('Connection packet')
         self._packet_id = packet_id
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
         context = PacketCodecContext()
-        packet = mcpe_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, MCPEPacketID(packet.id))
+        packet = connection_packet_codec.decode(data, context)
+        test_case.assertEqual(self._packet_id, ConnectionPacketID(packet.id))
         test_case.assertEqual(len(data), context.length)
-        self.record_decoded(data[:context.length], packet, mcpe_packet_codec)
+        self.record_decoded(data[:context.length], packet, connection_packet_codec)
         return context.length
 
 
@@ -210,7 +210,7 @@ class Batch(PacketAssertion):
 
     def __init__(self):
         """ Batch packet validator."""
-        super().__init__('MCPE packet')
+        super().__init__('Batch packet')
         self._assertions = []
 
     def that_has(self, *game_packet: GamePacket):
@@ -219,11 +219,11 @@ class Batch(PacketAssertion):
 
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
         context = PacketCodecContext()
-        packet = mcpe_packet_codec.decode(data, context)
-        test_case.assertEqual(MCPEPacketID.BATCH, MCPEPacketID(packet.id))
+        packet = connection_packet_codec.decode(data, context)
+        test_case.assertEqual(ConnectionPacketID.BATCH, ConnectionPacketID(packet.id))
         test_case.assertEqual(len(data), context.length)
         test_case.assertEqual(len(self._assertions), len(packet.payloads))
-        self.record_decoded(data[:context.length], packet, mcpe_packet_codec)
+        self.record_decoded(data[:context.length], packet, connection_packet_codec)
         for payload, assertion in zip(packet.payloads, self._assertions):
             self.try_child_assertion(assertion.is_correct_on, test_case, payload)
         return context.length
@@ -245,11 +245,11 @@ class Batch(PacketAssertion):
 
 class Capsule(PacketAssertion):
 
-    def __init__(self, capsule_id: RakNetCapsuleID):
+    def __init__(self, capsule_id: CapsuleID):
         """ Encapsulation of RakNet packet validator.
         :param capsule_id: expected encapsulation ID
         """
-        super().__init__('RakNet encapsulation')
+        super().__init__('Encapsulation')
         self._capsule_id = capsule_id
         self._assertion = None
 
@@ -260,7 +260,7 @@ class Capsule(PacketAssertion):
     def is_correct_on(self, test_case: CodecTestCase, data: bytes):
         context = PacketCodecContext()
         capsule = raknet_capsule_codec.decode(data, context)
-        test_case.assertEqual(self._capsule_id, RakNetCapsuleID(capsule.id))
+        test_case.assertEqual(self._capsule_id, CapsuleID(capsule.id))
         self.record_decoded(data[:context.length], capsule, raknet_capsule_codec)
         if self._assertion is not None:
             self.try_child_assertion(self._assertion.is_correct_on, test_case, capsule.payload)
@@ -273,7 +273,7 @@ class Capsule(PacketAssertion):
 
 class RakNetPacket(PacketAssertion):
 
-    def __init__(self, packet_id: RakNetPacketID):
+    def __init__(self, packet_id: PacketID):
         """ RakNet packet validator.
         :param packet_id: expected packet ID
         """
@@ -289,7 +289,7 @@ class RakNetPacket(PacketAssertion):
         assert self._packet_id is not None
         context = PacketCodecContext()
         packet = raknet_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, RakNetPacketID(packet.id), packet)
+        test_case.assertEqual(self._packet_id, PacketID(packet.id), packet)
         test_case.assertEqual(len(data), context.length)
         self.record_decoded(data, packet, raknet_packet_codec)
         return context.length, packet

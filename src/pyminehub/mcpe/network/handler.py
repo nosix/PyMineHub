@@ -4,11 +4,11 @@ from logging import getLogger
 from typing import Callable, List
 
 from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, Dimension, Generator
-from pyminehub.mcpe.network.codec import packet_codec, game_packet_codec
-from pyminehub.mcpe.network.packet import EXTRA_DATA, PacketID, packet_factory
-from pyminehub.mcpe.network.packet import GamePacketID
+from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
+from pyminehub.mcpe.network.packet import EXTRA_DATA, ConnectionPacketID, connection_packet_factory
+from pyminehub.mcpe.network.packet import GamePacketID, game_packet_factory
 from pyminehub.mcpe.player import Player
-from pyminehub.mcpe.world import World
+from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import to_address
 from pyminehub.raknet import GameDataHandler
 from pyminehub.typing import T
@@ -28,20 +28,20 @@ class MCPEHandler(GameDataHandler):
         self._start_time = time.time()
         self._accepted_time = {}
         self._players = {}
-        self._world = World()
+        self._world = WorldProxy()
 
     def _get_current_time(self):
         return int(time.time() - self._start_time)
 
     def data_received(self, data: bytes, addr: tuple) -> None:
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
-        packet = packet_codec.decode(data)
+        packet = connection_packet_codec.decode(data)
         _logger.debug('> %s %s', addr, packet)
-        getattr(self, '_process_' + PacketID(packet.id).name.lower())(packet, addr)
+        getattr(self, '_process_' + ConnectionPacketID(packet.id).name.lower())(packet, addr)
 
     def send_to_client(self, packet: namedtuple, addr: tuple) -> None:
         _logger.debug('< %s %s', addr, packet)
-        self.sendto(packet_codec.encode(packet), addr)
+        self.sendto(connection_packet_codec.encode(packet), addr)
 
     def _get_player_session(self, addr: tuple) -> Player:
         if addr not in self._players:
@@ -52,16 +52,16 @@ class MCPEHandler(GameDataHandler):
         return list(action(player) for player in self._players)
 
     def _process_connected_ping(self, packet: namedtuple, addr: tuple) -> None:
-        res_packet = packet_factory.create(
-            PacketID.CONNECTED_PONG,
+        res_packet = connection_packet_factory.create(
+            ConnectionPacketID.CONNECTED_PONG,
             packet.ping_time_since_start,
             self._get_current_time())
         self.send_to_client(res_packet, addr)
 
     def _process_connection_request(self, packet: namedtuple, addr: tuple) -> None:
         self._accepted_time[addr] = self._get_current_time()
-        res_packet = packet_factory.create(
-            PacketID.CONNECTION_REQUEST_ACCEPTED,
+        res_packet = connection_packet_factory.create(
+            ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
             to_address(addr),
             0,
             self._INTERNAL_ADDRESSES,
@@ -89,27 +89,27 @@ class MCPEHandler(GameDataHandler):
 
     def _process_login(self, packet: namedtuple, addr: tuple) -> None:
         player = self._get_player_session(addr)
-        player_data = packet.get_player_data()
-        client_data = packet.get_client_data()
+        player_data = packet.connection_request.get_player_data()
+        client_data = packet.connection_request.get_client_data()
         # TODO check the logged-in player and log out the same player
         player.login(packet.protocol, player_data, client_data)
 
-        res_packet = packet_factory.create(GamePacketID.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
-        self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
-        self.send_to_client(res_packet, addr)
+        res_packet = game_packet_factory.create(GamePacketID.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
+        self.send_to_client(res_packet, addr)  # TODO encap batch
+        res_packet = game_packet_factory.create(GamePacketID.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
+        self.send_to_client(res_packet, addr)  # TODO encap batch
 
     def _process_resource_pack_client_response(self, packet: namedtuple, addr: tuple) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:  # TODO does need?
-            res_packet = packet_factory.create(GamePacketID.RESOURCE_PACK_STACK, False, (), ())
-            self.send_to_client(res_packet, addr)
+            res_packet = game_packet_factory.create(GamePacketID.RESOURCE_PACK_STACK, False, (), ())
+            self.send_to_client(res_packet, addr)  # TODO encap batch
         self._start_game(addr)
 
     def _start_game(self, addr: tuple) -> None:
         player = self._get_player_session(addr)
-        res_packet = packet_factory.create(
+        res_packet = game_packet_factory.create(
             GamePacketID.START_GAME,
             player.get_entity_unique_id(),
             player.get_entity_runtime_id(),
@@ -147,23 +147,23 @@ class MCPEHandler(GameDataHandler):
             enchantment_seed=0
         )
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.SET_TIME, )  # TODO s09
+        res_packet = game_packet_factory.create(GamePacketID.SET_TIME, )  # TODO s09
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.UPDATE_ATTRIBUTES, )  # TODO s09
+        res_packet = game_packet_factory.create(GamePacketID.UPDATE_ATTRIBUTES, )  # TODO s09
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.AVAILABLE_COMMANDS, )  # TODO s09
+        res_packet = game_packet_factory.create(GamePacketID.AVAILABLE_COMMANDS, )  # TODO s09
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.ADVENTURE_SETTINGS, )  # TODO 0s9
+        res_packet = game_packet_factory.create(GamePacketID.ADVENTURE_SETTINGS, )  # TODO 0s9
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.SET_ENTITY_DATA, )  # TODO s0a
+        res_packet = game_packet_factory.create(GamePacketID.SET_ENTITY_DATA, )  # TODO s0a
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.INVENTORY_CONTENT, )  # TODO s0a, s0c
+        res_packet = game_packet_factory.create(GamePacketID.INVENTORY_CONTENT, )  # TODO s0a, s0c
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.MOB_EQUIPMENT, )  # TODO s0d
+        res_packet = game_packet_factory.create(GamePacketID.MOB_EQUIPMENT, )  # TODO s0d
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.INVENTORY_SLOT, )  # TODO s0d
+        res_packet = game_packet_factory.create(GamePacketID.INVENTORY_SLOT, )  # TODO s0d
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.PLAYER_LIST, )  # TODO s0f
+        res_packet = game_packet_factory.create(GamePacketID.PLAYER_LIST, )  # TODO s0f
         self.send_to_client(res_packet, addr)
-        res_packet = packet_factory.create(GamePacketID.CRAFTING_DATA, )  # TODO s20
+        res_packet = game_packet_factory.create(GamePacketID.CRAFTING_DATA, )  # TODO s20
         self.send_to_client(res_packet, addr)

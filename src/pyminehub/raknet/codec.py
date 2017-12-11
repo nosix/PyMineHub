@@ -54,9 +54,9 @@ for n in range(16):
 for packet_id in (PacketID.NCK, PacketID.ACK):
     _packet_data_codecs[packet_id] = [
         SHORT_DATA,
-        BOOL_DATA,
+        NamedData('range_max_equals_to_min', BOOL_DATA),
         TRIAD_DATA,
-        OptionalData(TRIAD_DATA, lambda _context: _context.values[2])
+        OptionalData(TRIAD_DATA, lambda _context: _context['range_max_equals_to_min'])
     ]
 
 

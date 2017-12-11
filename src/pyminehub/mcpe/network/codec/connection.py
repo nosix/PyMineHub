@@ -1,5 +1,5 @@
 """
-Codecs for MCPE packet
+Codecs for connection packet
 """
 import zlib
 
@@ -53,40 +53,40 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
 
 _packet_data_codecs = {
-    PacketID.CONNECTED_PING: [
+    ConnectionPacketID.CONNECTED_PING: [
         LONG_DATA
     ],
-    PacketID.CONNECTED_PONG: [
+    ConnectionPacketID.CONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.CONNECTION_REQUEST: [
+    ConnectionPacketID.CONNECTION_REQUEST: [
         LONG_DATA,
         LONG_DATA,
         FALSE_DATA
     ],
-    PacketID.CONNECTION_REQUEST_ACCEPTED: [
+    ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED: [
         ADDRESS_DATA,
         SHORT_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.NEW_INCOMING_CONNECTION: [
+    ConnectionPacketID.NEW_INCOMING_CONNECTION: [
         ADDRESS_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    PacketID.DISCONNECTION_NOTIFICATION: [
+    ConnectionPacketID.DISCONNECTION_NOTIFICATION: [
     ],
-    PacketID.BATCH: [
+    ConnectionPacketID.BATCH: [
         _CompressedPacketList()
     ]
 }
 
 
-packet_codec = Codec(PacketID, packet_factory, _packet_data_codecs)
+connection_packet_codec = Codec(ConnectionPacketID, connection_packet_factory, _packet_data_codecs)
 
 
 if __name__ == '__main__':

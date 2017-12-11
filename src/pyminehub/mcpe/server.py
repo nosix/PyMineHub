@@ -1,4 +1,4 @@
-from pyminehub.mcpe.handler import MCPEHandler
+from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.raknet import run as run_raknet
 
 

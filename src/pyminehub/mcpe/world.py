@@ -2,7 +2,7 @@ from pyminehub import config
 from pyminehub.mcpe.const import GameMode, Difficulty
 
 
-class World:
+class WorldProxy:
 
     def __init__(self):
         self._seed = config.get_value(config.ConfigKey.SEED)

@@ -1,12 +1,12 @@
 REQUEST_CHUNK_RADIUS(id=69, extra=b'\x00\x00', radius=8)
   -> 45000010
   File "./codec_login_logout.py", line 215, in test_login_logout_c12
-    GamePacket(MCPEGamePacketID.REQUEST_CHUNK_RADIUS)
+    GamePacket(GamePacketID.REQUEST_CHUNK_RADIUS)
 
 REQUEST_CHUNK_RADIUS(id=69, extra=b'\x00\x00', radius=8)
   -> 45000010
   File "./codec_login_logout.py", line 215, in test_login_logout_c12
-    GamePacket(MCPEGamePacketID.REQUEST_CHUNK_RADIUS)
+    GamePacket(GamePacketID.REQUEST_CHUNK_RADIUS)
 
 BATCH(id=254, payloads=(bytearray(b'E\x00\x00\x10'),))
   -> fe7801010500faff0445000010013d005a
@@ -16,10 +16,10 @@ BATCH(id=254, payloads=(bytearray(b'E\x00\x00\x10'),))
 RELIABLE_ORDERED(id=96, payload_length=112, reliable_message_num=14, message_ordering_index=4, message_ordering_chanel=0, payload=b'\xfex\xdacqe`\x10\x00\x00\x01=\x00Z')
   -> 6000700e000004000000fe78da63716560100000013d005a
   File "./codec_login_logout.py", line 213, in test_login_logout_c12
-    Capsule(RakNetCapsuleID.RELIABLE_ORDERED).that_has(
+    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=18, payload=[24 bytes])
   -> 841200006000700e000004000000fe78da63716560100000013d005a
   File "./codec_login_logout.py", line 212, in test_login_logout_c12
-    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
 
