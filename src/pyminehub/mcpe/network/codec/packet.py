@@ -27,7 +27,7 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
     @staticmethod
     def _does_compress(payload: bytes) -> bool:
-        return len(payload) >= get_value(ConfigKey.batch_compress_threshold)
+        return len(payload) >= get_value(ConfigKey.BATCH_COMPRESS_THRESHOLD)
 
     def read(self, data: bytearray, context: DataCodecContext) -> Tuple[bytes, ...]:
         payload = bytearray(zlib.decompress(data))

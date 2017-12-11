@@ -50,7 +50,7 @@ class Session:
     def _process_capsules(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
         for capsule in capsules:
             _logger.debug('> %d:%s', packet_sequence_num, capsule)
-            getattr(self, '_process_' + CapsuleID(capsule.id).name)(capsule)
+            getattr(self, '_process_' + CapsuleID(capsule.id).name.lower())(capsule)
 
     def _process_unreliable(self, capsule: namedtuple) -> None:
         self._send_to_game_handler(capsule.payload)

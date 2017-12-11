@@ -199,15 +199,15 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_unique_id', int),
         ('entity_runtime_id', int),
-        ('player_game_mode', int),
+        ('player_game_mode', GameMode),
         ('player_position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
         ('seed', int),
-        ('dimension', int),
+        ('dimension', Dimension),
         ('generator', Generator),
-        ('world_game_mode', int),
-        ('difficulty', int),
+        ('world_game_mode', GameMode),
+        ('difficulty', Difficulty),
         ('spawn', Vector3[int]),
         ('has_achievements_disabled', bool),
         ('time', int),
@@ -223,7 +223,7 @@ _game_packet_specs = {
         ('has_bonus_chest_enabled', bool),
         ('has_start_with_map_enabled', bool),
         ('has_trust_players_enabled', bool),
-        ('default_player_permission', int),
+        ('default_player_permission', PlayerPermission),
         ('xbox_live_broadcast_mode', int),
         ('level_id', str),
         ('world_name', str),
@@ -326,6 +326,8 @@ _game_packet_specs = {
     ]
 }
 
+
+EXTRA_DATA = b'\x00\x00'
 
 packet_factory = PacketFactory(_packet_specs)
 game_packet_factory = PacketFactory(_game_packet_specs)

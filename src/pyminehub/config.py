@@ -1,22 +1,26 @@
 """
->>> get_value(ConfigKey.batch_compress_threshold)
+>>> get_value(ConfigKey.BATCH_COMPRESS_THRESHOLD)
 256
 >>> set_config(batch_compress_threshold=128)
->>> get_value(ConfigKey.batch_compress_threshold)
+>>> get_value(ConfigKey.BATCH_COMPRESS_THRESHOLD)
 128
 >>> reset()
->>> get_value(ConfigKey.batch_compress_threshold)
+>>> get_value(ConfigKey.BATCH_COMPRESS_THRESHOLD)
 256
 """
 from enum import Enum
 
 
 class ConfigKey(Enum):
-    batch_compress_threshold = 1
+    BATCH_COMPRESS_THRESHOLD = 1
+    SEED = 2
+    WORLD_NAME = 3
 
 
 __default_config = (
-    (ConfigKey.batch_compress_threshold, 256),
+    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),
+    (ConfigKey.SEED, 0),
+    (ConfigKey.WORLD_NAME, 'PyMineHub Server')
 )
 
 _config = dict(__default_config)
@@ -28,7 +32,7 @@ def reset():
 
 
 def set_config(**kwargs):
-    _config.update(dict((ConfigKey[key], value) for key, value in kwargs.items()))
+    _config.update(dict((ConfigKey[key.upper()], value) for key, value in kwargs.items()))
 
 
 def get_value(key: ConfigKey):

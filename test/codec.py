@@ -237,6 +237,11 @@ class Batch(PacketAssertion):
         self.is_correct_on(test_case, data)
         self.verify_on(test_case)
 
+    def print_packet(self, test_case: CodecTestCase):
+        for assertion in self._assertions:
+            assertion.print_packet(test_case)
+        super().print_packet(test_case)
+
 
 class Capsule(PacketAssertion):
 

@@ -46,7 +46,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
         packet = packet_codec.decode(data)
         _logger.debug('> %s %s', addr, packet)
-        getattr(self, '_process_' + PacketID(packet.id).name)(packet, addr)
+        getattr(self, '_process_' + PacketID(packet.id).name.lower())(packet, addr)
 
     def connection_lost(self, exc: Exception):
         _logger.exception('RakNet connection lost', exc_info=exc)

@@ -18,16 +18,42 @@ class ResourcePackStatus(Enum):
     COMPLETED = 4
 
 
+class Dimension(Enum):
+    OVERWORLD = 0
+    NETHER = 1
+    THE_END = 2
+
+    
 class Generator(Enum):
     OLD = 0
     INFINITE = 1
     FLAT = 2
 
 
+class GameMode(Enum):
+    SURVIVAL = 0
+    CREATIVE = 1
+    ADVENTURE = 2
+
+
+class Difficulty(Enum):
+    PEACEFUL = 0
+    EASY = 1
+    NORMAL = 2
+    HARD = 3
+
+    
 class GameRuleType(Enum):
     BOOL = 1
     INT = 2
     FLOAT = 3
+
+
+class PlayerPermission(Enum):
+    CUSTOM = 3
+    OPERATOR = 2
+    MEMBER = 1
+    VISITOR = 0
 
 
 class MetaDataType(Enum):
