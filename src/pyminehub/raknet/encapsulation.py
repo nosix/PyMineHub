@@ -1,6 +1,9 @@
 from enum import Enum
+from typing import NamedTuple as _NamedTuple, Optional
 
 from pyminehub.network.packet import PacketFactory
+
+Reliability = _NamedTuple('Reliability', [('reliable', bool), ('channel', Optional[int])])
 
 
 class CapsuleID(Enum):

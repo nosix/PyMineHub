@@ -7,10 +7,11 @@ from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, Dimension, Gene
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.packet import EXTRA_DATA, ConnectionPacketID, connection_packet_factory
 from pyminehub.mcpe.network.packet import GamePacketID, game_packet_factory
+from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.player import Player
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import to_address
-from pyminehub.raknet import GameDataHandler
+from pyminehub.raknet import Reliability, GameDataHandler
 from pyminehub.typing import T
 
 _logger = getLogger(__name__)
@@ -29,6 +30,7 @@ class MCPEHandler(GameDataHandler):
         self._accepted_time = {}
         self._players = {}
         self._world = WorldProxy()
+        self._queue = GamePacketQueue(self._send_connection_packet)
 
     def _get_current_time(self):
         return int(time.time() - self._start_time)
@@ -39,9 +41,15 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('> %s %s', addr, packet)
         getattr(self, '_process_' + ConnectionPacketID(packet.id).name.lower())(packet, addr)
 
-    def send_to_client(self, packet: namedtuple, addr: tuple) -> None:
+    def _send_connection_packet(self, packet: namedtuple, addr: tuple, reliability: Reliability) -> None:
+        """Send connection packet to specified address.
+
+        :param packet: connection packet
+        :param addr: destination
+        :param reliability: encapsulation reliability
+        """
         _logger.debug('< %s %s', addr, packet)
-        self.sendto(connection_packet_codec.encode(packet), addr)
+        self.sendto(connection_packet_codec.encode(packet), addr, reliability)
 
     def _get_player_session(self, addr: tuple) -> Player:
         if addr not in self._players:
@@ -56,7 +64,7 @@ class MCPEHandler(GameDataHandler):
             ConnectionPacketID.CONNECTED_PONG,
             packet.ping_time_since_start,
             self._get_current_time())
-        self.send_to_client(res_packet, addr)
+        self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
     def _process_connection_request(self, packet: namedtuple, addr: tuple) -> None:
         self._accepted_time[addr] = self._get_current_time()
@@ -68,7 +76,7 @@ class MCPEHandler(GameDataHandler):
             packet.client_time_since_start,
             self._accepted_time[addr]
         )
-        self.send_to_client(res_packet, addr)
+        self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
     def _process_new_incoming_connection(self, packet: namedtuple, addr: tuple) -> None:
         if packet.server_time_since_start != self._accepted_time[addr]:
@@ -95,22 +103,23 @@ class MCPEHandler(GameDataHandler):
         player.login(packet.protocol, player_data, client_data)
 
         res_packet = game_packet_factory.create(GamePacketID.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
-        self.send_to_client(res_packet, addr)  # TODO encap batch
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
-        self.send_to_client(res_packet, addr)  # TODO encap batch
+        self._queue.send_immediately(res_packet, addr)
 
     def _process_resource_pack_client_response(self, packet: namedtuple, addr: tuple) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:  # TODO does need?
-            res_packet = game_packet_factory.create(GamePacketID.RESOURCE_PACK_STACK, False, (), ())
-            self.send_to_client(res_packet, addr)  # TODO encap batch
+            res_packet = game_packet_factory.create(GamePacketID.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
+            self._queue.send_immediately(res_packet, addr)
         self._start_game(addr)
 
     def _start_game(self, addr: tuple) -> None:
         player = self._get_player_session(addr)
         res_packet = game_packet_factory.create(
             GamePacketID.START_GAME,
+            EXTRA_DATA,
             player.get_entity_unique_id(),
             player.get_entity_runtime_id(),
             player.get_game_mode(),
@@ -126,8 +135,8 @@ class MCPEHandler(GameDataHandler):
             has_achievements_disabled=True,
             time=self._get_current_time(),
             edu_mode=False,
-            rain_lavel=self._world.get_rain_level(),
-            lighting_level=self._world.get_lightning_level(),
+            rain_level=self._world.get_rain_level(),
+            lightning_level=self._world.get_lightning_level(),
             is_multi_player_game=True,
             has_lan_broadcast=True,
             has_xbox_live_broadcast=False,
@@ -146,24 +155,24 @@ class MCPEHandler(GameDataHandler):
             current_tick=0,  # TODO set value
             enchantment_seed=0
         )
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.SET_TIME, )  # TODO s09
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.UPDATE_ATTRIBUTES, )  # TODO s09
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.AVAILABLE_COMMANDS, )  # TODO s09
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.ADVENTURE_SETTINGS, )  # TODO 0s9
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.SET_ENTITY_DATA, )  # TODO s0a
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.INVENTORY_CONTENT, )  # TODO s0a, s0c
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.MOB_EQUIPMENT, )  # TODO s0d
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.INVENTORY_SLOT, )  # TODO s0d
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.PLAYER_LIST, )  # TODO s0f
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketID.CRAFTING_DATA, )  # TODO s20
-        self.send_to_client(res_packet, addr)
+        self._queue.send_immediately(res_packet, addr)

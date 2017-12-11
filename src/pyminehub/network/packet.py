@@ -7,14 +7,14 @@ class PacketFactory:
         self._factory = dict(
             (packet_id, NamedTuple(packet_id.name, field_names)) for packet_id, field_names in packet_specs.items())
 
-    def create(self, packet_id, *args) -> NamedTuple:
+    def create(self, packet_id, *args, **kwargs) -> NamedTuple:
         """Create packet.
 
         >>> factory.create(ID.unconnected_pong, 8721, 5065, True, 'MCPE;')
         unconnected_pong(id=28, time_since_start=8721, server_guid=5065, valid_message_data_id=True, server_id='MCPE;')
         """
         # noinspection PyCallingNonCallable
-        return self._factory[packet_id](packet_id.value, *args)
+        return self._factory[packet_id](packet_id.value, *args, **kwargs)
 
 
 if __name__ == '__main__':

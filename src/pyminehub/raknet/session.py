@@ -1,9 +1,9 @@
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from logging import getLogger
-from typing import List, Callable
+from typing import List, Set, Dict, Callable
 
 from pyminehub.raknet.codec import capsule_codec
-from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
+from pyminehub.raknet.encapsulation import Reliability, CapsuleID, capsule_factory
 from pyminehub.raknet.fragment import MessageFragment
 from pyminehub.raknet.packet import PacketID, packet_factory
 
@@ -12,18 +12,22 @@ _logger = getLogger(__name__)
 
 class Session:
 
-    def __init__(self, send_to_game_handler: Callable[[bytes], None], send_to_client: Callable[[namedtuple], None]):
+    def __init__(self,
+                 mtu_size: int,
+                 send_to_game_handler: Callable[[bytes], None],
+                 send_to_client: Callable[[namedtuple], None]):
+        self._mtu_size = mtu_size
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
-        self._expected_sequence_num = 0
-        self._ack_set = set()
-        self._nck_set = set()
-        self._capsule_cache = {}
-        self._reliable_message_num = 0
-        self._message_ordering_index = 0
-        self._sequence_num = 0
-        self._resend_queue = {}
-        self._fragment = MessageFragment()
+        self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
+        self._capsule_cache = {}  # type: Dict[int, namedtuple]  # received packet cache
+        self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
+        self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
+        self._fragment = MessageFragment()  # for split receive packet
+        self._sequence_num = 0  # type: int  # next sequence number for send packet
+        self._resend_queue = {}  # type: Dict[int, namedtuple]  # send packets waiting for ACK / NCK
+        self._message_num = 0  # type: int  # for send reliable packet
+        self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
 
     def capsule_received(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
@@ -125,19 +129,49 @@ class Session:
         self._ack_set.clear()
         self._nck_set.clear()
 
-    def send_custom_packet(self, payload: bytes) -> None:
+    def send_custom_packet(self, payload: bytes, reliability: Reliability) -> None:
+        reliable, channel = reliability
+        if channel is not None:
+            self._send_reliable_ordered_capsule(payload, channel)
+        elif reliable:
+            self._send_reliable_capsule(payload)
+        else:
+            self._send_unreliable_capsule(payload)
+
+    def _send_reliable_ordered_capsule(self, payload: bytes, channel: int) -> None:
         capsule = capsule_factory.create(
             CapsuleID.RELIABLE_ORDERED,
             len(payload) * 8,
-            self._reliable_message_num,
-            self._message_ordering_index,
-            0,
+            self._message_num,
+            self._ordering_index[channel],
+            channel,
             payload
         )
+        self._send_capsule(capsule)
+        self._message_num += 1
+        self._ordering_index[channel] += 1
+
+    def _send_reliable_capsule(self, payload: bytes) -> None:
+        capsule = capsule_factory.create(
+            CapsuleID.RELIABLE,
+            len(payload) * 8,
+            self._message_num,
+            payload
+        )
+        self._send_capsule(capsule)
+        self._message_num += 1
+
+    def _send_unreliable_capsule(self, payload: bytes) -> None:
+        capsule = capsule_factory.create(
+            CapsuleID.UNRELIABLE,
+            len(payload) * 8,
+            payload
+        )
+        self._send_capsule(capsule)
+
+    def _send_capsule(self, capsule: namedtuple) -> None:
         packet = packet_factory.create(PacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
         _logger.debug('< %d:%s', packet.packet_sequence_num, capsule)
         self._send_to_client(packet)
         self._resend_queue[packet.packet_sequence_num] = packet
-        self._reliable_message_num += 1
-        self._message_ordering_index += 1
         self._sequence_num += 1

@@ -5,6 +5,7 @@ from logging import getLogger, basicConfig
 from pyminehub.network.address import IP_VERSION, to_address
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import packet_codec, capsule_codec
+from pyminehub.raknet.encapsulation import Reliability
 from pyminehub.raknet.packet import PacketID, packet_factory
 from pyminehub.raknet.session import Session
 
@@ -17,8 +18,8 @@ class GameDataHandler:
         # noinspection PyAttributeOutsideInit
         self._protocol = protocol
 
-    def sendto(self, data: bytes, addr: tuple) -> None:
-        self._protocol.game_data_received(data, addr)
+    def sendto(self, data: bytes, addr: tuple, reliability: Reliability) -> None:
+        self._protocol.game_data_received(data, addr, reliability)
 
     def data_received(self, data: bytes, addr: tuple) -> None:
         raise NotImplementedError()
@@ -34,9 +35,9 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self.guid = 472877960873915066
         self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
 
-    def game_data_received(self, data: bytes, addr: tuple) -> None:
+    def game_data_received(self, data: bytes, addr: tuple, reliability: Reliability) -> None:
         session = self._sessions[addr]
-        session.send_custom_packet(data)
+        session.send_custom_packet(data, reliability)
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         # noinspection PyAttributeOutsideInit
@@ -78,6 +79,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             PacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_address(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
+            packet.mtu_size,
             lambda _data: self._handler.data_received(_data, addr),
             lambda _packet: self.send_to_client(_packet, addr))
 

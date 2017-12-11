@@ -15,8 +15,9 @@ mcpe
       - batch -> typing, mcpe.network.packet, .common
       - common -> network.codec
       - connection -> config, mcpe.network.packet, .common
-    - handler -> typing, raknet, network.[address], mcpe.[const, player, world], .codec, .packet
+    - handler -> typing, raknet, network.[address], mcpe.[const, player, world], .codec, .packet, .queue
     - packet -> mcpe.[value, geometry], network.[address, packet]
+    - queue -> raknet, .packet, .codec
   const
   geometry -> typing
   player -> .const, .geometry, .value
@@ -32,8 +33,8 @@ raknet -> network
   - encapsulation -> .packet
   - fragment
   - packet -> network.[address, packet]
-  - server -> network.[address, codec], .codec, .packet, .session
-  - session -> .codec, .encapsulation, .fragment, .packet
+  - server -> network.[address, codec], .codec, .packet, .encapsulation, .session
+  - session -> .codec, .encapsulation, .fragment, .packet, .encapsulation
 binutil -> typing
 config
 typing
