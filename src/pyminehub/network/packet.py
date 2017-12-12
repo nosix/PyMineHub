@@ -1,4 +1,7 @@
+from collections import namedtuple
 from typing import NamedTuple
+
+Packet = namedtuple
 
 
 class PacketFactory:

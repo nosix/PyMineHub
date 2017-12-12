@@ -1,9 +1,9 @@
 import asyncio
-from collections import namedtuple
 from logging import getLogger, basicConfig
 
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import packet_codec, capsule_codec
 from pyminehub.raknet.encapsulation import Reliability
 from pyminehub.raknet.packet import PacketID, packet_factory
@@ -53,7 +53,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
-    def send_to_client(self, packet: namedtuple, addr: Address) -> None:
+    def send_to_client(self, packet: Packet, addr: Address) -> None:
         _logger.debug('< %s %s', addr, packet)
         self._transport.sendto(packet_codec.encode(packet), addr)
 
@@ -63,17 +63,17 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
                 self.send_to_client(res_packet, addr)
             session.send_ack_and_nck(sendto)
 
-    def _process_unconnected_ping(self, packet: namedtuple, addr: Address) -> None:
+    def _process_unconnected_ping(self, packet: Packet, addr: Address) -> None:
         res_packet = packet_factory.create(
             PacketID.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
         self.send_to_client(res_packet, addr)
 
-    def _process_open_connection_request1(self, packet: namedtuple, addr: Address) -> None:
+    def _process_open_connection_request1(self, packet: Packet, addr: Address) -> None:
         res_packet = packet_factory.create(
             PacketID.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
         self.send_to_client(res_packet, addr)
 
-    def _process_open_connection_request2(self, packet: namedtuple, addr: Address) -> None:
+    def _process_open_connection_request2(self, packet: Packet, addr: Address) -> None:
         assert packet.server_address.ip_version == IP_VERSION
         res_packet = packet_factory.create(
             PacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
@@ -83,7 +83,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             lambda _data: self._handler.data_received(_data, addr),
             lambda _packet: self.send_to_client(_packet, addr))
 
-    def _process_custom_packet(self, packet: namedtuple, addr: Address) -> None:
+    def _process_custom_packet(self, packet: Packet, addr: Address) -> None:
         session = self._sessions[addr]
         context = PacketCodecContext()
         capsules = []
@@ -96,17 +96,17 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             context.clear()
         session.capsule_received(packet.packet_sequence_num, capsules)
 
-    def _process_custom_packet_4(self, packet: namedtuple, addr: Address) -> None:
+    def _process_custom_packet_4(self, packet: Packet, addr: Address) -> None:
         self._process_custom_packet(packet, addr)
 
-    def _process_custom_packet_c(self, packet: namedtuple, addr: Address) -> None:
+    def _process_custom_packet_c(self, packet: Packet, addr: Address) -> None:
         self._process_custom_packet(packet, addr)
 
-    def _process_nck(self, packet: namedtuple, addr: Address) -> None:
+    def _process_nck(self, packet: Packet, addr: Address) -> None:
         session = self._sessions[addr]
         session.nck_received(packet)
 
-    def _process_ack(self, packet: namedtuple, addr: Address) -> None:
+    def _process_ack(self, packet: Packet, addr: Address) -> None:
         session = self._sessions[addr]
         session.ack_received(packet)
 

@@ -1,7 +1,8 @@
-from typing import NamedTuple, Optional
+from typing import Optional
 
 from pyminehub.binutil import *
 from pyminehub.network.address import AddressInPacket
+from pyminehub.network.packet import Packet
 
 BYTE_DATA = ByteData()
 SHORT_DATA = ShortData()
@@ -49,7 +50,7 @@ class Codec:
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs
 
-    def encode(self, packet: NamedTuple, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
+    def encode(self, packet: Packet, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
         >>> p = _packet_factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
@@ -79,7 +80,7 @@ class Codec:
         context.pop_stack()
         return bytes(data)
 
-    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> NamedTuple:
+    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> Packet:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')

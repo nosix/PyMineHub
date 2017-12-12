@@ -1,7 +1,8 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from logging import getLogger
 from typing import List, Set, Dict, Callable
 
+from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import capsule_codec
 from pyminehub.raknet.encapsulation import Reliability, CapsuleID, capsule_factory
 from pyminehub.raknet.fragment import MessageFragment
@@ -15,21 +16,21 @@ class Session:
     def __init__(self,
                  mtu_size: int,
                  send_to_game_handler: Callable[[bytes], None],
-                 send_to_client: Callable[[namedtuple], None]):
+                 send_to_client: Callable[[Packet], None]):
         self._mtu_size = mtu_size
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
-        self._capsule_cache = {}  # type: Dict[int, namedtuple]  # received packet cache
+        self._capsule_cache = {}  # type: Dict[int, Packet]  # received packet cache
         self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
         self._fragment = MessageFragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._resend_queue = {}  # type: Dict[int, namedtuple]  # send packets waiting for ACK / NCK
+        self._resend_queue = {}  # type: Dict[int, Packet]  # send packets waiting for ACK / NCK
         self._message_num = 0  # type: int  # for send reliable packet
         self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
 
-    def capsule_received(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
+    def capsule_received(self, packet_sequence_num: int, capsules: List[Packet]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
             self._process_capsules(packet_sequence_num, capsules)
             self._expected_sequence_num += 1
@@ -51,21 +52,21 @@ class Session:
             self._process_capsules(self._expected_sequence_num, capsules)
             self._expected_sequence_num += 1
 
-    def _process_capsules(self, packet_sequence_num: int, capsules: List[namedtuple]) -> None:
+    def _process_capsules(self, packet_sequence_num: int, capsules: List[Packet]) -> None:
         for capsule in capsules:
             _logger.debug('> %d:%s', packet_sequence_num, capsule)
             getattr(self, '_process_' + CapsuleID(capsule.id).name.lower())(capsule)
 
-    def _process_unreliable(self, capsule: namedtuple) -> None:
+    def _process_unreliable(self, capsule: Packet) -> None:
         self._send_to_game_handler(capsule.payload)
 
-    def _process_reliable(self, capsule: namedtuple) -> None:
+    def _process_reliable(self, capsule: Packet) -> None:
         self._send_to_game_handler(capsule.payload)
 
-    def _process_reliable_ordered(self, capsule: namedtuple) -> None:
+    def _process_reliable_ordered(self, capsule: Packet) -> None:
         self._send_to_game_handler(capsule.payload)
 
-    def _process_reliable_ordered_has_split(self, capsule: namedtuple) -> None:
+    def _process_reliable_ordered_has_split(self, capsule: Packet) -> None:
         self._fragment.append(
             capsule.split_packet_id,
             capsule.split_packet_count,
@@ -76,7 +77,7 @@ class Session:
             self._send_to_game_handler(payload)
 
     @staticmethod
-    def _nck_or_ack_received(packet: namedtuple, action: Callable[[int], None]) -> None:
+    def _nck_or_ack_received(packet: Packet, action: Callable[[int], None]) -> None:
         min_sequence_num = packet.packet_sequence_number_min
         max_sequence_num = min_sequence_num if packet.range_max_equals_to_min else packet.packet_sequence_number_max
         for sequence_num in range(min_sequence_num, max_sequence_num + 1):
@@ -89,14 +90,14 @@ class Session:
     def _ack_action(self, sequence_num):
         del self._resend_queue[sequence_num]
 
-    def nck_received(self, packet: namedtuple) -> None:
+    def nck_received(self, packet: Packet) -> None:
         self._nck_or_ack_received(packet, self._nck_action)
 
-    def ack_received(self, packet: namedtuple) -> None:
+    def ack_received(self, packet: Packet) -> None:
         self._nck_or_ack_received(packet, self._ack_action)
 
     @staticmethod
-    def _send_ack_or_nck(packet_id, ack_set, sendto: Callable[[namedtuple], None]):
+    def _send_ack_or_nck(packet_id, ack_set, sendto: Callable[[Packet], None]):
         def send_ack_or_nck():
             diff_sequence_num = max_sequence_num - min_sequence_num + 1
             packet = packet_factory.create(
@@ -123,7 +124,7 @@ class Session:
         if min_sequence_num is not None:
             send_ack_or_nck()
 
-    def send_ack_and_nck(self, sendto: Callable[[namedtuple], None]) -> None:
+    def send_ack_and_nck(self, sendto: Callable[[Packet], None]) -> None:
         self._send_ack_or_nck(PacketID.ACK, self._ack_set, sendto)
         self._send_ack_or_nck(PacketID.NCK, self._nck_set, sendto)
         self._ack_set.clear()
@@ -169,7 +170,7 @@ class Session:
         )
         self._send_capsule(capsule)
 
-    def _send_capsule(self, capsule: namedtuple) -> None:
+    def _send_capsule(self, capsule: Packet) -> None:
         packet = packet_factory.create(PacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
         _logger.debug('< %d:%s', packet.packet_sequence_num, capsule)
         self._send_to_client(packet)

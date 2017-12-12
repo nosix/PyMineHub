@@ -1,9 +1,10 @@
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import GamePacketID, ConnectionPacketID, connection_packet_factory
 from pyminehub.network.address import Address
+from pyminehub.network.packet import Packet
 from pyminehub.raknet import Reliability
 
 _RELIABILITY_CHANEL_DEFAULT = Reliability(True, 0)
@@ -23,16 +24,16 @@ class _BatchQueue:
     }
 
     def __init__(self):
-        self._packets = []  # type: List[Tuple[Reliability, namedtuple]]
+        self._packets = []  # type: List[Tuple[Reliability, Packet]]
 
-    def append(self, packet: namedtuple) -> None:
+    def append(self, packet: Packet) -> None:
         """Append batch request.
 
         :param packet: game packet
         """
         self._packets.append((self._RELIABILITY[GamePacketID(packet.id)], packet))
 
-    def send(self, sendto: Callable[[namedtuple, Reliability], None]) -> None:
+    def send(self, sendto: Callable[[Packet, Reliability], None]) -> None:
         payloads = []
         last_reliability = None
         for reliability, packet in self._packets:
@@ -49,11 +50,11 @@ class _BatchQueue:
 
 class GamePacketQueue:
 
-    def __init__(self, send_connection_packet: Callable[[namedtuple, Address, Reliability], None]):
+    def __init__(self, send_connection_packet: Callable[[Packet, Address, Reliability], None]):
         self._send_connection_packet = send_connection_packet
         self._batch_queue = defaultdict(_BatchQueue)  # type: Dict[Address, _BatchQueue]
 
-    def append(self, packet: namedtuple, addr: Address) -> None:
+    def append(self, packet: Packet, addr: Address) -> None:
         """Register batch request.
 
         :param packet: game packet
@@ -65,6 +66,6 @@ class GamePacketQueue:
         for addr, queue in self._batch_queue.items():
             queue.send(lambda _packet, _reliability: self._send_connection_packet(_packet, addr, _reliability))
 
-    def send_immediately(self, packet: namedtuple, addr: Address) -> None:
+    def send_immediately(self, packet: Packet, addr: Address) -> None:
         self.append(packet, addr)
         self.send()
