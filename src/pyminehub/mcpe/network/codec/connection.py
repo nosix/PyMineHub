@@ -10,7 +10,7 @@ from pyminehub.mcpe.network.packet import *
 
 class _AddressList(DataCodec[Tuple[AddressInPacket, ...]]):
 
-    def __init__(self, size: int):
+    def __init__(self, size: int) -> None:
         self._size = size
 
     def read(self, data: bytearray, context: DataCodecContext) -> Tuple[AddressInPacket, ...]:

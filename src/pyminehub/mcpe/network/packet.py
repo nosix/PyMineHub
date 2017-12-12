@@ -1,9 +1,9 @@
 from pyminehub.mcpe.value import *
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.packet import PacketFactory
+from pyminehub.network.packet import PacketID, PacketFactory
 
 
-class ConnectionPacketID(Enum):
+class ConnectionPacketID(PacketID):
     CONNECTED_PING = 0x00
     CONNECTED_PONG = 0x03
     CONNECTION_REQUEST = 0x09
@@ -13,7 +13,7 @@ class ConnectionPacketID(Enum):
     BATCH = 0xfe
 
 
-class GamePacketID(Enum):
+class GamePacketID(PacketID):
     LOGIN = 0x01
     PLAY_STATUS = 0x02
     SERVER_TO_CLIENT_HANDSHAKE = 0x03

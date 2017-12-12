@@ -9,7 +9,7 @@ EntityRuntimeID = int
 
 class Player:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._protocol = None
         self._player_data = None
         self._client_data = None

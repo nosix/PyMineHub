@@ -1,11 +1,10 @@
-from enum import Enum
 from typing import Optional
 
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.packet import PacketFactory
+from pyminehub.network.packet import PacketID, PacketFactory
 
 
-class PacketID(Enum):
+class RakNetPacketID(PacketID):
     UNCONNECTED_PING = 0x01
     UNCONNECTED_PONG = 0x1c
     OPEN_CONNECTION_REQUEST1 = 0x05
@@ -33,40 +32,40 @@ class PacketID(Enum):
 
 
 _packet_specs = {
-    PacketID.UNCONNECTED_PING: [
+    RakNetPacketID.UNCONNECTED_PING: [
         ('id', int),
         ('time_since_start', int),
         ('valid_message_data_id', bool),
         ('client_guid', bytes)
     ],
-    PacketID.UNCONNECTED_PONG: [
+    RakNetPacketID.UNCONNECTED_PONG: [
         ('id', int),
         ('time_since_start', int),
         ('server_guid', bytes),
         ('valid_message_data_id', bool),
         ('server_id', str)
     ],
-    PacketID.OPEN_CONNECTION_REQUEST1: [
+    RakNetPacketID.OPEN_CONNECTION_REQUEST1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('raknet_protocol_version', int),
         ('mtu_size', int)
     ],
-    PacketID.OPEN_CONNECTION_REPLY1: [
+    RakNetPacketID.OPEN_CONNECTION_REPLY1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
         ('use_encryption', bool),
         ('mtu_size', int)
     ],
-    PacketID.OPEN_CONNECTION_REQUEST2: [
+    RakNetPacketID.OPEN_CONNECTION_REQUEST2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_address', AddressInPacket),
         ('mtu_size', int),
         ('client_guid', int)
     ],
-    PacketID.OPEN_CONNECTION_REPLY2: [
+    RakNetPacketID.OPEN_CONNECTION_REPLY2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
@@ -78,14 +77,14 @@ _packet_specs = {
 
 
 for n in range(16):
-    _packet_specs[PacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _packet_specs[RakNetPacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
         ('id', int),
         ('packet_sequence_num', int),
         ('payload', bytes)
     ]
 
 
-for packet_id in (PacketID.NCK, PacketID.ACK):
+for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
     _packet_specs[packet_id] = [
         ('id', int),
         ('record_count', int),
@@ -95,4 +94,4 @@ for packet_id in (PacketID.NCK, PacketID.ACK):
     ]
 
 
-packet_factory = PacketFactory(_packet_specs)
+raknet_packet_factory = PacketFactory(_packet_specs)

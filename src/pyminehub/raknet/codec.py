@@ -1,41 +1,41 @@
 from pyminehub.network.codec import *
 from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
-from pyminehub.raknet.packet import PacketID, packet_factory
+from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 
 
 _NULL_PADDING = ValueFilter(RAW_DATA, read=lambda _data: len(_data), write=lambda _value: b'0' * _value)
 
 
 _packet_data_codecs = {
-    PacketID.UNCONNECTED_PING: [
+    RakNetPacketID.UNCONNECTED_PING: [
         LONG_DATA,
         MAGIC_DATA,
         LONG_DATA
     ],
-    PacketID.UNCONNECTED_PONG: [
+    RakNetPacketID.UNCONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA,
         MAGIC_DATA,
         STRING_DATA
     ],
-    PacketID.OPEN_CONNECTION_REQUEST1: [
+    RakNetPacketID.OPEN_CONNECTION_REQUEST1: [
         MAGIC_DATA,
         BYTE_DATA,
         _NULL_PADDING
     ],
-    PacketID.OPEN_CONNECTION_REPLY1: [
+    RakNetPacketID.OPEN_CONNECTION_REPLY1: [
         MAGIC_DATA,
         LONG_DATA,
         FALSE_DATA,
         SHORT_DATA
     ],
-    PacketID.OPEN_CONNECTION_REQUEST2: [
+    RakNetPacketID.OPEN_CONNECTION_REQUEST2: [
         MAGIC_DATA,
         ADDRESS_DATA,
         SHORT_DATA,
         LONG_DATA
     ],
-    PacketID.OPEN_CONNECTION_REPLY2: [
+    RakNetPacketID.OPEN_CONNECTION_REPLY2: [
         MAGIC_DATA,
         LONG_DATA,
         ADDRESS_DATA,
@@ -45,13 +45,13 @@ _packet_data_codecs = {
 }
 
 for n in range(16):
-    _packet_data_codecs[PacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _packet_data_codecs[RakNetPacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
         TRIAD_DATA,
         RAW_DATA
     ]
 
 
-for packet_id in (PacketID.NCK, PacketID.ACK):
+for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
     _packet_data_codecs[packet_id] = [
         SHORT_DATA,
         NamedData('range_max_equals_to_min', BOOL_DATA),
@@ -107,5 +107,5 @@ _capsule_data_codecs = {
 }
 
 
-packet_codec = Codec(PacketID, packet_factory, _packet_data_codecs)
+raknet_packet_codec = Codec(RakNetPacketID, raknet_packet_factory, _packet_data_codecs)
 capsule_codec = Codec(CapsuleID, capsule_factory, _capsule_data_codecs)

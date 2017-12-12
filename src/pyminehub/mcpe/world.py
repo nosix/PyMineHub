@@ -4,7 +4,7 @@ from pyminehub.mcpe.const import GameMode, Difficulty
 
 class WorldProxy:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._seed = config.get_value(config.ConfigKey.SEED)
         self._name = config.get_value(config.ConfigKey.WORLD_NAME)
         self._game_mode = GameMode.SURVIVAL

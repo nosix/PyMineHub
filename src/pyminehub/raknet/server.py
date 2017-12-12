@@ -4,9 +4,9 @@ from logging import getLogger, basicConfig
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.network.packet import Packet
-from pyminehub.raknet.codec import packet_codec, capsule_codec
+from pyminehub.raknet.codec import raknet_packet_codec, capsule_codec
 from pyminehub.raknet.encapsulation import Reliability
-from pyminehub.raknet.packet import PacketID, packet_factory
+from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 from pyminehub.raknet.session import Session
 
 _logger = getLogger(__name__)
@@ -14,7 +14,7 @@ _logger = getLogger(__name__)
 
 class GameDataHandler:
 
-    def register_protocol(self, protocol):
+    def register_protocol(self, protocol) -> None:
         # noinspection PyAttributeOutsideInit
         self._protocol = protocol
 
@@ -27,7 +27,7 @@ class GameDataHandler:
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
-    def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler):
+    def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler) -> None:
         handler.register_protocol(self)
         self._loop = loop
         self._handler = handler
@@ -45,17 +45,17 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
-        packet = packet_codec.decode(data)
+        packet = raknet_packet_codec.decode(data)
         _logger.debug('> %s %s', addr, packet)
-        getattr(self, '_process_' + PacketID(packet.id).name.lower())(packet, addr)
+        getattr(self, '_process_' + RakNetPacketID(packet.id).name.lower())(packet, addr)
 
-    def connection_lost(self, exc: Exception):
+    def connection_lost(self, exc: Exception) -> None:
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
     def send_to_client(self, packet: Packet, addr: Address) -> None:
         _logger.debug('< %s %s', addr, packet)
-        self._transport.sendto(packet_codec.encode(packet), addr)
+        self._transport.sendto(raknet_packet_codec.encode(packet), addr)
 
     def send_ack_and_nck(self) -> None:
         for addr, session in self._sessions.items():
@@ -64,19 +64,19 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             session.send_ack_and_nck(sendto)
 
     def _process_unconnected_ping(self, packet: Packet, addr: Address) -> None:
-        res_packet = packet_factory.create(
-            PacketID.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
+        res_packet = raknet_packet_factory.create(
+            RakNetPacketID.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: Packet, addr: Address) -> None:
-        res_packet = packet_factory.create(
-            PacketID.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
+        res_packet = raknet_packet_factory.create(
+            RakNetPacketID.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: Packet, addr: Address) -> None:
         assert packet.server_address.ip_version == IP_VERSION
-        res_packet = packet_factory.create(
-            PacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
+        res_packet = raknet_packet_factory.create(
+            RakNetPacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
             packet.mtu_size,
@@ -117,7 +117,7 @@ async def _send(protocol: _RakNetServerProtocol):
         protocol.send_ack_and_nck()
 
 
-def run(handler, log_level=None):
+def run(handler, log_level=None) -> None:
     not log_level or basicConfig(level=log_level)
     loop = asyncio.get_event_loop()
     listen = loop.create_datagram_endpoint(

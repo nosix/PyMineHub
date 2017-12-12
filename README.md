@@ -9,8 +9,8 @@
 Modules depend only on parents or siblings. Siblings depend only on the above siblings.
 
 ```
-config
 typing
+config -> typing
 binutil -> typing
 network -> binutil
   address

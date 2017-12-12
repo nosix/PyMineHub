@@ -22,9 +22,9 @@ from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import capsule_codec as raknet_capsule_codec
-from pyminehub.raknet.codec import packet_codec as raknet_packet_codec
+from pyminehub.raknet.codec import raknet_packet_codec as raknet_packet_codec
 from pyminehub.raknet.encapsulation import CapsuleID
-from pyminehub.raknet.packet import PacketID
+from pyminehub.raknet.packet import RakNetPacketID
 
 _logger = logging.getLogger(__name__)
 
@@ -273,7 +273,7 @@ class Capsule(PacketAssertion):
 
 class RakNetPacket(PacketAssertion):
 
-    def __init__(self, packet_id: PacketID):
+    def __init__(self, packet_id: RakNetPacketID):
         """ RakNet packet validator.
         :param packet_id: expected packet ID
         """
@@ -289,7 +289,7 @@ class RakNetPacket(PacketAssertion):
         assert self._packet_id is not None
         context = PacketCodecContext()
         packet = raknet_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, PacketID(packet.id), packet)
+        test_case.assertEqual(self._packet_id, RakNetPacketID(packet.id), packet)
         test_case.assertEqual(len(data), context.length)
         self.record_decoded(data, packet, raknet_packet_codec)
         return context.length, packet

@@ -7,7 +7,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '8400000040009000000009869e0aed5f1a87ae00000000003d380300'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE).that_has(
                     ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST)
                 )
@@ -17,7 +17,7 @@ class LoginLogoutTestCase(CodecTestCase):
 
     def test_login_logout_s01(self):
         assertion = EncodedDataInFile(self).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.UNRELIABLE).that_has(
                     ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED)
                 )
@@ -27,7 +27,7 @@ class LoginLogoutTestCase(CodecTestCase):
 
     def test_login_logout_c01(self):
         assertion = EncodedDataInFile(self).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.UNRELIABLE).that_has(
                     ConnectionPacket(ConnectionPacketID.CONNECTED_PONG)
                 ),
@@ -55,7 +55,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '000a6000a801000001000000fe7801010900f6ff080600000000000000008100'
             '0f'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.PLAY_STATUS)
@@ -75,7 +75,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '840d00006000800b000002000000fe78da63e360606066600000006a0012'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE)
@@ -90,7 +90,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '8405000060009802000002000000fe7801010700f8ff06070000000000005b00'
             '0e'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.RESOURCE_PACK_STACK)
@@ -102,7 +102,7 @@ class LoginLogoutTestCase(CodecTestCase):
 
     def test_login_logout_s09(self):
         assertion = EncodedDataInFile(self).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.START_GAME)
@@ -141,7 +141,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '0000000000000000000000000013f1007f6000b00a00000a000000fe7801010a'
             '00f5ff09310000780400000000050100b7'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.SET_ENTITY_DATA)
@@ -174,7 +174,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '840d00006000a80d00000c000000fe7801010900f6ff081f0000010000000001'
             '4e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.MOB_EQUIPMENT)
@@ -209,7 +209,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '841200006000700e000004000000fe78da63716560100000013d005a'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.REQUEST_CHUNK_RADIUS)
@@ -223,7 +223,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '8421000060008822000010000000fe7801010500faff04460000100141005b'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.CHUNK_RADIUS_UPDATED)
@@ -238,7 +238,7 @@ class LoginLogoutTestCase(CodecTestCase):
             '842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303'
             '300cf10268'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.UPDATE_BLOCK)
@@ -250,7 +250,7 @@ class LoginLogoutTestCase(CodecTestCase):
 
     def test_login_logout_s23(self):
         assertion = EncodedDataInFile(self).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
                         GamePacket(GamePacketID.FULL_CHUNK_DATA)
@@ -264,7 +264,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion = EncodedData(
             '84850100600008a002008402000015'
         ).is_(
-            RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+            RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
                     ConnectionPacket(ConnectionPacketID.DISCONNECTION_NOTIFICATION)
                 )

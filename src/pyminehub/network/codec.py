@@ -16,27 +16,27 @@ RAW_DATA = RawData()
 
 class PacketCodecContext(DataCodecContext):
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._values = []
         self._stack = []
 
-    def append_value(self, value):
+    def append_value(self, value) -> None:
         self._values.append(value)
 
-    def get_values(self):
+    def get_values(self) -> tuple:
         return tuple(self._values)
 
-    def push_stack(self):
+    def push_stack(self) -> None:
         self._stack.append({})
 
-    def pop_stack(self):
+    def pop_stack(self) -> None:
         self._stack.pop()
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value) -> None:
         self._stack[-1][key] = value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> T:
         for d in reversed(self._stack):
             if key in d:
                 return d[key]
@@ -45,7 +45,7 @@ class PacketCodecContext(DataCodecContext):
 
 class Codec:
 
-    def __init__(self, packet_id_cls, packet_factory, data_codecs):
+    def __init__(self, packet_id_cls, packet_factory, data_codecs) -> None:
         self._packet_id_cls = packet_id_cls
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs

@@ -31,5 +31,5 @@ UNRELIABLE(id=0, payload_length=72, payload=b'\x00\x00\x00\x00\x00\x00=8\x10')
 CUSTOM_PACKET_4(id=132, packet_sequence_num=1, payload=[206 bytes])
   -> 8401000000008803000000000000c5fb00000000003d38106005200100000000000013043f574cfc4abc04ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff000004ffffffff0000000000000000c5fc00000000003d38100000480000000000003d3810
   File "./codec_login_logout.py", line 30, in test_login_logout_c01
-    RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
 

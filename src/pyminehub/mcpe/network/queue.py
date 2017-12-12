@@ -23,7 +23,7 @@ class _BatchQueue:
         GamePacketID.ADVENTURE_SETTINGS: _RELIABILITY_CHANEL_DEFAULT
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._packets = []  # type: List[Tuple[Reliability, Packet]]
 
     def append(self, packet: Packet) -> None:
@@ -50,7 +50,7 @@ class _BatchQueue:
 
 class GamePacketQueue:
 
-    def __init__(self, send_connection_packet: Callable[[Packet, Address, Reliability], None]):
+    def __init__(self, send_connection_packet: Callable[[Packet, Address, Reliability], None]) -> None:
         self._send_connection_packet = send_connection_packet
         self._batch_queue = defaultdict(_BatchQueue)  # type: Dict[Address, _BatchQueue]
 

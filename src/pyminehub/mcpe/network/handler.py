@@ -25,14 +25,14 @@ class MCPEHandler(GameDataHandler):
 
     _INTERNAL_ADDRESSES = tuple(to_packet_format(('0.0.0.0', 0)) for i in range(20))
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._start_time = time.time()
         self._accepted_time = {}
         self._players = {}
         self._world = WorldProxy()
         self._queue = GamePacketQueue(self._send_connection_packet)
 
-    def _get_current_time(self):
+    def _get_current_time(self) -> int:
         return int(time.time() - self._start_time)
 
     def data_received(self, data: bytes, addr: Address) -> None:

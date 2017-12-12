@@ -23,7 +23,7 @@ _VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=VAR_INT_DATA)
 
 class _VarListData(DataCodec[Tuple[T, ...]]):
 
-    def __init__(self, count_codec: DataCodec[int], item_codec: DataCodec[T]):
+    def __init__(self, count_codec: DataCodec[int], item_codec: DataCodec[T]) -> None:
         self._count_codec = count_codec
         self._item_codec = item_codec
 
@@ -39,7 +39,7 @@ class _VarListData(DataCodec[Tuple[T, ...]]):
 
 class _CompositeData(DataCodec[TT]):
 
-    def __init__(self, factory: Callable[..., TT], data_codecs: Tuple[DataCodec[Any], ...]):
+    def __init__(self, factory: Callable[..., TT], data_codecs: Tuple[DataCodec, ...]) -> None:
         self._factory = factory
         self._data_codecs = data_codecs
 
@@ -77,13 +77,13 @@ _FLOAT_VECTOR3_DATA = _CompositeData(Vector3, (
 
 class _EnumData(DataCodec[ET]):
 
-    def __init__(self, data_codec: DataCodec[int], factory: Callable[[int], ET]):
+    def __init__(self, data_codec: DataCodec[int], factory: Callable[[int], ET]) -> None:
         self._filter = ValueFilter(data_codec, read=lambda _data: factory(_data), write=lambda _value: _value.value)
 
     def read(self, data: bytearray, context: DataCodecContext) -> ET:
         return self._filter.read(data, context)
 
-    def write(self, data: bytearray, value: ET, context: DataCodecContext):
+    def write(self, data: bytearray, value: ET, context: DataCodecContext) -> None:
         self._filter.write(data, value, context)
 
 
@@ -92,7 +92,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
     BASE64_PADDING_BYTE = ord('=')
 
     @classmethod
-    def _read_jwt(cls, data: bytes):
+    def _read_jwt(cls, data: bytes) -> str:
         head_base64, payload_base64, sig_base64 = data.split(b'.')
         padding = bytes(cls.BASE64_PADDING_BYTE for _ in range(len(payload_base64) % 4))
         return json.loads(base64.decodebytes(payload_base64 + padding))
@@ -144,7 +144,7 @@ class _GameRule(DataCodec[GameRule]):
         rule_value = self._VALUE_DATA_MAP[rule_type].read(data, context)
         return GameRule(rule_name, rule_type, rule_value)
 
-    def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: GameRule, context: DataCodecContext) -> None:
         _VAR_INT_LENGTH_STRING_DATA.write(data, value.name, context)
         _GAME_RULE_TYPE_DATA.write(data, value.type, context)
         self._VALUE_DATA_MAP[value.type].write(data, value.value, context)
@@ -171,8 +171,8 @@ class _CommandEnumIndex(DataCodec[int]):
             _LITTLE_ENDIAN_INT_DATA.write(data, value, context)
 
 
-def _is_zero_first_value(_context: PacketCodecContext):
-    return _context['slot_id'] == 0
+def _is_zero_first_value(context: PacketCodecContext):
+    return context['slot_id'] == 0
 
 
 _SLOT_DATA = _CompositeData(Slot, (
@@ -183,7 +183,7 @@ _SLOT_DATA = _CompositeData(Slot, (
     OptionalData(_VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value)
 ))
 
-_SLOTS = _VarListData(VAR_INT_DATA, _SLOT_DATA)
+_SLOTS = _VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
 
 
 class _MetaDataValue(DataCodec[MetaDataValue]):
@@ -244,7 +244,7 @@ class _RecipeData(DataCodec[RecipeData]):
         if recipe_type == RecipeType.MULTI:
             return RecipeForMulti(_UUID_DATA.read(data, context))
 
-    def write(self, data: bytearray, value: RecipeData, context: PacketCodecContext):
+    def write(self, data: bytearray, value: RecipeData, context: PacketCodecContext) -> None:
         recipe_type = context['recipe_type']
         if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
             if recipe_type == RecipeType.SHAPED:

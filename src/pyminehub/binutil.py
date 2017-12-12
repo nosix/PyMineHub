@@ -1,7 +1,6 @@
 import struct
 from binascii import hexlify, unhexlify
-from collections import namedtuple
-from typing import Any, Callable, Generic
+from typing import NamedTuple as _NamedTuple, Callable, Generic
 
 from pyminehub.typing import T, BT
 
@@ -28,14 +27,18 @@ def pop_first(data: bytearray, size: int) -> bytearray:
     return value
 
 
-class _Converter(namedtuple('Converter', ['byte_order', 'slice_pack', 'fill_zero'])):
+class _Converter(_NamedTuple('Converter', [
+    ('byte_order', str),
+    ('slice_pack', Callable[[int, int], slice]),
+    ('fill_zero', Callable[[bytes, bytes], bytes])
+])):
     __slots__ = ()
 
-    def pack(self, type_char: str, value: Any, size: int=None) -> bytes:
+    def pack(self, type_char: str, value: T, size: int=None) -> bytes:
         buffer = struct.pack(self.byte_order + type_char, value)
         return buffer if size is None else buffer[self.slice_pack(len(buffer), size)]
 
-    def unpack(self, type_char: str, buffer: bytes, fill_size: int=None) -> Any:
+    def unpack(self, type_char: str, buffer: bytes, fill_size: int=None) -> T:
         if fill_size is not None:
             buffer = self.fill_zero(buffer, b'\x00' * fill_size)
         return struct.unpack(self.byte_order + type_char, buffer)[0]
@@ -60,13 +63,13 @@ class Endian:
 
 class DataCodecContext:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.length = 0
 
-    def clear(self):
+    def clear(self) -> None:
         self.__init__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.__dict__)
 
 
@@ -158,7 +161,7 @@ class ShortData(DataCodec[int]):
 
     _LENGTH = 2
 
-    def __init__(self, endian=Endian.BIG):
+    def __init__(self, endian: _Converter=Endian.BIG) -> None:
         self.endian = endian
 
     def read(self, data: bytearray, context: DataCodecContext) -> int:
@@ -215,7 +218,7 @@ class TriadData(DataCodec[int]):
 
     _LENGTH = 3
 
-    def __init__(self, endian=Endian.LITTLE):
+    def __init__(self, endian: _Converter=Endian.LITTLE) -> None:
         self.endian = endian
 
     def read(self, data: bytearray, context: DataCodecContext) -> int:
@@ -291,7 +294,7 @@ class IntData(DataCodec[int]):
 
     _LENGTH = 4
 
-    def __init__(self, endian=Endian.BIG, unsigned=True):
+    def __init__(self, endian: _Converter=Endian.BIG, unsigned=True) -> None:
         self.endian = endian
         self.unsigned = unsigned
 
@@ -349,7 +352,7 @@ class LongData(DataCodec[int]):
 
     _LENGTH = 8
 
-    def __init__(self, endian=Endian.BIG):
+    def __init__(self, endian: _Converter=Endian.BIG) -> None:
         self.endian = endian
 
     def read(self, data: bytearray, context: DataCodecContext) -> int:
@@ -406,15 +409,15 @@ class FloatData(DataCodec[float]):
 
     _LENGTH = 4
 
-    def __init__(self, endian=Endian.BIG):
+    def __init__(self, endian: _Converter=Endian.BIG) -> None:
         self.endian = endian
 
-    def read(self, data: bytearray, context: DataCodecContext):
+    def read(self, data: bytearray, context: DataCodecContext) -> float:
         d = pop_first(data, self._LENGTH)
         context.length += self._LENGTH
         return self.endian.unpack('f', d)
 
-    def write(self, data: bytearray, value: T, context: DataCodecContext):
+    def write(self, data: bytearray, value: float, context: DataCodecContext):
         data += self.endian.pack('f', value)
         context.length += self._LENGTH
 
@@ -461,7 +464,7 @@ class BytesData(DataCodec[bytes]):
     b''
     """
 
-    def __init__(self, len_codec: DataCodec[int]=None):
+    def __init__(self, len_codec: DataCodec[int]=None) -> None:
         self._len_codec = ShortData(Endian.BIG) if len_codec is None else len_codec
 
     def read(self, data: bytearray, context: DataCodecContext) -> bytes:
@@ -500,7 +503,7 @@ class StringData(DataCodec[str]):
     b''
     """
 
-    def __init__(self, len_codec: DataCodec[int]=None, encoding='utf8'):
+    def __init__(self, len_codec: DataCodec[int]=None, encoding: str='utf8') -> None:
         self._len_codec = ShortData(Endian.BIG) if len_codec is None else len_codec
         self.encoding = encoding
 
@@ -558,7 +561,7 @@ class RawData(DataCodec[bytes]):
     b''
     """
 
-    def __init__(self, data_len=None):
+    def __init__(self, data_len: int=None) -> None:
         self.data_len = data_len
 
     def read(self, data: bytearray, context: DataCodecContext) -> bytes:
@@ -598,7 +601,7 @@ class ValueFilter(DataCodec[T]):
     b''
     """
 
-    def __init__(self, data_codec: DataCodec[BT], read: Callable[[BT], T]=None, write: Callable[[T], BT]=None):
+    def __init__(self, data_codec: DataCodec[BT], read: Callable[[BT], T]=None, write: Callable[[T], BT]=None) -> None:
         self._data_codec = data_codec
         self._read_filter = (lambda data: data) if read is None else read
         self._write_filter = (lambda value: value) if write is None else write

@@ -64,7 +64,7 @@ class _VarIntData(DataCodec[int]):
     b''
     """
 
-    def __init__(self, unsigned=True):
+    def __init__(self, unsigned: bool=True) -> None:
         self._unsigned = unsigned
 
     @staticmethod

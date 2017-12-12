@@ -9,6 +9,9 @@
 256
 """
 from enum import Enum
+from typing import Dict, Any
+
+from pyminehub.typing import T
 
 
 class ConfigKey(Enum):
@@ -23,19 +26,19 @@ __default_config = (
     (ConfigKey.WORLD_NAME, 'PyMineHub Server')
 )
 
-_config = dict(__default_config)
+_config = dict(__default_config)  # type: Dict[ConfigKey, Any]
 
 
-def reset():
+def reset() -> None:
     _config.clear()
     _config.update(__default_config)
 
 
-def set_config(**kwargs):
+def set_config(**kwargs) -> None:
     _config.update(dict((ConfigKey[key.upper()], value) for key, value in kwargs.items()))
 
 
-def get_value(key: ConfigKey):
+def get_value(key: ConfigKey) -> T:
     return _config[key]
 
 

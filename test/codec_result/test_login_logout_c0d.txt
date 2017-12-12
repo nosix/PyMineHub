@@ -16,5 +16,5 @@ RELIABLE_ORDERED(id=96, payload_length=128, reliable_message_num=11, message_ord
 CUSTOM_PACKET_4(id=132, packet_sequence_num=13, payload=[26 bytes])
   -> 840d00006000800b000002000000fe78da63e360606066600000006a0012
   File "./codec_login_logout.py", line 78, in test_login_logout_c0d
-    RakNetPacket(PacketID.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
 

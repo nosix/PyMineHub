@@ -1,16 +1,23 @@
 from collections import namedtuple
-from typing import NamedTuple
+from enum import Enum
+from typing import NamedTuple as _NamedTuple, Dict, Sequence, Tuple
+
+PacketID = Enum
 
 Packet = namedtuple
 
 
 class PacketFactory:
 
-    def __init__(self, packet_specs):
-        self._factory = dict(
-            (packet_id, NamedTuple(packet_id.name, field_names)) for packet_id, field_names in packet_specs.items())
+    def __init__(self, packet_specs: Dict[PacketID, Sequence[Tuple[str, type]]]) -> None:
+        """Build a factory with the specified specification.
 
-    def create(self, packet_id, *args, **kwargs) -> NamedTuple:
+        :param packet_specs: tuple has attribute name and attribute type pair
+        """
+        self._factory = dict(
+            (packet_id, _NamedTuple(packet_id.name, field_names)) for packet_id, field_names in packet_specs.items())
+
+    def create(self, packet_id: PacketID, *args, **kwargs) -> Packet:
         """Create packet.
 
         >>> factory.create(ID.unconnected_pong, 8721, 5065, True, 'MCPE;')

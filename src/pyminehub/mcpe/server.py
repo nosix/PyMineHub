@@ -2,7 +2,7 @@ from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.raknet import run as run_raknet
 
 
-def run():
+def run() -> None:
     run_raknet(MCPEHandler())
 
 

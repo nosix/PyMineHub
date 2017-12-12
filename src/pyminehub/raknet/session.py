@@ -6,7 +6,7 @@ from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import capsule_codec
 from pyminehub.raknet.encapsulation import Reliability, CapsuleID, capsule_factory
 from pyminehub.raknet.fragment import MessageFragment
-from pyminehub.raknet.packet import PacketID, packet_factory
+from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 
 _logger = getLogger(__name__)
 
@@ -16,7 +16,8 @@ class Session:
     def __init__(self,
                  mtu_size: int,
                  send_to_game_handler: Callable[[bytes], None],
-                 send_to_client: Callable[[Packet], None]):
+                 send_to_client: Callable[[Packet], None]
+                 ) -> None:
         self._mtu_size = mtu_size
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
@@ -83,11 +84,11 @@ class Session:
         for sequence_num in range(min_sequence_num, max_sequence_num + 1):
             action(sequence_num)
 
-    def _nck_action(self, sequence_num):
+    def _nck_action(self, sequence_num: int) -> None:
         res_packet = self._resend_queue[sequence_num]
         self._send_to_client(res_packet)
 
-    def _ack_action(self, sequence_num):
+    def _ack_action(self, sequence_num: int) -> None:
         del self._resend_queue[sequence_num]
 
     def nck_received(self, packet: Packet) -> None:
@@ -97,10 +98,10 @@ class Session:
         self._nck_or_ack_received(packet, self._ack_action)
 
     @staticmethod
-    def _send_ack_or_nck(packet_id, ack_set, sendto: Callable[[Packet], None]):
+    def _send_ack_or_nck(packet_id: RakNetPacketID, ack_set: Set[int], sendto: Callable[[Packet], None]) -> None:
         def send_ack_or_nck():
             diff_sequence_num = max_sequence_num - min_sequence_num + 1
-            packet = packet_factory.create(
+            packet = raknet_packet_factory.create(
                 packet_id,
                 1,
                 diff_sequence_num == 1,
@@ -125,8 +126,8 @@ class Session:
             send_ack_or_nck()
 
     def send_ack_and_nck(self, sendto: Callable[[Packet], None]) -> None:
-        self._send_ack_or_nck(PacketID.ACK, self._ack_set, sendto)
-        self._send_ack_or_nck(PacketID.NCK, self._nck_set, sendto)
+        self._send_ack_or_nck(RakNetPacketID.ACK, self._ack_set, sendto)
+        self._send_ack_or_nck(RakNetPacketID.NCK, self._nck_set, sendto)
         self._ack_set.clear()
         self._nck_set.clear()
 
@@ -171,7 +172,7 @@ class Session:
         self._send_capsule(capsule)
 
     def _send_capsule(self, capsule: Packet) -> None:
-        packet = packet_factory.create(PacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
+        packet = raknet_packet_factory.create(RakNetPacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
         _logger.debug('< %d:%s', packet.packet_sequence_num, capsule)
         self._send_to_client(packet)
         self._resend_queue[packet.packet_sequence_num] = packet

@@ -3,17 +3,17 @@ from typing import Dict, Optional
 
 class _Entry:
 
-    def __init__(self, split_count: int):
+    def __init__(self, split_count: int) -> None:
         self._count = split_count
         self._payload = {}  # type: Dict[int, bytes]
 
-    def __setitem__(self, index: int, value: bytes):
+    def __setitem__(self, index: int, value: bytes) -> None:
         self._payload[index] = value
 
     def has_all_payload(self) -> bool:
         return len(self._payload) == self._count
 
-    def get_payload(self):
+    def get_payload(self) -> bytes:
         assert self.has_all_payload()
         payload = bytearray()
         for i in range(self._count):
@@ -23,7 +23,7 @@ class _Entry:
 
 class MessageFragment:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._entries = {}  # type: Dict[int, _Entry]
 
     def append(self, split_id: int, split_count: int, split_index: int, payload: bytes) -> None:
