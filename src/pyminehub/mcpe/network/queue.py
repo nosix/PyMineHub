@@ -3,6 +3,7 @@ from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import GamePacketID, ConnectionPacketID, connection_packet_factory
+from pyminehub.network.address import Address
 from pyminehub.raknet import Reliability
 
 _RELIABILITY_CHANEL_DEFAULT = Reliability(True, 0)
@@ -37,7 +38,7 @@ class _BatchQueue:
         for reliability, packet in self._packets:
             if last_reliability is not None and last_reliability != reliability:
                 batch_packet = connection_packet_factory.create(ConnectionPacketID.BATCH, payloads)
-                sendto(batch_packet,last_reliability)
+                sendto(batch_packet, last_reliability)
                 payloads = []
             payloads.append(game_packet_codec.encode(packet))
             last_reliability = reliability
@@ -48,11 +49,11 @@ class _BatchQueue:
 
 class GamePacketQueue:
 
-    def __init__(self, send_connection_packet: Callable[[namedtuple, tuple, Reliability], None]):
+    def __init__(self, send_connection_packet: Callable[[namedtuple, Address, Reliability], None]):
         self._send_connection_packet = send_connection_packet
-        self._batch_queue = defaultdict(_BatchQueue)  # type: Dict[tuple, _BatchQueue]
+        self._batch_queue = defaultdict(_BatchQueue)  # type: Dict[Address, _BatchQueue]
 
-    def append(self, packet: namedtuple, addr: tuple) -> None:
+    def append(self, packet: namedtuple, addr: Address) -> None:
         """Register batch request.
 
         :param packet: game packet
@@ -64,6 +65,6 @@ class GamePacketQueue:
         for addr, queue in self._batch_queue.items():
             queue.send(lambda _packet, _reliability: self._send_connection_packet(_packet, addr, _reliability))
 
-    def send_immediately(self, packet: namedtuple, addr: tuple) -> None:
+    def send_immediately(self, packet: namedtuple, addr: Address) -> None:
         self.append(packet, addr)
         self.send()

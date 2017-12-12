@@ -8,15 +8,15 @@ from pyminehub.mcpe.network.codec.common import *
 from pyminehub.mcpe.network.packet import *
 
 
-class _AddressList(DataCodec[Tuple[Address, ...]]):
+class _AddressList(DataCodec[Tuple[AddressInPacket, ...]]):
 
     def __init__(self, size: int):
         self._size = size
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Address, ...]:
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[AddressInPacket, ...]:
         return tuple(ADDRESS_DATA.read(data, context) for _ in range(self._size))
 
-    def write(self, data: bytearray, value: Tuple[Address, ...], context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: Tuple[AddressInPacket, ...], context: DataCodecContext) -> None:
         for i in range(self._size):
             ADDRESS_DATA.write(data, value[i], context)
 

@@ -1,5 +1,5 @@
 from pyminehub.mcpe.value import *
-from pyminehub.network.address import Address
+from pyminehub.network.address import AddressInPacket
 from pyminehub.network.packet import PacketFactory
 
 
@@ -139,16 +139,16 @@ _connection_packet_specs = {
     ],
     ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED: [
         ('id', int),
-        ('client_address', Address),
+        ('client_address', AddressInPacket),
         ('system_index', int),
-        ('internal_address', Tuple[Address, ...]),
+        ('internal_address', Tuple[AddressInPacket, ...]),
         ('client_time_since_start', int),
         ('server_time_since_start', int)
     ],
     ConnectionPacketID.NEW_INCOMING_CONNECTION: [
         ('id', int),
-        ('server_address', Address),
-        ('internal_address', Tuple[Address, ...]),
+        ('server_address', AddressInPacket),
+        ('internal_address', Tuple[AddressInPacket, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
     ],

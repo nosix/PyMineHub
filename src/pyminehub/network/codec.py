@@ -1,7 +1,7 @@
 from typing import NamedTuple, Optional
 
 from pyminehub.binutil import *
-from pyminehub.network.address import Address
+from pyminehub.network.address import AddressInPacket
 
 BYTE_DATA = ByteData()
 SHORT_DATA = ShortData()
@@ -145,14 +145,14 @@ class MagicData(DataCodec[bool]):
         context.length += self._LENGTH
 
 
-class AddressData(DataCodec[Address]):
+class AddressData(DataCodec[AddressInPacket]):
     """Convert ipv4 address.
 
-    >>> from pyminehub.network.address import to_address
+    >>> from pyminehub.network.address import to_packet_format
     >>> c = AddressData()
     >>> data = bytearray()
     >>> context = DataCodecContext()
-    >>> c.write(data, to_address(('127.0.0.1', 34000)), context)
+    >>> c.write(data, to_packet_format(('127.0.0.1', 34000)), context)
     >>> context.length
     7
     >>> hexlify(data)
@@ -168,13 +168,13 @@ class AddressData(DataCodec[Address]):
 
     _IPV4_ADDRESS_DATA = RawData(4)
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Address:
+    def read(self, data: bytearray, context: DataCodecContext) -> AddressInPacket:
         ip_version = BYTE_DATA.read(data, context)
         ipv4_address = self._IPV4_ADDRESS_DATA.read(data, context)
         port = SHORT_DATA.read(data, context)
-        return Address(ip_version, ipv4_address, port)
+        return AddressInPacket(ip_version, ipv4_address, port)
 
-    def write(self, data: bytearray, value: Address, context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: AddressInPacket, context: DataCodecContext) -> None:
         BYTE_DATA.write(data, value.ip_version, context)
         self._IPV4_ADDRESS_DATA.write(data, value.address, context)
         SHORT_DATA.write(data, value.port, context)

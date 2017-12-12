@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional
 
-from pyminehub.network.address import Address
+from pyminehub.network.address import AddressInPacket
 from pyminehub.network.packet import PacketFactory
 
 
@@ -62,7 +62,7 @@ _packet_specs = {
     PacketID.OPEN_CONNECTION_REQUEST2: [
         ('id', int),
         ('valid_message_data_id', bool),
-        ('server_address', Address),
+        ('server_address', AddressInPacket),
         ('mtu_size', int),
         ('client_guid', int)
     ],
@@ -70,7 +70,7 @@ _packet_specs = {
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
-        ('client_address', Address),
+        ('client_address', AddressInPacket),
         ('mtu_size', int),
         ('use_encryption', bool)
     ]
