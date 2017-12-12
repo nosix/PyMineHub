@@ -6,38 +6,38 @@
 
 #### Dependency
 
-Modules depend only on parents or siblings.
+Modules depend only on parents or siblings. Siblings depend only on the above siblings.
 
 ```
-mcpe
-  network
-    - codec
-      - batch -> typing, mcpe.network.packet, .common
-      - common -> network.codec
-      - connection -> config, mcpe.network.packet, .common
-    - handler -> typing, raknet, network.[address], mcpe.[const, player, world], .codec, .packet, .queue
-    - packet -> mcpe.[value, geometry], network.[address, packet]
-    - queue -> raknet, network.address, .packet, .codec
-  const
-  geometry -> typing
-  player -> .const, .geometry, .value
-  server -> raknet, .network
-  value -> .const .geometry
-  world -> config, .const
-network -> binutil
-  address
-  codec -> binutil, .address
-  packet
-raknet -> network
-  - codec -> network.[codec], .encapsulation, .packet
-  - encapsulation -> .packet
-  - fragment
-  - packet -> network.[address, packet]
-  - server -> network.[address, codec], .codec, .packet, .encapsulation, .session
-  - session -> .codec, .encapsulation, .fragment, .packet, .encapsulation
-binutil -> typing
 config
 typing
+binutil -> typing
+network -> binutil
+  address
+  packet
+  codec -> binutil, .[address, packet]
+raknet -> network
+  - fragment
+  - packet -> network.[address, packet]
+  - encapsulation -> .[packet]
+  - codec -> network.[codec], .[encapsulation, packet]
+  - session -> network.[packet], .[codec, encapsulation, fragment, packet, encapsulation]
+  - server -> network.[address, packet, codec], .[codec, packet, encapsulation, session]
+mcpe
+  const
+  geometry -> typing
+  value -> .[const, geometry]
+  world -> config, .[const]
+  player -> .[const, geometry, value]
+  network
+    - packet -> mcpe.[value, geometry], network.[address, packet]
+    - codec -> typing, config, network, mcpe.network.[packet]
+      - common -> network.[codec]
+      - batch -> typing, mcpe.network.[packet], .[common]
+      - connection -> config, mcpe.network.[packet], .[common]
+    - queue -> raknet, network.[address, packet], .[packet, codec]
+    - handler -> typing, raknet, network.[address, packet], mcpe.[const, player, world], .[codec, packet, queue]
+  server -> raknet, .[network]
 
 - : Hidden from outside modules
 ```
