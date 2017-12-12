@@ -17,7 +17,7 @@ mcpe
       - connection -> config, mcpe.network.packet, .common
     - handler -> typing, raknet, network.[address], mcpe.[const, player, world], .codec, .packet, .queue
     - packet -> mcpe.[value, geometry], network.[address, packet]
-    - queue -> raknet, .packet, .codec
+    - queue -> raknet, network.address, .packet, .codec
   const
   geometry -> typing
   player -> .const, .geometry, .value
