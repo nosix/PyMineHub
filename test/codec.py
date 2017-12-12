@@ -21,6 +21,7 @@ from pyminehub.mcpe.network.packet import ConnectionPacketID
 from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import capsule_codec as raknet_capsule_codec
 from pyminehub.raknet.codec import raknet_packet_codec as raknet_packet_codec
 from pyminehub.raknet.encapsulation import CapsuleID
@@ -92,11 +93,92 @@ _BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
     r"(b'[{}\-\\\]]*?')".format(''.join(chr(c) for c in _ASCII_CHARS_FOR_SINGLE_QUOTE)))
 
 
-class PacketAssertion:
+class PacketVisitor:
+
+    def is_enabled_bytes_mask(self) -> bool:
+        raise NotImplementedError()
+
+    def visit_decode_raknet_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def visit_decode_capsules(self, data: bytes, payload_length: int) -> None:
+        raise NotImplementedError()
+
+    def visit_decode_capsule_task(
+            self, capsule: Packet, data: bytes, context: PacketCodecContext, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def visit_decode_connection_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def visit_decode_batch_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext,
+            expected_payloads_num: int, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def visit_decode_game_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, *args, **kwargs) -> None:
+        raise NotImplementedError()
+
+    def visit_encode_task(
+            self, original_data: bytes, encoded_data: bytes, packet_info: str) -> None:
+        raise NotImplementedError()
+
+
+class PacketAssertion(PacketVisitor):
+
+    def __init__(self, test_case: CodecTestCase) -> None:
+        self._test_case = test_case
+
+    def is_enabled_bytes_mask(self) -> bool:
+        return self._test_case.is_enabled_bytes_mask()
+
+    # noinspection PyMethodOverriding
+    def visit_decode_raknet_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, packet_id: RakNetPacketID) -> None:
+        self._test_case.assertEqual(packet_id, RakNetPacketID(packet.id), packet)
+        self._test_case.assertEqual(len(data), context.length)
+
+    def visit_decode_capsules(self, data: bytes, payload_length: int) -> None:
+        self._test_case.assertEqual(len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
+
+    # noinspection PyMethodOverriding
+    def visit_decode_capsule_task(
+            self, capsule: Packet, data: bytes, context: PacketCodecContext, capsule_id: CapsuleID) -> None:
+        self._test_case.assertEqual(capsule_id, CapsuleID(capsule.id))
+
+    # noinspection PyMethodOverriding
+    def visit_decode_connection_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, packet_id: ConnectionPacketID) -> None:
+        self._test_case.assertEqual(packet_id, ConnectionPacketID(packet.id), packet)
+        self._test_case.assertEqual(len(data), context.length)
+
+    # noinspection PyMethodOverriding
+    def visit_decode_batch_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext,
+            expected_payloads_num: int, packet_id: ConnectionPacketID) -> None:
+        self._test_case.assertEqual(packet_id, ConnectionPacketID(packet.id), packet)
+        self._test_case.assertEqual(len(data), context.length)
+        self._test_case.assertEqual(expected_payloads_num, len(packet.payloads))
+
+    # noinspection PyMethodOverriding
+    def visit_decode_game_packet_task(
+            self, packet: Packet, data: bytes, context: PacketCodecContext, packet_id: GamePacketID) -> None:
+        self._test_case.assertEqual(packet_id, GamePacketID(packet.id), packet)
+        self._test_case.assertEqual(len(data), context.length)
+
+    def visit_encode_task(
+            self, original_data: bytes, encoded_data: bytes, packet_info: str) -> None:
+        self._test_case.assertEqual(original_data.hex(), encoded_data.hex(), packet_info)
+
+
+class PacketAnalyzer:
 
     _MAX_BYTES_LEN = 16
 
-    def __init__(self, packet_type: str, stack_depth=3):
+    def __init__(self, packet_type: str, stack_depth=3) -> None:
         called_line = traceback.format_stack()[-stack_depth]
         m = re.search(r'File "(.+)/.+\.py"', called_line)
         self.called_line = called_line.replace(m[1], '.', 1)
@@ -110,43 +192,43 @@ class PacketAssertion:
         self._packet = packet
         self._codec = codec
 
-    def has_record(self):
+    def has_record(self) -> bool:
         return not (self._data is None or self._packet is None or self._codec is None)
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes) -> int:
-        raise NotImplemented
+    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
+        raise NotImplementedError()
 
-    def verify_on(self, test_case: CodecTestCase) -> None:
+    def encode_on(self, visitor: PacketVisitor) -> None:
         assert self.has_record()
-        self.verify_children(test_case)
+        self.encode_children(visitor)
         data = self._codec.encode(self._packet)
         try:
-            packet_str = self._get_packet_str(test_case)
-            message = '\n{}\n  {}'.format(self.called_line, packet_str)
-            test_case.assertEqual(self._data.hex(), data.hex(), message)
+            packet_str = self._get_packet_str(visitor)
+            packet_info = '\n{}\n  {}'.format(self.called_line, packet_str)
+            visitor.visit_encode_task(self._data, data, packet_info)
             self._log(packet_str)
         except AssertionError as e:
-            self.verify_error_hook(test_case, e, data, self.called_line)
+            self.encode_error_hook(visitor, e, data, self.called_line)
 
-    def verify_children(self, test_case: CodecTestCase) -> None:
+    def encode_children(self, visitor: PacketVisitor) -> None:
         pass
 
-    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes, called_line: str) -> None:
+    def encode_error_hook(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> None:
         raise exc
 
-    def try_child_assertion(self, assertion_method: Callable[..., None], *args) -> Any:
+    def try_on_child(self, method: Callable[..., None], *args) -> Any:
         assert self.has_record()
         # noinspection PyUnresolvedReferences
-        assertion = assertion_method.__self__
+        child = method.__self__
         packet_info = '  {} {}'.format(self._packet_type, self._packet)
         try:
-            return assertion_method(*args)
+            return method(*args)
         except _WrappedException as e:
             message = '{}\n'.format(e.args[0], packet_info)
             raise _WrappedException(e.exc, e.tb, message) from None
         except Exception as e:
-            interrupt_for_pycharm(e, assertion.called_line, packet_info)
-            message = '{} occurred while testing\n{}'.format(repr(e), assertion.called_line, packet_info)
+            interrupt_for_pycharm(e, child.called_line, packet_info)
+            message = '{} occurred while testing\n{}'.format(repr(e), child.called_line, packet_info)
             raise _WrappedException(e, sys.exc_info()[2], message) from None
 
     def _summarize_bytes(self, m: re.match) -> str:
@@ -154,8 +236,8 @@ class PacketAssertion:
         length = len(bytes_data)
         return repr(bytes_data) if length <= self._MAX_BYTES_LEN else '[{} bytes]'.format(length)
 
-    def _get_packet_str(self, test_case: CodecTestCase) -> str:
-        if test_case.is_enabled_bytes_mask():
+    def _get_packet_str(self, visitor: PacketVisitor) -> str:
+        if visitor.is_enabled_bytes_mask():
             packet_str = str(self._packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
             packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(self._summarize_bytes, packet_str)
             packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(self._summarize_bytes, packet_str)
@@ -166,147 +248,141 @@ class PacketAssertion:
     def _log(self, packet_str: str) -> None:
         _logger.info('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
 
-    def print_packet(self, test_case: CodecTestCase) -> None:
-        self._log(self._get_packet_str(test_case))
+    def print_packet(self, visitor: PacketVisitor) -> None:
+        self._log(self._get_packet_str(visitor))
 
 
-class GamePacket(PacketAssertion):
+class GamePacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: GamePacketID):
-        """ Game packet validator.
-        :param packet_id: expected packet ID
-        """
+    def __init__(self, *args, **kwargs) -> None:
+        """ Game packet analyzer."""
         super().__init__('Game packet')
-        self._packet_id = packet_id
+        self._args = args
+        self._kwargs = kwargs
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = game_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, GamePacketID(packet.id))
-        test_case.assertEqual(len(data), context.length)
+        visitor.visit_decode_game_packet_task(packet, data, context, *self._args, **self._kwargs)
         self.record_decoded(data[:context.length], packet, game_packet_codec)
         return context.length
 
 
-class ConnectionPacket(PacketAssertion):
+class ConnectionPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: ConnectionPacketID):
-        """ Connection packet validator.
-        :param packet_id: expected packet ID
-        """
+    def __init__(self, *args, **kwargs) -> None:
+        """ Connection packet analyzer."""
         super().__init__('Connection packet')
-        self._packet_id = packet_id
+        self._args = args
+        self._kwargs = kwargs
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = connection_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, ConnectionPacketID(packet.id))
-        test_case.assertEqual(len(data), context.length)
+        visitor.visit_decode_connection_packet_task(packet, data, context, *self._args, **self._kwargs)
         self.record_decoded(data[:context.length], packet, connection_packet_codec)
         return context.length
 
 
-class Batch(PacketAssertion):
+class Batch(PacketAnalyzer):
 
-    def __init__(self):
-        """ Batch packet validator."""
+    def __init__(self, *args, **kwargs) -> None:
+        """ Batch packet analyzer."""
         super().__init__('Batch packet')
-        self._assertions = []
+        self._args = args
+        self._kwargs = kwargs
+        self._children = []
+        if 'packet_id' not in self._kwargs:
+            self._kwargs['packet_id'] = ConnectionPacketID.BATCH
 
     def that_has(self, *game_packet: GamePacket):
-        self._assertions.extend(game_packet)
+        self._children.extend(game_packet)
         return self
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = connection_packet_codec.decode(data, context)
-        test_case.assertEqual(ConnectionPacketID.BATCH, ConnectionPacketID(packet.id))
-        test_case.assertEqual(len(data), context.length)
-        test_case.assertEqual(len(self._assertions), len(packet.payloads))
+        visitor.visit_decode_batch_task(packet, data, context, len(self._children), *self._args, **self._kwargs)
         self.record_decoded(data[:context.length], packet, connection_packet_codec)
-        for payload, assertion in zip(packet.payloads, self._assertions):
-            self.try_child_assertion(assertion.is_correct_on, test_case, payload)
+        for payload, child in zip(packet.payloads, self._children):
+            self.try_on_child(child.decode_on, visitor, payload)
         return context.length
 
-    def verify_children(self, test_case: CodecTestCase):
-        for assertion in self._assertions:
-            self.try_child_assertion(assertion.verify_on, test_case)
+    def encode_children(self, visitor: PacketVisitor):
+        for child in self._children:
+            self.try_on_child(child.encode_on, visitor)
 
-    def verify_error_hook(self, test_case: CodecTestCase, exc: AssertionError, data: bytes, called_line: str):
+    def encode_error_hook(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str):
         print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
-        self.is_correct_on(test_case, data)
-        self.verify_on(test_case)
+        self.decode_on(visitor, data)
+        self.encode_on(visitor)
 
-    def print_packet(self, test_case: CodecTestCase):
-        for assertion in self._assertions:
-            assertion.print_packet(test_case)
-        super().print_packet(test_case)
+    def print_packet(self, visitor: PacketVisitor):
+        for child in self._children:
+            child.print_packet(visitor)
+        super().print_packet(visitor)
 
 
-class Capsule(PacketAssertion):
+class Capsule(PacketAnalyzer):
 
-    def __init__(self, capsule_id: CapsuleID):
-        """ Encapsulation of RakNet packet validator.
-        :param capsule_id: expected encapsulation ID
-        """
+    def __init__(self, *args, **kwargs) -> None:
+        """ Encapsulation of RakNet packet analyzer."""
         super().__init__('Encapsulation')
-        self._capsule_id = capsule_id
-        self._assertion = None
+        self._args = args
+        self._kwargs = kwargs
+        self._child = None
 
     def that_has(self, packet: Union[ConnectionPacket, Batch]):
-        self._assertion = packet
+        self._child = packet
         return self
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         capsule = raknet_capsule_codec.decode(data, context)
-        test_case.assertEqual(self._capsule_id, CapsuleID(capsule.id))
+        visitor.visit_decode_capsule_task(capsule, data, context, *self._args, **self._kwargs)
         self.record_decoded(data[:context.length], capsule, raknet_capsule_codec)
-        if self._assertion is not None:
-            self.try_child_assertion(self._assertion.is_correct_on, test_case, capsule.payload)
+        if self._child is not None:
+            self.try_on_child(self._child.decode_on, visitor, capsule.payload)
         return context.length
 
-    def verify_children(self, test_case: CodecTestCase):
-        if self._assertion is not None:
-            self.try_child_assertion(self._assertion.verify_on, test_case)
+    def encode_children(self, visitor: PacketVisitor):
+        if self._child is not None:
+            self.try_on_child(self._child.encode_on, visitor)
 
 
-class RakNetPacket(PacketAssertion):
+class RakNetPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: RakNetPacketID):
-        """ RakNet packet validator.
-        :param packet_id: expected packet ID
-        """
+    def __init__(self, *args, **kwargs):
+        """ RakNet packet analyzer."""
         super().__init__('RakNet packet')
-        self._packet_id = packet_id
-        self._assertions = []
+        self._args = args
+        self._kwargs = kwargs
+        self._children = []
 
     def that_has(self, *capsule: Capsule):
-        self._assertions.extend(capsule)
+        self._children.extend(capsule)
         return self
 
-    def _test_raknet_packet(self, test_case: CodecTestCase, data: bytes):
-        assert self._packet_id is not None
+    def _decode_raknet_packet(self, visitor: PacketVisitor, data: bytes):
         context = PacketCodecContext()
         packet = raknet_packet_codec.decode(data, context)
-        test_case.assertEqual(self._packet_id, RakNetPacketID(packet.id), packet)
-        test_case.assertEqual(len(data), context.length)
+        visitor.visit_decode_raknet_packet_task(packet, data, context, *self._args, **self._kwargs)
         self.record_decoded(data, packet, raknet_packet_codec)
         return context.length, packet
 
-    def _test_raknet_encapsulation(self, test_case: CodecTestCase, packet: namedtuple):
+    def _decode_raknet_encapsulation(self, visitor: PacketVisitor, packet: Packet):
         assert self.has_record()
         data = packet.payload
         payload_length = 0
-        for assertion in self._assertions:
-            payload_length += self.try_child_assertion(assertion.is_correct_on, test_case, data[payload_length:])
-        test_case.assertEqual(len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
+        for analyzer in self._children:
+            payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
+        visitor.visit_decode_capsules(data, payload_length)
 
-    def is_correct_on(self, test_case: CodecTestCase, data: bytes):
+    def decode_on(self, visitor: PacketVisitor, data: bytes):
         self._data = data
         try:
-            length, packet = self._test_raknet_packet(test_case, data)
-            self._test_raknet_encapsulation(test_case, packet)
+            length, packet = self._decode_raknet_packet(visitor, data)
+            self._decode_raknet_encapsulation(visitor, packet)
             return length
         except _WrappedException as e:
             message = '{}'.format(e.args[0])
@@ -316,9 +392,9 @@ class RakNetPacket(PacketAssertion):
             message = '{} occurred while testing\n{}'.format(repr(e), self.called_line)
             raise _WrappedException(e, sys.exc_info()[2], message) from None
 
-    def verify_children(self, test_case: CodecTestCase):
-        for assertion in self._assertions:
-            self.try_child_assertion(assertion.verify_on, test_case)
+    def encode_children(self, visitor: PacketVisitor):
+        for child in self._children:
+            self.try_on_child(child.encode_on, visitor)
 
 
 class EncodedData:
@@ -329,10 +405,10 @@ class EncodedData:
         :param data: data that decode to packet
         """
         self._data = unhex(data)
-        self._assertion = None
+        self._analyzer = None
 
-    def is_(self, assertion: PacketAssertion):
-        self._assertion = assertion
+    def is_(self, analyzer: PacketAnalyzer):
+        self._analyzer = analyzer
         return self
 
     @staticmethod
@@ -347,11 +423,12 @@ class EncodedData:
             raise e
 
     def is_correct_on(self, test_case: CodecTestCase, and_verified_with_encoded_data=False):
-        self._try_child_assertion(test_case, self._assertion.is_correct_on, test_case, self._data)
+        assertion = PacketAssertion(test_case)
+        self._try_child_assertion(test_case, self._analyzer.decode_on, assertion, self._data)
         if and_verified_with_encoded_data:
-            self._try_child_assertion(test_case, self._assertion.verify_on, test_case)
+            self._try_child_assertion(test_case, self._analyzer.encode_on, assertion)
         else:
-            self._assertion.print_packet(test_case)
+            self._analyzer.print_packet(assertion)
 
 
 class EncodedDataInFile(EncodedData):
