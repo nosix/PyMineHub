@@ -1,4 +1,4 @@
-from protocol import *
+from testcase.protocol import *
 
 
 class UnconnectedTestCase(ProtocolTestCase):

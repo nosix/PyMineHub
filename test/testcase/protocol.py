@@ -3,11 +3,11 @@ from collections import defaultdict
 from typing import List, Dict
 from unittest import TestCase
 
-from pyminehub.debug.codec import *
 from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.network.address import Address
 # noinspection PyProtectedMember
 from pyminehub.raknet.server import _RakNetServerProtocol
+from util.codec import *
 from util.mock import MockEventLoop, MockTransport
 
 

@@ -1,4 +1,4 @@
-from codec import *
+from testcase.codec import *
 
 
 class LoginLogoutTestCase(CodecTestCase):

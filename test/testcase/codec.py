@@ -5,10 +5,7 @@ from os.path import dirname
 from unittest import TestCase
 
 from pyminehub import config
-from pyminehub.debug.codec import *
-from pyminehub.network.codec import PacketCodecContext
-from pyminehub.network.packet import Packet
-from pyminehub.raknet.encapsulation import CapsuleID
+from util.codec import *
 
 _logger = logging.getLogger(__name__)
 
