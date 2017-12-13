@@ -307,5 +307,6 @@ class RakNetPacket(PacketAnalyzer):
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> None:
         def action():
             self._decode_raknet_packet(visitor, data)
-            self._decode_raknet_encapsulation(visitor)
+            if len(self._children) > 0:
+                self._decode_raknet_encapsulation(visitor)
         visitor.try_action(action, self.called_line)
