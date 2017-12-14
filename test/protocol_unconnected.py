@@ -1,28 +1,88 @@
+from pyminehub.config import set_config
 from testcase.protocol import *
 
 
 class UnconnectedTestCase(ProtocolTestCase):
 
     _CLIENT_ADDRESS = [
-        ('192.168.179.2', 44457)
+        ('192.168.179.2', 58985)
     ]
 
+    def setUp(self) -> None:
+        set_config(server_guid=3167636187078062397)
+        super().setUp()
+
     def test_unconnected_ping_pong(self):
-        receieved_data = self.proxy.send(
-            self._CLIENT_ADDRESS[0],
-            '0100000000003c7b8400ffff00fefefefefdfdfdfd123456789c662df309da12'
-            '60')
+        receieved_data = self.proxy.send(self.data.that_is('unconnected_ping'), from_=self._CLIENT_ADDRESS[0])
         self.assert_that(receieved_data, {
             self._CLIENT_ADDRESS[0]: [
-                EncodedData(
-                    '1c00000000003c7b842bf5b4544c75f13d00ffff00fefefefefdfdfdfd123456'
-                    '7800544d4350453b506f636b65744d696e652d4d50205365727665723b313431'
-                    '3b312e322e353b303b32303b333136373633363138373037383036323339373b'
-                    '506f636b65744d696e652d4d503b537572766976616c3b'
-                ).is_(
+                EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(
-                        server_guid=472877960873915066,
+                        RakNetPacketID.UNCONNECTED_PONG,
                         server_id='MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;')
+                )
+            ]
+        })
+
+    def test_connection_request(self):
+        set_config(server_guid=472877960873915066)
+        received_data = self.proxy.send(self.data.that_is('raknet_connection_request_1'), from_=self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('raknet_connection_request_1')).is_(
+                    RakNetPacket(RakNetPacketID.OPEN_CONNECTION_REPLY1)
+                )
+            ]
+        })
+        received_data = self.proxy.send(self.data.that_is('raknet_connection_request_2'), from_=self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('raknet_connection_request_2')).is_(
+                    RakNetPacket(RakNetPacketID.OPEN_CONNECTION_REPLY2)
+                )
+            ]
+        })
+        received_data = self.proxy.send(self.data.that_is('connection_request'), from_=self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('connection_request')).is_(
+                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                            ConnectionPacket(
+                                ConnectionPacketID.CONNECTED_PING,
+                                ping_time_since_start=0)
+                        ),
+                        # Capsule(CapsuleID.UNRELIABLE).that_has(
+                        #     ConnectionPacket(
+                        #         ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED)
+                        # )
+                    )
+                ),
+                EncodedData(self.data.that_is_response_of('connection_request')).is_(
+                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                            ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED)
+                        )
+                    )
+                ),
+                EncodedData(self.data.that_is_response_of('connection_request')).is_(
+                    RakNetPacket(RakNetPacketID.ACK)
+                )
+            ]
+        })
+        received_data = self.proxy.send(self.data.that_is('new_incoming_connection'), from_=self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
+                    RakNetPacket()
+                )
+            ]
+        })
+        received_data = self.proxy.send(self.data.that_is('connected_ping'), from_=self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('connected_ping')).is_(
+                    RakNetPacket()
                 )
             ]
         })

@@ -69,13 +69,17 @@ class MCPEHandler(GameDataHandler):
     def _process_connection_request(self, packet: Packet, addr: Address) -> None:
         self._accepted_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
+            ConnectionPacketID.CONNECTED_PING,
+            self._get_current_time())
+        self._send_connection_packet(res_packet, addr, Reliability(False, None))
+
+        res_packet = connection_packet_factory.create(
             ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
             to_packet_format(addr),
             0,
             self._INTERNAL_ADDRESSES,
             packet.client_time_since_start,
-            self._accepted_time[addr]
-        )
+            self._accepted_time[addr])
         self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
     def _process_new_incoming_connection(self, packet: Packet, addr: Address) -> None:

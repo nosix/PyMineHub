@@ -3,10 +3,11 @@ from logging import getLogger
 from typing import List, Set, Dict, Callable
 
 from pyminehub.network.packet import Packet
-from pyminehub.raknet.codec import capsule_codec
+from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.encapsulation import Reliability, CapsuleID, capsule_factory
 from pyminehub.raknet.fragment import MessageFragment
 from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
+from pyminehub.raknet.queue import SendQueue
 
 _logger = getLogger(__name__)
 
@@ -18,7 +19,6 @@ class Session:
                  send_to_game_handler: Callable[[bytes], None],
                  send_to_client: Callable[[Packet], None]
                  ) -> None:
-        self._mtu_size = mtu_size
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
@@ -27,9 +27,17 @@ class Session:
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
         self._fragment = MessageFragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._resend_queue = {}  # type: Dict[int, Packet]  # send packets waiting for ACK / NCK
+        self._resend_cache = {}  # type: Dict[int, Packet]  # send packets waiting for ACK / NCK
         self._message_num = 0  # type: int  # for send reliable packet
         self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
+        self._send_queue = SendQueue(mtu_size - self._get_packet_header_size(), self._send_frames)
+
+    def _get_packet_header_size(self) -> int:
+        return len(raknet_packet_codec.encode(self._create_send_packet(0, b'')))
+
+    @staticmethod
+    def _create_send_packet(sequence_num: int, payload: bytes) -> Packet:
+        return raknet_packet_factory.create(RakNetPacketID.CUSTOM_PACKET_4, sequence_num, payload)
 
     def capsule_received(self, packet_sequence_num: int, capsules: List[Packet]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
@@ -85,11 +93,11 @@ class Session:
             action(sequence_num)
 
     def _nck_action(self, sequence_num: int) -> None:
-        res_packet = self._resend_queue[sequence_num]
+        res_packet = self._resend_cache[sequence_num]
         self._send_to_client(res_packet)
 
     def _ack_action(self, sequence_num: int) -> None:
-        del self._resend_queue[sequence_num]
+        del self._resend_cache[sequence_num]
 
     def nck_received(self, packet: Packet) -> None:
         self._nck_or_ack_received(packet, self._nck_action)
@@ -97,8 +105,9 @@ class Session:
     def ack_received(self, packet: Packet) -> None:
         self._nck_or_ack_received(packet, self._ack_action)
 
-    @staticmethod
-    def _send_ack_or_nck(packet_id: RakNetPacketID, ack_set: Set[int], sendto: Callable[[Packet], None]) -> None:
+    def _send_ack_or_nck(self, packet_id: RakNetPacketID, ack_set: Set[int]) -> None:
+        sendto = self._send_to_client
+
         def send_ack_or_nck():
             diff_sequence_num = max_sequence_num - min_sequence_num + 1
             packet = raknet_packet_factory.create(
@@ -125,9 +134,10 @@ class Session:
         if min_sequence_num is not None:
             send_ack_or_nck()
 
-    def send_ack_and_nck(self, sendto: Callable[[Packet], None]) -> None:
-        self._send_ack_or_nck(RakNetPacketID.ACK, self._ack_set, sendto)
-        self._send_ack_or_nck(RakNetPacketID.NCK, self._nck_set, sendto)
+    def send_waiting_pacckets(self) -> None:
+        self._send_queue.send()
+        self._send_ack_or_nck(RakNetPacketID.ACK, self._ack_set)
+        self._send_ack_or_nck(RakNetPacketID.NCK, self._nck_set)
         self._ack_set.clear()
         self._nck_set.clear()
 
@@ -149,7 +159,7 @@ class Session:
             channel,
             payload
         )
-        self._send_capsule(capsule)
+        self._send_queue.push(capsule)
         self._message_num += 1
         self._ordering_index[channel] += 1
 
@@ -160,7 +170,7 @@ class Session:
             self._message_num,
             payload
         )
-        self._send_capsule(capsule)
+        self._send_queue.push(capsule)
         self._message_num += 1
 
     def _send_unreliable_capsule(self, payload: bytes) -> None:
@@ -169,11 +179,11 @@ class Session:
             len(payload) * 8,
             payload
         )
-        self._send_capsule(capsule)
+        self._send_queue.push(capsule)
 
-    def _send_capsule(self, capsule: Packet) -> None:
-        packet = raknet_packet_factory.create(RakNetPacketID.CUSTOM_PACKET_4, self._sequence_num, capsule_codec.encode(capsule))
-        _logger.debug('< %d:%s', packet.packet_sequence_num, capsule)
-        self._send_to_client(packet)
-        self._resend_queue[packet.packet_sequence_num] = packet
+    def _send_frames(self, payload: bytes) -> None:
+        """Callback from SendQueue."""
+        packet = self._create_send_packet(self._sequence_num, payload)
+        self._resend_cache[packet.packet_sequence_num] = packet
         self._sequence_num += 1
+        self._send_to_client(packet)

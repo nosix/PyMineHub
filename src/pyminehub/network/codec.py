@@ -171,13 +171,13 @@ class AddressData(DataCodec[AddressInPacket]):
 
     def read(self, data: bytearray, context: DataCodecContext) -> AddressInPacket:
         ip_version = BYTE_DATA.read(data, context)
-        ipv4_address = self._IPV4_ADDRESS_DATA.read(data, context)
+        ipv4_address = bytes(~b & 0xff for b in self._IPV4_ADDRESS_DATA.read(data, context))
         port = SHORT_DATA.read(data, context)
         return AddressInPacket(ip_version, ipv4_address, port)
 
     def write(self, data: bytearray, value: AddressInPacket, context: DataCodecContext) -> None:
         BYTE_DATA.write(data, value.ip_version, context)
-        self._IPV4_ADDRESS_DATA.write(data, value.address, context)
+        self._IPV4_ADDRESS_DATA.write(data, bytes(~b & 0xff for b in value.address), context)
         SHORT_DATA.write(data, value.port, context)
 
 

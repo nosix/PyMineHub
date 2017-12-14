@@ -1,6 +1,7 @@
 import asyncio
 from logging import getLogger, basicConfig
 
+from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.network.packet import Packet
@@ -32,12 +33,8 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self._loop = loop
         self._handler = handler
         self._sessions = {}  # TODO session timeout
-        self.guid = 472877960873915066
+        self._guid = get_value(ConfigKey.SERVER_GUID)
         self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
-
-    def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
-        session = self._sessions[addr]
-        session.send_custom_packet(data, reliability)
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         # noinspection PyAttributeOutsideInit
@@ -53,30 +50,32 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
+    def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
+        session = self._sessions[addr]
+        session.send_custom_packet(data, reliability)
+
     def send_to_client(self, packet: Packet, addr: Address) -> None:
         _logger.debug('< %s %s', addr, packet)
         self._transport.sendto(raknet_packet_codec.encode(packet), addr)
 
-    def send_ack_and_nck(self) -> None:
+    def send_waiting_packets(self) -> None:
         for addr, session in self._sessions.items():
-            def sendto(res_packet):
-                self.send_to_client(res_packet, addr)
-            session.send_ack_and_nck(sendto)
+            session.send_waiting_pacckets()
 
     def _process_unconnected_ping(self, packet: Packet, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
-            RakNetPacketID.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
+            RakNetPacketID.UNCONNECTED_PONG, packet.time_since_start, self._guid, True, self.server_id)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: Packet, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
-            RakNetPacketID.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
+            RakNetPacketID.OPEN_CONNECTION_REPLY1, True, self._guid, False, packet.mtu_size)
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: Packet, addr: Address) -> None:
         assert packet.server_address.ip_version == IP_VERSION
         res_packet = raknet_packet_factory.create(
-            RakNetPacketID.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
+            RakNetPacketID.OPEN_CONNECTION_REPLY2, True, self._guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
             packet.mtu_size,
@@ -114,7 +113,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 async def _send(protocol: _RakNetServerProtocol):
     while True:
         await asyncio.sleep(0.1)
-        protocol.send_ack_and_nck()
+        protocol.send_waiting_packets()
 
 
 def run(handler, log_level=None) -> None:

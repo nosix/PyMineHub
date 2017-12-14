@@ -20,6 +20,7 @@ from pyminehub.raknet.codec import raknet_packet_codec as raknet_packet_codec
 from pyminehub.raknet.encapsulation import CapsuleID
 from pyminehub.raknet.packet import RakNetPacketID
 from pyminehub.typing import T
+from util.exception import try_action
 
 _ASCII_CHARS = set(c for c in range(0x20, 0x7f))
 _ASCII_CHARS_FOR_DOUBLE_QUOTE = _ASCII_CHARS - {0x22, 0x5c, 0x5d}  # " - \
@@ -53,26 +54,35 @@ class PacketVisitor:
         raise NotImplementedError()
 
     def visit_decode_task(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes,
-            context: PacketCodecContext, *args, **kwargs) -> None:
+            self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+            context: PacketCodecContext, children_num: int, *args, **kwargs) -> None:
         """It is called after each packet is decodec.
         
         :param packet_id_cls: it represents the type of decoded packet
         :param packet: decoding result packet
         :param data: decoded data
+        :param called: line number that constructor of PacketAnalyzer is called in
+        :param packet_str: information of the packet
+            Example:
+                File "./codec_login_logout.py", line 12, in test_login_logout_c00
+                  ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST)
+
+                CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
         :param context: context at the end of decoding
+        :param children_num: number of child nodes
         :param args: return value that is gotten from get_extra_args method in PacketAnalyzer
         :param kwargs: return value that is gotten from get_extra_kwargs method in PacketAnalyzer
         """
         raise NotImplementedError()
 
     def visit_encode_task(
-            self, original_data: bytes, encoded_data: bytes, packet_info: str) -> None:
+            self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         """It is called after each packet is encoded.
 
         :param original_data: data that is decoded to the packet
         :param encoded_data: data that is encoded from the packet
-        :param packet_info: information of the packet
+        :param called: line number that constructor of PacketAnalyzer is called in
+        :param packet_str: information of the packet
             Example:
                 File "./codec_login_logout.py", line 12, in test_login_logout_c00
                   ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST)
@@ -80,19 +90,6 @@ class PacketVisitor:
                 CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
         """
         raise NotImplementedError()
-
-    def try_action(
-            self, action_of_raising_exception: Callable[[], None],
-            called_line: Optional[str]=None, packet_info: Optional[str]=None) -> None:
-        """Override when doing exception handling.
-
-        :param action_of_raising_exception: you need to call this function
-        :param called_line: line where PacketAnalyzer's constructor is called
-        :param packet_info: information of the packet
-            Example:
-                Batch BATCH(id=254, payloads=(bytearray(b'4\x00\x00\xfd\x07\x02\x06\x06\n\x82\xfc...
-        """
-        action_of_raising_exception()
 
 
 class PacketAnalyzer:
@@ -127,9 +124,11 @@ class PacketAnalyzer:
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
-        visitor.visit_decode_task(
-            self._packet_id_cls, packet, data, context, *self.get_extra_args(), **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
+        packet_str = self._get_packet_str(visitor.get_bytes_mask_threshold())
+        visitor.visit_decode_task(
+            self._packet_id_cls, packet, data, self.called_line, packet_str, context, len(list(self.get_children())),
+            *self.get_extra_args(), **self.get_extra_kwargs())
         for payload, child in self.get_children(packet):
             # noinspection PyTypeChecker
             self.try_on_child(child.decode_on, visitor, payload)
@@ -142,8 +141,7 @@ class PacketAnalyzer:
         data = self._codec.encode(self._packet)
         try:
             packet_str = self._get_packet_str(visitor.get_bytes_mask_threshold())
-            packet_info = '\n{}\n  {}'.format(self.called_line, packet_str)
-            visitor.visit_encode_task(self._data, data, packet_info)
+            visitor.visit_encode_task(self._data, data, self.called_line, packet_str)
             self._log(visitor.get_log_function(), packet_str)
         except AssertionError as e:
             self.encode_error_hook(visitor, e, data, self.called_line)
@@ -163,7 +161,7 @@ class PacketAnalyzer:
         # noinspection PyUnresolvedReferences
         child = method.__self__
         packet_info = '  {} {}'.format(self._packet_type, self._packet)
-        return visitor.try_action(lambda: method(visitor, *args), child.called_line, packet_info)
+        return try_action(lambda: method(visitor, *args), child.called_line, packet_info)
 
     def _get_packet_str(self, bytes_mask_threshold: Optional[int]) -> str:
         if bytes_mask_threshold is not None:
@@ -221,7 +219,7 @@ class Batch(PacketAnalyzer):
         self._children = []
 
     def get_extra_args(self) -> tuple:
-        return ConnectionPacketID.BATCH, len(self._children)
+        return ConnectionPacketID.BATCH,
 
     def that_has(self, *game_packet: GamePacket):
         self._children.extend(game_packet)
@@ -309,4 +307,4 @@ class RakNetPacket(PacketAnalyzer):
             self._decode_raknet_packet(visitor, data)
             if len(self._children) > 0:
                 self._decode_raknet_encapsulation(visitor)
-        visitor.try_action(action, self.called_line)
+        try_action(action, self.called_line)

@@ -3,7 +3,14 @@ from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
 from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 
 
-_NULL_PADDING = ValueFilter(RAW_DATA, read=lambda _data: len(_data), write=lambda _value: b'0' * _value)
+class _MtuSizeData(DataCodec[int]):
+
+    def read(self, data: bytearray, context: DataCodecContext) -> int:
+        RAW_DATA.read(data, context)
+        return context.length
+
+    def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
+        RAW_DATA.write(data, b'0' * (value - context.length), context)
 
 
 _packet_data_codecs = {
@@ -21,7 +28,7 @@ _packet_data_codecs = {
     RakNetPacketID.OPEN_CONNECTION_REQUEST1: [
         MAGIC_DATA,
         BYTE_DATA,
-        _NULL_PADDING
+        _MtuSizeData()
     ],
     RakNetPacketID.OPEN_CONNECTION_REPLY1: [
         MAGIC_DATA,

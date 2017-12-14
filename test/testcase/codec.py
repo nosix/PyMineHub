@@ -6,34 +6,9 @@ from unittest import TestCase
 
 from pyminehub import config
 from util.codec import *
+from util.exception import try_action
 
 _logger = logging.getLogger(__name__)
-
-
-def interrupt_for_pycharm(exc: Exception, called, packet_info: str=None) -> None:
-    if type(exc).__name__ == 'EqualsAssertionError':
-        attrs = exc.__dict__
-        if called is not None:
-            if 'called' not in attrs:
-                attrs['called'] = called
-            if 'stack' not in attrs:
-                attrs['stack'] = []
-            if packet_info is not None:
-                attrs['stack'].append(packet_info)
-        else:
-            messages = ['AssertionError occurred while testing', attrs['called'][:-1]]  # remove \n
-            messages.extend(attrs['stack'])
-            messages.append(attrs['msg'])
-            attrs['msg'] = '\n'.join(messages)
-        raise exc
-
-
-class _WrappedException(Exception):
-
-    def __init__(self, exc: Exception, tb: traceback, message: str) -> None:
-        super().__init__(message)
-        self.exc = exc
-        self.tb = tb
 
 
 class CodecTestCase(TestCase):
@@ -74,35 +49,24 @@ class PacketAssertion(PacketVisitor):
     def get_log_function(self) -> Callable[..., None]:
         return _logger.info
 
-    def visit_decode_capsules(self, data: bytes, payload_length: int) -> None:
-        self._test_case.assertEqual(len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
+    def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
+        self._test_case.assertEqual(
+            len(data), decoded_payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
 
     # noinspection PyMethodOverriding
     def visit_decode_task(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes,
-            context: PacketCodecContext, packet_id: PacketID, children_num: Optional[int]=None) -> None:
+            self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+            context: PacketCodecContext, children_num: int, packet_id: PacketID) -> None:
         self._test_case.assertEqual(packet_id, packet_id_cls(packet.id), packet)
         if packet_id_cls != CapsuleID:
             self._test_case.assertEqual(len(data), context.length)
-        if children_num is not None:
+        if hasattr(packet, 'payloads'):
             self._test_case.assertEqual(children_num, len(packet.payloads))
 
     def visit_encode_task(
-            self, original_data: bytes, encoded_data: bytes, packet_info: str) -> None:
+            self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+        packet_info = '\n{}\n  {}'.format(called, packet_str)
         self._test_case.assertEqual(original_data.hex(), encoded_data.hex(), packet_info)
-
-    def try_action(
-            self, action_of_raising_exception: Callable[[], None],
-            called_line: Optional[str]=None, packet_info: Optional[str]=None) -> None:
-        try:
-            return action_of_raising_exception()
-        except _WrappedException as e:
-            message = '{}'.format(e.args[0])
-            raise _WrappedException(e.exc, e.tb, message) from None
-        except Exception as e:
-            interrupt_for_pycharm(e, called_line, packet_info)
-            message = '{} occurred while testing\n{}'.format(repr(e), called_line, packet_info)
-            raise _WrappedException(e, sys.exc_info()[2], message) from None
 
 
 class EncodedData:
@@ -119,22 +83,13 @@ class EncodedData:
         self._analyzer = analyzer
         return self
 
-    @staticmethod
-    def _try_child_assertion(test_case: CodecTestCase, assertion_method: Callable[..., None], *args) -> None:
-        try:
-            assertion_method(*args)
-        except _WrappedException as e:
-            message = '{}'.format(e.args[0])
-            raise test_case.failureException(message).with_traceback(e.tb) from None
-        except Exception as e:
-            interrupt_for_pycharm(e, None)
-            raise e
-
     def is_correct_on(self, test_case: CodecTestCase, and_verified_with_encoded_data=False) -> None:
         assertion = PacketAssertion(test_case)
-        self._try_child_assertion(test_case, self._analyzer.decode_on, assertion, self._data)
+        try_action(lambda: self._analyzer.decode_on(assertion, self._data),
+                   exception_factory=test_case.failureException)
         if and_verified_with_encoded_data:
-            self._try_child_assertion(test_case, self._analyzer.encode_on, assertion)
+            try_action(lambda: self._analyzer.encode_on(assertion),
+                       exception_factory=test_case.failureException)
         else:
             self._analyzer.print_packet(assertion)
 

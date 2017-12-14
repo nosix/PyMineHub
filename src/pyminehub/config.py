@@ -9,6 +9,7 @@
 256
 """
 from enum import Enum
+from random import randrange
 from typing import Dict, Any
 
 from pyminehub.typing import T
@@ -18,12 +19,16 @@ class ConfigKey(Enum):
     BATCH_COMPRESS_THRESHOLD = 1
     SEED = 2
     WORLD_NAME = 3
+    SERVER_GUID = 4
+    RESEND_TIME = 5
 
 
 __default_config = (
-    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),
+    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes
     (ConfigKey.SEED, 0),
-    (ConfigKey.WORLD_NAME, 'PyMineHub Server')
+    (ConfigKey.WORLD_NAME, 'PyMineHub Server'),
+    (ConfigKey.SERVER_GUID, None),
+    (ConfigKey.RESEND_TIME, 500)  # ms
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]
@@ -32,6 +37,7 @@ _config = dict(__default_config)  # type: Dict[ConfigKey, Any]
 def reset() -> None:
     _config.clear()
     _config.update(__default_config)
+    set_config(server_guid=randrange(1 << (8 * 8)))  # long range
 
 
 def set_config(**kwargs) -> None:
@@ -40,6 +46,9 @@ def set_config(**kwargs) -> None:
 
 def get_value(key: ConfigKey) -> T:
     return _config[key]
+
+
+reset()
 
 
 if __name__ == '__main__':
