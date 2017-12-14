@@ -19,7 +19,8 @@ class UnconnectedTestCase(ProtocolTestCase):
                 EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(
                         RakNetPacketID.UNCONNECTED_PONG,
-                        server_id='MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;')
+                        server_id='MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
+                    )
                 )
             ]
         })
@@ -50,18 +51,14 @@ class UnconnectedTestCase(ProtocolTestCase):
                         Capsule(CapsuleID.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketID.CONNECTED_PING,
-                                ping_time_since_start=0)
+                                ping_time_since_start=DYNAMIC
+                            )
                         ),
-                        # Capsule(CapsuleID.UNRELIABLE).that_has(
-                        #     ConnectionPacket(
-                        #         ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED)
-                        # )
-                    )
-                ),
-                EncodedData(self.data.that_is_response_of('connection_request')).is_(
-                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                         Capsule(CapsuleID.UNRELIABLE).that_has(
-                            ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED)
+                            ConnectionPacket(
+                                ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
+                                server_time_since_start=DYNAMIC
+                            )
                         )
                     )
                 ),
@@ -74,7 +71,17 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
-                    RakNetPacket()
+                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                            ConnectionPacket(
+                                ConnectionPacketID.CONNECTED_PONG,
+                                pong_time_since_start=DYNAMIC
+                            )
+                        )
+                    )
+                ),
+                EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
+                    RakNetPacket(RakNetPacketID.ACK)
                 )
             ]
         })
@@ -82,7 +89,18 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connected_ping')).is_(
-                    RakNetPacket()
+                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                            ConnectionPacket(
+                                ConnectionPacketID.CONNECTED_PONG,
+                                ping_time_since_start=DYNAMIC,
+                                pong_time_since_start=DYNAMIC
+                            )
+                        )
+                    )
+                ),
+                EncodedData(self.data.that_is_response_of('connected_ping')).is_(
+                    RakNetPacket(RakNetPacketID.ACK)
                 )
             ]
         })

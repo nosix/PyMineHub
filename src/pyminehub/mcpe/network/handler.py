@@ -1,6 +1,6 @@
 import time
 from logging import getLogger
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, Dimension, Generator
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
@@ -23,17 +23,20 @@ class PlayerSessionNotFound(Exception):
 
 class MCPEHandler(GameDataHandler):
 
-    _INTERNAL_ADDRESSES = tuple(to_packet_format(('0.0.0.0', 0)) for i in range(20))
+    _INTERNAL_ADDRESSES = \
+        (to_packet_format(('127.0.0.1', 0)),) + tuple(to_packet_format(('0.0.0.0', 0)) for _ in range(19))
 
     def __init__(self) -> None:
         self._start_time = time.time()
-        self._accepted_time = {}
-        self._players = {}
+        self._ping_time = {}  # type: Dict[Address, int]
+        self._accepted_time = {}  # type: Dict[Address, int]
+        self._players = {}  # type: Dict[Address, Player]
         self._world = WorldProxy()
         self._queue = GamePacketQueue(self._send_connection_packet)
 
     def _get_current_time(self) -> int:
-        return int(time.time() - self._start_time)
+        """Get millisec time since starting handler."""
+        return int(1000 * (time.time() - self._start_time))
 
     def data_received(self, data: bytes, addr: Address) -> None:
         _logger.debug('%s [%d] %s', addr, len(data), data.hex())
@@ -66,13 +69,18 @@ class MCPEHandler(GameDataHandler):
             self._get_current_time())
         self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
+    def _process_connected_pong(self, packet: Packet, addr: Address) -> None:
+        if packet.ping_time_since_start == self._ping_time[addr]:
+            del self._ping_time[addr]
+
     def _process_connection_request(self, packet: Packet, addr: Address) -> None:
-        self._accepted_time[addr] = self._get_current_time()
+        self._ping_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
             ConnectionPacketID.CONNECTED_PING,
             self._get_current_time())
         self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
+        self._accepted_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
             ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
             to_packet_format(addr),

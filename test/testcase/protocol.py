@@ -1,9 +1,8 @@
 import inspect
 import json
-from binascii import unhexlify as unhex
 from collections import defaultdict
 from os.path import dirname
-from typing import List, Dict
+from typing import NamedTuple as _NamedTuple, List, Dict
 from unittest import TestCase
 
 from pyminehub.mcpe.network import MCPEHandler
@@ -47,11 +46,70 @@ class _ProtocolProxy:
         return d
 
 
+DecodingInfo = _NamedTuple('PacketInfo', [
+    ('packet', Packet),
+    ('data', bytes),
+    ('called', str),
+    ('packet_str', str)
+])
+
+
+class DynamicValue(_NamedTuple('DynamicValue', [])):
+
+    def __repr__(self) -> str:
+        return 'DYNAMIC'
+
+
+DYNAMIC = DynamicValue()
+
+
+class _TestContext:
+
+    def get_name(self) -> str:
+        raise NotImplementedError()
+
+    def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
+        raise NotImplementedError()
+
+    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+        raise NotImplementedError()
+
+
+class _ActualContext(_TestContext):
+
+    def __init__(self, dynamic_values: Dict[str, Any]) -> None:
+        self._dynamic_values = dynamic_values
+
+    def get_name(self) -> str:
+        return 'actual'
+
+    def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
+        self._dynamic_values.update(dynamic_values)
+
+    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+        return packet
+
+
+class _ExpectedContext(_TestContext):
+
+    def get_name(self) -> str:
+        return 'expected'
+
+    def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
+        pass
+
+    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+        # noinspection PyProtectedMember
+        return packet._replace(**kwargs)
+
+
 class _PacketCollector(PacketVisitor):
 
-    def __init__(self, test_case: TestCase, name: str) -> None:
+    _PAYLOAD_MASK = {'payload': '[mask]'}
+
+    def __init__(self, test_case: TestCase, context: _TestContext) -> None:
         self._test_case = test_case
-        self._name = name
+        self._context = context
         self._packets = []
 
     def get_packets(self) -> Tuple[Packet, ...]:
@@ -59,23 +117,44 @@ class _PacketCollector(PacketVisitor):
 
     def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
         self._test_case.assertEqual(
-            len(data), decoded_payload_length, '  when decoding {} data'.format(self._name))
+            len(data), decoded_payload_length, '  when decoding {} data'.format(self._context.get_name()))
+
+    def _test_decoded_result(
+            self, packet_id_cls: PacketID, packet: Packet, data: bytes,
+            context: PacketCodecContext, children_num: int, packet_id: PacketID) -> None:
+        self._test_case.assertEqual(
+            packet_id, packet_id_cls(packet.id), '  when decoding {} data'.format(self._context.get_name()))
+        if packet_id_cls != CapsuleID:
+            self._test_case.assertEqual(len(data), context.length)
+        if hasattr(packet, 'payloads'):
+            self._test_case.assertEqual(children_num, len(packet.payloads))
+
+    def _replace_dynamic_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+        dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
+        dynamic_values = dict((key, getattr(packet, key)) for key, value in dynamic_args.items())
+        self._context.dynamic_value_found(dynamic_values)
+        for key in dynamic_args:
+            del kwargs[key]
+        # noinspection PyProtectedMember
+        return packet._replace(**dynamic_args)
+
+    def _replace_payload(self, packet: Packet) -> Packet:
+        if hasattr(packet, 'payload'):
+            # noinspection PyProtectedMember
+            return packet._replace(**self._PAYLOAD_MASK)
+        else:
+            return packet
 
     # noinspection PyMethodOverriding
     def visit_decode_task(
             self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
             context: PacketCodecContext, children_num: int, packet_id: PacketID, **kwargs) -> None:
         """Collect packets whose attributes is replaced with kwargs."""
-        self._test_case.assertEqual(
-            packet_id, packet_id_cls(packet.id), '  when decoding {} data'.format(self._name))
-        if packet_id_cls != CapsuleID:
-            self._test_case.assertEqual(len(data), context.length)
-        if hasattr(packet, 'payloads'):
-            self._test_case.assertEqual(children_num, len(packet.payloads))
-        if hasattr(packet, 'payload'):
-            kwargs['payload'] = '[mask]'
-        # noinspection PyProtectedMember
-        self._packets.append((packet._replace(**kwargs), called, packet_str))
+        self._test_decoded_result(packet_id_cls, packet, data, context, children_num, packet_id)
+        packet = self._replace_dynamic_values(packet, kwargs)
+        packet = self._replace_payload(packet)
+        packet = self._context.replace_values(packet, kwargs)
+        self._packets.append(DecodingInfo(packet, data, called, '  ' + packet_str))
 
     def visit_encode_task(
             self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
@@ -104,6 +183,13 @@ class EncodedData:
 
 class ProtocolTestCase(TestCase):
 
+    def __init__(self, method_name: str) -> None:
+        super().__init__(method_name)
+        self._dynamic_values = {}  # type: Dict[str, Any]
+
+    def __getitem__(self, key: str) -> Any:
+        return self._dynamic_values[key]
+
     def _get_file_name(self) -> str:
         module_file_name = inspect.getmodule(self).__file__
         return '{}/{}/{}.{}'.format(dirname(module_file_name), 'protocol_data', self._testMethodName, 'json')
@@ -124,14 +210,20 @@ class ProtocolTestCase(TestCase):
         for addr in expected:
             expected_data_list = expected[addr]
             actual_data_list = actual[addr]
-            self.assertEqual(len(expected_data_list), len(actual_data_list))
+            self.assertEqual(
+                len(expected_data_list), len(actual_data_list),
+                '\n'.join(list(data.hex() for data in actual_data_list)))
             for expected_data in expected_data_list:
                 self._assert_equals(actual_data_list.pop(0), expected_data, addr)
 
     def _assert_equals(self, actual: bytes, expected: EncodedData, addr: Address) -> None:
-        collector_for_expected = _PacketCollector(self, 'expected')
-        collector_for_actual = _PacketCollector(self, 'actual')
+        collector_for_expected = _PacketCollector(self, _ExpectedContext())
+        collector_for_actual = _PacketCollector(self, _ActualContext(self._dynamic_values))
         expected.collect_packet(collector_for_expected, collector_for_actual, actual, addr)
-        for expected, actual in zip(collector_for_expected.get_packets(), collector_for_actual.get_packets()):
-            try_action(lambda: self.assertEqual(expected[0], actual[0]),
-                       called_line=actual[1], packet_info=actual[2])
+        expected_packets = list(collector_for_expected.get_packets())
+        actual_packets = list(collector_for_actual.get_packets())
+        self.assertEqual(len(expected_packets), len(actual_packets))
+        for expected, actual in zip(expected_packets, actual_packets):
+            def action():
+                self.assertEqual(expected.packet, actual.packet, "Actual data is '{}'".format(actual.data.hex()))
+            try_action(action, called_line=actual.called, packet_info=actual.packet_str)

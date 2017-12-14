@@ -1,11 +1,18 @@
 """
 Debug tools for codec.
 
-When debugging, execute `from pyminehub.debug.codec import *` in REPL.
+When debugging, execute `from util.codec import *` in REPL.
+
+decode('840200000000480000000000003d3810')
+[0] 840200000000480000000000003d3810
+[1] CUSTOM_PACKET_4(id=132, packet_sequence_num=2, payload=b'\x00\x00H\x00\x00\x00\x00\x00\x00=8\x10')
+[2] UNRELIABLE(id=0, payload_length=72, payload=b'\x00\x00\x00\x00\x00\x00=8\x10')
+[3] CONNECTED_PING(id=0, ping_time_since_start=4012048)
 """
 import re
 import sys
 import traceback
+from binascii import unhexlify as unhex
 from typing import Iterator, Tuple, Callable, Union, Optional, Any
 
 from pyminehub.mcpe.network.codec import connection_packet_codec
@@ -30,6 +37,21 @@ _BYTES_REGEXP_FOR_DOUBLE_QUOTE = re.compile(
     r'(b"[{}\-\\\]]*?")'.format(''.join(chr(c) for c in _ASCII_CHARS_FOR_DOUBLE_QUOTE)))
 _BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
     r"(b'[{}\-\\\]]*?')".format(''.join(chr(c) for c in _ASCII_CHARS_FOR_SINGLE_QUOTE)))
+
+
+def get_packet_str(packet: Packet, bytes_mask_threshold: Optional[int]=16) -> str:
+    if bytes_mask_threshold is not None:
+        def _summarize_bytes(m: re.match) -> str:
+            bytes_data = eval(m[1])  # type: bytes
+            length = len(bytes_data)
+            return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
+
+        packet_str = str(packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
+        packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
+        packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(_summarize_bytes, packet_str)
+    else:
+        packet_str = str(packet)
+    return packet_str
 
 
 class PacketVisitor:
@@ -125,7 +147,7 @@ class PacketAnalyzer:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
         self._record_decoded(data[:context.length], packet)
-        packet_str = self._get_packet_str(visitor.get_bytes_mask_threshold())
+        packet_str = get_packet_str(self._packet, visitor.get_bytes_mask_threshold())
         visitor.visit_decode_task(
             self._packet_id_cls, packet, data, self.called_line, packet_str, context, len(list(self.get_children())),
             *self.get_extra_args(), **self.get_extra_kwargs())
@@ -140,7 +162,7 @@ class PacketAnalyzer:
         self._encode_children(visitor)
         data = self._codec.encode(self._packet)
         try:
-            packet_str = self._get_packet_str(visitor.get_bytes_mask_threshold())
+            packet_str = get_packet_str(self._packet, visitor.get_bytes_mask_threshold())
             visitor.visit_encode_task(self._data, data, self.called_line, packet_str)
             self._log(visitor.get_log_function(), packet_str)
         except AssertionError as e:
@@ -163,25 +185,11 @@ class PacketAnalyzer:
         packet_info = '  {} {}'.format(self._packet_type, self._packet)
         return try_action(lambda: method(visitor, *args), child.called_line, packet_info)
 
-    def _get_packet_str(self, bytes_mask_threshold: Optional[int]) -> str:
-        if bytes_mask_threshold is not None:
-            def _summarize_bytes(m: re.match) -> str:
-                bytes_data = eval(m[1])  # type: bytes
-                length = len(bytes_data)
-                return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
-
-            packet_str = str(self._packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
-            packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
-            packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(_summarize_bytes, packet_str)
-        else:
-            packet_str = str(self._packet)
-        return packet_str
-
     def _log(self, log: Callable[..., None], packet_str: str) -> None:
         log('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
 
     def print_packet(self, visitor: PacketVisitor) -> None:
-        self._log(visitor.get_log_function(), self._get_packet_str(visitor.get_bytes_mask_threshold()))
+        self._log(visitor.get_log_function(), get_packet_str(self._packet, visitor.get_bytes_mask_threshold()))
 
 
 class GamePacket(PacketAnalyzer):
@@ -308,3 +316,72 @@ class RakNetPacket(PacketAnalyzer):
             if len(self._children) > 0:
                 self._decode_raknet_encapsulation(visitor)
         try_action(action, self.called_line)
+
+
+class DecodeAgent:
+
+    def __init__(self) -> None:
+        self._data = None
+        self._packet = []
+
+    def __repr__(self) -> str:
+        items = [self._data]
+        items.extend(get_packet_str(p) for p in self._packet)
+        return '\n'.join('[{}] {}'.format(i, item) for i, item in enumerate(items))
+
+    def __getitem__(self, index: int) -> Packet:
+        if index == 0:
+            return self._data
+        else:
+            return self._packet[index - 1]
+
+    def _decode_raknet_packet(self, data: bytearray) -> None:
+        context = PacketCodecContext()
+        packet = raknet_packet_codec.decode(data, context)
+        self._packet.append(packet)
+        del data[:context.length]
+        if hasattr(packet, 'payload'):
+            data = bytearray(packet.payload)
+            while len(data) > 0:
+                self._decode_raknet_capsule(data)
+
+    def _decode_raknet_capsule(self, data: bytearray) -> None:
+        context = PacketCodecContext()
+        packet = raknet_capsule_codec.decode(data, context)
+        self._packet.append(packet)
+        del data[:context.length]
+        data = bytearray(packet.payload)
+        self._decode_connection_packet(data)
+
+    def _decode_connection_packet(self, data: bytearray) -> None:
+        context = PacketCodecContext()
+        packet = connection_packet_codec.decode(data, context)
+        self._packet.append(packet)
+        del data[:context.length]
+        if hasattr(packet, 'payloads'):
+            for payload in packet.payloads:
+                data = bytearray(payload)
+                self._decode_game_packet(data)
+
+    def _decode_game_packet(self, data: bytearray) -> None:
+        context = PacketCodecContext()
+        packet = game_packet_codec.decode(data, context)
+        self._packet.append(packet)
+        del data[:context.length]
+
+    def decode(self, data: str):
+        self._data = data
+        data = bytearray(unhex(data))
+        self._decode_raknet_packet(data)
+        if len(data) > 0:
+            print(data.hex())
+        return self
+
+
+def decode(data: str) -> DecodeAgent:
+    return DecodeAgent().decode(data)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

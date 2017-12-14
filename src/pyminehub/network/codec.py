@@ -157,7 +157,7 @@ class AddressData(DataCodec[AddressInPacket]):
     >>> context.length
     7
     >>> hexlify(data)
-    b'047f00000184d0'
+    b'0480fffffe84d0'
     >>> context.clear()
     >>> c.read(data, context)
     Address(ip_version=4, address=b'\\x7f\\x00\\x00\\x01', port=34000)
