@@ -1,6 +1,5 @@
 import inspect
 import logging
-from binascii import unhexlify as unhex
 from os.path import dirname
 from unittest import TestCase
 
@@ -54,17 +53,16 @@ class PacketAssertion(PacketVisitor):
             len(data), decoded_payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
 
     # noinspection PyMethodOverriding
-    def visit_decode_task(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-            context: PacketCodecContext, children_num: int, packet_id: PacketID) -> None:
+    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+                          context: PacketCodecContext, children_num: int, packet_id: PacketID) -> Packet:
         self._test_case.assertEqual(packet_id, packet_id_cls(packet.id), packet)
         if packet_id_cls != CapsuleID:
             self._test_case.assertEqual(len(data), context.length)
         if hasattr(packet, 'payloads'):
             self._test_case.assertEqual(children_num, len(packet.payloads))
+        return packet
 
-    def visit_encode_task(
-            self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         packet_info = '\n{}\n  {}'.format(called, packet_str)
         self._test_case.assertEqual(original_data.hex(), encoded_data.hex(), packet_info)
 

@@ -13,7 +13,8 @@ import re
 import sys
 import traceback
 from binascii import unhexlify as unhex
-from typing import Iterator, Tuple, Callable, Union, Optional, Any
+from enum import Enum
+from typing import *
 
 from pyminehub.mcpe.network.codec import connection_packet_codec
 from pyminehub.mcpe.network.codec import game_packet_codec
@@ -75,9 +76,8 @@ class PacketVisitor:
         """
         raise NotImplementedError()
 
-    def visit_decode_task(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-            context: PacketCodecContext, children_num: int, *args, **kwargs) -> None:
+    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+                          context: PacketCodecContext, children_num: int, *args, **kwargs) -> Packet:
         """It is called after each packet is decodec.
         
         :param packet_id_cls: it represents the type of decoded packet
@@ -94,11 +94,11 @@ class PacketVisitor:
         :param children_num: number of child nodes
         :param args: return value that is gotten from get_extra_args method in PacketAnalyzer
         :param kwargs: return value that is gotten from get_extra_kwargs method in PacketAnalyzer
+        :return: updated decoding result packet
         """
         raise NotImplementedError()
 
-    def visit_encode_task(
-            self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         """It is called after each packet is encoded.
 
         :param original_data: data that is decoded to the packet
@@ -112,6 +112,12 @@ class PacketVisitor:
                 CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
         """
         raise NotImplementedError()
+
+
+class _Label(Enum):
+    NONE = 0
+    HIDE = 1
+    WARNING = 2
 
 
 class PacketAnalyzer:
@@ -133,7 +139,18 @@ class PacketAnalyzer:
         return {}
 
     def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, T]]:
+        """Get pairs that has packet payload and child PacketAnalyzer.
+
+        :param packet: packet payload is gotten from this packet
+        :return: pairs that has packet payload and child PacketAnalyzer
+        """
         return iter([])
+
+    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, T]:
+        return {}
+
+    def does_retry_encoding(self) -> bool:
+        return False
 
     def _record_decoded(self, data: bytes, packet: Packet) -> None:
         """Record the decoded result."""
@@ -141,6 +158,7 @@ class PacketAnalyzer:
         self._packet = packet
 
     def has_record(self) -> bool:
+        """Has the decoded result."""
         return not (self._data is None or self._packet is None)
 
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
@@ -156,27 +174,38 @@ class PacketAnalyzer:
             self.try_on_child(child.decode_on, visitor, payload)
         return context.length
 
-    def encode_on(self, visitor: PacketVisitor) -> None:
-        """Encode the decoded result."""
-        assert self.has_record()
-        self._encode_children(visitor)
-        data = self._codec.encode(self._packet)
-        try:
-            packet_str = get_packet_str(self._packet, visitor.get_bytes_mask_threshold())
-            visitor.visit_encode_task(self._data, data, self.called_line, packet_str)
-            self._log(visitor.get_log_function(), packet_str)
-        except AssertionError as e:
-            self.encode_error_hook(visitor, e, data, self.called_line)
+    def encode_on(self, visitor: PacketVisitor, label: _Label=_Label.NONE) -> bytes:
+        """Encode the decoded result to bytes data.
 
-    def _encode_children(self, visitor: PacketVisitor) -> None:
+        :return: encoded bytes data
+        """
+        assert self.has_record()
+        payloads = tuple(self._encode_children(visitor, label))
+        # noinspection PyProtectedMember
+        packet = self._packet._replace(**self.get_payload_dict(payloads))
+        data = self._codec.encode(packet)
+        try:
+            packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
+            visitor.visit_encode_task(self._data, data, self.called_line, packet_str)
+            self._log(visitor.get_log_function(), label, packet_str)
+        except AssertionError as e:
+            self._retry_encoding(visitor, e, data, self.called_line)
+        return data
+
+    def _encode_children(self, visitor: PacketVisitor, label: _Label) -> Generator[bytes, None, None]:
         """Override if there are child elements."""
         for _, child in self.get_children():
             # noinspection PyUnresolvedReferences
-            self.try_on_child(child.encode_on, visitor)
+            yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
-    def encode_error_hook(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> None:
+    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> None:
         """Overrides when there is processing at the time of exception occurrence."""
-        raise exc
+        if self.does_retry_encoding():
+            print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
+            self.decode_on(visitor, data)
+            self.encode_on(visitor, _Label.WARNING)
+        else:
+            raise exc
 
     def try_on_child(self, method: Callable[..., None], visitor: PacketVisitor, *args) -> Any:
         assert self.has_record()
@@ -185,11 +214,15 @@ class PacketAnalyzer:
         packet_info = '  {} {}'.format(self._packet_type, self._packet)
         return try_action(lambda: method(visitor, *args), child.called_line, packet_info)
 
-    def _log(self, log: Callable[..., None], packet_str: str) -> None:
-        log('%s\n  -> %s\n%s', packet_str, self._data.hex(), self.called_line)
+    def _log(self, log: Callable[..., None], label: _Label, packet_str: str) -> None:
+        if label is not _Label.HIDE:
+            title = '' if label is _Label.NONE else label.name + ':'
+            log('%s%s\n  -> %s\n%s', title, packet_str, self._data.hex(), self.called_line)
 
     def print_packet(self, visitor: PacketVisitor) -> None:
-        self._log(visitor.get_log_function(), get_packet_str(self._packet, visitor.get_bytes_mask_threshold()))
+        self._log(visitor.get_log_function(),
+                  _Label.NONE,
+                  get_packet_str(self._packet, visitor.get_bytes_mask_threshold()))
 
 
 class GamePacket(PacketAnalyzer):
@@ -239,10 +272,11 @@ class Batch(PacketAnalyzer):
         else:
             return iter((b'', child) for child in self._children)
 
-    def encode_error_hook(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> None:
-        print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
-        self.decode_on(visitor, data)
-        self.encode_on(visitor)
+    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, Tuple[bytes, ...]]:
+        return {'payloads': payloads}
+
+    def does_retry_encoding(self) -> bool:
+        return True
 
     def print_packet(self, visitor: PacketVisitor) -> None:
         for child in self._children:
@@ -273,6 +307,13 @@ class Capsule(PacketAnalyzer):
             return iter([(packet.payload, self._child)])
         else:
             return iter([(b'', self._child)])
+
+    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
+        assert len(payloads) == 1
+        return {'payload': payloads[0], 'payload_length': len(payloads[0] * 8)}  # unit of payload_length is bits
+
+    def does_retry_encoding(self) -> bool:
+        return True
 
 
 class RakNetPacket(PacketAnalyzer):
@@ -316,6 +357,12 @@ class RakNetPacket(PacketAnalyzer):
             if len(self._children) > 0:
                 self._decode_raknet_encapsulation(visitor)
         try_action(action, self.called_line)
+
+    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
+        return {'payload': b''.join(payloads)}
+
+    def does_retry_encoding(self) -> bool:
+        return True
 
 
 class DecodeAgent:
