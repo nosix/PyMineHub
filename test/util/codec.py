@@ -68,7 +68,10 @@ class PacketVisitor:
         """
         return lambda *args: None
 
-    def assert_equal(self, expected: T, actual: T, message: str='') -> None:
+    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
+        assert expected == actual, message if message is not None else ''
+
+    def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
         assert expected == actual, message if message is not None else ''
 
     def visit_after_decoding(
@@ -90,18 +93,18 @@ class PacketVisitor:
         """
         return packet
 
-    def visit_after_encoding(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_after_encoding(self, packet: Packet, data: bytes, packet_str: str, called: str) -> None:
         """It is called after each packet is encoded.
 
-        :param original_data: data that is decoded to the packet
-        :param encoded_data: data that is encoded from the packet
-        :param called: line number that constructor of PacketAnalyzer is called in
+        :param packet: encoded packet
+        :param data: data that is encoded from the packet
         :param packet_str: information of the packet
             Example:
                 File "./codec_login_logout.py", line 12, in test_login_logout_c00
                   ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST)
 
                 CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
+        :param called: line number that constructor of PacketAnalyzer is called in
         """
         pass
 
@@ -162,11 +165,11 @@ class PacketAnalyzer:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
         packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-        visitor.assert_equal(self._packet_id, type(self._packet_id)(packet.id), str(packet))
+        visitor.assert_equal_for_decoding(self._packet_id, type(self._packet_id)(packet.id), str(packet))
         if self.does_assert_data_length():
-            visitor.assert_equal(len(data), context.length)
+            visitor.assert_equal_for_decoding(len(data), context.length)
         if hasattr(packet, 'payloads'):
-            visitor.assert_equal(len(list(self.get_children())), len(packet.payloads))
+            visitor.assert_equal_for_decoding(len(list(self.get_children())), len(packet.payloads))
         packet = visitor.visit_after_decoding(
             data, self._packet_id, packet, packet_str, self.called_line, **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
@@ -187,11 +190,13 @@ class PacketAnalyzer:
         data = self._codec.encode(packet)
         try:
             packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-            visitor.visit_after_encoding(self._data, data, self.called_line, packet_str)
+            packet_info = '\n{}\n  {}'.format(self.called_line, packet_str)
+            visitor.assert_equal_for_encoding(self._data.hex(), data.hex(), packet_info)
+            visitor.visit_after_encoding(packet, data, packet_str, self.called_line)
             self._log(visitor.get_log_function(), label, packet_str)
+            return data
         except AssertionError as e:
-            self._retry_encoding(visitor, e, data, self.called_line)
-        return data
+            return self._retry_encoding(visitor, e, data, self.called_line)
 
     def _encode_children(self, visitor: PacketVisitor, label: _Label) -> Generator[bytes, None, None]:
         """Override if there are child elements."""
@@ -199,12 +204,12 @@ class PacketAnalyzer:
             # noinspection PyUnresolvedReferences
             yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
-    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> None:
+    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> Packet:
         """Overrides when there is processing at the time of exception occurrence."""
         if self.does_retry_encoding():
             print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
             self.decode_on(visitor, data)
-            self.encode_on(visitor, _Label.WARNING)
+            return self.encode_on(visitor, _Label.WARNING)
         else:
             raise exc
 
@@ -350,7 +355,7 @@ class RakNetPacket(PacketAnalyzer):
         payload_length = 0
         for analyzer in self._children:
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
-        visitor.assert_equal(
+        visitor.assert_equal_for_decoding(
             len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
 
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> None:

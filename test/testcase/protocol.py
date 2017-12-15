@@ -108,13 +108,16 @@ class _PacketReplacer(PacketVisitor):
     def __init__(self) -> None:
         self.data = b''  # type: bytes
 
+    def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
+        pass
+
     def visit_after_decoding(
             self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
-    def visit_after_encoding(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
-        self.data = encoded_data
+    def visit_after_encoding(self, packet: Packet, data: bytes, packet_str: str, called: str) -> None:
+        self.data = data
 
 
 class _PacketCollector(PacketVisitor):
@@ -129,7 +132,7 @@ class _PacketCollector(PacketVisitor):
     def get_packets(self) -> Tuple[Packet, ...]:
         return tuple(reversed(self._packets))
 
-    def assert_equal(self, expected: T, actual: T, message: str='') -> None:
+    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
         self._test_case.assertEqual(
             expected, actual, message + '\n  when decoding {} data'.format(self._context.get_name()))
 

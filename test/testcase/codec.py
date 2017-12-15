@@ -48,12 +48,11 @@ class PacketAssertion(PacketVisitor):
     def get_log_function(self) -> Callable[..., None]:
         return _logger.info
 
-    def assert_equal(self, expected: T, actual: T, message: str='') -> None:
+    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
         self._test_case.assertEqual(expected, actual, message)
 
-    def visit_after_encoding(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
-        packet_info = '\n{}\n  {}'.format(called, packet_str)
-        self._test_case.assertEqual(original_data.hex(), encoded_data.hex(), packet_info)
+    def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
+        self._test_case.assertEqual(expected, actual, message)
 
 
 class EncodedData:
