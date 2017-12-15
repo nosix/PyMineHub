@@ -8,7 +8,7 @@ REQUEST_CHUNK_RADIUS(id=69, extra=b'\x00\x00', radius=8)
   File "./codec_login_logout.py", line 215, in test_login_logout_c12
     GamePacket(GamePacketID.REQUEST_CHUNK_RADIUS)
 
-BATCH(id=254, payloads=(bytearray(b'E\x00\x00\x10'),))
+BATCH(id=254, payloads=(b'E\x00\x00\x10',))
   -> fe7801010500faff0445000010013d005a
   File "./codec_login_logout.py", line 214, in test_login_logout_c12
     Batch().that_has(

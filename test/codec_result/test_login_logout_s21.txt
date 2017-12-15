@@ -3,7 +3,7 @@ CHUNK_RADIUS_UPDATED(id=70, extra=b'\x00\x00', radius=8)
   File "./codec_login_logout.py", line 229, in test_login_logout_s21
     GamePacket(GamePacketID.CHUNK_RADIUS_UPDATED)
 
-BATCH(id=254, payloads=(bytearray(b'F\x00\x00\x10'),))
+BATCH(id=254, payloads=(b'F\x00\x00\x10',))
   -> fe7801010500faff04460000100141005b
   File "./codec_login_logout.py", line 228, in test_login_logout_s21
     Batch().that_has(

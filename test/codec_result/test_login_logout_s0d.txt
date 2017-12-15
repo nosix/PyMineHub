@@ -3,7 +3,7 @@ MOB_EQUIPMENT(id=31, extra=b'\x00\x00', entity_runtime_id=1, item=Slot(id=0, aux
   File "./codec_login_logout.py", line 180, in test_login_logout_s0d
     GamePacket(GamePacketID.MOB_EQUIPMENT)
 
-BATCH(id=254, payloads=(bytearray(b'\x1f\x00\x00\x01\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'\x1f\x00\x00\x01\x00\x00\x00\x00',))
   -> fe7801010900f6ff081f00000100000000014e0029
   File "./codec_login_logout.py", line 179, in test_login_logout_s0d
     Batch().that_has(
@@ -18,7 +18,7 @@ INVENTORY_SLOT(id=50, extra=b'\x00\x00', window_id=0, inventory_slot=0, item=Slo
   File "./codec_login_logout.py", line 185, in test_login_logout_s0d
     GamePacket(GamePacketID.INVENTORY_SLOT)
 
-BATCH(id=254, payloads=(bytearray(b'2\x00\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'2\x00\x00\x00\x00\x00',))
   -> fe7801010700f8ff06320000000000015d0039
   File "./codec_login_logout.py", line 184, in test_login_logout_s0d
     Batch().that_has(

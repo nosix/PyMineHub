@@ -3,7 +3,7 @@ RESOURCE_PACK_STACK(id=7, extra=b'\x00\x00', must_accept=False, behavior_pack_st
   File "./codec_login_logout.py", line 96, in test_login_logout_s05
     GamePacket(GamePacketID.RESOURCE_PACK_STACK)
 
-BATCH(id=254, payloads=(bytearray(b'\x07\x00\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'\x07\x00\x00\x00\x00\x00',))
   -> fe7801010700f8ff06070000000000005b000e
   File "./codec_login_logout.py", line 95, in test_login_logout_s05
     Batch().that_has(

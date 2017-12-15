@@ -3,7 +3,7 @@ SET_ENTITY_DATA(id=39, extra=b'\x00\x00', entity_runtime_id=1, meta_data=(Entity
   File "./codec_login_logout.py", line 147, in test_login_logout_s0a
     GamePacket(GamePacketID.SET_ENTITY_DATA)
 
-BATCH(id=254, payloads=(bytearray([54 bytes]),))
+BATCH(id=254, payloads=([54 bytes],))
   -> fe7801013700c8ff36270000010700078080c680808030070100002b01900104040f4d617474654d757373656c3336323026070127030000803f1d060000004f150b38
   File "./codec_login_logout.py", line 146, in test_login_logout_s0a
     Batch().that_has(
@@ -18,7 +18,7 @@ INVENTORY_CONTENT(id=49, extra=b'\x00\x00', window_id=0, items=(Slot(id=0, aux_v
   File "./codec_login_logout.py", line 152, in test_login_logout_s0a
     GamePacket(GamePacketID.INVENTORY_CONTENT)
 
-BATCH(id=254, payloads=(bytearray([41 bytes]),))
+BATCH(id=254, payloads=([41 bytes],))
   -> fe7801012a00d5ff29310000002400000000000000000000000000000000000000000000000000000000000000000000000013f1007f
   File "./codec_login_logout.py", line 151, in test_login_logout_s0a
     Batch().that_has(
@@ -33,7 +33,7 @@ INVENTORY_CONTENT(id=49, extra=b'\x00\x00', window_id=120, items=(Slot(id=0, aux
   File "./codec_login_logout.py", line 157, in test_login_logout_s0a
     GamePacket(GamePacketID.INVENTORY_CONTENT)
 
-BATCH(id=254, payloads=(bytearray(b'1\x00\x00x\x04\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'1\x00\x00x\x04\x00\x00\x00\x00',))
   -> fe7801010a00f5ff09310000780400000000050100b7
   File "./codec_login_logout.py", line 156, in test_login_logout_s0a
     Batch().that_has(

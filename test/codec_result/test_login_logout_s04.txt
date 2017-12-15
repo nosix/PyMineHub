@@ -3,7 +3,7 @@ PLAY_STATUS(id=2, extra=b'\x00\x00', status=<PlayStatus.LOGIN_SUCCESS: 0>)
   File "./codec_login_logout.py", line 61, in test_login_logout_s04
     GamePacket(GamePacketID.PLAY_STATUS)
 
-BATCH(id=254, payloads=(bytearray(b'\x02\x00\x00\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'\x02\x00\x00\x00\x00\x00\x00',))
   -> fe7801010800f7ff0702000000000000004e000a
   File "./codec_login_logout.py", line 60, in test_login_logout_s04
     Batch().that_has(
@@ -18,7 +18,7 @@ RESOURCE_PACKS_INFO(id=6, extra=b'\x00\x00', must_accept=False, behavior_pack_en
   File "./codec_login_logout.py", line 66, in test_login_logout_s04
     GamePacket(GamePacketID.RESOURCE_PACKS_INFO)
 
-BATCH(id=254, payloads=(bytearray(b'\x06\x00\x00\x00\x00\x00\x00\x00'),))
+BATCH(id=254, payloads=(b'\x06\x00\x00\x00\x00\x00\x00\x00',))
   -> fe7801010900f6ff0806000000000000000081000f
   File "./codec_login_logout.py", line 65, in test_login_logout_s04
     Batch().that_has(

@@ -38,7 +38,7 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
         while len(payload) > 0:
             length = VAR_INT_DATA.read(payload, local_context)
             d = pop_first(payload, length)
-            payloads.append(d)
+            payloads.append(bytes(d))
         return tuple(payloads)
 
     def write(self, data: bytearray, value: Tuple[bytes, ...], context: DataCodecContext) -> None:
