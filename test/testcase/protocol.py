@@ -13,22 +13,6 @@ from util.codec import *
 from util.mock import MockEventLoop, MockTransport
 
 
-class _TestData:
-
-    def __init__(self, json_dict: Dict) -> None:
-        self._json_dict = json_dict
-
-    def that_is(self, name: str) -> Callable[[Address], str]:
-        def producer(addr: Address) -> str:
-            return self._json_dict[name]['client']['{}:{}'.format(*addr)].pop(0)
-        return producer
-
-    def that_is_response_of(self, name: str) -> Callable[[Address], str]:
-        def producer(addr: Address) -> str:
-            return self._json_dict[name]['server']['{}:{}'.format(*addr)].pop(0)
-        return producer
-
-
 class _ProtocolProxy:
 
     def __init__(self) -> None:
@@ -44,6 +28,33 @@ class _ProtocolProxy:
             d[res_addr].append(res_data)
         self._queue.clear()
         return d
+
+
+class _TestDataProducer(Callable[[Address], str]):
+
+    def __init__(self, test_case: TestCase, producer: Callable[[Address], str]) -> None:
+        self.test_case = test_case
+        self._producer = producer
+
+    def __call__(self, addr: Address) -> str:
+        return self._producer(addr)
+
+
+class _TestData:
+
+    def __init__(self, test_case: TestCase, json_dict: Dict) -> None:
+        self._test_case = test_case
+        self._json_dict = json_dict
+
+    def that_is(self, name: str) -> _TestDataProducer:
+        def producer(addr: Address) -> str:
+            return self._json_dict[name]['client']['{}:{}'.format(*addr)].pop(0)
+        return _TestDataProducer(self._test_case, producer)
+
+    def that_is_response_of(self, name: str) -> _TestDataProducer:
+        def producer(addr: Address) -> str:
+            return self._json_dict[name]['server']['{}:{}'.format(*addr)].pop(0)
+        return _TestDataProducer(self._test_case, producer)
 
 
 DecodingInfo = _NamedTuple('PacketInfo', [
@@ -105,8 +116,15 @@ class _ExpectedContext(_TestContext):
 
 class _PacketReplacer(PacketVisitor):
 
-    def __init__(self) -> None:
-        self.data = b''  # type: bytes
+    def __init__(self, test_case: TestCase) -> None:
+        self._test_case = test_case
+        self._data = b''  # type: bytes
+
+    def get_data(self) -> bytes:
+        return self._data
+
+    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
+        self._test_case.assertEqual(expected, actual, message + '\n  when replacing')
 
     def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
         pass
@@ -117,7 +135,7 @@ class _PacketReplacer(PacketVisitor):
         return packet._replace(**kwargs)
 
     def visit_after_encoding(self, packet: Packet, data: bytes, packet_str: str, called: str) -> None:
-        self.data = data
+        self._data = data
 
 
 class _PacketCollector(PacketVisitor):
@@ -165,30 +183,38 @@ class _PacketCollector(PacketVisitor):
 
 class EncodedData:
 
-    def __init__(self, data_producer: Callable[[Address], str]) -> None:
+    def __init__(self, data_producer: _TestDataProducer) -> None:
         """Encoded data validator.
 
         :param data_producer: data that decode to packet
         """
         self._data_producer = data_producer
         self._analyzer = None
+        self._dynamic_values = {}  # type: Dict[str, Any]
 
-    def __call__(self, addr: Address) -> str:
-        def action():
-            self._analyzer.decode_on(visitor, unhex(self._data_producer(addr)))
-            self._analyzer.encode_on(visitor)
-        visitor = _PacketReplacer()
-        try_action(action, exception_factory=Exception)
-        return visitor.data.hex()
+    def get_dynamic_values(self) -> Dict[str, Any]:
+        return self._dynamic_values
 
     def is_(self, analyzer: PacketAnalyzer):
         self._analyzer = analyzer
         return self
 
-    def collect_packet(
-            self, expected: _PacketCollector, actual: _PacketCollector, actual_data: bytes, addr: Address) -> None:
-        self._analyzer.decode_on(expected, unhex(self._data_producer(addr)))
-        self._analyzer.decode_on(actual, actual_data)
+    def __call__(self, addr: Address) -> str:
+        def action():
+            self._analyzer.decode_on(visitor, unhex(self._data_producer(addr)))
+            self._analyzer.encode_on(visitor)
+        test_case = self._data_producer.test_case
+        visitor = _PacketReplacer(test_case)
+        try_action(action, exception_factory=test_case.failureException)
+        return visitor.get_data().hex()
+
+    def collect_packet(self, actual_data: bytes, addr: Address) -> Tuple[List[Packet], List[Packet]]:
+        test_case = self._data_producer.test_case
+        collector_for_expected = _PacketCollector(test_case, _ExpectedContext())
+        collector_for_actual = _PacketCollector(test_case, _ActualContext(self._dynamic_values))
+        self._analyzer.decode_on(collector_for_expected, unhex(self._data_producer(addr)))
+        self._analyzer.decode_on(collector_for_actual, actual_data)
+        return list(collector_for_expected.get_packets()), list(collector_for_actual.get_packets())
 
 
 class ProtocolTestCase(TestCase):
@@ -204,10 +230,11 @@ class ProtocolTestCase(TestCase):
     def setUp(self) -> None:
         self.proxy = _ProtocolProxy()
         with open(self._get_file_name(), 'r') as file:
-            self.data = _TestData(json.load(file))
+            self.data = _TestData(self, json.load(file))
 
     def tearDown(self) -> None:
         self.proxy = None
+        self.data = None
 
     def assert_that(self, actual: Dict[Address, List[bytes]], expected: Dict[Address, List[EncodedData]]) -> None:
         try_action(lambda: self._assert_that(actual, expected), exception_factory=self.failureException)
@@ -221,14 +248,11 @@ class ProtocolTestCase(TestCase):
                 len(expected_data_list), len(actual_data_list),
                 '\n'.join(list(data.hex() for data in actual_data_list)))
             for expected_data in expected_data_list:
-                self._assert_equals(actual_data_list.pop(0), expected_data, addr)
+                self._assert_equal(actual_data_list.pop(0), expected_data, addr)
 
-    def _assert_equals(self, actual: bytes, expected: EncodedData, addr: Address) -> None:
-        collector_for_expected = _PacketCollector(self, _ExpectedContext())
-        collector_for_actual = _PacketCollector(self, _ActualContext(self.values))
-        expected.collect_packet(collector_for_expected, collector_for_actual, actual, addr)
-        expected_packets = list(collector_for_expected.get_packets())
-        actual_packets = list(collector_for_actual.get_packets())
+    def _assert_equal(self, actual: bytes, expected: EncodedData, addr: Address) -> None:
+        expected_packets, actual_packets = expected.collect_packet(actual, addr)
+        self.values.update(expected.get_dynamic_values())
         self.assertEqual(len(expected_packets), len(actual_packets))
         for expected, actual in zip(expected_packets, actual_packets):
             def action():
