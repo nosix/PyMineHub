@@ -67,7 +67,20 @@ class UnconnectedTestCase(ProtocolTestCase):
                 )
             ]
         })
-        received_data = self.proxy.send(self.data.that_is('new_incoming_connection'), from_=self._CLIENT_ADDRESS[0])
+        received_data = self.proxy.send(
+            EncodedData(self.data.that_is('new_incoming_connection')).is_(
+                RakNetPacket().that_has(
+                    Capsule().that_has(
+                        ConnectionPacket()
+                    ),
+                    Capsule().that_has(
+                        ConnectionPacket(server_time_since_start=self.values['server_time_since_start'])
+                    ),
+                    Capsule().that_has(
+                        ConnectionPacket()
+                    )
+                )),
+            from_=self._CLIENT_ADDRESS[0])
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(

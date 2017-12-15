@@ -164,11 +164,11 @@ class PacketAnalyzer:
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
-        self._record_decoded(data[:context.length], packet)
-        packet_str = get_packet_str(self._packet, visitor.get_bytes_mask_threshold())
-        visitor.visit_decode_task(
+        packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
+        packet = visitor.visit_decode_task(
             self._packet_id_cls, packet, data, self.called_line, packet_str, context, len(list(self.get_children())),
             *self.get_extra_args(), **self.get_extra_kwargs())
+        self._record_decoded(data[:context.length], packet)
         for payload, child in self.get_children(packet):
             # noinspection PyTypeChecker
             self.try_on_child(child.decode_on, visitor, payload)

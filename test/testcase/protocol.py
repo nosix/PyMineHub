@@ -2,7 +2,7 @@ import inspect
 import json
 from collections import defaultdict
 from os.path import dirname
-from typing import NamedTuple as _NamedTuple, List, Dict
+from typing import NamedTuple as _NamedTuple
 from unittest import TestCase
 
 from pyminehub.mcpe.network import MCPEHandler
@@ -103,6 +103,24 @@ class _ExpectedContext(_TestContext):
         return packet._replace(**kwargs)
 
 
+class _PacketReplacer(PacketVisitor):
+
+    def __init__(self) -> None:
+        self.data = b''  # type: bytes
+
+    def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
+        assert len(data) == decoded_payload_length,\
+            '{} != {} when decoding for replacing'.format(len(data), decoded_payload_length)
+
+    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+                          context: PacketCodecContext, children_num: int, *args, **kwargs) -> Packet:
+        # noinspection PyProtectedMember
+        return packet._replace(**kwargs)
+
+    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+        self.data = encoded_data
+
+
 class _PacketCollector(PacketVisitor):
 
     _PAYLOAD_MASK = {'payload': '[mask]'}
@@ -146,30 +164,37 @@ class _PacketCollector(PacketVisitor):
             return packet
 
     # noinspection PyMethodOverriding
-    def visit_decode_task(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-            context: PacketCodecContext, children_num: int, packet_id: PacketID, **kwargs) -> None:
+    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
+                          context: PacketCodecContext, children_num: int, packet_id: PacketID, **kwargs) -> Packet:
         """Collect packets whose attributes is replaced with kwargs."""
         self._test_decoded_result(packet_id_cls, packet, data, context, children_num, packet_id)
-        packet = self._replace_dynamic_values(packet, kwargs)
-        packet = self._replace_payload(packet)
-        packet = self._context.replace_values(packet, kwargs)
-        self._packets.append(DecodingInfo(packet, data, called, '  ' + packet_str))
+        tmp_packet = self._replace_dynamic_values(packet, kwargs)
+        tmp_packet = self._replace_payload(tmp_packet)
+        tmp_packet = self._context.replace_values(tmp_packet, kwargs)
+        self._packets.append(DecodingInfo(tmp_packet, data, called, '  ' + packet_str))
+        return packet
 
-    def visit_encode_task(
-            self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         pass
 
 
 class EncodedData:
 
-    def __init__(self, expected_data_producer: Callable[[Address], str]) -> None:
+    def __init__(self, data_producer: Callable[[Address], str]) -> None:
         """Encoded data validator.
 
-        :param expected_data_producer: expected data that decode to packet
+        :param data_producer: data that decode to packet
         """
-        self._expected_data_producer = expected_data_producer
+        self._data_producer = data_producer
         self._analyzer = None
+
+    def __call__(self, addr: Address) -> str:
+        def action():
+            self._analyzer.decode_on(visitor, unhex(self._data_producer(addr)))
+            self._analyzer.encode_on(visitor)
+        visitor = _PacketReplacer()
+        try_action(action, exception_factory=Exception)
+        return visitor.data.hex()
 
     def is_(self, analyzer: PacketAnalyzer):
         self._analyzer = analyzer
@@ -177,7 +202,7 @@ class EncodedData:
 
     def collect_packet(
             self, expected: _PacketCollector, actual: _PacketCollector, actual_data: bytes, addr: Address) -> None:
-        self._analyzer.decode_on(expected, unhex(self._expected_data_producer(addr)))
+        self._analyzer.decode_on(expected, unhex(self._data_producer(addr)))
         self._analyzer.decode_on(actual, actual_data)
 
 
@@ -185,10 +210,7 @@ class ProtocolTestCase(TestCase):
 
     def __init__(self, method_name: str) -> None:
         super().__init__(method_name)
-        self._dynamic_values = {}  # type: Dict[str, Any]
-
-    def __getitem__(self, key: str) -> Any:
-        return self._dynamic_values[key]
+        self.values = {}  # type: Dict[str, Any]
 
     def _get_file_name(self) -> str:
         module_file_name = inspect.getmodule(self).__file__
@@ -218,7 +240,7 @@ class ProtocolTestCase(TestCase):
 
     def _assert_equals(self, actual: bytes, expected: EncodedData, addr: Address) -> None:
         collector_for_expected = _PacketCollector(self, _ExpectedContext())
-        collector_for_actual = _PacketCollector(self, _ActualContext(self._dynamic_values))
+        collector_for_actual = _PacketCollector(self, _ActualContext(self.values))
         expected.collect_packet(collector_for_expected, collector_for_actual, actual, addr)
         expected_packets = list(collector_for_expected.get_packets())
         actual_packets = list(collector_for_actual.get_packets())
