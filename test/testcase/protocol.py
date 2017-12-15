@@ -108,16 +108,12 @@ class _PacketReplacer(PacketVisitor):
     def __init__(self) -> None:
         self.data = b''  # type: bytes
 
-    def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
-        assert len(data) == decoded_payload_length,\
-            '{} != {} when decoding for replacing'.format(len(data), decoded_payload_length)
-
     def visit_after_decoding(
             self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
-    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_after_encoding(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         self.data = encoded_data
 
 
@@ -133,9 +129,9 @@ class _PacketCollector(PacketVisitor):
     def get_packets(self) -> Tuple[Packet, ...]:
         return tuple(reversed(self._packets))
 
-    def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
+    def assert_equal(self, expected: T, actual: T, message: str='') -> None:
         self._test_case.assertEqual(
-            len(data), decoded_payload_length, '  when decoding {} data'.format(self._context.get_name()))
+            expected, actual, message + '\n  when decoding {} data'.format(self._context.get_name()))
 
     def _replace_dynamic_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
         dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
@@ -162,9 +158,6 @@ class _PacketCollector(PacketVisitor):
         tmp_packet = self._context.replace_values(tmp_packet, kwargs)
         self._packets.append(DecodingInfo(tmp_packet, data, called, '  ' + packet_str))
         return packet
-
-    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
-        pass
 
 
 class EncodedData:

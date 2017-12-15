@@ -68,16 +68,8 @@ class PacketVisitor:
         """
         return lambda *args: None
 
-    def assert_equal(self, expected: T, actual: T, message: Optional[str]=None) -> None:
+    def assert_equal(self, expected: T, actual: T, message: str='') -> None:
         assert expected == actual, message if message is not None else ''
-
-    def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
-        """It is called after decoding capsules.
-
-        :param data: decoded data
-        :param decoded_payload_length: decoded payload length in data
-        """
-        raise NotImplementedError()
 
     def visit_after_decoding(
             self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
@@ -98,7 +90,7 @@ class PacketVisitor:
         """
         return packet
 
-    def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
+    def visit_after_encoding(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         """It is called after each packet is encoded.
 
         :param original_data: data that is decoded to the packet
@@ -111,7 +103,7 @@ class PacketVisitor:
 
                 CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
         """
-        raise NotImplementedError()
+        pass
 
 
 class _Label(Enum):
@@ -170,7 +162,7 @@ class PacketAnalyzer:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
         packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-        visitor.assert_equal(self._packet_id, type(self._packet_id)(packet.id), packet)
+        visitor.assert_equal(self._packet_id, type(self._packet_id)(packet.id), str(packet))
         if self.does_assert_data_length():
             visitor.assert_equal(len(data), context.length)
         if hasattr(packet, 'payloads'):
@@ -195,7 +187,7 @@ class PacketAnalyzer:
         data = self._codec.encode(packet)
         try:
             packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-            visitor.visit_encode_task(self._data, data, self.called_line, packet_str)
+            visitor.visit_after_encoding(self._data, data, self.called_line, packet_str)
             self._log(visitor.get_log_function(), label, packet_str)
         except AssertionError as e:
             self._retry_encoding(visitor, e, data, self.called_line)
@@ -358,7 +350,8 @@ class RakNetPacket(PacketAnalyzer):
         payload_length = 0
         for analyzer in self._children:
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
-        visitor.visit_decode_capsules(data, payload_length)
+        visitor.assert_equal(
+            len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
 
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> None:
         def action():
