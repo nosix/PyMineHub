@@ -615,4 +615,4 @@ class ValueFilter(DataCodec[T]):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()

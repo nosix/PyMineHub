@@ -46,4 +46,4 @@ if __name__ == '__main__':
     factory = PacketFactory(_packet_specs)
 
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()

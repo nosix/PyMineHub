@@ -120,4 +120,4 @@ VAR_SIGNED_INT_DATA = _VarIntData(unsigned=False)
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()

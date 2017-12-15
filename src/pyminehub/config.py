@@ -53,4 +53,4 @@ reset()
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()

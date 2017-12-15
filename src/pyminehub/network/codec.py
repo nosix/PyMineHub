@@ -288,4 +288,4 @@ if __name__ == '__main__':
     _packet_codec = Codec(ID, _packet_factory, _data_codecs)
 
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()

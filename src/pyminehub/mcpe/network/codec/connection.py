@@ -91,4 +91,4 @@ connection_packet_codec = Codec(ConnectionPacketID, connection_packet_factory, _
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest_result = doctest.testmod()
