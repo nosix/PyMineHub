@@ -219,18 +219,33 @@ class EncodedData:
 
 class ProtocolTestCase(TestCase):
 
+    _JSON_IMPORT_KEY = '__import__'
+
     def __init__(self, method_name: str) -> None:
         super().__init__(method_name)
         self.values = {}  # type: Dict[str, Any]
 
-    def _get_file_name(self) -> str:
+    def _get_file_name(self, test_name: str) -> str:
         module_file_name = inspect.getmodule(self).__file__
-        return '{}/{}/{}.{}'.format(dirname(module_file_name), 'protocol_data', self._testMethodName, 'json')
+        return '{}/{}/{}.{}'.format(dirname(module_file_name), 'protocol_data', test_name, 'json')
+
+    def _import_json(self, test_name_list: List[str]) -> Dict:
+        data_json = {}
+        for test_name in test_name_list:
+            with open(self._get_file_name(test_name), 'r') as file:
+                data_json.update(json.load(file))
+        return data_json
 
     def setUp(self) -> None:
+        if self._testMethodName not in type(self).__dict__:
+            self.skipTest('This test is defined in super class.')
         self.proxy = _ProtocolProxy()
-        with open(self._get_file_name(), 'r') as file:
-            self.data = _TestData(self, json.load(file))
+        with open(self._get_file_name(self._testMethodName), 'r') as file:
+            data_json = json.load(file)
+            if self._JSON_IMPORT_KEY in data_json:
+                data_json.update(self._import_json(data_json[self._JSON_IMPORT_KEY]))
+                del data_json[self._JSON_IMPORT_KEY]
+            self.data = _TestData(self, data_json)
 
     def tearDown(self) -> None:
         self.proxy = None
