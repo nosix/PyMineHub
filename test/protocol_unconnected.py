@@ -69,15 +69,17 @@ class UnconnectedTestCase(ProtocolTestCase):
         })
         received_data = self.proxy.send(
             EncodedData(self.data.that_is('new_incoming_connection')).is_(
-                RakNetPacket().that_has(
-                    Capsule().that_has(
-                        ConnectionPacket()
+                RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+                    Capsule(CapsuleID.UNRELIABLE).that_has(
+                        ConnectionPacket(ConnectionPacketID.CONNECTED_PONG)
                     ),
-                    Capsule().that_has(
-                        ConnectionPacket(server_time_since_start=self.values['server_time_since_start'])
+                    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+                        ConnectionPacket(
+                            ConnectionPacketID.NEW_INCOMING_CONNECTION,
+                            server_time_since_start=self.values['server_time_since_start'])
                     ),
-                    Capsule().that_has(
-                        ConnectionPacket()
+                    Capsule(CapsuleID.UNRELIABLE).that_has(
+                        ConnectionPacket(ConnectionPacketID.CONNECTED_PING)
                     )
                 )),
             from_=self._CLIENT_ADDRESS[0])

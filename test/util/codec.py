@@ -68,6 +68,9 @@ class PacketVisitor:
         """
         return lambda *args: None
 
+    def assert_equal(self, expected: T, actual: T, message: Optional[str]=None) -> None:
+        assert expected == actual, message if message is not None else ''
+
     def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
         """It is called after decoding capsules.
 
@@ -76,27 +79,24 @@ class PacketVisitor:
         """
         raise NotImplementedError()
 
-    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-                          context: PacketCodecContext, children_num: int, *args, **kwargs) -> Packet:
+    def visit_after_decoding(
+            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
         """It is called after each packet is decodec.
-        
-        :param packet_id_cls: it represents the type of decoded packet
-        :param packet: decoding result packet
+
         :param data: decoded data
-        :param called: line number that constructor of PacketAnalyzer is called in
+        :param packet_id: packet ID specified by PacketAnalyzer constructor argument
+        :param packet: decoding result packet
         :param packet_str: information of the packet
             Example:
                 File "./codec_login_logout.py", line 12, in test_login_logout_c00
                   ConnectionPacket(ConnectionPacketID.CONNECTION_REQUEST)
 
                 CONNECTION_REQUEST(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, ...
-        :param context: context at the end of decoding
-        :param children_num: number of child nodes
-        :param args: return value that is gotten from get_extra_args method in PacketAnalyzer
+        :param called: line number that constructor of PacketAnalyzer is called in
         :param kwargs: return value that is gotten from get_extra_kwargs method in PacketAnalyzer
         :return: updated decoding result packet
         """
-        raise NotImplementedError()
+        return packet
 
     def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         """It is called after each packet is encoded.
@@ -122,18 +122,15 @@ class _Label(Enum):
 
 class PacketAnalyzer:
 
-    def __init__(self, packet_id_cls: PacketID, codec: Codec, stack_depth=3) -> None:
+    def __init__(self, packet_id: PacketID, codec: Codec, stack_depth=3) -> None:
         called_line = traceback.format_stack()[-stack_depth]
         m = re.search(r'File "(.+)/.+\.py"', called_line)
         self.called_line = called_line.replace(m[1], '.', 1)
         self._packet_type = self.__class__.__name__
-        self._packet_id_cls = packet_id_cls
+        self._packet_id = packet_id
         self._codec = codec
         self._data = None
         self._packet = None
-
-    def get_extra_args(self) -> tuple:
-        return ()
 
     def get_extra_kwargs(self) -> dict:
         return {}
@@ -149,7 +146,15 @@ class PacketAnalyzer:
     def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, T]:
         return {}
 
+    def does_assert_data_length(self) -> bool:
+        """Return True if PacketAnalyzer asserts equal length of data after decoding."""
+        return True
+
     def does_retry_encoding(self) -> bool:
+        """Return True if AacketAnalyzer retry encoding when encoding result does not match original encoded data.
+
+        When retrying, the encoded data is decoded and the decoded data is re-encoded.
+        """
         return False
 
     def _record_decoded(self, data: bytes, packet: Packet) -> None:
@@ -165,9 +170,13 @@ class PacketAnalyzer:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
         packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-        packet = visitor.visit_decode_task(
-            self._packet_id_cls, packet, data, self.called_line, packet_str, context, len(list(self.get_children())),
-            *self.get_extra_args(), **self.get_extra_kwargs())
+        visitor.assert_equal(self._packet_id, type(self._packet_id)(packet.id), packet)
+        if self.does_assert_data_length():
+            visitor.assert_equal(len(data), context.length)
+        if hasattr(packet, 'payloads'):
+            visitor.assert_equal(len(list(self.get_children())), len(packet.payloads))
+        packet = visitor.visit_after_decoding(
+            data, self._packet_id, packet, packet_str, self.called_line, **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
         for payload, child in self.get_children(packet):
             # noinspection PyTypeChecker
@@ -227,8 +236,8 @@ class PacketAnalyzer:
 
 class GamePacket(PacketAnalyzer):
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(GamePacketID, game_packet_codec)
+    def __init__(self, packet_id: GamePacketID, *args, **kwargs) -> None:
+        super().__init__(packet_id, game_packet_codec)
         self._args = args
         self._kwargs = kwargs
 
@@ -241,8 +250,8 @@ class GamePacket(PacketAnalyzer):
 
 class ConnectionPacket(PacketAnalyzer):
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(ConnectionPacketID, connection_packet_codec)
+    def __init__(self, packet_id: ConnectionPacketID, *args, **kwargs) -> None:
+        super().__init__(packet_id, connection_packet_codec)
         self._args = args
         self._kwargs = kwargs
 
@@ -256,11 +265,8 @@ class ConnectionPacket(PacketAnalyzer):
 class Batch(PacketAnalyzer):
 
     def __init__(self) -> None:
-        super().__init__(ConnectionPacketID, connection_packet_codec)
+        super().__init__(ConnectionPacketID.BATCH, connection_packet_codec)
         self._children = []
-
-    def get_extra_args(self) -> tuple:
-        return ConnectionPacketID.BATCH,
 
     def that_has(self, *game_packet: GamePacket):
         self._children.extend(game_packet)
@@ -286,8 +292,8 @@ class Batch(PacketAnalyzer):
 
 class Capsule(PacketAnalyzer):
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(CapsuleID, raknet_capsule_codec)
+    def __init__(self, packet_id: CapsuleID, *args, **kwargs) -> None:
+        super().__init__(packet_id, raknet_capsule_codec)
         self._args = args
         self._kwargs = kwargs
         self._child = None
@@ -315,11 +321,14 @@ class Capsule(PacketAnalyzer):
     def does_retry_encoding(self) -> bool:
         return True
 
+    def does_assert_data_length(self) -> bool:
+        return False
+
 
 class RakNetPacket(PacketAnalyzer):
 
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(RakNetPacketID, raknet_packet_codec)
+    def __init__(self, packet_id: RakNetPacketID, *args, **kwargs) -> None:
+        super().__init__(packet_id, raknet_packet_codec)
         self._args = args
         self._kwargs = kwargs
         self._children = []

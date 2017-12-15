@@ -112,8 +112,8 @@ class _PacketReplacer(PacketVisitor):
         assert len(data) == decoded_payload_length,\
             '{} != {} when decoding for replacing'.format(len(data), decoded_payload_length)
 
-    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-                          context: PacketCodecContext, children_num: int, *args, **kwargs) -> Packet:
+    def visit_after_decoding(
+            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
@@ -137,16 +137,6 @@ class _PacketCollector(PacketVisitor):
         self._test_case.assertEqual(
             len(data), decoded_payload_length, '  when decoding {} data'.format(self._context.get_name()))
 
-    def _test_decoded_result(
-            self, packet_id_cls: PacketID, packet: Packet, data: bytes,
-            context: PacketCodecContext, children_num: int, packet_id: PacketID) -> None:
-        self._test_case.assertEqual(
-            packet_id, packet_id_cls(packet.id), '  when decoding {} data'.format(self._context.get_name()))
-        if packet_id_cls != CapsuleID:
-            self._test_case.assertEqual(len(data), context.length)
-        if hasattr(packet, 'payloads'):
-            self._test_case.assertEqual(children_num, len(packet.payloads))
-
     def _replace_dynamic_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
         dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
         dynamic_values = dict((key, getattr(packet, key)) for key, value in dynamic_args.items())
@@ -164,10 +154,9 @@ class _PacketCollector(PacketVisitor):
             return packet
 
     # noinspection PyMethodOverriding
-    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-                          context: PacketCodecContext, children_num: int, packet_id: PacketID, **kwargs) -> Packet:
+    def visit_after_decoding(
+            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
         """Collect packets whose attributes is replaced with kwargs."""
-        self._test_decoded_result(packet_id_cls, packet, data, context, children_num, packet_id)
         tmp_packet = self._replace_dynamic_values(packet, kwargs)
         tmp_packet = self._replace_payload(tmp_packet)
         tmp_packet = self._context.replace_values(tmp_packet, kwargs)

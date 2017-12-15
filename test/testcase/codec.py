@@ -48,19 +48,12 @@ class PacketAssertion(PacketVisitor):
     def get_log_function(self) -> Callable[..., None]:
         return _logger.info
 
+    def assert_equal(self, expected: T, actual: T, message: Optional[str]=None) -> None:
+        self._test_case.assertEqual(expected, actual, message)
+
     def visit_decode_capsules(self, data: bytes, decoded_payload_length: int) -> None:
         self._test_case.assertEqual(
             len(data), decoded_payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
-
-    # noinspection PyMethodOverriding
-    def visit_decode_task(self, packet_id_cls: PacketID, packet: Packet, data: bytes, called: str, packet_str: str,
-                          context: PacketCodecContext, children_num: int, packet_id: PacketID) -> Packet:
-        self._test_case.assertEqual(packet_id, packet_id_cls(packet.id), packet)
-        if packet_id_cls != CapsuleID:
-            self._test_case.assertEqual(len(data), context.length)
-        if hasattr(packet, 'payloads'):
-            self._test_case.assertEqual(children_num, len(packet.payloads))
-        return packet
 
     def visit_encode_task(self, original_data: bytes, encoded_data: bytes, called: str, packet_str: str) -> None:
         packet_info = '\n{}\n  {}'.format(called, packet_str)
