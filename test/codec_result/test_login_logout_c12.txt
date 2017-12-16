@@ -11,7 +11,7 @@ WARNING:BATCH(id=254, payloads=(b'E\x00\x00\x10',))
 WARNING:RELIABLE_ORDERED(id=96, payload_length=136, reliable_message_num=14, message_ordering_index=4, message_ordering_chanel=0, payload=[17 bytes])
   -> 6000880e000004000000fe7801010500faff0445000010013d005a
   File "./codec_login_logout.py", line 213, in test_login_logout_c12
-    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
 
 WARNING:CUSTOM_PACKET_4(id=132, packet_sequence_num=18, payload=[27 bytes])
   -> 841200006000880e000004000000fe7801010500faff0445000010013d005a

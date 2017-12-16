@@ -4,7 +4,7 @@ from typing import Callable, Set
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.packet import Packet
-from pyminehub.raknet.codec import capsule_codec
+from pyminehub.raknet.codec import raknet_frame_codec
 
 
 class SendQueue:
@@ -23,8 +23,8 @@ class SendQueue:
     def _get_resend_time_in_future() -> int:
         return time.time() + get_value(ConfigKey.RESEND_TIME)
 
-    def push(self, capsule: Packet, send_time_in_future=0) -> None:
-        self._queue.put_nowait((self._get_current_time() + send_time_in_future, capsule))
+    def push(self, frame: Packet, send_time_in_future=0) -> None:
+        self._queue.put_nowait((self._get_current_time() + send_time_in_future, frame))
 
     def discard(self, reliable_message_num: int) -> None:
         self._messages_to_be_discarded.add(reliable_message_num)
@@ -32,16 +32,16 @@ class SendQueue:
     def send(self) -> None:
         buffer = bytearray()
         while not self._queue.empty():
-            send_time, capsule = self._queue.get_nowait()
+            send_time, frame = self._queue.get_nowait()
             if send_time > self._get_current_time():
-                self._queue.put_nowait((send_time, capsule))
+                self._queue.put_nowait((send_time, frame))
                 break
-            if hasattr(capsule, 'reliable_message_num'):
-                if capsule.reliable_message_num in self._messages_to_be_discarded:
+            if hasattr(frame, 'reliable_message_num'):
+                if frame.reliable_message_num in self._messages_to_be_discarded:
                     continue
                 else:
-                    self._queue.put_nowait((self._get_resend_time_in_future(), capsule))
-            payload = capsule_codec.encode(capsule)
+                    self._queue.put_nowait((self._get_resend_time_in_future(), frame))
+            payload = raknet_frame_codec.encode(frame)
             # TODO: len(buffer) > self._max_payload_size
             if len(buffer) + len(payload) > self._max_payload_size:
                 self._send_frames(bytes(buffer))

@@ -23,9 +23,9 @@ from pyminehub.mcpe.network.packet import GamePacketID
 from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.network.packet import Packet, PacketID
-from pyminehub.raknet.codec import capsule_codec as raknet_capsule_codec
-from pyminehub.raknet.codec import raknet_packet_codec as raknet_packet_codec
-from pyminehub.raknet.encapsulation import CapsuleID
+from pyminehub.raknet.codec import raknet_frame_codec
+from pyminehub.raknet.codec import raknet_packet_codec
+from pyminehub.raknet.frame import RakNetFrameID
 from pyminehub.raknet.packet import RakNetPacketID
 from pyminehub.typing import T
 from util.exception import try_action
@@ -287,10 +287,10 @@ class Batch(PacketAnalyzer):
         super().print_packet(visitor)
 
 
-class Capsule(PacketAnalyzer):
+class RakNetFrame(PacketAnalyzer):
 
-    def __init__(self, packet_id: CapsuleID, *args, **kwargs) -> None:
-        super().__init__(packet_id, raknet_capsule_codec)
+    def __init__(self, packet_id: RakNetFrameID, *args, **kwargs) -> None:
+        super().__init__(packet_id, raknet_frame_codec)
         self._args = args
         self._kwargs = kwargs
         self._child = None
@@ -336,33 +336,33 @@ class RakNetPacket(PacketAnalyzer):
     def get_extra_kwargs(self) -> dict:
         return self._kwargs
 
-    def that_has(self, *capsule: Capsule):
-        self._children.extend(capsule)
+    def that_has(self, *frame: RakNetFrame):
+        self._children.extend(frame)
         return self
 
     def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
-            return iter([])  # use _decode_raknet_encapsulation
+            return iter([])  # use _decode_raknet_frame
         else:
             return iter((b'', child) for child in self._children)
 
     def _decode_raknet_packet(self, visitor: PacketVisitor, data: bytes) -> None:
         super().decode_on(visitor, data)
 
-    def _decode_raknet_encapsulation(self, visitor: PacketVisitor) -> None:
+    def _decode_raknet_frame(self, visitor: PacketVisitor) -> None:
         assert self.has_record()
         data = self._packet.payload
         payload_length = 0
         for analyzer in self._children:
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
         visitor.assert_equal_for_decoding(
-            len(data), payload_length, 'Capsule may be missing with "{}"'.format(data.hex()))
+            len(data), payload_length, 'Frame may be missing with "{}"'.format(data.hex()))
 
     def decode_on(self, visitor: PacketVisitor, data: bytes) -> None:
         def action():
             self._decode_raknet_packet(visitor, data)
             if len(self._children) > 0:
-                self._decode_raknet_encapsulation(visitor)
+                self._decode_raknet_frame(visitor)
         try_action(action, self.called_line)
 
     def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
@@ -397,11 +397,11 @@ class DecodeAgent:
         if hasattr(packet, 'payload'):
             data = bytearray(packet.payload)
             while len(data) > 0:
-                self._decode_raknet_capsule(data)
+                self._decode_raknet_frame(data)
 
-    def _decode_raknet_capsule(self, data: bytearray) -> None:
+    def _decode_raknet_frame(self, data: bytearray) -> None:
         context = PacketCodecContext()
-        packet = raknet_capsule_codec.decode(data, context)
+        packet = raknet_frame_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]
         data = bytearray(packet.payload)

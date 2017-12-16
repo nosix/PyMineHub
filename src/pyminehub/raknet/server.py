@@ -5,8 +5,8 @@ from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.network.packet import Packet
-from pyminehub.raknet.codec import raknet_packet_codec, capsule_codec
-from pyminehub.raknet.encapsulation import Reliability
+from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
+from pyminehub.raknet.frame import Reliability
 from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 from pyminehub.raknet.session import Session
 
@@ -85,15 +85,15 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
     def _process_custom_packet(self, packet: Packet, addr: Address) -> None:
         session = self._sessions[addr]
         context = PacketCodecContext()
-        capsules = []
+        frames = []
         length = 0
         while length < len(packet.payload):
             payload = packet.payload[length:]
             _logger.debug('%s', payload.hex())
-            capsules.append(capsule_codec.decode(payload, context))
+            frames.append(raknet_frame_codec.decode(payload, context))
             length += context.length
             context.clear()
-        session.capsule_received(packet.packet_sequence_num, capsules)
+        session.frame_received(packet.packet_sequence_num, frames)
 
     def _process_custom_packet_4(self, packet: Packet, addr: Address) -> None:
         self._process_custom_packet(packet, addr)

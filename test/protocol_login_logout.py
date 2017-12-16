@@ -88,12 +88,12 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
                     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+                        RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketID.PLAY_STATUS)
                             )
                         ),
-                        Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+                        RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketID.RESOURCE_PACKS_INFO)
                             )

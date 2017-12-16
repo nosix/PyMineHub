@@ -5,26 +5,26 @@ from pyminehub.network.packet import PacketID, PacketFactory
 Reliability = _NamedTuple('Reliability', [('reliable', bool), ('channel', Optional[int])])
 
 
-class CapsuleID(PacketID):
+class RakNetFrameID(PacketID):
     UNRELIABLE = 0x00
     RELIABLE = 0x40
     RELIABLE_ORDERED = 0x60
     RELIABLE_ORDERED_HAS_SPLIT = 0x70
 
 
-_capsule_specs = {
-    CapsuleID.UNRELIABLE: [
+_frame_specs = {
+    RakNetFrameID.UNRELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('payload', bytes)
     ],
-    CapsuleID.RELIABLE: [
+    RakNetFrameID.RELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('payload', bytes)
     ],
-    CapsuleID.RELIABLE_ORDERED: [
+    RakNetFrameID.RELIABLE_ORDERED: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
@@ -32,7 +32,7 @@ _capsule_specs = {
         ('message_ordering_chanel', int),
         ('payload', bytes)
     ],
-    CapsuleID.RELIABLE_ORDERED_HAS_SPLIT: [
+    RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
@@ -46,4 +46,4 @@ _capsule_specs = {
 }
 
 
-capsule_factory = PacketFactory(_capsule_specs)
+raknet_frame_factory = PacketFactory(_frame_specs)

@@ -11,7 +11,7 @@ BATCH(id=254, payloads=(b'\x15\x00\x00\xf6\x037\xe2\x03\x030',))
 RELIABLE_ORDERED(id=96, payload_length=184, reliable_message_num=35, message_ordering_index=17, message_ordering_chanel=0, payload=[23 bytes])
   -> 6000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
   File "./codec_login_logout.py", line 242, in test_login_logout_s22
-    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=34, payload=[33 bytes])
   -> 842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268

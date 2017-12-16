@@ -6,7 +6,7 @@ DISCONNECTION_NOTIFICATION(id=21)
 RELIABLE_ORDERED(id=96, payload_length=8, reliable_message_num=672, message_ordering_index=644, message_ordering_chanel=0, payload=b'\x15')
   -> 600008a002008402000015
   File "./codec_login_logout.py", line 268, in test_login_logout_s85
-    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=389, payload=b'`\x00\x08\xa0\x02\x00\x84\x02\x00\x00\x15')
   -> 84850100600008a002008402000015

@@ -49,7 +49,7 @@ class MCPEHandler(GameDataHandler):
 
         :param packet: connection packet
         :param addr: destination
-        :param reliability: encapsulation reliability
+        :param reliability: frame reliability
         """
         _logger.debug('< %s %s', addr, packet)
         self.sendto(connection_packet_codec.encode(packet), addr, reliability)

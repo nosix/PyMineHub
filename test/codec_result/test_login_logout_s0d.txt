@@ -11,7 +11,7 @@ BATCH(id=254, payloads=(b'\x1f\x00\x00\x01\x00\x00\x00\x00',))
 RELIABLE_ORDERED(id=96, payload_length=168, reliable_message_num=13, message_ordering_index=12, message_ordering_chanel=0, payload=[21 bytes])
   -> 6000a80d00000c000000fe7801010900f6ff081f00000100000000014e0029
   File "./codec_login_logout.py", line 178, in test_login_logout_s0d
-    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
 
 INVENTORY_SLOT(id=50, extra=b'\x00\x00', window_id=0, inventory_slot=0, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None))
   -> 320000000000
@@ -26,7 +26,7 @@ BATCH(id=254, payloads=(b'2\x00\x00\x00\x00\x00',))
 RELIABLE_ORDERED(id=96, payload_length=152, reliable_message_num=14, message_ordering_index=13, message_ordering_chanel=0, payload=[19 bytes])
   -> 6000980e00000d000000fe7801010700f8ff06320000000000015d0039
   File "./codec_login_logout.py", line 183, in test_login_logout_s0d
-    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
 
 CUSTOM_PACKET_4(id=132, packet_sequence_num=13, payload=[60 bytes])
   -> 840d00006000a80d00000c000000fe7801010900f6ff081f00000100000000014e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039

@@ -1,5 +1,5 @@
 from pyminehub.network.codec import *
-from pyminehub.raknet.encapsulation import CapsuleID, capsule_factory
+from pyminehub.raknet.frame import RakNetFrameID, raknet_frame_factory
 from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 
 
@@ -67,7 +67,7 @@ for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
     ]
 
 
-class _CapsulePayload(DataCodec[bytes]):
+class _FramePayload(DataCodec[bytes]):
 
     def read(self, data: bytearray, context: PacketCodecContext) -> bytes:
         payload_length = context['payload_length'] // 8
@@ -81,27 +81,27 @@ class _CapsulePayload(DataCodec[bytes]):
 
 
 _PAYLOAD_LENGTH = NamedData('payload_length', SHORT_DATA)
-_CAPSULE_PAYLOAD = _CapsulePayload()
+_FRAME_PAYLOAD = _FramePayload()
 
 
-_capsule_data_codecs = {
-    CapsuleID.UNRELIABLE: [
+_frame_data_codecs = {
+    RakNetFrameID.UNRELIABLE: [
         _PAYLOAD_LENGTH,
-        _CAPSULE_PAYLOAD
+        _FRAME_PAYLOAD
     ],
-    CapsuleID.RELIABLE: [
+    RakNetFrameID.RELIABLE: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
-        _CAPSULE_PAYLOAD
+        _FRAME_PAYLOAD
     ],
-    CapsuleID.RELIABLE_ORDERED: [
+    RakNetFrameID.RELIABLE_ORDERED: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
         BYTE_DATA,
-        _CAPSULE_PAYLOAD
+        _FRAME_PAYLOAD
     ],
-    CapsuleID.RELIABLE_ORDERED_HAS_SPLIT: [
+    RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
@@ -109,10 +109,10 @@ _capsule_data_codecs = {
         INT_DATA,
         SHORT_DATA,
         INT_DATA,
-        _CAPSULE_PAYLOAD
+        _FRAME_PAYLOAD
     ]
 }
 
 
 raknet_packet_codec = Codec(RakNetPacketID, raknet_packet_factory, _packet_data_codecs)
-capsule_codec = Codec(CapsuleID, capsule_factory, _capsule_data_codecs)
+raknet_frame_codec = Codec(RakNetFrameID, raknet_frame_factory, _frame_data_codecs)

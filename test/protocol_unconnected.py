@@ -48,13 +48,13 @@ class UnconnectedTestCase(ProtocolTestCase):
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connection_request')).is_(
                     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketID.CONNECTED_PING,
                                 ping_time_since_start=DYNAMIC
                             )
                         ),
-                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
                                 server_time_since_start=DYNAMIC
@@ -70,15 +70,15 @@ class UnconnectedTestCase(ProtocolTestCase):
         received_data = self.proxy.send(
             EncodedData(self.data.that_is('new_incoming_connection')).is_(
                 RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                    Capsule(CapsuleID.UNRELIABLE).that_has(
+                    RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                         ConnectionPacket(ConnectionPacketID.CONNECTED_PONG)
                     ),
-                    Capsule(CapsuleID.RELIABLE_ORDERED).that_has(
+                    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
                         ConnectionPacket(
                             ConnectionPacketID.NEW_INCOMING_CONNECTION,
                             server_time_since_start=self.values['server_time_since_start'])
                     ),
-                    Capsule(CapsuleID.UNRELIABLE).that_has(
+                    RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                         ConnectionPacket(ConnectionPacketID.CONNECTED_PING)
                     )
                 )),
@@ -87,7 +87,7 @@ class UnconnectedTestCase(ProtocolTestCase):
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
                     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketID.CONNECTED_PONG,
                                 pong_time_since_start=DYNAMIC
@@ -105,7 +105,7 @@ class UnconnectedTestCase(ProtocolTestCase):
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connected_ping')).is_(
                     RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        Capsule(CapsuleID.UNRELIABLE).that_has(
+                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketID.CONNECTED_PONG,
                                 ping_time_since_start=DYNAMIC,

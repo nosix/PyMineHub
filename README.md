@@ -19,10 +19,10 @@ network -> binutil
 raknet -> network
   - fragment
   - packet -> network.[address, packet]
-  - encapsulation -> .[packet]
-  - codec -> network.[codec], .[encapsulation, packet]
-  - session -> network.[packet], .[codec, encapsulation, fragment, packet, encapsulation]
-  - server -> network.[address, packet, codec], .[codec, packet, encapsulation, session]
+  - frame -> .[packet]
+  - codec -> network.[codec], .[frame, packet]
+  - session -> network.[packet], .[codec, frame, fragment, packet, frame]
+  - server -> network.[address, packet, codec], .[codec, packet, frame, session]
 mcpe
   const
   geometry -> typing

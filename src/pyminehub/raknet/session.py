@@ -4,8 +4,8 @@ from typing import List, Set, Dict, Callable
 
 from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import raknet_packet_codec
-from pyminehub.raknet.encapsulation import Reliability, CapsuleID, capsule_factory
 from pyminehub.raknet.fragment import MessageFragment
+from pyminehub.raknet.frame import Reliability, RakNetFrameID, raknet_frame_factory
 from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
 from pyminehub.raknet.queue import SendQueue
 
@@ -22,7 +22,7 @@ class Session:
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
-        self._capsule_cache = {}  # type: Dict[int, Packet]  # received packet cache
+        self._frame_cache = {}  # type: Dict[int, Packet]  # received frame cache
         self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
         self._fragment = MessageFragment()  # for split receive packet
@@ -39,49 +39,49 @@ class Session:
     def _create_send_packet(sequence_num: int, payload: bytes) -> Packet:
         return raknet_packet_factory.create(RakNetPacketID.CUSTOM_PACKET_4, sequence_num, payload)
 
-    def capsule_received(self, packet_sequence_num: int, capsules: List[Packet]) -> None:
+    def frame_received(self, packet_sequence_num: int, frames: List[Packet]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
-            self._process_capsules(packet_sequence_num, capsules)
+            self._process_frames(packet_sequence_num, frames)
             self._expected_sequence_num += 1
             self._ack_set.add(packet_sequence_num)
             self._process_cache()
         elif packet_sequence_num > self._expected_sequence_num:
-            self._capsule_cache[packet_sequence_num] = capsules
+            self._frame_cache[packet_sequence_num] = frames
             for nck_sequence_num in range(self._expected_sequence_num, packet_sequence_num):
                 self._nck_set.add(nck_sequence_num)
             self._ack_set.add(packet_sequence_num)
         else:
             _logger.warning('Packet that has old packet sequence number was received.')
-            for capsule in capsules:
-                _logger.warning('[%d] %s', packet_sequence_num, capsule)
+            for frame in frames:
+                _logger.warning('[%d] %s', packet_sequence_num, frame)
 
     def _process_cache(self) -> None:
-        while self._expected_sequence_num in self._capsule_cache:
-            capsules = self._capsule_cache.pop(self._expected_sequence_num)
-            self._process_capsules(self._expected_sequence_num, capsules)
+        while self._expected_sequence_num in self._frame_cache:
+            frames = self._frame_cache.pop(self._expected_sequence_num)
+            self._process_frames(self._expected_sequence_num, frames)
             self._expected_sequence_num += 1
 
-    def _process_capsules(self, packet_sequence_num: int, capsules: List[Packet]) -> None:
-        for capsule in capsules:
-            _logger.debug('> %d:%s', packet_sequence_num, capsule)
-            getattr(self, '_process_' + CapsuleID(capsule.id).name.lower())(capsule)
+    def _process_frames(self, packet_sequence_num: int, frames: List[Packet]) -> None:
+        for frame in frames:
+            _logger.debug('> %d:%s', packet_sequence_num, frame)
+            getattr(self, '_process_' + RakNetFrameID(frame.id).name.lower())(frame)
 
-    def _process_unreliable(self, capsule: Packet) -> None:
-        self._send_to_game_handler(capsule.payload)
+    def _process_unreliable(self, frame: Packet) -> None:
+        self._send_to_game_handler(frame.payload)
 
-    def _process_reliable(self, capsule: Packet) -> None:
-        self._send_to_game_handler(capsule.payload)
+    def _process_reliable(self, frame: Packet) -> None:
+        self._send_to_game_handler(frame.payload)
 
-    def _process_reliable_ordered(self, capsule: Packet) -> None:
-        self._send_to_game_handler(capsule.payload)
+    def _process_reliable_ordered(self, frame: Packet) -> None:
+        self._send_to_game_handler(frame.payload)
 
-    def _process_reliable_ordered_has_split(self, capsule: Packet) -> None:
+    def _process_reliable_ordered_has_split(self, frame: Packet) -> None:
         self._fragment.append(
-            capsule.split_packet_id,
-            capsule.split_packet_count,
-            capsule.split_packet_index,
-            capsule.payload)
-        payload = self._fragment.pop(capsule.split_packet_id)
+            frame.split_packet_id,
+            frame.split_packet_count,
+            frame.split_packet_index,
+            frame.payload)
+        payload = self._fragment.pop(frame.split_packet_id)
         if payload is not None:
             self._send_to_game_handler(payload)
 
@@ -144,42 +144,42 @@ class Session:
     def send_custom_packet(self, payload: bytes, reliability: Reliability) -> None:
         reliable, channel = reliability
         if channel is not None:
-            self._send_reliable_ordered_capsule(payload, channel)
+            self._send_reliable_ordered_frame(payload, channel)
         elif reliable:
-            self._send_reliable_capsule(payload)
+            self._send_reliable_frame(payload)
         else:
-            self._send_unreliable_capsule(payload)
+            self._send_unreliable_frame(payload)
 
-    def _send_reliable_ordered_capsule(self, payload: bytes, channel: int) -> None:
-        capsule = capsule_factory.create(
-            CapsuleID.RELIABLE_ORDERED,
+    def _send_reliable_ordered_frame(self, payload: bytes, channel: int) -> None:
+        frame = raknet_frame_factory.create(
+            RakNetFrameID.RELIABLE_ORDERED,
             len(payload) * 8,
             self._message_num,
             self._ordering_index[channel],
             channel,
             payload
         )
-        self._send_queue.push(capsule)
+        self._send_queue.push(frame)
         self._message_num += 1
         self._ordering_index[channel] += 1
 
-    def _send_reliable_capsule(self, payload: bytes) -> None:
-        capsule = capsule_factory.create(
-            CapsuleID.RELIABLE,
+    def _send_reliable_frame(self, payload: bytes) -> None:
+        frame = raknet_frame_factory.create(
+            RakNetFrameID.RELIABLE,
             len(payload) * 8,
             self._message_num,
             payload
         )
-        self._send_queue.push(capsule)
+        self._send_queue.push(frame)
         self._message_num += 1
 
-    def _send_unreliable_capsule(self, payload: bytes) -> None:
-        capsule = capsule_factory.create(
-            CapsuleID.UNRELIABLE,
+    def _send_unreliable_frame(self, payload: bytes) -> None:
+        frame = raknet_frame_factory.create(
+            RakNetFrameID.UNRELIABLE,
             len(payload) * 8,
             payload
         )
-        self._send_queue.push(capsule)
+        self._send_queue.push(frame)
 
     def _send_frames(self, payload: bytes) -> None:
         """Callback from SendQueue."""
