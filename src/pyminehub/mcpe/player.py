@@ -1,10 +1,16 @@
+from pkgutil import get_data
+from typing import Tuple, Dict, List, Union
+
 from pyminehub.mcpe.const import GameMode, PlayerPermission
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import PlayerData, ClientData
+from pyminehub.mcpe.value import PlayerData, ClientData, Slot
 
 PlayerID = int
 EntityUniqueID = int
 EntityRuntimeID = int
+
+
+_INVENTORY_CONTENT_ITEMS = get_data(__package__, 'inventory-content-items121.dat')
 
 
 class Player:
@@ -21,6 +27,7 @@ class Player:
         self._yaw = 358.0
         self._spawn = Vector3(512, 56, 512)
         self._permission = PlayerPermission.MEMBER
+        self._inventory_content = {}  # type: Dict[int, List[Slot]]
 
     def id(self) -> PlayerID:
         return self._player_data.xuid
@@ -53,3 +60,6 @@ class Player:
 
     def get_permission(self) -> PlayerPermission:
         return self._permission
+
+    def get_inventory_content(self, window_id: int) -> Union[Tuple[Slot, ...], bytes]:
+        return tuple(self._inventory_content[window_id]) if window_id != 121 else _INVENTORY_CONTENT_ITEMS

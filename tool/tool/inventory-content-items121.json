@@ -1,0 +1,7218 @@
+[
+  {
+    "id": 10,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 10,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 10,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 10,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 10,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 10,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 278,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 278,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 170,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 226,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 214,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 366,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 368,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 370,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 374,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 372,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 134,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 106,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 268,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 270,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 272,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 326,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 328,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 216,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 218,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 228,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 256,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 360,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 312,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 406,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 648,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 854,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 856,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 858,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 860,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 862,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 660,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 192,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 334,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 202,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 40,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 482,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 204,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 320,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 130,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 316,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 364,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 88,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 364,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 90,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 196,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 196,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 196,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 196,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 412,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 336,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 224,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 430,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 8,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 96,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 812,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 48,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 48,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 48,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 358,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 358,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 358,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 346,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 304,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 82,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 84,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 266,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 114,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 44,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 310,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 310,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 310,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 336,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 336,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 340,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 432,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 428,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 70,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 342,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 474,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 472,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 164,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 344,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 318,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 440,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 456,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 454,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 470,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 464,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 468,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 442,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 448,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 450,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 466,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 458,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 446,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 462,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 438,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 444,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 452,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 402,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 402,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 6,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 6,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 4,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 486,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 220,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 30,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 28,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 112,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 42,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 146,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 32,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 258,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 306,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 26,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 2,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 24,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 24,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 162,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 34,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 34,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 34,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 34,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 324,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 324,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 36,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 36,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 36,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 36,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 322,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 322,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 12,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 590,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 722,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 724,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 916,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 592,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 914,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 784,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 782,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 792,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 520,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 644,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 932,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 206,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 720,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 764,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 172,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 182,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 62,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 62,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 74,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 76,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 350,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 702,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 212,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 222,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 64,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 160,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 158,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 348,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 156,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 730,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 638,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 726,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 698,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 732,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 640,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 728,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 824,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 700,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 594,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 564,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 918,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 786,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 714,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 800,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 708,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 78,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 80,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 198,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 200,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 198,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 198,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 688,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 676,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 706,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 104,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 14338,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 11266,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 8194,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 9730,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 15362,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 9218,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 14850,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 11778,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 12290,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 12802,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 13314,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 13826,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 16898,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 19458,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 19970,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 17410,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 24578,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 23554,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 18946,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 17922,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 16386,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 18434,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 24066,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 8706,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 20482,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 23042,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 25090,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 25602,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 28162,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 21506,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 20994,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 22018,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 27650,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 29186,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 53250,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 53762,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 766,
+    "aux_value": 22530,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 98,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 14,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 176,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 174,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 426,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 744,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 242,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 866,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 38,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 38,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 734,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 704,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 60,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 596,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 604,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 612,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 628,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 620,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 598,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 606,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 614,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 630,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 622,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 600,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 608,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 616,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 632,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 624,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 602,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 610,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 618,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 634,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 626,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 536,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 544,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 534,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 566,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 552,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 542,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 550,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 516,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 572,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 558,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 540,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 548,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 514,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 570,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 556,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 538,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 546,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 512,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 568,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 554,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 580,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 582,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 584,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 588,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 586,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 522,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 8194,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 8706,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 9218,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 9730,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 10242,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 10754,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 11266,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 11778,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 12290,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 12802,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 13314,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 13826,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 14338,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 14850,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 15362,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 15874,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 16386,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 16898,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 17410,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 17922,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 18434,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 524,
+    "aux_value": 18946,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 692,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 664,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 718,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 518,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 748,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 8194,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 8706,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 9218,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 9730,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 10242,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 10754,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 11266,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 11778,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 12290,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 12802,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 13314,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 13826,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 14338,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 14850,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 15362,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 15874,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 16386,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 16898,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 17410,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 17922,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 746,
+    "aux_value": 18434,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 560,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 710,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 100,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 152,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 246,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 338,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 178,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 696,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 646,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 642,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 778,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 780,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 562,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 116,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 122,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 758,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 290,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 290,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 290,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 490,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 108,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 292,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 260,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 94,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 232,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 50,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 794,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 302,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 240,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 574,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 650,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 650,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 650,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 650,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 576,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 636,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 578,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 668,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 830,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 828,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 904,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 742,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 754,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 738,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 756,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 750,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 752,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 890,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 740,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 682,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 798,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 416,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 678,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 772,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 680,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 666,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 132,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 54,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 56,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 252,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 656,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 138,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 286,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 154,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 262,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 144,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 140,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 294,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 296,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 662,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 526,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 526,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 528,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 530,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 532,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 776,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 672,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 810,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 674,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 818,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 844,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 92,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 694,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 690,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 2,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 4098,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 3586,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 7682,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 6146,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 7170,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 514,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 2050,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 2562,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 6658,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 4610,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 1538,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 5634,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 5122,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 1026,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  },
+  {
+    "id": 892,
+    "aux_value": 3074,
+    "nbt": {
+      "value": "",
+      "__cls__": "bytes"
+    },
+    "place_on": [],
+    "destroy": [],
+    "__cls__": "Slot"
+  }
+]

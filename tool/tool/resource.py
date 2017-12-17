@@ -3,7 +3,10 @@ from binascii import unhexlify as unhex
 from collections import namedtuple
 from typing import Dict, Callable, Any
 
+# noinspection PyProtectedMember
+from pyminehub.mcpe.network.codec.batch import _RecipeList, _InventoryContentItems
 from pyminehub.mcpe.value import *
+from pyminehub.network.codec import PacketCodecContext
 
 _KEY_CLASS_NAME = '__cls__'
 
@@ -27,15 +30,9 @@ def _convert_to_jsonable(o):
     return o
 
 
-def dump_recipe(recipe: Tuple[Recipe], file_name: str, indent=None) -> None:
-    """For example, recipe-list.json is dumped by this."""
-    with open(file_name, 'w') as file:
-        json.dump(_convert_to_jsonable(recipe), file, indent=indent)
-
-
 def _convert_to_namedtuple(o, factory: Dict[str, Callable[..., namedtuple]]) -> Any:
     if isinstance(o, list):
-        return list(_convert_to_namedtuple(e, factory) for e in o)
+        return tuple(_convert_to_namedtuple(e, factory) for e in o)
     if isinstance(o, dict):
         o = dict((k, _convert_to_namedtuple(v, factory)) for k, v in o.items())
         try:
@@ -46,7 +43,13 @@ def _convert_to_namedtuple(o, factory: Dict[str, Callable[..., namedtuple]]) -> 
     return o
 
 
-def load_recipe(file_name: str) -> Tuple[Recipe]:
+def dump_recipe(recipe: Tuple[Recipe, ...], file_name: str, indent=None) -> None:
+    """For example, crafting-data-recipe.json is dumped by this."""
+    with open(file_name, 'w') as file:
+        json.dump(_convert_to_jsonable(recipe), file, indent=indent)
+
+
+def load_recipe(file_name: str) -> Tuple[Recipe, ...]:
     factory = {
         'Recipe': Recipe,
         'RecipeType': RecipeType,
@@ -60,3 +63,39 @@ def load_recipe(file_name: str) -> Tuple[Recipe]:
     with open(file_name, 'r') as file:
         d = json.load(file)
         return _convert_to_namedtuple(d, factory)
+
+
+def encode_recipe(recipe: Tuple[Recipe, ...], file_name: str) -> None:
+    """For example, pyminehub/mcpe/crafting-data-recipe.dat is encoded by this."""
+    data = bytearray()
+    context = PacketCodecContext()
+    # noinspection PyProtectedMember
+    _RecipeList._CODEC.write(data, recipe, context)
+    with open(file_name, 'bw') as file:
+        file.write(data)
+
+
+def dump_inventory_content(content: Tuple[Slot, ...], file_name: str, indent=None) -> None:
+    """For example, inventory-content-items121.json is dumped by this."""
+    with open(file_name, 'w') as file:
+        json.dump(_convert_to_jsonable(content), file, indent=indent)
+
+
+def load_inventory_content(file_name: str) -> Tuple[Slot, ...]:
+    factory = {
+        'Slot': Slot,
+        'bytes': lambda value: unhex(value)
+    }
+    with open(file_name, 'r') as file:
+        d = json.load(file)
+        return _convert_to_namedtuple(d, factory)
+
+
+def encode_inventory_content(content: Tuple[Slot, ...], file_name: str) -> None:
+    """For example, pyminehub/mcpe/inventory-content-items121.dat is encoded by this."""
+    data = bytearray()
+    context = PacketCodecContext()
+    # noinspection PyProtectedMember
+    _InventoryContentItems._CODEC.write(data, content, context)
+    with open(file_name, 'bw') as file:
+        file.write(data)
