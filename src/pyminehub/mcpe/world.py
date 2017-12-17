@@ -1,5 +1,9 @@
+from pkgutil import get_data
+
 from pyminehub import config
 from pyminehub.mcpe.const import GameMode, Difficulty
+
+_CRAFGING_DATA_RECIPE = get_data(__package__, 'crafting-data-recipe.dat')
 
 
 class WorldProxy:
@@ -29,3 +33,7 @@ class WorldProxy:
 
     def get_world_name(self) -> str:
         return self._name
+
+    @staticmethod
+    def get_recipe() -> bytes:
+        return _CRAFGING_DATA_RECIPE
