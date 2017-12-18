@@ -133,14 +133,7 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_logout_s0a(self):
-        assertion = EncodedData(
-            '840a000060021808000008000000fe7801013700c8ff36270000010700078080'
-            'c680808030070100002b01900104040f4d617474654d757373656c3336323026'
-            '070127030000803f1d060000004f150b386001b009000009000000fe7801012a'
-            '00d5ff2931000000240000000000000000000000000000000000000000000000'
-            '0000000000000000000000000013f1007f6000b00a00000a000000fe7801010a'
-            '00f5ff09310000780400000000050100b7'
-        ).is_(
+        assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
                 RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
                     Batch().that_has(
