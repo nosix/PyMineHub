@@ -3,10 +3,10 @@ Debug tools for codec.
 
 When debugging, execute `from util.codec import *` in REPL.
 
-decode('840200000000480000000000003d3810')
+>>> decode('840200000000480000000000003d3810')
 [0] 840200000000480000000000003d3810
-[1] CUSTOM_PACKET_4(id=132, packet_sequence_num=2, payload=b'\x00\x00H\x00\x00\x00\x00\x00\x00=8\x10')
-[2] UNRELIABLE(id=0, payload_length=72, payload=b'\x00\x00\x00\x00\x00\x00=8\x10')
+[1] CUSTOM_PACKET_4(id=132, packet_sequence_num=2, payload=b'\\x00\\x00H\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
+[2] UNRELIABLE(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
 [3] CONNECTED_PING(id=0, ping_time_since_start=4012048)
 """
 import re
