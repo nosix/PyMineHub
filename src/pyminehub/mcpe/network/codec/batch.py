@@ -186,6 +186,20 @@ _SLOT_DATA = _CompositeData(Slot, (
 _SLOTS = _VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
 
 
+class _InventoryContentItems(DataCodec[Tuple[Slot, ...]]):
+
+    _CODEC = _SLOTS
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Slot, ...]:
+        return self._CODEC.read(data, context)
+
+    def write(self, data: bytearray, value: Union[Tuple[Slot, ...], bytes], context: DataCodecContext) -> None:
+        if isinstance(value, bytes):
+            RAW_DATA.write(data, value, context)
+        else:
+            self._CODEC.write(data, value, context)
+
+
 class _MetaDataValue(DataCodec[MetaDataValue]):
 
     _DATA_CODEC_MAP = {
@@ -265,6 +279,23 @@ class _RecipeData(DataCodec[RecipeData]):
             return
         if recipe_type == RecipeType.MULTI:
             _UUID_DATA.write(data, value.uuid, context)
+
+
+class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
+
+    _CODEC = _VarListData(VAR_INT_DATA, _CompositeData(Recipe, (
+        NamedData('recipe_type', _EnumData(VAR_SIGNED_INT_DATA, RecipeType)),
+        _RecipeData()
+    )))  # type: DataCodec[Tuple[Recipe, ...]]
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Recipe, ...]:
+        return self._CODEC.read(data, context)
+
+    def write(self, data: bytearray, value: Union[Tuple[Recipe, ...], bytes], context: DataCodecContext) -> None:
+        if isinstance(value, bytes):
+            RAW_DATA.write(data, value, context)
+        else:
+            self._CODEC.write(data, value, context)
 
 
 _CHUNK_POSITION = _CompositeData(ChunkPosition, (
@@ -394,7 +425,7 @@ _game_data_codecs = {
     GamePacketID.INVENTORY_CONTENT: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
-        _VarListData(VAR_INT_DATA, _SLOT_DATA)
+        _InventoryContentItems()
     ],
     GamePacketID.MOB_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
@@ -429,10 +460,7 @@ _game_data_codecs = {
     ],
     GamePacketID.CRAFTING_DATA: [
         _HEADER_EXTRA_DATA,
-        _VarListData(VAR_INT_DATA, _CompositeData(Recipe, (
-            NamedData('recipe_type', _EnumData(VAR_SIGNED_INT_DATA, RecipeType)),
-            _RecipeData()
-        ))),
+        _RecipeList(),
         BOOL_DATA
     ],
     GamePacketID.REQUEST_CHUNK_RADIUS: [

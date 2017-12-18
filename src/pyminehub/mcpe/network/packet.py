@@ -271,7 +271,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('window_id', int),
-        ('items', Tuple[Slot, ...])
+        ('items', Union[Tuple[Slot, ...], bytes])  # bytes data is encoded items
     ],
     GamePacketID.MOB_EQUIPMENT: [
         ('id', int),
@@ -298,7 +298,7 @@ _game_packet_specs = {
     GamePacketID.CRAFTING_DATA: [
         ('id', int),
         ('extra', bytes),
-        ('recipe', Recipe),
+        ('recipe', Union[Tuple[Recipe, ...], bytes]),  # bytes data is encoded recipes
         ('clean_recipes', bool)
     ],
     GamePacketID.REQUEST_CHUNK_RADIUS: [
