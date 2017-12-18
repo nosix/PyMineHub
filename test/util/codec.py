@@ -25,6 +25,7 @@ from pyminehub.network.codec import PacketCodecContext
 from pyminehub.network.packet import Packet, PacketID
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
+from pyminehub.raknet.fragment import MessageFragment
 from pyminehub.raknet.frame import RakNetFrameID
 from pyminehub.raknet.packet import RakNetPacketID
 from pyminehub.typing import T
@@ -48,8 +49,8 @@ def get_packet_str(packet: Packet, bytes_mask_threshold: Optional[int]=16) -> st
             return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
 
         packet_str = str(packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
-        packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
         packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(_summarize_bytes, packet_str)
+        packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
     else:
         packet_str = str(packet)
     return packet_str
@@ -375,19 +376,29 @@ class RakNetPacket(PacketAnalyzer):
 class DecodeAgent:
 
     def __init__(self) -> None:
-        self._data = None
+        self._fragment = MessageFragment()
+        self._data = []
         self._packet = []
+        self._decode_func = [
+            self._decode_raknet_packet,
+            self._decode_raknet_frame,
+            self._decode_connection_packet,
+            self._decode_game_packet]
 
     def __repr__(self) -> str:
-        items = [self._data]
+        items = list(self._data)
         items.extend(get_packet_str(p) for p in self._packet)
         return '\n'.join('[{}] {}'.format(i, item) for i, item in enumerate(items))
 
     def __getitem__(self, index: int) -> Packet:
-        if index == 0:
-            return self._data
+        if index < len(self._data):
+            return self._data[index]
         else:
-            return self._packet[index - 1]
+            return self._packet[index - len(self._data)]
+
+    def clear(self):
+        self.__init__()
+        return self
 
     def _decode_raknet_packet(self, data: bytearray) -> None:
         context = PacketCodecContext()
@@ -404,8 +415,19 @@ class DecodeAgent:
         packet = raknet_frame_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]
-        data = bytearray(packet.payload)
-        self._decode_connection_packet(data)
+
+        if RakNetFrameID(packet.id) == RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT:
+            self._fragment.append(
+                packet.split_packet_id, packet.split_packet_count, packet.split_packet_index, packet.payload)
+            payload = self._fragment.pop(packet.split_packet_id)
+        else:
+            payload = packet.payload
+
+        if payload is not None:
+            data = bytearray(payload)
+            self._decode_connection_packet(data)
+        else:
+            print('FRAGMENT APPENDED')
 
     def _decode_connection_packet(self, data: bytearray) -> None:
         context = PacketCodecContext()
@@ -423,17 +445,24 @@ class DecodeAgent:
         self._packet.append(packet)
         del data[:context.length]
 
-    def decode(self, data: str):
-        self._data = data
+    def decode(self, data: str, depth: int=0):
+        self._data.append(data)
         data = bytearray(unhex(data))
-        self._decode_raknet_packet(data)
+        self._decode_func[depth](data)
         if len(data) > 0:
             print(data.hex())
         return self
 
 
-def decode(data: str) -> DecodeAgent:
-    return DecodeAgent().decode(data)
+agent = DecodeAgent()
+
+
+def decode(data: str, depth: int=0) -> DecodeAgent:
+    return agent.decode(data, depth)
+
+
+def clear() -> DecodeAgent:
+    return agent.clear()
 
 
 if __name__ == '__main__':
