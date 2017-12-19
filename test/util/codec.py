@@ -307,10 +307,15 @@ class RakNetFrame(PacketAnalyzer):
         return self
 
     def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
-        if packet is not None:
-            return iter([(packet.payload, self._child)])
-        else:
+        if self._child is None:
+            return iter([])
+        if packet is None:
             return iter([(b'', self._child)])
+        payload = packet.payload
+        if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
+            # payload = visitor.append_fragment(packet)
+            pass  # TODO support fragmetn
+        return iter([(payload if payload is not None else b'', self._child)])
 
     def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
         assert len(payloads) == 1
