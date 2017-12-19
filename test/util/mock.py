@@ -1,8 +1,13 @@
 import asyncio
 import socket
 from asyncio import subprocess
-from typing import List, Tuple
+from collections import deque
+from typing import List, Tuple, Optional, Deque
 
+from pyminehub.mcpe.const import GameMode, Difficulty
+from pyminehub.mcpe.world import WorldProxy
+from pyminehub.mcpe.world.action import Action, ActionType
+from pyminehub.mcpe.world.event import event_factory, EventType, Event
 from pyminehub.network.address import Address
 
 
@@ -172,3 +177,41 @@ class MockTransport(asyncio.transports.DatagramTransport):
 
     def get_protocol(self):
         pass
+
+
+class MockWorldProxy(WorldProxy):
+
+    def __init__(self) -> None:
+        self._event_queue = deque()  # type: Deque[Event]
+
+    def perform(self, action: Action) -> None:
+        if ActionType(action.id) == ActionType.LOGIN_PLAYER:
+            self._event_queue.append(event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
+            return
+        if ActionType(action.id) == ActionType.UNKNOWN1:
+            self._event_queue.append(event_factory.create(EventType.UNKNOWN1, action.player_id))
+            return
+
+    def next_event(self) -> Optional[Event]:
+        try:
+            return self._event_queue.popleft()
+        except IndexError:
+            return None
+
+    def get_seed(self) -> int:
+        return -1
+
+    def get_game_mode(self) -> GameMode:
+        return GameMode.SURVIVAL
+
+    def get_difficulty(self) -> Difficulty:
+        return Difficulty.NORMAL
+
+    def get_rain_level(self) -> float:
+        return 0.0
+
+    def get_lightning_level(self) -> float:
+        return 0.0
+
+    def get_world_name(self) -> str:
+        return 'PyMineHub Server'
