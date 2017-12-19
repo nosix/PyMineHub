@@ -24,6 +24,9 @@ class WorldProxy:
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
             self._event_queue.append(event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
+            return
+        if ActionType(action.id) == ActionType.UNKNOWN1:
+            self._event_queue.append(event_factory.create(EventType.UNKNOWN1, action.player_id))
 
     def next_event(self) -> Optional[Event]:
         try:

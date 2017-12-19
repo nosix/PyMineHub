@@ -11,6 +11,17 @@ from pyminehub.raknet.queue import SendQueue
 _logger = getLogger(__name__)
 
 
+def _create_send_packet(sequence_num: int, payload: bytes) -> RakNetPacket:
+    return raknet_packet_factory.create(RakNetPacketType.CUSTOM_PACKET_4, sequence_num, payload)
+
+
+_PACKET_HEADER_SIZE = (
+    20 +  # IP header size  # TODO why does need?
+    8 +  # UDP header size  # TODO why does need?
+    8 +  # RakNet weird ?   # TODO why does need?
+    len(raknet_packet_codec.encode(_create_send_packet(0, b''))))
+
+
 class Session:
 
     def __init__(self,
@@ -29,7 +40,7 @@ class Session:
         self._resend_cache = {}  # type: Dict[int, RakNetPacket]  # send packets waiting for ACK / NCK
         self._message_num = 0  # type: int  # for send reliable packet
         self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
-        self._send_queue = SendQueue(mtu_size - self._get_packet_header_size(), self._send_frames)
+        self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frames)
 
     def _get_packet_header_size(self) -> int:
         return len(raknet_packet_codec.encode(self._create_send_packet(0, b'')))
@@ -182,7 +193,7 @@ class Session:
 
     def _send_frames(self, payload: bytes) -> None:
         """Callback from SendQueue."""
-        packet = self._create_send_packet(self._sequence_num, payload)
+        packet = _create_send_packet(self._sequence_num, payload)
         self._resend_cache[packet.packet_sequence_num] = packet
         self._sequence_num += 1
         self._send_to_client(packet)

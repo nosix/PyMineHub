@@ -10,18 +10,15 @@ from pyminehub.raknet import Reliability
 _RELIABILITY_CHANEL_DEFAULT = Reliability(True, 0)
 
 
+def _init_reliability(reliabilities: Dict[GamePacketType, Reliability]) -> Dict[GamePacketType, Reliability]:
+    d = defaultdict(lambda: _RELIABILITY_CHANEL_DEFAULT)
+    d.update(reliabilities)
+    return d
+
+
 class _BatchQueue:
 
-    _RELIABILITY = {
-        GamePacketType.PLAY_STATUS: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.RESOURCE_PACKS_INFO: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.RESOURCE_PACK_STACK: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.START_GAME: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.SET_TIME: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.UPDATE_ATTRIBUTES: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.AVAILABLE_COMMANDS: _RELIABILITY_CHANEL_DEFAULT,
-        GamePacketType.ADVENTURE_SETTINGS: _RELIABILITY_CHANEL_DEFAULT
-    }
+    _RELIABILITY = _init_reliability({})
 
     def __init__(self) -> None:
         self._packets = []  # type: List[Tuple[Reliability, GamePacket]]
