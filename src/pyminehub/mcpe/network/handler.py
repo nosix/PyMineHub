@@ -28,13 +28,13 @@ class MCPEHandler(GameDataHandler):
     _INTERNAL_ADDRESSES = \
         (to_packet_format(('127.0.0.1', 0)),) + tuple(to_packet_format(('0.0.0.0', 0)) for _ in range(19))
 
-    def __init__(self) -> None:
+    def __init__(self, world: WorldProxy) -> None:
+        self._world = world
         self._start_time = time.time()
         self._ping_time = {}  # type: Dict[Address, int]
         self._accepted_time = {}  # type: Dict[Address, int]
         self._players = {}  # type: Dict[Address, Player]
         self._addrs = {}  # type: Dict[PlayerID, Address]
-        self._world = WorldProxy()
         self._queue = GamePacketQueue(self._send_connection_packet)
 
     # GameDataHandler interface methods
