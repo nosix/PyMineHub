@@ -119,14 +119,20 @@ class _Label(Enum):
 class PacketAnalyzer:
 
     def __init__(self, packet_id: ValueType, codec: Codec, stack_depth=3) -> None:
-        called_line = traceback.format_stack()[-stack_depth]
-        m = re.search(r'File "(.+)/.+\.py"', called_line)
-        self.called_line = called_line.replace(m[1], '.', 1)
+        self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
         self._packet_type = self.__class__.__name__
         self._packet_id = packet_id
         self._codec = codec
         self._data = None
         self._packet = None
+
+    @staticmethod
+    def _mask_path(called_line: str) -> str:
+        m = re.search(r'File "(.+)/.+\.py"', called_line)
+        return called_line.replace(m[1], '.', 1)
+
+    def get_called_line(self) -> str:
+        return self._called_line
 
     def get_extra_kwargs(self) -> dict:
         return {}
@@ -172,7 +178,7 @@ class PacketAnalyzer:
         if hasattr(packet, 'payloads'):
             visitor.assert_equal_for_decoding(len(list(self.get_children())), len(packet.payloads))
         packet = visitor.visit_after_decoding(
-            data, self._packet_id, packet, packet_str, self.called_line, **self.get_extra_kwargs())
+            data, self._packet_id, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
         for payload, child in self.get_children(packet):
             # noinspection PyTypeChecker
@@ -191,13 +197,13 @@ class PacketAnalyzer:
         data = self._codec.encode(packet)
         try:
             packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-            packet_info = '\n{}\n  {}'.format(self.called_line, packet_str)
+            packet_info = '\n{}\n  {}'.format(self.get_called_line(), packet_str)
             visitor.assert_equal_for_encoding(self._data.hex(), data.hex(), packet_info)
-            visitor.visit_after_encoding(packet, data, packet_str, self.called_line)
+            visitor.visit_after_encoding(packet, data, packet_str, self.get_called_line())
             self._log(visitor.get_log_function(), label, packet_str)
             return data
         except AssertionError as e:
-            return self._retry_encoding(visitor, e, data, self.called_line)
+            return self._retry_encoding(visitor, e, data, self.get_called_line())
 
     def _encode_children(self, visitor: PacketVisitor, label: _Label) -> Generator[bytes, None, None]:
         """Override if there are child elements."""
@@ -219,12 +225,12 @@ class PacketAnalyzer:
         # noinspection PyUnresolvedReferences
         child = method.__self__
         packet_info = '  {} {}'.format(self._packet_type, self._packet)
-        return try_action(lambda: method(visitor, *args), child.called_line, packet_info)
+        return try_action(lambda: method(visitor, *args), child.get_called_line(), packet_info)
 
     def _log(self, log: Callable[..., None], label: _Label, packet_str: str) -> None:
         if label is not _Label.HIDE:
             title = '' if label is _Label.NONE else label.name + ':'
-            log('%s%s\n  -> %s\n%s', title, packet_str, self._data.hex(), self.called_line)
+            log('%s%s\n  -> %s\n%s', title, packet_str, self._data.hex(), self.get_called_line())
 
     def print_packet(self, visitor: PacketVisitor) -> None:
         self._log(visitor.get_log_function(),
@@ -369,7 +375,7 @@ class RakNetPacket(PacketAnalyzer):
             self._decode_raknet_packet(visitor, data)
             if len(self._children) > 0:
                 self._decode_raknet_frame(visitor)
-        try_action(action, self.called_line)
+        try_action(action, self.get_called_line())
 
     def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
         return {'payload': b''.join(payloads)}
