@@ -130,7 +130,7 @@ class MCPEHandler(GameDataHandler):
             try:
                 getattr(self, '_process_' + GamePacketType(packet.id).name.lower())(packet, addr)
             except PlayerSessionNotFound as exc:
-                _logger.info('{} player is not logged in.', exc)
+                _logger.info('Player is not logged in. (key=%s)', exc)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:
         player = self._get_player_session(addr)
