@@ -125,7 +125,7 @@ class MCPEHandler(GameDataHandler):
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:  # TODO does need?
             res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
             self._queue.send_immediately(res_packet, addr)
-        self._start_game(addr)
+        # self._start_game(addr)
 
     def _start_game(self, addr: Address) -> None:
         player = self._get_player_session(addr)
