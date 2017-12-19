@@ -4,16 +4,15 @@ from typing import Callable, Dict, List
 
 from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, Dimension, Generator
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
-from pyminehub.mcpe.network.packet import ConnectionPacketType, connection_packet_factory
+from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
 from pyminehub.mcpe.network.packet import EXTRA_DATA
-from pyminehub.mcpe.network.packet import GamePacketType, game_packet_factory
+from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.player import Player
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import Reliability, GameDataHandler
 from pyminehub.typevar import T
-from pyminehub.value import ValueObject
 
 _logger = getLogger(__name__)
 
@@ -45,7 +44,7 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('> %s %s', addr, packet)
         getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
 
-    def _send_connection_packet(self, packet: ValueObject, addr: Address, reliability: Reliability) -> None:
+    def _send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
         """Send connection packet to specified address.
 
         :param packet: connection packet
@@ -63,18 +62,18 @@ class MCPEHandler(GameDataHandler):
     def _foreach_players(self, action: Callable[[Player], T]) -> List[T]:
         return list(action(player) for player in self._players)
 
-    def _process_connected_ping(self, packet: ValueObject, addr: Address) -> None:
+    def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
         res_packet = connection_packet_factory.create(
             ConnectionPacketType.CONNECTED_PONG,
             packet.ping_time_since_start,
             self._get_current_time())
         self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
-    def _process_connected_pong(self, packet: ValueObject, addr: Address) -> None:
+    def _process_connected_pong(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.ping_time_since_start == self._ping_time[addr]:
             del self._ping_time[addr]
 
-    def _process_connection_request(self, packet: ValueObject, addr: Address) -> None:
+    def _process_connection_request(self, packet: ConnectionPacket, addr: Address) -> None:
         self._ping_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
             ConnectionPacketType.CONNECTED_PING,
@@ -91,14 +90,14 @@ class MCPEHandler(GameDataHandler):
             self._accepted_time[addr])
         self._send_connection_packet(res_packet, addr, Reliability(False, None))
 
-    def _process_new_incoming_connection(self, packet: ValueObject, addr: Address) -> None:
+    def _process_new_incoming_connection(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.server_time_since_start != self._accepted_time[addr]:
             _logger.warning('The packet of new incoming connection has invalid time. (expected:%d, actual: %d)',
                             self._accepted_time[addr], packet.server_time_since_start)
             return
         self._players[addr] = Player()
 
-    def _process_batch(self, packet: ValueObject, addr: Address) -> None:
+    def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
         for data in packet.payloads:
             _logger.debug('%s [%d] %s', addr, len(data), data.hex())
             packet = game_packet_codec.decode(data)
@@ -108,7 +107,7 @@ class MCPEHandler(GameDataHandler):
             except PlayerSessionNotFound as exc:
                 _logger.info('{} player is not logged in.', exc)
 
-    def _process_login(self, packet: ValueObject, addr: Address) -> None:
+    def _process_login(self, packet: GamePacket, addr: Address) -> None:
         player = self._get_player_session(addr)
         player_data = packet.connection_request.get_player_data()
         client_data = packet.connection_request.get_client_data()
@@ -120,7 +119,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
         self._queue.send_immediately(res_packet, addr)
 
-    def _process_resource_pack_client_response(self, packet: ValueObject, addr: Address) -> None:
+    def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:  # TODO does need?

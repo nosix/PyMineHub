@@ -37,7 +37,7 @@ mcpe
       - batch -> typevar, mcpe.network.[packet], .[common]
       - connection -> config, mcpe.network.[packet], .[common]
     - queue -> raknet, network.[address], .[packet, codec]
-    - handler -> typevar, value, raknet, network.[address], mcpe.[const, player, world], .[codec, packet, queue]
+    - handler -> typevar, raknet, network.[address], mcpe.[const, player, world], .[codec, packet, queue]
   server -> raknet, .[network]
 
 - : Hidden from outside modules
