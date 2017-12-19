@@ -29,7 +29,7 @@ class Player:
         self._permission = PlayerPermission.MEMBER
         self._inventory_content = {}  # type: Dict[int, List[Slot]]
 
-    def id(self) -> PlayerID:
+    def get_id(self) -> PlayerID:
         return self._player_data.xuid
 
     def login(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:

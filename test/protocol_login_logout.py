@@ -1,4 +1,5 @@
 from protocol_unconnected import UnconnectedTestCase
+from pyminehub.config import set_config
 from testcase.protocol import *
 
 
@@ -7,6 +8,10 @@ class LoginLogoutTestCase(UnconnectedTestCase):
     _CLIENT_ADDRESS = [
         ('192.168.179.2', 58985)
     ]
+
+    def setUp(self) -> None:
+        set_config(seed=-1)
+        super().setUp()
 
     def test_login(self):
         self.test_connection_request()
@@ -124,6 +129,48 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 EncodedData(self.data.that_is_response_of('resource_pack_client_response')).is_(
                     RakNetPacket(RakNetPacketType.ACK)
                 ),
+            ]
+        })
+        received_data = self.proxy.next_moment()
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
+                # 05
+                EncodedData(self.data.that_is_response_of('start_game')).is_(
+                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetFrame(
+                            RakNetFrameType.RELIABLE_ORDERED,
+                            payload_length=DYNAMIC
+                        ).that_has(
+                            Batch().that_has(
+                                GamePacket(
+                                    GamePacketType.START_GAME,
+                                    time=DYNAMIC,
+                                    world_name='PyMineHub Server'
+                                )
+                            )
+                        ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
+                                GamePacket(GamePacketType.SET_TIME)
+                            )
+                        ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
+                                GamePacket(GamePacketType.UPDATE_ATTRIBUTES)
+                            )
+                        ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
+                                GamePacket(GamePacketType.AVAILABLE_COMMANDS)
+                            )
+                        ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
+                                GamePacket(GamePacketType.ADVENTURE_SETTINGS)
+                            )
+                        )
+                    )
+                )
             ]
         })
 

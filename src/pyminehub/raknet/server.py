@@ -24,6 +24,13 @@ class GameDataHandler:
     def data_received(self, data: bytes, addr: Address) -> None:
         raise NotImplementedError()
 
+    def update(self) -> bool:
+        """Update something of handler state.
+
+        :return: return True, if there is nothing to do
+        """
+        raise NotImplementedError()
+
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
@@ -60,6 +67,9 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
     def send_waiting_packets(self) -> None:
         for addr, session in self._sessions.items():
             session.send_waiting_pacckets()
+
+    def next_moment(self) -> bool:
+        return self._handler.update()
 
     def _process_unconnected_ping(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
@@ -109,20 +119,22 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         session.ack_received(packet)
 
 
-async def _send(protocol: _RakNetServerProtocol):
+async def _tick_time(protocol: _RakNetServerProtocol):
     while True:
         await asyncio.sleep(0.1)
         protocol.send_waiting_packets()
+        while not protocol.next_moment():
+            pass  # TODO break by time
 
 
-def run(handler, log_level=None) -> None:
+def run(handler: GameDataHandler, log_level=None) -> None:
     not log_level or basicConfig(level=log_level)
     loop = asyncio.get_event_loop()
     listen = loop.create_datagram_endpoint(
         lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)
     try:
-        loop.run_until_complete(_send(protocol))
+        loop.run_until_complete(_tick_time(protocol))
         loop.run_forever()
     except KeyboardInterrupt:
         pass
@@ -135,7 +147,11 @@ if __name__ == '__main__':
     import logging
 
     class MockHandler(GameDataHandler):
+
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))
+
+        def update(self) -> bool:
+            return True
 
     run(MockHandler(), logging.DEBUG)

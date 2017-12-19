@@ -20,14 +20,21 @@ class _ProtocolProxy:
         self._protocol = _RakNetServerProtocol(MockEventLoop(), MCPEHandler())
         self._protocol.connection_made(MockTransport(self._queue))
 
-    def send(self, data_producer: Callable[[Address], str], from_: Address) -> Dict[Address, List[bytes]]:
-        self._protocol.datagram_received(unhex(data_producer(from_)), from_)
+    def _get_packets(self):
         self._protocol.send_waiting_packets()
         d = defaultdict(list)
         for res_addr, res_data in self._queue:
             d[res_addr].append(res_data)
         self._queue.clear()
         return d
+
+    def send(self, data_producer: Callable[[Address], str], from_: Address) -> Dict[Address, List[bytes]]:
+        self._protocol.datagram_received(unhex(data_producer(from_)), from_)
+        return self._get_packets()
+
+    def next_moment(self) -> Dict[Address, List[bytes]]:
+        self._protocol.next_moment()
+        return self._get_packets()
 
 
 class _TestDataProducer(Callable[[Address], str]):
@@ -163,12 +170,15 @@ class _PacketCollector(PacketVisitor):
         # noinspection PyProtectedMember
         return packet._replace(**dynamic_args)
 
-    def _replace_payload(self, packet: ValueObject) -> ValueObject:
+    @staticmethod
+    def _replace_payload(packet: ValueObject) -> ValueObject:
         if hasattr(packet, 'payload'):
             # noinspection PyProtectedMember
-            return packet._replace(**self._PAYLOAD_MASK)
-        else:
-            return packet
+            return packet._replace(payload='[mask]')
+        if hasattr(packet, 'payloads'):
+            # noinspection PyProtectedMember
+            return packet._replace(payloads='[mask]')
+        return packet
 
     # noinspection PyMethodOverriding
     def visit_after_decoding(
@@ -255,7 +265,8 @@ class ProtocolTestCase(TestCase):
         try_action(lambda: self._assert_that(actual, expected), exception_factory=self.failureException)
 
     def _assert_that(self, actual: Dict[Address, List[bytes]], expected: Dict[Address, List[EncodedData]]) -> None:
-        self.assertEqual(set(expected.keys()), set(actual.keys()))
+        self.assertEqual(set(expected.keys()), set(actual.keys()),
+                         'Clients specified by the address did not receive packets.')
         for addr in expected:
             expected_data_list = expected[addr]
             actual_data_list = actual[addr]
