@@ -8,8 +8,8 @@ class DocTestCase(unittest.TestCase):
         module_path = [
             'pyminehub/config',
             'pyminehub/binutil',
+            'pyminehub/value',
             'pyminehub/network/codec',
-            'pyminehub/network/packet',
             'pyminehub/mcpe/network/codec/common',
             'pyminehub/mcpe/network/codec/connection',
         ]

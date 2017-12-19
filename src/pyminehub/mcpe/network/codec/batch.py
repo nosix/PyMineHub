@@ -6,7 +6,7 @@ import json
 
 from pyminehub.mcpe.network.codec.common import *
 from pyminehub.mcpe.network.packet import *
-from pyminehub.typing import TT, ET
+from pyminehub.typevar import TT, ET
 
 _HEADER_EXTRA_DATA = RawData(2)
 
@@ -305,33 +305,33 @@ _CHUNK_POSITION = _CompositeData(ChunkPosition, (
 
 
 _game_data_codecs = {
-    GamePacketID.LOGIN: [
+    GamePacketType.LOGIN: [
         _HEADER_EXTRA_DATA,
         INT_DATA,
         _ConnectionRequest()
     ],
-    GamePacketID.PLAY_STATUS: [
+    GamePacketType.PLAY_STATUS: [
         _HEADER_EXTRA_DATA,
         _EnumData(INT_DATA, PlayStatus)
     ],
-    GamePacketID.RESOURCE_PACKS_INFO: [
+    GamePacketType.RESOURCE_PACKS_INFO: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
         _PACK_ENTRY_DATA,
         _PACK_ENTRY_DATA
     ],
-    GamePacketID.RESOURCE_PACK_STACK: [
+    GamePacketType.RESOURCE_PACK_STACK: [
         _HEADER_EXTRA_DATA,
         BOOL_DATA,
         _PACK_STACK_DATA,
         _PACK_STACK_DATA
     ],
-    GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE: [
+    GamePacketType.RESOURCE_PACK_CLIENT_RESPONSE: [
         _HEADER_EXTRA_DATA,
         _EnumData(BYTE_DATA, ResourcePackStatus),
         _VarListData(_LITTLE_ENDIAN_SHORT_DATA, STRING_DATA)
     ],
-    GamePacketID.START_GAME: [
+    GamePacketType.START_GAME: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA,
         VAR_INT_DATA,
@@ -368,11 +368,11 @@ _game_data_codecs = {
         _LITTLE_ENDIAN_LONG_DATA,
         VAR_SIGNED_INT_DATA
     ],
-    GamePacketID.SET_TIME: [
+    GamePacketType.SET_TIME: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA
     ],
-    GamePacketID.UPDATE_ATTRIBUTES: [
+    GamePacketType.UPDATE_ATTRIBUTES: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         _VarListData(VAR_INT_DATA, _CompositeData(Attribute, (
@@ -383,7 +383,7 @@ _game_data_codecs = {
             _VAR_INT_LENGTH_STRING_DATA
         )))
     ],
-    GamePacketID.AVAILABLE_COMMANDS: [
+    GamePacketType.AVAILABLE_COMMANDS: [
         _HEADER_EXTRA_DATA,
         NamedData('enum_values', _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA)),
         _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
@@ -404,7 +404,7 @@ _game_data_codecs = {
             ))))
         )))
     ],
-    GamePacketID.ADVENTURE_SETTINGS: [
+    GamePacketType.ADVENTURE_SETTINGS: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA,
@@ -413,7 +413,7 @@ _game_data_codecs = {
         VAR_INT_DATA,
         _LITTLE_ENDIAN_LONG_DATA
     ],
-    GamePacketID.SET_ENTITY_DATA: [
+    GamePacketType.SET_ENTITY_DATA: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         _VarListData(VAR_INT_DATA, _CompositeData(EntityMetaData, (
@@ -422,12 +422,12 @@ _game_data_codecs = {
             _MetaDataValue()
         )))
     ],
-    GamePacketID.INVENTORY_CONTENT: [
+    GamePacketType.INVENTORY_CONTENT: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         _InventoryContentItems()
     ],
-    GamePacketID.MOB_EQUIPMENT: [
+    GamePacketType.MOB_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         _SLOT_DATA,
@@ -435,13 +435,13 @@ _game_data_codecs = {
         BYTE_DATA,
         BYTE_DATA
     ],
-    GamePacketID.INVENTORY_SLOT: [
+    GamePacketType.INVENTORY_SLOT: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA,
         _SLOT_DATA
     ],
-    GamePacketID.PLAYER_LIST: [
+    GamePacketType.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
         NamedData('player_list_type', _EnumData(BYTE_DATA, PlayerListType)),
         _VarListData(VAR_INT_DATA, _CompositeData(PlayerListEntry, (
@@ -458,26 +458,26 @@ _game_data_codecs = {
             OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove)
         )))
     ],
-    GamePacketID.CRAFTING_DATA: [
+    GamePacketType.CRAFTING_DATA: [
         _HEADER_EXTRA_DATA,
         _RecipeList(),
         BOOL_DATA
     ],
-    GamePacketID.REQUEST_CHUNK_RADIUS: [
+    GamePacketType.REQUEST_CHUNK_RADIUS: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA
     ],
-    GamePacketID.CHUNK_RADIUS_UPDATED: [
+    GamePacketType.CHUNK_RADIUS_UPDATED: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA
     ],
-    GamePacketID.UPDATE_BLOCK: [
+    GamePacketType.UPDATE_BLOCK: [
         _HEADER_EXTRA_DATA,
         _INT_VECTOR3_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA
     ],
-    GamePacketID.FULL_CHUNK_DATA: [
+    GamePacketType.FULL_CHUNK_DATA: [
         _HEADER_EXTRA_DATA,
         _CHUNK_POSITION,
         _VAR_INT_LENGTH_BYTES_DATA
@@ -485,4 +485,4 @@ _game_data_codecs = {
 }
 
 
-game_packet_codec = Codec(GamePacketID, game_packet_factory, _game_data_codecs)
+game_packet_codec = Codec(GamePacketType, game_packet_factory, _game_data_codecs)

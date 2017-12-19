@@ -1,30 +1,32 @@
 from typing import NamedTuple as _NamedTuple, Optional
 
-from pyminehub.network.packet import PacketID, PacketFactory
+from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
 Reliability = _NamedTuple('Reliability', [('reliable', bool), ('channel', Optional[int])])
 
+RakNetFrame = ValueObject
 
-class RakNetFrameID(PacketID):
+
+class RakNetFrameType(ValueType):
     UNRELIABLE = 0x00
     RELIABLE = 0x40
     RELIABLE_ORDERED = 0x60
     RELIABLE_ORDERED_HAS_SPLIT = 0x70
 
 
-_frame_specs = {
-    RakNetFrameID.UNRELIABLE: [
+_raknet_frame_specs = {
+    RakNetFrameType.UNRELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('payload', bytes)
     ],
-    RakNetFrameID.RELIABLE: [
+    RakNetFrameType.RELIABLE: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('payload', bytes)
     ],
-    RakNetFrameID.RELIABLE_ORDERED: [
+    RakNetFrameType.RELIABLE_ORDERED: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
@@ -32,7 +34,7 @@ _frame_specs = {
         ('message_ordering_chanel', int),
         ('payload', bytes)
     ],
-    RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT: [
+    RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT: [
         ('id', int),
         ('payload_length', int),
         ('reliable_message_num', int),
@@ -46,4 +48,4 @@ _frame_specs = {
 }
 
 
-raknet_frame_factory = PacketFactory(_frame_specs)
+raknet_frame_factory = ValueObjectFactory(_raknet_frame_specs)

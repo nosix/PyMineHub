@@ -1,6 +1,6 @@
 from typing import NamedTuple as _NamedTuple, Generic
 
-from pyminehub.typing import NT
+from pyminehub.typevar import NT
 
 
 class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):

@@ -12,7 +12,7 @@ from enum import Enum
 from random import randrange
 from typing import Dict, Any
 
-from pyminehub.typing import T
+from pyminehub.typevar import T
 
 
 class ConfigKey(Enum):

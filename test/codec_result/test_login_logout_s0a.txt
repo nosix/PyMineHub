@@ -1,50 +1,50 @@
-SET_ENTITY_DATA(id=39, extra=b'\x00\x00', entity_runtime_id=1, meta_data=(EntityMetaData(key=0, type=<MetaDataType.LONG: 7>, value=211106233679872), EntityMetaData(key=7, type=<MetaDataType.SHORT: 1>, value=0), EntityMetaData(key=43, type=<MetaDataType.SHORT: 1>, value=400), EntityMetaData(key=4, type=<MetaDataType.STRING: 4>, value='MatteMussel3620'), EntityMetaData(key=38, type=<MetaDataType.LONG: 7>, value=1), EntityMetaData(key=39, type=<MetaDataType.FLOAT: 3>, value=1.0), EntityMetaData(key=29, type=<MetaDataType.INT_VECTOR3: 6>, value=Vector3(x=0, y=0, z=0))))
+SetEntityData(id=39, extra=b'\x00\x00', entity_runtime_id=1, meta_data=(EntityMetaData(key=0, type=<MetaDataType.LONG: 7>, value=211106233679872), EntityMetaData(key=7, type=<MetaDataType.SHORT: 1>, value=0), EntityMetaData(key=43, type=<MetaDataType.SHORT: 1>, value=400), EntityMetaData(key=4, type=<MetaDataType.STRING: 4>, value='MatteMussel3620'), EntityMetaData(key=38, type=<MetaDataType.LONG: 7>, value=1), EntityMetaData(key=39, type=<MetaDataType.FLOAT: 3>, value=1.0), EntityMetaData(key=29, type=<MetaDataType.INT_VECTOR3: 6>, value=Vector3(x=0, y=0, z=0))))
   -> 270000010700078080c680808030070100002b01900104040f4d617474654d757373656c3336323026070127030000803f1d06000000
   File "./codec_login_logout.py", line 140, in test_login_logout_s0a
-    GamePacket(GamePacketID.SET_ENTITY_DATA)
+    GamePacket(GamePacketType.SET_ENTITY_DATA)
 
-BATCH(id=254, payloads=([54 bytes],))
+Batch(id=254, payloads=([54 bytes],))
   -> fe7801013700c8ff36270000010700078080c680808030070100002b01900104040f4d617474654d757373656c3336323026070127030000803f1d060000004f150b38
   File "./codec_login_logout.py", line 139, in test_login_logout_s0a
     Batch().that_has(
 
-RELIABLE_ORDERED(id=96, payload_length=536, reliable_message_num=8, message_ordering_index=8, message_ordering_chanel=0, payload=[67 bytes])
+ReliableOrdered(id=96, payload_length=536, reliable_message_num=8, message_ordering_index=8, message_ordering_chanel=0, payload=[67 bytes])
   -> 60021808000008000000fe7801013700c8ff36270000010700078080c680808030070100002b01900104040f4d617474654d757373656c3336323026070127030000803f1d060000004f150b38
   File "./codec_login_logout.py", line 138, in test_login_logout_s0a
-    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-INVENTORY_CONTENT(id=49, extra=b'\x00\x00', window_id=0, items=(Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)))
+InventoryContent(id=49, extra=b'\x00\x00', window_id=0, items=(Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)))
   -> 3100000024000000000000000000000000000000000000000000000000000000000000000000000000
   File "./codec_login_logout.py", line 145, in test_login_logout_s0a
-    GamePacket(GamePacketID.INVENTORY_CONTENT)
+    GamePacket(GamePacketType.INVENTORY_CONTENT)
 
-BATCH(id=254, payloads=([41 bytes],))
+Batch(id=254, payloads=([41 bytes],))
   -> fe7801012a00d5ff29310000002400000000000000000000000000000000000000000000000000000000000000000000000013f1007f
   File "./codec_login_logout.py", line 144, in test_login_logout_s0a
     Batch().that_has(
 
-RELIABLE_ORDERED(id=96, payload_length=432, reliable_message_num=9, message_ordering_index=9, message_ordering_chanel=0, payload=[54 bytes])
+ReliableOrdered(id=96, payload_length=432, reliable_message_num=9, message_ordering_index=9, message_ordering_chanel=0, payload=[54 bytes])
   -> 6001b009000009000000fe7801012a00d5ff29310000002400000000000000000000000000000000000000000000000000000000000000000000000013f1007f
   File "./codec_login_logout.py", line 143, in test_login_logout_s0a
-    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-INVENTORY_CONTENT(id=49, extra=b'\x00\x00', window_id=120, items=(Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)))
+InventoryContent(id=49, extra=b'\x00\x00', window_id=120, items=(Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)))
   -> 310000780400000000
   File "./codec_login_logout.py", line 150, in test_login_logout_s0a
-    GamePacket(GamePacketID.INVENTORY_CONTENT)
+    GamePacket(GamePacketType.INVENTORY_CONTENT)
 
-BATCH(id=254, payloads=(b'1\x00\x00x\x04\x00\x00\x00\x00',))
+Batch(id=254, payloads=(b'1\x00\x00x\x04\x00\x00\x00\x00',))
   -> fe7801010a00f5ff09310000780400000000050100b7
   File "./codec_login_logout.py", line 149, in test_login_logout_s0a
     Batch().that_has(
 
-RELIABLE_ORDERED(id=96, payload_length=176, reliable_message_num=10, message_ordering_index=10, message_ordering_chanel=0, payload=[22 bytes])
+ReliableOrdered(id=96, payload_length=176, reliable_message_num=10, message_ordering_index=10, message_ordering_chanel=0, payload=[22 bytes])
   -> 6000b00a00000a000000fe7801010a00f5ff09310000780400000000050100b7
   File "./codec_login_logout.py", line 148, in test_login_logout_s0a
-    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-CUSTOM_PACKET_4(id=132, packet_sequence_num=10, payload=[173 bytes])
+CustomPacket4(id=132, packet_sequence_num=10, payload=[173 bytes])
   -> 840a000060021808000008000000fe7801013700c8ff36270000010700078080c680808030070100002b01900104040f4d617474654d757373656c3336323026070127030000803f1d060000004f150b386001b009000009000000fe7801012a00d5ff29310000002400000000000000000000000000000000000000000000000000000000000000000000000013f1007f6000b00a00000a000000fe7801010a00f5ff09310000780400000000050100b7
   File "./codec_login_logout.py", line 137, in test_login_logout_s0a
-    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
 

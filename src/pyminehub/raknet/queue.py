@@ -3,8 +3,8 @@ from queue import PriorityQueue
 from typing import Callable, Set
 
 from pyminehub.config import ConfigKey, get_value
-from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import raknet_frame_codec
+from pyminehub.raknet.frame import RakNetFrame
 
 
 class SendQueue:
@@ -23,7 +23,7 @@ class SendQueue:
     def _get_resend_time_in_future() -> int:
         return time.time() + get_value(ConfigKey.RESEND_TIME)
 
-    def push(self, frame: Packet, send_time_in_future=0) -> None:
+    def push(self, frame: RakNetFrame, send_time_in_future=0) -> None:
         self._queue.put_nowait((self._get_current_time() + send_time_in_future, frame))
 
     def discard(self, reliable_message_num: int) -> None:

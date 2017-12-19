@@ -2,11 +2,10 @@ from collections import defaultdict
 from logging import getLogger
 from typing import List, Set, Dict, Callable
 
-from pyminehub.network.packet import Packet
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import MessageFragment
-from pyminehub.raknet.frame import Reliability, RakNetFrameID, raknet_frame_factory
-from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
+from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame, raknet_frame_factory
+from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.queue import SendQueue
 
 _logger = getLogger(__name__)
@@ -17,17 +16,17 @@ class Session:
     def __init__(self,
                  mtu_size: int,
                  send_to_game_handler: Callable[[bytes], None],
-                 send_to_client: Callable[[Packet], None]
+                 send_to_client: Callable[[RakNetPacket], None]
                  ) -> None:
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
-        self._frame_cache = {}  # type: Dict[int, Packet]  # received frame cache
+        self._frame_cache = {}  # type: Dict[int, RakNetFrame]  # received frame cache
         self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
         self._fragment = MessageFragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._resend_cache = {}  # type: Dict[int, Packet]  # send packets waiting for ACK / NCK
+        self._resend_cache = {}  # type: Dict[int, RakNetPacket]  # send packets waiting for ACK / NCK
         self._message_num = 0  # type: int  # for send reliable packet
         self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
         self._send_queue = SendQueue(mtu_size - self._get_packet_header_size(), self._send_frames)
@@ -36,10 +35,10 @@ class Session:
         return len(raknet_packet_codec.encode(self._create_send_packet(0, b'')))
 
     @staticmethod
-    def _create_send_packet(sequence_num: int, payload: bytes) -> Packet:
-        return raknet_packet_factory.create(RakNetPacketID.CUSTOM_PACKET_4, sequence_num, payload)
+    def _create_send_packet(sequence_num: int, payload: bytes) -> RakNetPacket:
+        return raknet_packet_factory.create(RakNetPacketType.CUSTOM_PACKET_4, sequence_num, payload)
 
-    def frame_received(self, packet_sequence_num: int, frames: List[Packet]) -> None:
+    def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
             self._process_frames(packet_sequence_num, frames)
             self._expected_sequence_num += 1
@@ -61,21 +60,21 @@ class Session:
             self._process_frames(self._expected_sequence_num, frames)
             self._expected_sequence_num += 1
 
-    def _process_frames(self, packet_sequence_num: int, frames: List[Packet]) -> None:
+    def _process_frames(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         for frame in frames:
             _logger.debug('> %d:%s', packet_sequence_num, frame)
-            getattr(self, '_process_' + RakNetFrameID(frame.id).name.lower())(frame)
+            getattr(self, '_process_' + RakNetFrameType(frame.id).name.lower())(frame)
 
-    def _process_unreliable(self, frame: Packet) -> None:
+    def _process_unreliable(self, frame: RakNetFrame) -> None:
         self._send_to_game_handler(frame.payload)
 
-    def _process_reliable(self, frame: Packet) -> None:
+    def _process_reliable(self, frame: RakNetFrame) -> None:
         self._send_to_game_handler(frame.payload)
 
-    def _process_reliable_ordered(self, frame: Packet) -> None:
+    def _process_reliable_ordered(self, frame: RakNetFrame) -> None:
         self._send_to_game_handler(frame.payload)
 
-    def _process_reliable_ordered_has_split(self, frame: Packet) -> None:
+    def _process_reliable_ordered_has_split(self, frame: RakNetFrame) -> None:
         self._fragment.append(
             frame.split_packet_id,
             frame.split_packet_count,
@@ -86,7 +85,7 @@ class Session:
             self._send_to_game_handler(payload)
 
     @staticmethod
-    def _nck_or_ack_received(packet: Packet, action: Callable[[int], None]) -> None:
+    def _nck_or_ack_received(packet: RakNetPacket, action: Callable[[int], None]) -> None:
         min_sequence_num = packet.packet_sequence_number_min
         max_sequence_num = min_sequence_num if packet.range_max_equals_to_min else packet.packet_sequence_number_max
         for sequence_num in range(min_sequence_num, max_sequence_num + 1):
@@ -99,13 +98,13 @@ class Session:
     def _ack_action(self, sequence_num: int) -> None:
         del self._resend_cache[sequence_num]
 
-    def nck_received(self, packet: Packet) -> None:
+    def nck_received(self, packet: RakNetPacket) -> None:
         self._nck_or_ack_received(packet, self._nck_action)
 
-    def ack_received(self, packet: Packet) -> None:
+    def ack_received(self, packet: RakNetPacket) -> None:
         self._nck_or_ack_received(packet, self._ack_action)
 
-    def _send_ack_or_nck(self, packet_id: RakNetPacketID, ack_set: Set[int]) -> None:
+    def _send_ack_or_nck(self, packet_id: RakNetPacketType, ack_set: Set[int]) -> None:
         sendto = self._send_to_client
 
         def send_ack_or_nck():
@@ -136,8 +135,8 @@ class Session:
 
     def send_waiting_pacckets(self) -> None:
         self._send_queue.send()
-        self._send_ack_or_nck(RakNetPacketID.ACK, self._ack_set)
-        self._send_ack_or_nck(RakNetPacketID.NCK, self._nck_set)
+        self._send_ack_or_nck(RakNetPacketType.ACK, self._ack_set)
+        self._send_ack_or_nck(RakNetPacketType.NCK, self._nck_set)
         self._ack_set.clear()
         self._nck_set.clear()
 
@@ -152,7 +151,7 @@ class Session:
 
     def _send_reliable_ordered_frame(self, payload: bytes, channel: int) -> None:
         frame = raknet_frame_factory.create(
-            RakNetFrameID.RELIABLE_ORDERED,
+            RakNetFrameType.RELIABLE_ORDERED,
             len(payload) * 8,
             self._message_num,
             self._ordering_index[channel],
@@ -165,7 +164,7 @@ class Session:
 
     def _send_reliable_frame(self, payload: bytes) -> None:
         frame = raknet_frame_factory.create(
-            RakNetFrameID.RELIABLE,
+            RakNetFrameType.RELIABLE,
             len(payload) * 8,
             self._message_num,
             payload
@@ -175,7 +174,7 @@ class Session:
 
     def _send_unreliable_frame(self, payload: bytes) -> None:
         frame = raknet_frame_factory.create(
-            RakNetFrameID.UNRELIABLE,
+            RakNetFrameType.UNRELIABLE,
             len(payload) * 8,
             payload
         )

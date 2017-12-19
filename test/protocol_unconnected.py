@@ -18,7 +18,7 @@ class UnconnectedTestCase(ProtocolTestCase):
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(
-                        RakNetPacketID.UNCONNECTED_PONG,
+                        RakNetPacketType.UNCONNECTED_PONG,
                         server_id='MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
                     )
                 )
@@ -31,7 +31,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('raknet_connection_request_1')).is_(
-                    RakNetPacket(RakNetPacketID.OPEN_CONNECTION_REPLY1)
+                    RakNetPacket(RakNetPacketType.OPEN_CONNECTION_REPLY1)
                 )
             ]
         })
@@ -39,7 +39,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('raknet_connection_request_2')).is_(
-                    RakNetPacket(RakNetPacketID.OPEN_CONNECTION_REPLY2)
+                    RakNetPacket(RakNetPacketType.OPEN_CONNECTION_REPLY2)
                 )
             ]
         })
@@ -47,56 +47,56 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connection_request')).is_(
-                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
+                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
-                                ConnectionPacketID.CONNECTED_PING,
+                                ConnectionPacketType.CONNECTED_PING,
                                 ping_time_since_start=DYNAMIC
                             )
                         ),
-                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
+                        RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
-                                ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED,
+                                ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED,
                                 server_time_since_start=DYNAMIC
                             )
                         )
                     )
                 ),
                 EncodedData(self.data.that_is_response_of('connection_request')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
         received_data = self.proxy.send(
             EncodedData(self.data.that_is('new_incoming_connection')).is_(
-                RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                    RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
-                        ConnectionPacket(ConnectionPacketID.CONNECTED_PONG)
+                RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
+                        ConnectionPacket(ConnectionPacketType.CONNECTED_PONG)
                     ),
-                    RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+                    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                         ConnectionPacket(
-                            ConnectionPacketID.NEW_INCOMING_CONNECTION,
+                            ConnectionPacketType.NEW_INCOMING_CONNECTION,
                             server_time_since_start=self.values['server_time_since_start'])
                     ),
-                    RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
-                        ConnectionPacket(ConnectionPacketID.CONNECTED_PING)
+                    RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
+                        ConnectionPacket(ConnectionPacketType.CONNECTED_PING)
                     )
                 )),
             from_=self._CLIENT_ADDRESS[0])
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
-                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
+                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
-                                ConnectionPacketID.CONNECTED_PONG,
+                                ConnectionPacketType.CONNECTED_PONG,
                                 pong_time_since_start=DYNAMIC
                             )
                         )
                     )
                 ),
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -104,10 +104,10 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connected_ping')).is_(
-                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        RakNetFrame(RakNetFrameID.UNRELIABLE).that_has(
+                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
-                                ConnectionPacketID.CONNECTED_PONG,
+                                ConnectionPacketType.CONNECTED_PONG,
                                 ping_time_since_start=DYNAMIC,
                                 pong_time_since_start=DYNAMIC
                             )
@@ -115,7 +115,7 @@ class UnconnectedTestCase(ProtocolTestCase):
                     )
                 ),
                 EncodedData(self.data.that_is_response_of('connected_ping')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })

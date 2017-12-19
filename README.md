@@ -9,34 +9,35 @@
 Modules depend only on parents or siblings. Siblings depend only on the above siblings.
 
 ```
-typing
-config -> typing
-binutil -> typing
+typevar
+config -> typevar
+binutil -> typevar
+value
 network -> binutil
   address
-  packet
-  codec -> binutil, .[address, packet]
+  codec -> binutil, value, .[address]
 raknet -> network
-  - fragment
-  - packet -> network.[address, packet]
+  - fragment -> value
+  - packet -> value, network.[address]
   - frame -> .[packet]
   - codec -> network.[codec], .[frame, packet]
-  - session -> network.[packet], .[codec, frame, fragment, packet, frame]
-  - server -> network.[address, packet, codec], .[codec, packet, frame, session]
+  - queue -> config, .[codec, frame]
+  - session -> .[codec, fragment, frame, packet, queue]
+  - server -> config, network.[address, codec], .[codec, packet, frame, session]
 mcpe
   const
-  geometry -> typing
+  geometry -> typevar
   value -> .[const, geometry]
   world -> config, .[const]
   player -> .[const, geometry, value]
   network
-    - packet -> mcpe.[value, geometry], network.[address, packet]
-    - codec -> typing, config, network, mcpe.network.[packet]
+    - packet -> value, mcpe.[value], network.[address]
+    - codec -> typevar, config, network, mcpe.network.[packet]
       - common -> network.[codec]
-      - batch -> typing, mcpe.network.[packet], .[common]
+      - batch -> typevar, mcpe.network.[packet], .[common]
       - connection -> config, mcpe.network.[packet], .[common]
-    - queue -> raknet, network.[address, packet], .[packet, codec]
-    - handler -> typing, raknet, network.[address, packet], mcpe.[const, player, world], .[codec, packet, queue]
+    - queue -> raknet, network.[address], .[packet, codec]
+    - handler -> typevar, value, raknet, network.[address], mcpe.[const, player, world], .[codec, packet, queue]
   server -> raknet, .[network]
 
 - : Hidden from outside modules

@@ -15,7 +15,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -24,7 +24,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -33,7 +33,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -42,7 +42,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -51,7 +51,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -60,7 +60,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -69,7 +69,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -78,7 +78,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -87,21 +87,21 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.CUSTOM_PACKET_4).that_has(
-                        RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
-                                GamePacket(GamePacketID.PLAY_STATUS)
+                                GamePacket(GamePacketType.PLAY_STATUS)
                             )
                         ),
-                        RakNetFrame(RakNetFrameID.RELIABLE_ORDERED).that_has(
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
-                                GamePacket(GamePacketID.RESOURCE_PACKS_INFO)
+                                GamePacket(GamePacketType.RESOURCE_PACKS_INFO)
                             )
                         )
                     )
                 ),
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketID.ACK)
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })

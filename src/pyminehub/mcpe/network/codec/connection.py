@@ -53,40 +53,40 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
 
 _packet_data_codecs = {
-    ConnectionPacketID.CONNECTED_PING: [
+    ConnectionPacketType.CONNECTED_PING: [
         LONG_DATA
     ],
-    ConnectionPacketID.CONNECTED_PONG: [
+    ConnectionPacketType.CONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA
     ],
-    ConnectionPacketID.CONNECTION_REQUEST: [
+    ConnectionPacketType.CONNECTION_REQUEST: [
         LONG_DATA,
         LONG_DATA,
         FALSE_DATA
     ],
-    ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED: [
+    ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED: [
         ADDRESS_DATA,
         SHORT_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    ConnectionPacketID.NEW_INCOMING_CONNECTION: [
+    ConnectionPacketType.NEW_INCOMING_CONNECTION: [
         ADDRESS_DATA,
         _AddressList(20),
         LONG_DATA,
         LONG_DATA
     ],
-    ConnectionPacketID.DISCONNECTION_NOTIFICATION: [
+    ConnectionPacketType.DISCONNECTION_NOTIFICATION: [
     ],
-    ConnectionPacketID.BATCH: [
+    ConnectionPacketType.BATCH: [
         _CompressedPacketList()
     ]
 }
 
 
-connection_packet_codec = Codec(ConnectionPacketID, connection_packet_factory, _packet_data_codecs)
+connection_packet_codec = Codec(ConnectionPacketType, connection_packet_factory, _packet_data_codecs)
 
 
 if __name__ == '__main__':

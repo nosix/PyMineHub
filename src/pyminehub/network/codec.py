@@ -2,7 +2,7 @@ from typing import Optional
 
 from pyminehub.binutil import *
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.packet import Packet
+from pyminehub.value import ValueObject
 
 BYTE_DATA = ByteData()
 SHORT_DATA = ShortData()
@@ -50,17 +50,17 @@ class Codec:
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs
 
-    def encode(self, packet: Packet, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
+    def encode(self, packet: ValueObject, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
-        >>> p = _packet_factory.create(ID.unconnected_pong, 8721, 12985, True, 'MCPE;')
+        >>> p = _packet_factory.create(PacketType.unconnected_pong, 8721, 12985, True, 'MCPE;')
         >>> context = PacketCodecContext()
         >>> hexlify(_packet_codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b'
         >>> context.length
         40
         >>> context.get_values()
-        (<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
+        (<PacketType.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
 
         :param packet: encoding target
         :param context: if context is None then create a DataCodecContext
@@ -80,17 +80,17 @@ class Codec:
         context.pop_stack()
         return bytes(data)
 
-    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> Packet:
+    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> ValueObject:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900ffff00fefefefefdfdfdfd1234567800054d4350453b')
         >>> context = PacketCodecContext()
         >>> _packet_codec.decode(data, context, BYTE_DATA)
-        unconnected_pong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
+        UnconnectedPong(id=28, time_since_start=8721, server_guid=12985, valid_message_data_id=True, server_id='MCPE;')
         >>> context.length
         40
         >>> context.get_values()
-        (<ID.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
+        (<PacketType.unconnected_pong: 28>, 8721, 12985, True, 'MCPE;')
 
         :param data: decoding target
         :param context: if context is None then create a DataCodecContext
@@ -258,15 +258,14 @@ FALSE_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data != 0, write=_only_f
 
 
 if __name__ == '__main__':
-    from enum import Enum
     from binascii import hexlify, unhexlify
-    from pyminehub.network.packet import PacketFactory
+    from pyminehub.value import ValueType, ValueObjectFactory
 
-    class ID(Enum):
+    class PacketType(ValueType):
         unconnected_pong = 0x1c
 
     _packet_specs = {
-        ID.unconnected_pong: [
+        PacketType.unconnected_pong: [
             ('id', int),
             ('time_since_start', int),
             ('server_guid', bytes),
@@ -276,7 +275,7 @@ if __name__ == '__main__':
     }
 
     _data_codecs = {
-        ID.unconnected_pong: [
+        PacketType.unconnected_pong: [
             LONG_DATA,
             LONG_DATA,
             MAGIC_DATA,
@@ -284,8 +283,8 @@ if __name__ == '__main__':
         ]
     }
 
-    _packet_factory = PacketFactory(_packet_specs)
-    _packet_codec = Codec(ID, _packet_factory, _data_codecs)
+    _packet_factory = ValueObjectFactory(_packet_specs)
+    _packet_codec = Codec(PacketType, _packet_factory, _data_codecs)
 
     import doctest
     doctest_result = doctest.testmod()

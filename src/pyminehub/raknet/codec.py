@@ -1,6 +1,6 @@
 from pyminehub.network.codec import *
-from pyminehub.raknet.frame import RakNetFrameID, raknet_frame_factory
-from pyminehub.raknet.packet import RakNetPacketID, raknet_packet_factory
+from pyminehub.raknet.frame import RakNetFrameType, raknet_frame_factory
+from pyminehub.raknet.packet import RakNetPacketType, raknet_packet_factory
 
 
 class _MtuSizeData(DataCodec[int]):
@@ -14,35 +14,35 @@ class _MtuSizeData(DataCodec[int]):
 
 
 _packet_data_codecs = {
-    RakNetPacketID.UNCONNECTED_PING: [
+    RakNetPacketType.UNCONNECTED_PING: [
         LONG_DATA,
         MAGIC_DATA,
         LONG_DATA
     ],
-    RakNetPacketID.UNCONNECTED_PONG: [
+    RakNetPacketType.UNCONNECTED_PONG: [
         LONG_DATA,
         LONG_DATA,
         MAGIC_DATA,
         STRING_DATA
     ],
-    RakNetPacketID.OPEN_CONNECTION_REQUEST1: [
+    RakNetPacketType.OPEN_CONNECTION_REQUEST1: [
         MAGIC_DATA,
         BYTE_DATA,
         _MtuSizeData()
     ],
-    RakNetPacketID.OPEN_CONNECTION_REPLY1: [
+    RakNetPacketType.OPEN_CONNECTION_REPLY1: [
         MAGIC_DATA,
         LONG_DATA,
         FALSE_DATA,
         SHORT_DATA
     ],
-    RakNetPacketID.OPEN_CONNECTION_REQUEST2: [
+    RakNetPacketType.OPEN_CONNECTION_REQUEST2: [
         MAGIC_DATA,
         ADDRESS_DATA,
         SHORT_DATA,
         LONG_DATA
     ],
-    RakNetPacketID.OPEN_CONNECTION_REPLY2: [
+    RakNetPacketType.OPEN_CONNECTION_REPLY2: [
         MAGIC_DATA,
         LONG_DATA,
         ADDRESS_DATA,
@@ -52,13 +52,13 @@ _packet_data_codecs = {
 }
 
 for n in range(16):
-    _packet_data_codecs[RakNetPacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _packet_data_codecs[RakNetPacketType['CUSTOM_PACKET_{:X}'.format(n)]] = [
         TRIAD_DATA,
         RAW_DATA
     ]
 
 
-for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
+for packet_id in (RakNetPacketType.NCK, RakNetPacketType.ACK):
     _packet_data_codecs[packet_id] = [
         SHORT_DATA,
         NamedData('range_max_equals_to_min', BOOL_DATA),
@@ -85,23 +85,23 @@ _FRAME_PAYLOAD = _FramePayload()
 
 
 _frame_data_codecs = {
-    RakNetFrameID.UNRELIABLE: [
+    RakNetFrameType.UNRELIABLE: [
         _PAYLOAD_LENGTH,
         _FRAME_PAYLOAD
     ],
-    RakNetFrameID.RELIABLE: [
+    RakNetFrameType.RELIABLE: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
         _FRAME_PAYLOAD
     ],
-    RakNetFrameID.RELIABLE_ORDERED: [
+    RakNetFrameType.RELIABLE_ORDERED: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
         BYTE_DATA,
         _FRAME_PAYLOAD
     ],
-    RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT: [
+    RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT: [
         _PAYLOAD_LENGTH,
         TRIAD_DATA,
         TRIAD_DATA,
@@ -114,5 +114,5 @@ _frame_data_codecs = {
 }
 
 
-raknet_packet_codec = Codec(RakNetPacketID, raknet_packet_factory, _packet_data_codecs)
-raknet_frame_codec = Codec(RakNetFrameID, raknet_frame_factory, _frame_data_codecs)
+raknet_packet_codec = Codec(RakNetPacketType, raknet_packet_factory, _packet_data_codecs)
+raknet_frame_codec = Codec(RakNetFrameType, raknet_frame_factory, _frame_data_codecs)

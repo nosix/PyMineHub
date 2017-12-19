@@ -1,9 +1,13 @@
 from pyminehub.mcpe.value import *
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.packet import PacketID, PacketFactory
+from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
 
-class ConnectionPacketID(PacketID):
+ConnectionPacket = ValueObject
+GamePacket = ValueObject
+
+
+class ConnectionPacketType(ValueType):
     CONNECTED_PING = 0x00
     CONNECTED_PONG = 0x03
     CONNECTION_REQUEST = 0x09
@@ -13,7 +17,7 @@ class ConnectionPacketID(PacketID):
     BATCH = 0xfe
 
 
-class GamePacketID(PacketID):
+class GamePacketType(ValueType):
     LOGIN = 0x01
     PLAY_STATUS = 0x02
     SERVER_TO_CLIENT_HANDSHAKE = 0x03
@@ -122,22 +126,22 @@ class GamePacketID(PacketID):
 
 
 _connection_packet_specs = {
-    ConnectionPacketID.CONNECTED_PING: [
+    ConnectionPacketType.CONNECTED_PING: [
         ('id', int),
         ('ping_time_since_start', int)
     ],
-    ConnectionPacketID.CONNECTED_PONG: [
+    ConnectionPacketType.CONNECTED_PONG: [
         ('id', int),
         ('ping_time_since_start', int),
         ('pong_time_since_start', int)
     ],
-    ConnectionPacketID.CONNECTION_REQUEST: [
+    ConnectionPacketType.CONNECTION_REQUEST: [
         ('id', int),
         ('client_guid', int),
         ('client_time_since_start', int),
         ('use_encryption', bool)
     ],
-    ConnectionPacketID.CONNECTION_REQUEST_ACCEPTED: [
+    ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED: [
         ('id', int),
         ('client_address', AddressInPacket),
         ('system_index', int),
@@ -145,17 +149,17 @@ _connection_packet_specs = {
         ('client_time_since_start', int),
         ('server_time_since_start', int)
     ],
-    ConnectionPacketID.NEW_INCOMING_CONNECTION: [
+    ConnectionPacketType.NEW_INCOMING_CONNECTION: [
         ('id', int),
         ('server_address', AddressInPacket),
         ('internal_address', Tuple[AddressInPacket, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
     ],
-    ConnectionPacketID.DISCONNECTION_NOTIFICATION: [
+    ConnectionPacketType.DISCONNECTION_NOTIFICATION: [
         ('id', int)
     ],
-    ConnectionPacketID.BATCH: [
+    ConnectionPacketType.BATCH: [
         ('id', int),
         ('payloads', Tuple[bytes, ...])
     ]
@@ -163,38 +167,38 @@ _connection_packet_specs = {
 
 
 _game_packet_specs = {
-    GamePacketID.LOGIN: [
+    GamePacketType.LOGIN: [
         ('id', int),
         ('extra', bytes),
         ('protocol', int),
         ('connection_request', ConnectionRequest)
     ],
-    GamePacketID.PLAY_STATUS: [
+    GamePacketType.PLAY_STATUS: [
         ('id', int),
         ('extra', bytes),
         ('status', PlayStatus)
     ],
-    GamePacketID.RESOURCE_PACKS_INFO: [
+    GamePacketType.RESOURCE_PACKS_INFO: [
         ('id', int),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_entries', Tuple[PackEntry, ...]),
         ('resource_pack_entries', Tuple[PackEntry, ...])
     ],
-    GamePacketID.RESOURCE_PACK_STACK: [
+    GamePacketType.RESOURCE_PACK_STACK: [
         ('id', int),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_stack', Tuple[PackStack, ...]),
         ('resource_pack_stack', Tuple[PackStack, ...])
     ],
-    GamePacketID.RESOURCE_PACK_CLIENT_RESPONSE: [
+    GamePacketType.RESOURCE_PACK_CLIENT_RESPONSE: [
         ('id', int),
         ('extra', bytes),
         ('status', ResourcePackStatus),
         ('pack_ids', Tuple[str, ...])
     ],
-    GamePacketID.START_GAME: [
+    GamePacketType.START_GAME: [
         ('id', int),
         ('extra', bytes),
         ('entity_unique_id', int),
@@ -232,18 +236,18 @@ _game_packet_specs = {
         ('current_tick', int),
         ('enchantment_seed', int)
     ],
-    GamePacketID.SET_TIME: [
+    GamePacketType.SET_TIME: [
         ('id', int),
         ('extra', bytes),
         ('time', int)
     ],
-    GamePacketID.UPDATE_ATTRIBUTES: [
+    GamePacketType.UPDATE_ATTRIBUTES: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
         ('entries', Tuple[Attribute, ...])
     ],
-    GamePacketID.AVAILABLE_COMMANDS: [
+    GamePacketType.AVAILABLE_COMMANDS: [
         ('id', int),
         ('extra', bytes),
         ('enum_values', Tuple[str, ...]),
@@ -251,7 +255,7 @@ _game_packet_specs = {
         ('enums', Tuple[CommandEnum, ...]),
         ('command_data', Tuple[CommandData, ...])
     ],
-    GamePacketID.ADVENTURE_SETTINGS: [
+    GamePacketType.ADVENTURE_SETTINGS: [
         ('id', int),
         ('extra', bytes),
         ('flags', int),
@@ -261,19 +265,19 @@ _game_packet_specs = {
         ('custom_flags', int),
         ('entity_unique_id', int)
     ],
-    GamePacketID.SET_ENTITY_DATA: [
+    GamePacketType.SET_ENTITY_DATA: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
         ('meta_data', Tuple[EntityMetaData, ...])
     ],
-    GamePacketID.INVENTORY_CONTENT: [
+    GamePacketType.INVENTORY_CONTENT: [
         ('id', int),
         ('extra', bytes),
         ('window_id', int),
         ('items', Union[Tuple[Slot, ...], bytes])  # bytes data is encoded items
     ],
-    GamePacketID.MOB_EQUIPMENT: [
+    GamePacketType.MOB_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
@@ -282,43 +286,43 @@ _game_packet_specs = {
         ('hotbar_slot', int),
         ('window_id', int)
     ],
-    GamePacketID.INVENTORY_SLOT: [
+    GamePacketType.INVENTORY_SLOT: [
         ('id', int),
         ('extra', bytes),
         ('window_id', int),
         ('inventory_slot', int),
         ('item', Slot)
     ],
-    GamePacketID.PLAYER_LIST: [
+    GamePacketType.PLAYER_LIST: [
         ('id', int),
         ('extra', bytes),
         ('type', PlayerListType),
         ('entries', Tuple[PlayerListEntry, ...])
     ],
-    GamePacketID.CRAFTING_DATA: [
+    GamePacketType.CRAFTING_DATA: [
         ('id', int),
         ('extra', bytes),
         ('recipe', Union[Tuple[Recipe, ...], bytes]),  # bytes data is encoded recipes
         ('clean_recipes', bool)
     ],
-    GamePacketID.REQUEST_CHUNK_RADIUS: [
+    GamePacketType.REQUEST_CHUNK_RADIUS: [
         ('id', int),
         ('extra', bytes),
         ('radius', int)
     ],
-    GamePacketID.CHUNK_RADIUS_UPDATED: [
+    GamePacketType.CHUNK_RADIUS_UPDATED: [
         ('id', int),
         ('extra', bytes),
         ('radius', int)
     ],
-    GamePacketID.UPDATE_BLOCK: [
+    GamePacketType.UPDATE_BLOCK: [
         ('id', int),
         ('extra', bytes),
         ('position', Vector3[int]),
         ('block_id', int),
         ('aux', int)
     ],
-    GamePacketID.FULL_CHUNK_DATA: [
+    GamePacketType.FULL_CHUNK_DATA: [
         ('id', int),
         ('extra', bytes),
         ('position', ChunkPosition),
@@ -329,5 +333,5 @@ _game_packet_specs = {
 
 EXTRA_DATA = b'\x00\x00'
 
-connection_packet_factory = PacketFactory(_connection_packet_specs)
-game_packet_factory = PacketFactory(_game_packet_specs)
+connection_packet_factory = ValueObjectFactory(_connection_packet_specs)
+game_packet_factory = ValueObjectFactory(_game_packet_specs)

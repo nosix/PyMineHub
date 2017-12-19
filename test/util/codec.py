@@ -18,17 +18,17 @@ from typing import *
 
 from pyminehub.mcpe.network.codec import connection_packet_codec
 from pyminehub.mcpe.network.codec import game_packet_codec
-from pyminehub.mcpe.network.packet import ConnectionPacketID
-from pyminehub.mcpe.network.packet import GamePacketID
+from pyminehub.mcpe.network.packet import ConnectionPacketType
+from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
-from pyminehub.network.packet import Packet, PacketID
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import MessageFragment
-from pyminehub.raknet.frame import RakNetFrameID
-from pyminehub.raknet.packet import RakNetPacketID
-from pyminehub.typing import T
+from pyminehub.raknet.frame import RakNetFrameType
+from pyminehub.raknet.packet import RakNetPacketType
+from pyminehub.typevar import T
+from pyminehub.value import ValueObject, ValueType
 from util.exception import try_action
 
 _ASCII_CHARS = set(c for c in range(0x20, 0x7f))
@@ -41,7 +41,7 @@ _BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
     r"(b'[{}\-\\\]]*?')".format(''.join(chr(c) for c in _ASCII_CHARS_FOR_SINGLE_QUOTE)))
 
 
-def get_packet_str(packet: Packet, bytes_mask_threshold: Optional[int]=16) -> str:
+def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) -> str:
     if bytes_mask_threshold is not None:
         def _summarize_bytes(m: re.match) -> str:
             bytes_data = eval(m[1])  # type: bytes
@@ -76,7 +76,7 @@ class PacketVisitor:
         assert expected == actual, message if message is not None else ''
 
     def visit_after_decoding(
-            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
+            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs) -> ValueObject:
         """It is called after each packet is decodec.
 
         :param data: decoded data
@@ -94,7 +94,7 @@ class PacketVisitor:
         """
         return packet
 
-    def visit_after_encoding(self, packet: Packet, data: bytes, packet_str: str, called: str) -> None:
+    def visit_after_encoding(self, packet: ValueObject, data: bytes, packet_str: str, called: str) -> None:
         """It is called after each packet is encoded.
 
         :param packet: encoded packet
@@ -118,7 +118,7 @@ class _Label(Enum):
 
 class PacketAnalyzer:
 
-    def __init__(self, packet_id: PacketID, codec: Codec, stack_depth=3) -> None:
+    def __init__(self, packet_id: ValueType, codec: Codec, stack_depth=3) -> None:
         called_line = traceback.format_stack()[-stack_depth]
         m = re.search(r'File "(.+)/.+\.py"', called_line)
         self.called_line = called_line.replace(m[1], '.', 1)
@@ -131,7 +131,7 @@ class PacketAnalyzer:
     def get_extra_kwargs(self) -> dict:
         return {}
 
-    def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, T]]:
+    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, T]]:
         """Get pairs that has packet payload and child PacketAnalyzer.
 
         :param packet: packet payload is gotten from this packet
@@ -153,7 +153,7 @@ class PacketAnalyzer:
         """
         return False
 
-    def _record_decoded(self, data: bytes, packet: Packet) -> None:
+    def _record_decoded(self, data: bytes, packet: ValueObject) -> None:
         """Record the decoded result."""
         self._data = data
         self._packet = packet
@@ -205,7 +205,7 @@ class PacketAnalyzer:
             # noinspection PyUnresolvedReferences
             yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
-    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> Packet:
+    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> ValueObject:
         """Overrides when there is processing at the time of exception occurrence."""
         if self.does_retry_encoding():
             print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
@@ -234,7 +234,7 @@ class PacketAnalyzer:
 
 class GamePacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: GamePacketID, *args, **kwargs) -> None:
+    def __init__(self, packet_id: GamePacketType, *args, **kwargs) -> None:
         super().__init__(packet_id, game_packet_codec)
         self._args = args
         self._kwargs = kwargs
@@ -248,7 +248,7 @@ class GamePacket(PacketAnalyzer):
 
 class ConnectionPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: ConnectionPacketID, *args, **kwargs) -> None:
+    def __init__(self, packet_id: ConnectionPacketType, *args, **kwargs) -> None:
         super().__init__(packet_id, connection_packet_codec)
         self._args = args
         self._kwargs = kwargs
@@ -263,14 +263,14 @@ class ConnectionPacket(PacketAnalyzer):
 class Batch(PacketAnalyzer):
 
     def __init__(self) -> None:
-        super().__init__(ConnectionPacketID.BATCH, connection_packet_codec)
+        super().__init__(ConnectionPacketType.BATCH, connection_packet_codec)
         self._children = []
 
     def that_has(self, *game_packet: GamePacket):
         self._children.extend(game_packet)
         return self
 
-    def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
+    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
             return zip(packet.payloads, self._children)
         else:
@@ -290,7 +290,7 @@ class Batch(PacketAnalyzer):
 
 class RakNetFrame(PacketAnalyzer):
 
-    def __init__(self, packet_id: RakNetFrameID, *args, **kwargs) -> None:
+    def __init__(self, packet_id: RakNetFrameType, *args, **kwargs) -> None:
         super().__init__(packet_id, raknet_frame_codec)
         self._args = args
         self._kwargs = kwargs
@@ -306,7 +306,7 @@ class RakNetFrame(PacketAnalyzer):
         self._child = packet
         return self
 
-    def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
+    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
             return iter([(packet.payload, self._child)])
         else:
@@ -325,7 +325,7 @@ class RakNetFrame(PacketAnalyzer):
 
 class RakNetPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: RakNetPacketID, *args, **kwargs) -> None:
+    def __init__(self, packet_id: RakNetPacketType, *args, **kwargs) -> None:
         super().__init__(packet_id, raknet_packet_codec)
         self._args = args
         self._kwargs = kwargs
@@ -341,7 +341,7 @@ class RakNetPacket(PacketAnalyzer):
         self._children.extend(frame)
         return self
 
-    def get_children(self, packet: Optional[Packet]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
+    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
             return iter([])  # use _decode_raknet_frame
         else:
@@ -390,7 +390,7 @@ class DecodeAgent:
         items.extend(get_packet_str(p) for p in self._packet)
         return '\n'.join('[{}] {}'.format(i, item) for i, item in enumerate(items))
 
-    def __getitem__(self, index: int) -> Packet:
+    def __getitem__(self, index: int) -> ValueObject:
         if index < len(self._data):
             return self._data[index]
         else:
@@ -416,7 +416,7 @@ class DecodeAgent:
         self._packet.append(packet)
         del data[:context.length]
 
-        if RakNetFrameID(packet.id) == RakNetFrameID.RELIABLE_ORDERED_HAS_SPLIT:
+        if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
             self._fragment.append(
                 packet.split_packet_id, packet.split_packet_count, packet.split_packet_index, packet.payload)
             payload = self._fragment.pop(packet.split_packet_id)

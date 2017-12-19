@@ -2,7 +2,7 @@ import struct
 from binascii import hexlify, unhexlify
 from typing import NamedTuple as _NamedTuple, Callable, Generic
 
-from pyminehub.typing import T, BT
+from pyminehub.typevar import T, BT
 
 
 class BytesOperationError(Exception):

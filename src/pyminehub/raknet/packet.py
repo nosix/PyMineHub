@@ -1,10 +1,12 @@
 from typing import Optional
 
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.packet import PacketID, PacketFactory
+from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
+
+RakNetPacket = ValueObject
 
 
-class RakNetPacketID(PacketID):
+class RakNetPacketType(ValueType):
     UNCONNECTED_PING = 0x01
     UNCONNECTED_PONG = 0x1c
     OPEN_CONNECTION_REQUEST1 = 0x05
@@ -31,41 +33,41 @@ class RakNetPacketID(PacketID):
     ACK = 0xc0
 
 
-_packet_specs = {
-    RakNetPacketID.UNCONNECTED_PING: [
+_raknet_packet_specs = {
+    RakNetPacketType.UNCONNECTED_PING: [
         ('id', int),
         ('time_since_start', int),
         ('valid_message_data_id', bool),
         ('client_guid', bytes)
     ],
-    RakNetPacketID.UNCONNECTED_PONG: [
+    RakNetPacketType.UNCONNECTED_PONG: [
         ('id', int),
         ('time_since_start', int),
         ('server_guid', bytes),
         ('valid_message_data_id', bool),
         ('server_id', str)
     ],
-    RakNetPacketID.OPEN_CONNECTION_REQUEST1: [
+    RakNetPacketType.OPEN_CONNECTION_REQUEST1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('raknet_protocol_version', int),
         ('mtu_size', int)
     ],
-    RakNetPacketID.OPEN_CONNECTION_REPLY1: [
+    RakNetPacketType.OPEN_CONNECTION_REPLY1: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
         ('use_encryption', bool),
         ('mtu_size', int)
     ],
-    RakNetPacketID.OPEN_CONNECTION_REQUEST2: [
+    RakNetPacketType.OPEN_CONNECTION_REQUEST2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_address', AddressInPacket),
         ('mtu_size', int),
         ('client_guid', int)
     ],
-    RakNetPacketID.OPEN_CONNECTION_REPLY2: [
+    RakNetPacketType.OPEN_CONNECTION_REPLY2: [
         ('id', int),
         ('valid_message_data_id', bool),
         ('server_guid', int),
@@ -77,15 +79,15 @@ _packet_specs = {
 
 
 for n in range(16):
-    _packet_specs[RakNetPacketID['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _raknet_packet_specs[RakNetPacketType['CUSTOM_PACKET_{:X}'.format(n)]] = [
         ('id', int),
         ('packet_sequence_num', int),
         ('payload', bytes)
     ]
 
 
-for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
-    _packet_specs[packet_id] = [
+for packet_id in (RakNetPacketType.NCK, RakNetPacketType.ACK):
+    _raknet_packet_specs[packet_id] = [
         ('id', int),
         ('record_count', int),
         ('range_max_equals_to_min', bool),
@@ -94,4 +96,4 @@ for packet_id in (RakNetPacketID.NCK, RakNetPacketID.ACK):
     ]
 
 
-raknet_packet_factory = PacketFactory(_packet_specs)
+raknet_packet_factory = ValueObjectFactory(_raknet_packet_specs)

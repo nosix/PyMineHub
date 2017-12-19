@@ -58,7 +58,7 @@ class _TestData:
 
 
 DecodingInfo = _NamedTuple('PacketInfo', [
-    ('packet', Packet),
+    ('packet', ValueObject),
     ('data', bytes),
     ('called', str),
     ('packet_str', str)
@@ -82,7 +82,7 @@ class _TestContext:
     def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
         raise NotImplementedError()
 
-    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+    def replace_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         raise NotImplementedError()
 
 
@@ -97,7 +97,7 @@ class _ActualContext(_TestContext):
     def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
         self._dynamic_values.update(dynamic_values)
 
-    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+    def replace_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         return packet
 
 
@@ -109,7 +109,7 @@ class _ExpectedContext(_TestContext):
     def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
         pass
 
-    def replace_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+    def replace_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
@@ -130,11 +130,11 @@ class _PacketReplacer(PacketVisitor):
         pass
 
     def visit_after_decoding(
-            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
+            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs) -> ValueObject:
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
-    def visit_after_encoding(self, packet: Packet, data: bytes, packet_str: str, called: str) -> None:
+    def visit_after_encoding(self, packet: ValueObject, data: bytes, packet_str: str, called: str) -> None:
         self._data = data
 
 
@@ -147,14 +147,14 @@ class _PacketCollector(PacketVisitor):
         self._context = context
         self._packets = []
 
-    def get_packets(self) -> Tuple[Packet, ...]:
+    def get_packets(self) -> Tuple[ValueObject, ...]:
         return tuple(reversed(self._packets))
 
     def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
         self._test_case.assertEqual(
             expected, actual, message + '\n  when decoding {} data'.format(self._context.get_name()))
 
-    def _replace_dynamic_values(self, packet: Packet, kwargs: Dict[str, Any]) -> Packet:
+    def _replace_dynamic_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
         dynamic_values = dict((key, getattr(packet, key)) for key, value in dynamic_args.items())
         self._context.dynamic_value_found(dynamic_values)
@@ -163,7 +163,7 @@ class _PacketCollector(PacketVisitor):
         # noinspection PyProtectedMember
         return packet._replace(**dynamic_args)
 
-    def _replace_payload(self, packet: Packet) -> Packet:
+    def _replace_payload(self, packet: ValueObject) -> ValueObject:
         if hasattr(packet, 'payload'):
             # noinspection PyProtectedMember
             return packet._replace(**self._PAYLOAD_MASK)
@@ -172,7 +172,7 @@ class _PacketCollector(PacketVisitor):
 
     # noinspection PyMethodOverriding
     def visit_after_decoding(
-            self, data: bytes, packet_id: PacketID, packet: Packet, packet_str: str, called: str, **kwargs) -> Packet:
+            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs) -> ValueObject:
         """Collect packets whose attributes is replaced with kwargs."""
         tmp_packet = self._replace_dynamic_values(packet, kwargs)
         tmp_packet = self._replace_payload(tmp_packet)
@@ -208,7 +208,7 @@ class EncodedData:
         try_action(action, exception_factory=test_case.failureException)
         return visitor.get_data().hex()
 
-    def collect_packet(self, actual_data: bytes, addr: Address) -> Tuple[List[Packet], List[Packet]]:
+    def collect_packet(self, actual_data: bytes, addr: Address) -> Tuple[List[ValueObject], List[ValueObject]]:
         test_case = self._data_producer.test_case
         collector_for_expected = _PacketCollector(test_case, _ExpectedContext())
         collector_for_actual = _PacketCollector(test_case, _ActualContext(self._dynamic_values))
