@@ -23,6 +23,13 @@ def by_index(start: int, index: int) -> str:
     return '{:02x}:'.format(start + index)
 
 
+ReceivedData = Dict[Address, List[bytes]]
+
+
+def print_data(data: ReceivedData, addr: Address) -> None:
+    print('\n'.join(p.hex() for p in data[addr]))
+
+
 class _ProtocolProxy:
 
     def __init__(self) -> None:
@@ -38,11 +45,11 @@ class _ProtocolProxy:
         self._queue.clear()
         return d
 
-    def send(self, data_producer: Callable[[Address], str], from_: Address) -> Dict[Address, List[bytes]]:
+    def send(self, data_producer: Callable[[Address], str], from_: Address) -> ReceivedData:
         self._protocol.datagram_received(unhex(data_producer(from_)), from_)
         return self._get_packets()
 
-    def next_moment(self) -> Dict[Address, List[bytes]]:
+    def next_moment(self) -> ReceivedData:
         self._protocol.next_moment()
         return self._get_packets()
 
@@ -286,10 +293,10 @@ class ProtocolTestCase(TestCase):
         self.data = None
         self.context = None
 
-    def assert_that(self, actual: Dict[Address, List[bytes]], expected: Dict[Address, List[EncodedData]]) -> None:
+    def assert_that(self, actual: ReceivedData, expected: Dict[Address, List[EncodedData]]) -> None:
         try_action(lambda: self._assert_that(actual, expected), exception_factory=self.failureException)
 
-    def _assert_that(self, actual: Dict[Address, List[bytes]], expected: Dict[Address, List[EncodedData]]) -> None:
+    def _assert_that(self, actual: ReceivedData, expected: Dict[Address, List[EncodedData]]) -> None:
         for addr in expected:
             self.assertTrue(addr in actual,
                             'Clients specified by the address {} did not receive packets.'.format(addr))
