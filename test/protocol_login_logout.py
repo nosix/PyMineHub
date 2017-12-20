@@ -215,7 +215,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             ]
         })
         received_data = self.proxy.next_moment()
-        print_data(received_data, self._CLIENT_ADDRESS[0])
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 09

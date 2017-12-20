@@ -667,6 +667,6 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.CRAFTING_DATA,
             EXTRA_DATA,
             self._world.get_recipe(),
-            False
+            True
         )
         self._queue.send_immediately(res_packet, addr)
