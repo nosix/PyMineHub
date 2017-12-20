@@ -76,7 +76,7 @@ class UnconnectedTestCase(ProtocolTestCase):
                     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                         ConnectionPacket(
                             ConnectionPacketType.NEW_INCOMING_CONNECTION,
-                            server_time_since_start=self.values['server_time_since_start'])
+                            server_time_since_start=self.context['server_time_since_start'])
                     ),
                     RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                         ConnectionPacket(ConnectionPacketType.CONNECTED_PING)

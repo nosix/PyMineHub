@@ -13,6 +13,7 @@ import re
 import sys
 import traceback
 from binascii import unhexlify as unhex
+from collections import defaultdict
 from enum import Enum
 from typing import *
 
@@ -25,7 +26,7 @@ from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import MessageFragment
-from pyminehub.raknet.frame import RakNetFrameType
+from pyminehub.raknet.frame import RakNetFrameType, RakNetFrame as _RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType
 from pyminehub.typevar import T
 from pyminehub.value import ValueObject, ValueType
@@ -56,7 +57,11 @@ def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) 
     return packet_str
 
 
-class PacketVisitor:
+class AnalyzingContext:
+
+    def __init__(self) -> None:
+        self._fragment = defaultdict(MessageFragment)  # type: Dict[str, MessageFragment]
+        self._values = {}
 
     def get_bytes_mask_threshold(self) -> Optional[int]:
         """Bytes data is summarized when data length greater than threshold."""
@@ -69,14 +74,44 @@ class PacketVisitor:
         """
         return lambda *args: None
 
-    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
+    def assert_equal(self, expected: T, actual: T, message: str= '') -> None:
         assert expected == actual, message if message is not None else ''
+
+    def append_fragment(self, key: str, frame: _RakNetFrame) -> Optional[bytes]:
+        self._fragment[key].append(
+            frame.split_packet_id, frame.split_packet_count, frame.split_packet_index, frame.payload)
+        return self._fragment[key].pop(frame.split_packet_id)
+
+    def __repr__(self) -> str:
+        return repr(self._values)
+
+    def __setitem__(self, key, value) -> None:
+        self._values[key] = value
+
+    def __getitem__(self, key) -> T:
+        return self._values[key]
+
+    def update(self, values: dict) -> None:
+        self._values.update(values)
+
+
+class AnalyzingVisitor:
+
+    def get_context(self) -> AnalyzingContext:
+        raise NotImplementedError()
+
+    def append_fragment(self, frame: _RakNetFrame) -> Optional[bytes]:
+        return self.get_context().append_fragment('default', frame)
+
+    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
+        self.get_context().assert_equal(expected, actual, message)
 
     def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
-        assert expected == actual, message if message is not None else ''
+        self.get_context().assert_equal(expected, actual, message)
 
     def visit_after_decoding(
-            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs) -> ValueObject:
+            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
+    ) -> ValueObject:
         """It is called after each packet is decodec.
 
         :param data: decoded data
@@ -116,6 +151,9 @@ class _Label(Enum):
     WARNING = 2
 
 
+_PAT = TypeVar('PAT', bound='PacketAnalyzer')
+
+
 class PacketAnalyzer:
 
     def __init__(self, packet_id: ValueType, codec: Codec, stack_depth=3) -> None:
@@ -135,17 +173,26 @@ class PacketAnalyzer:
         return self._called_line
 
     def get_extra_kwargs(self) -> dict:
+        """Return values that is passed visit_after_decoding in visitor."""
         return {}
 
-    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, T]]:
+    def get_children(
+            self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
+    ) -> Iterator[Tuple[bytes, _PAT]]:
         """Get pairs that has packet payload and child PacketAnalyzer.
 
+        :param visitor: AnalyzingVisitor object
         :param packet: packet payload is gotten from this packet
         :return: pairs that has packet payload and child PacketAnalyzer
         """
         return iter([])
 
-    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, T]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, Any]:
+        """Return pair of attribute name and attribute value.
+
+        :param payloads: used in attribute value
+        :return: for example, {'payload': b'[some bytes]', 'payload_length': 128}
+        """
         return {}
 
     def does_assert_data_length(self) -> bool:
@@ -168,24 +215,25 @@ class PacketAnalyzer:
         """Has the decoded result."""
         return not (self._data is None or self._packet is None)
 
-    def decode_on(self, visitor: PacketVisitor, data: bytes) -> int:
+    def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> int:
         context = PacketCodecContext()
         packet = self._codec.decode(data, context)
-        packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
-        visitor.assert_equal_for_decoding(self._packet_id, type(self._packet_id)(packet.id), str(packet))
+        packet_str = get_packet_str(packet, visitor.get_context().get_bytes_mask_threshold())
+        visitor.assert_equal_for_decoding(
+            self._packet_id, type(self._packet_id)(packet.id), str(packet))
         if self.does_assert_data_length():
             visitor.assert_equal_for_decoding(len(data), context.length)
         if hasattr(packet, 'payloads'):
-            visitor.assert_equal_for_decoding(len(list(self.get_children())), len(packet.payloads))
+            visitor.assert_equal_for_decoding(len(list(self.get_children(visitor))), len(packet.payloads))
         packet = visitor.visit_after_decoding(
             data, self._packet_id, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
-        for payload, child in self.get_children(packet):
+        for payload, child in self.get_children(visitor, packet):
             # noinspection PyTypeChecker
             self.try_on_child(child.decode_on, visitor, payload)
         return context.length
 
-    def encode_on(self, visitor: PacketVisitor, label: _Label=_Label.NONE) -> bytes:
+    def encode_on(self, visitor: AnalyzingVisitor, label: _Label=_Label.NONE) -> bytes:
         """Encode the decoded result to bytes data.
 
         :return: encoded bytes data
@@ -193,25 +241,26 @@ class PacketAnalyzer:
         assert self.has_record()
         payloads = tuple(self._encode_children(visitor, label))
         # noinspection PyProtectedMember
-        packet = self._packet._replace(**self.get_payload_dict(payloads))
+        packet = self._packet._replace(**self.get_payload_attr(payloads))
         data = self._codec.encode(packet)
         try:
-            packet_str = get_packet_str(packet, visitor.get_bytes_mask_threshold())
+            packet_str = get_packet_str(packet, visitor.get_context().get_bytes_mask_threshold())
             packet_info = '\n{}\n  {}'.format(self.get_called_line(), packet_str)
             visitor.assert_equal_for_encoding(self._data.hex(), data.hex(), packet_info)
             visitor.visit_after_encoding(packet, data, packet_str, self.get_called_line())
-            self._log(visitor.get_log_function(), label, packet_str)
+            self._log(visitor.get_context().get_log_function(), label, packet_str)
             return data
         except AssertionError as e:
             return self._retry_encoding(visitor, e, data, self.get_called_line())
 
-    def _encode_children(self, visitor: PacketVisitor, label: _Label) -> Generator[bytes, None, None]:
+    def _encode_children(self, visitor: AnalyzingVisitor, label: _Label) -> Generator[bytes, None, None]:
         """Override if there are child elements."""
-        for _, child in self.get_children():
+        for _, child in self.get_children(visitor):
             # noinspection PyUnresolvedReferences
             yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
-    def _retry_encoding(self, visitor: PacketVisitor, exc: AssertionError, data: bytes, called_line: str) -> ValueObject:
+    def _retry_encoding(
+            self, visitor: AnalyzingVisitor, exc: AssertionError, data: bytes, called_line: str) -> ValueObject:
         """Overrides when there is processing at the time of exception occurrence."""
         if self.does_retry_encoding():
             print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
@@ -220,7 +269,7 @@ class PacketAnalyzer:
         else:
             raise exc
 
-    def try_on_child(self, method: Callable[..., None], visitor: PacketVisitor, *args) -> Any:
+    def try_on_child(self, method: Callable[..., None], visitor: AnalyzingVisitor, *args) -> Any:
         assert self.has_record()
         # noinspection PyUnresolvedReferences
         child = method.__self__
@@ -232,10 +281,10 @@ class PacketAnalyzer:
             title = '' if label is _Label.NONE else label.name + ':'
             log('%s%s\n  -> %s\n%s', title, packet_str, self._data.hex(), self.get_called_line())
 
-    def print_packet(self, visitor: PacketVisitor) -> None:
-        self._log(visitor.get_log_function(),
+    def print_packet(self, visitor: AnalyzingVisitor) -> None:
+        self._log(visitor.get_context().get_log_function(),
                   _Label.NONE,
-                  get_packet_str(self._packet, visitor.get_bytes_mask_threshold()))
+                  get_packet_str(self._packet, visitor.get_context().get_bytes_mask_threshold()))
 
 
 class GamePacket(PacketAnalyzer):
@@ -276,19 +325,21 @@ class Batch(PacketAnalyzer):
         self._children.extend(game_packet)
         return self
 
-    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
+    def get_children(
+            self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
+    ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
             return zip(packet.payloads, self._children)
         else:
             return iter((b'', child) for child in self._children)
 
-    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, Tuple[bytes, ...]]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, Tuple[bytes, ...]]:
         return {'payloads': payloads}
 
     def does_retry_encoding(self) -> bool:
         return True
 
-    def print_packet(self, visitor: PacketVisitor) -> None:
+    def print_packet(self, visitor: AnalyzingVisitor) -> None:
         for child in self._children:
             child.print_packet(visitor)
         super().print_packet(visitor)
@@ -312,18 +363,19 @@ class RakNetFrame(PacketAnalyzer):
         self._child = packet
         return self
 
-    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
-        if self._child is None:
-            return iter([])
+    def get_children(
+            self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
+    ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is None:
             return iter([(b'', self._child)])
         payload = packet.payload
         if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
-            # payload = visitor.append_fragment(packet)
-            pass  # TODO support fragmetn
-        return iter([(payload if payload is not None else b'', self._child)])
+            payload = visitor.append_fragment(packet)
+        return iter([]) if self._child is None else \
+            iter([(b'', self._child)]) if payload is None else \
+            iter([(payload, self._child)])
 
-    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
         assert len(payloads) == 1
         return {'payload': payloads[0], 'payload_length': len(payloads[0] * 8)}  # unit of payload_length is bits
 
@@ -352,32 +404,34 @@ class RakNetPacket(PacketAnalyzer):
         self._children.extend(frame)
         return self
 
-    def get_children(self, packet: Optional[ValueObject]=None) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
+    def get_children(
+            self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
+    ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
             return iter([])  # use _decode_raknet_frame
         else:
             return iter((b'', child) for child in self._children)
 
-    def _decode_raknet_packet(self, visitor: PacketVisitor, data: bytes) -> None:
+    def _decode_raknet_packet(self, visitor: AnalyzingVisitor, data: bytes) -> None:
         super().decode_on(visitor, data)
 
-    def _decode_raknet_frame(self, visitor: PacketVisitor) -> None:
+    def _decode_raknet_frame(self, visitor: AnalyzingVisitor) -> None:
         assert self.has_record()
         data = self._packet.payload
         payload_length = 0
         for analyzer in self._children:
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
         visitor.assert_equal_for_decoding(
-            len(data), payload_length, 'Frame may be missing with "{}"'.format(data.hex()))
+            len(data), payload_length, 'RakNetPacket payload may be missing, the payload is "{}"'.format(data.hex()))
 
-    def decode_on(self, visitor: PacketVisitor, data: bytes) -> None:
+    def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> None:
         def action():
             self._decode_raknet_packet(visitor, data)
             if len(self._children) > 0:
                 self._decode_raknet_frame(visitor)
         try_action(action, self.get_called_line())
 
-    def get_payload_dict(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
         return {'payload': b''.join(payloads)}
 
     def does_retry_encoding(self) -> bool:

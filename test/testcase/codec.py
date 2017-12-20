@@ -37,9 +37,10 @@ class CodecTestCase(TestCase):
         self._file_handler.close()
 
 
-class PacketAssertion(PacketVisitor):
+class _AssertionContext(AnalyzingContext):
 
     def __init__(self, test_case: CodecTestCase) -> None:
+        super().__init__()
         self._test_case = test_case
 
     def get_bytes_mask_threshold(self) -> Optional[int]:
@@ -48,11 +49,17 @@ class PacketAssertion(PacketVisitor):
     def get_log_function(self) -> Callable[..., None]:
         return _logger.info
 
-    def assert_equal_for_decoding(self, expected: T, actual: T, message: str= '') -> None:
+    def assert_equal(self, expected: T, actual: T, message: str= '') -> None:
         self._test_case.assertEqual(expected, actual, message)
 
-    def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
-        self._test_case.assertEqual(expected, actual, message)
+
+class _AssertionVisitor(AnalyzingVisitor):
+
+    def __init__(self, context: _AssertionContext) -> None:
+        self._context = context
+
+    def get_context(self) -> AnalyzingContext:
+        return self._context
 
 
 class EncodedData:
@@ -70,7 +77,7 @@ class EncodedData:
         return self
 
     def is_correct_on(self, test_case: CodecTestCase, and_verified_with_encoded_data=False) -> None:
-        assertion = PacketAssertion(test_case)
+        assertion = _AssertionVisitor(_AssertionContext(test_case))
         try_action(lambda: self._analyzer.decode_on(assertion, self._data),
                    exception_factory=test_case.failureException)
         if and_verified_with_encoded_data:
