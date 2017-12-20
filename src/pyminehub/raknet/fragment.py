@@ -1,3 +1,10 @@
+"""Fragment
+
+Fragment show splitted frame.
+
+This is called fragmented frame in http://wiki.vg/Pocket_Edition_Protocol_Documentation
+and message fragment in Wireshark.
+"""
 from typing import Dict, Optional
 
 
@@ -21,7 +28,7 @@ class _Entry:
         return bytes(payload)
 
 
-class MessageFragment:
+class Fragment:
 
     def __init__(self) -> None:
         self._entries = {}  # type: Dict[int, _Entry]

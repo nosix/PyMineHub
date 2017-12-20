@@ -2,7 +2,7 @@ from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
 
 from pyminehub.raknet.codec import raknet_packet_codec
-from pyminehub.raknet.fragment import MessageFragment
+from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.queue import SendQueue
@@ -34,7 +34,7 @@ class Session:
         self._frame_cache = {}  # type: Dict[int, RakNetFrame]  # received frame cache
         self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
-        self._fragment = MessageFragment()  # for split receive packet
+        self._fragment = Fragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
         self._resend_cache = {}  # type: Dict[int, Tuple[int, ...]]  # sequence_num to reliable_message_num
         self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frame_set)

@@ -1,3 +1,10 @@
+"""Frame (or Message)
+
+This is called frame in http://wiki.vg/Pocket_Edition_Protocol_Documentation
+and message in Wireshark and http://www.raknet.net/raknet/manual/systemoverview.html.
+
+Attributes of each frame is named from name used by Wireshark.
+"""
 from typing import NamedTuple as _NamedTuple, Optional
 
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory

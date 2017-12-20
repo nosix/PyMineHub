@@ -25,7 +25,7 @@ from pyminehub.network.codec import Codec
 from pyminehub.network.codec import PacketCodecContext
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
-from pyminehub.raknet.fragment import MessageFragment
+from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import RakNetFrameType, RakNetFrame as _RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType
 from pyminehub.typevar import T
@@ -60,7 +60,7 @@ def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) 
 class AnalyzingContext:
 
     def __init__(self) -> None:
-        self._fragment = defaultdict(MessageFragment)  # type: Dict[str, MessageFragment]
+        self._fragment = defaultdict(Fragment)  # type: Dict[str, Fragment]
         self._values = {}
 
     def get_bytes_mask_threshold(self) -> Optional[int]:
@@ -460,7 +460,7 @@ class RakNetPacket(PacketAnalyzer):
 class DecodeAgent:
 
     def __init__(self) -> None:
-        self._fragment = MessageFragment()
+        self._fragment = Fragment()
         self._data = []
         self._packet = []
         self._decode_func = [
