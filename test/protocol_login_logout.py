@@ -93,7 +93,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 # 03
                 EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.PLAY_STATUS)
@@ -118,7 +118,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 # 04
                 EncodedData(self.data.that_is_response_of('resource_pack_client_response')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.RESOURCE_PACK_STACK)
@@ -136,7 +136,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 # 05
                 EncodedData(self.data.that_is_response_of('start_game')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
                             payload_length=DYNAMIC
@@ -178,7 +178,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 # 06
                 EncodedData(self.data.that_is_response_of('inventory_content')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.SET_ENTITY_DATA)
@@ -198,13 +198,13 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 ),
                 # 07
                 EncodedData(self.data.that_is_response_of('inventory_content')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
                     )
                 ),
                 # 08
                 EncodedData(self.data.that_is_response_of('inventory_content')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.INVENTORY_CONTENT)
@@ -219,7 +219,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             self._CLIENT_ADDRESS[0]: [
                 # 09
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.MOB_EQUIPMENT)
@@ -234,13 +234,13 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 ),
                 # 0a
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
                     )
                 ),
                 # 0b
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.PLAYER_LIST)
@@ -251,7 +251,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 # 0c-1b
                 *[
                     EncodedData(self.data.that_is_response_of('some_data')).is_(
-                        RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                        RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                             RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
                         ).with_label(by_index(0x0c, i))
                     )
@@ -259,7 +259,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 ],
                 # 1c
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.CRAFTING_DATA)

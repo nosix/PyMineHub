@@ -13,22 +13,22 @@ class RakNetPacketType(ValueType):
     OPEN_CONNECTION_REPLY1 = 0x06
     OPEN_CONNECTION_REQUEST2 = 0x07
     OPEN_CONNECTION_REPLY2 = 0x08
-    CUSTOM_PACKET_0 = 0x80
-    CUSTOM_PACKET_1 = 0x81
-    CUSTOM_PACKET_2 = 0x82
-    CUSTOM_PACKET_3 = 0x83
-    CUSTOM_PACKET_4 = 0x84
-    CUSTOM_PACKET_5 = 0x85
-    CUSTOM_PACKET_6 = 0x86
-    CUSTOM_PACKET_7 = 0x87
-    CUSTOM_PACKET_8 = 0x88
-    CUSTOM_PACKET_9 = 0x89
-    CUSTOM_PACKET_A = 0x8a
-    CUSTOM_PACKET_B = 0x8b
-    CUSTOM_PACKET_C = 0x8c
-    CUSTOM_PACKET_D = 0x8d
-    CUSTOM_PACKET_E = 0x8e
-    CUSTOM_PACKET_F = 0x8f
+    FRAME_SET_0 = 0x80
+    FRAME_SET_1 = 0x81
+    FRAME_SET_2 = 0x82
+    FRAME_SET_3 = 0x83
+    FRAME_SET_4 = 0x84
+    FRAME_SET_5 = 0x85
+    FRAME_SET_6 = 0x86
+    FRAME_SET_7 = 0x87
+    FRAME_SET_8 = 0x88
+    FRAME_SET_9 = 0x89
+    FRAME_SET_A = 0x8a
+    FRAME_SET_B = 0x8b
+    FRAME_SET_C = 0x8c
+    FRAME_SET_D = 0x8d
+    FRAME_SET_E = 0x8e
+    FRAME_SET_F = 0x8f
     NCK = 0xa0
     ACK = 0xc0
 
@@ -79,7 +79,7 @@ _raknet_packet_specs = {
 
 
 for n in range(16):
-    _raknet_packet_specs[RakNetPacketType['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _raknet_packet_specs[RakNetPacketType['FRAME_SET_{:X}'.format(n)]] = [
         ('id', int),
         ('packet_sequence_num', int),
         ('payload', bytes)

@@ -11,7 +11,7 @@ _logger = getLogger(__name__)
 
 
 def _create_send_packet(sequence_num: int, payload: bytes) -> RakNetPacket:
-    return raknet_packet_factory.create(RakNetPacketType.CUSTOM_PACKET_4, sequence_num, payload)
+    return raknet_packet_factory.create(RakNetPacketType.FRAME_SET_4, sequence_num, payload)
 
 
 _PACKET_HEADER_SIZE = (
@@ -37,14 +37,7 @@ class Session:
         self._fragment = MessageFragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
         self._resend_cache = {}  # type: Dict[int, Tuple[int, ...]]  # sequence_num to reliable_message_num
-        self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frames)
-
-    def _get_packet_header_size(self) -> int:
-        return len(raknet_packet_codec.encode(self._create_send_packet(0, b'')))
-
-    @staticmethod
-    def _create_send_packet(sequence_num: int, payload: bytes) -> RakNetPacket:
-        return raknet_packet_factory.create(RakNetPacketType.CUSTOM_PACKET_4, sequence_num, payload)
+        self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frame_set)
 
     def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         if packet_sequence_num == self._expected_sequence_num:
@@ -155,10 +148,10 @@ class Session:
         self._ack_set.clear()
         self._nck_set.clear()
 
-    def send_custom_packet(self, payload: bytes, reliability: Reliability) -> None:
+    def send_frame(self, payload: bytes, reliability: Reliability) -> None:
         self._send_queue.push(payload, reliability)
 
-    def _send_frames(self, payload: bytes, reliable_seqnence_num: Tuple[int, ...]) -> None:
+    def _send_frame_set(self, payload: bytes, reliable_seqnence_num: Tuple[int, ...]) -> None:
         """Callback from SendQueue."""
         packet = _create_send_packet(self._sequence_num, payload)
         self._resend_cache[packet.packet_sequence_num] = reliable_seqnence_num

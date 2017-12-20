@@ -47,7 +47,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connection_request')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketType.CONNECTED_PING,
@@ -69,7 +69,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         })
         received_data = self.proxy.send(
             EncodedData(self.data.that_is('new_incoming_connection')).is_(
-                RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                     RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                         ConnectionPacket(ConnectionPacketType.CONNECTED_PONG)
                     ),
@@ -86,7 +86,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('new_incoming_connection')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketType.CONNECTED_PONG,
@@ -104,7 +104,7 @@ class UnconnectedTestCase(ProtocolTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('connected_ping')).is_(
-                    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
                             ConnectionPacket(
                                 ConnectionPacketType.CONNECTED_PONG,

@@ -13,8 +13,8 @@ ReliableOrdered(id=96, payload_length=184, reliable_message_num=35, message_orde
   File "./codec_login_logout.py", line 235, in test_login_logout_s22
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-CustomPacket4(id=132, packet_sequence_num=34, payload=[33 bytes])
+FrameSet4(id=132, packet_sequence_num=34, payload=[33 bytes])
   -> 842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
   File "./codec_login_logout.py", line 234, in test_login_logout_s22
-    RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
+    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
 

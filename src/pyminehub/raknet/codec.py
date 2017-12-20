@@ -52,7 +52,7 @@ _packet_data_codecs = {
 }
 
 for n in range(16):
-    _packet_data_codecs[RakNetPacketType['CUSTOM_PACKET_{:X}'.format(n)]] = [
+    _packet_data_codecs[RakNetPacketType['FRAME_SET_{:X}'.format(n)]] = [
         TRIAD_DATA,
         RAW_DATA
     ]

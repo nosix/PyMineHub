@@ -58,7 +58,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
         session = self._sessions[addr]
-        session.send_custom_packet(data, reliability)
+        session.send_frame(data, reliability)
 
     def send_to_client(self, packet: RakNetPacket, addr: Address) -> None:
         _logger.debug('< %s %s', addr, packet)
@@ -91,7 +91,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             lambda _data: self._handler.data_received(_data, addr),
             lambda _packet: self.send_to_client(_packet, addr))
 
-    def _process_custom_packet(self, packet: RakNetPacket, addr: Address) -> None:
+    def _process_frame_set(self, packet: RakNetPacket, addr: Address) -> None:
         session = self._sessions[addr]
         context = PacketCodecContext()
         frames = []
@@ -104,11 +104,11 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             context.clear()
         session.frame_received(packet.packet_sequence_num, frames)
 
-    def _process_custom_packet_4(self, packet: RakNetPacket, addr: Address) -> None:
-        self._process_custom_packet(packet, addr)
+    def _process_frame_set_4(self, packet: RakNetPacket, addr: Address) -> None:
+        self._process_frame_set(packet, addr)
 
-    def _process_custom_packet_c(self, packet: RakNetPacket, addr: Address) -> None:
-        self._process_custom_packet(packet, addr)
+    def _process_frame_set_c(self, packet: RakNetPacket, addr: Address) -> None:
+        self._process_frame_set(packet, addr)
 
     def _process_nck(self, packet: RakNetPacket, addr: Address) -> None:
         session = self._sessions[addr]
