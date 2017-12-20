@@ -45,4 +45,6 @@ mcpe
 
 ### Reference
 
-This project is implemented by referring to [PocketMine-MP](https://github.com/pmmp/PocketMine-MP) source code.
+- This project is implemented by referring to [PocketMine-MP](https://github.com/pmmp/PocketMine-MP) source code.
+- [RakNet](http://www.raknet.net/raknet/manual/systemoverview.html)
+- [Pocket Edition Protocol Documentation](http://wiki.vg/Pocket_Edition_Protocol_Documentation)
