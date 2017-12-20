@@ -160,6 +160,7 @@ class PacketAnalyzer:
         self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
         self._packet_type = self.__class__.__name__
         self._packet_id = packet_id
+        self._label = ''
         self._codec = codec
         self._data = None
         self._packet = None
@@ -170,13 +171,22 @@ class PacketAnalyzer:
         return called_line.replace(m[1], '.', 1)
 
     def get_called_line(self) -> str:
-        return self._called_line
+        return '{}\n{}'.format(self._label, self._called_line)
+
+    def with_label(self, label: str):
+        self._label = label
+        for child in self.get_child_analyzers():
+            child.with_label(label)
+        return self
 
     def get_extra_kwargs(self) -> dict:
         """Return values that is passed visit_after_decoding in visitor."""
         return {}
 
-    def get_children(
+    def get_child_analyzers(self) -> Iterator[_PAT]:
+        return iter([])
+
+    def get_child_targets(
             self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
     ) -> Iterator[Tuple[bytes, _PAT]]:
         """Get pairs that has packet payload and child PacketAnalyzer.
@@ -224,11 +234,11 @@ class PacketAnalyzer:
         if self.does_assert_data_length():
             visitor.assert_equal_for_decoding(len(data), context.length)
         if hasattr(packet, 'payloads'):
-            visitor.assert_equal_for_decoding(len(list(self.get_children(visitor))), len(packet.payloads))
+            visitor.assert_equal_for_decoding(len(list(self.get_child_targets(visitor))), len(packet.payloads))
         packet = visitor.visit_after_decoding(
             data, self._packet_id, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
-        for payload, child in self.get_children(visitor, packet):
+        for payload, child in self.get_child_targets(visitor, packet):
             # noinspection PyTypeChecker
             self.try_on_child(child.decode_on, visitor, payload)
         return context.length
@@ -255,7 +265,7 @@ class PacketAnalyzer:
 
     def _encode_children(self, visitor: AnalyzingVisitor, label: _Label) -> Generator[bytes, None, None]:
         """Override if there are child elements."""
-        for _, child in self.get_children(visitor):
+        for _, child in self.get_child_targets(visitor):
             # noinspection PyUnresolvedReferences
             yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
@@ -325,7 +335,10 @@ class Batch(PacketAnalyzer):
         self._children.extend(game_packet)
         return self
 
-    def get_children(
+    def get_child_analyzers(self) -> Iterator[PacketAnalyzer]:
+        return iter(self._children)
+
+    def get_child_targets(
             self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
     ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:
@@ -363,7 +376,10 @@ class RakNetFrame(PacketAnalyzer):
         self._child = packet
         return self
 
-    def get_children(
+    def get_child_analyzers(self) -> Iterator[PacketAnalyzer]:
+        return iter([]) if self._child is None else iter([self._child])
+
+    def get_child_targets(
             self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
     ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is None:
@@ -404,7 +420,10 @@ class RakNetPacket(PacketAnalyzer):
         self._children.extend(frame)
         return self
 
-    def get_children(
+    def get_child_analyzers(self) -> Iterator[PacketAnalyzer]:
+        return iter(self._children)
+
+    def get_child_targets(
             self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
     ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is not None:

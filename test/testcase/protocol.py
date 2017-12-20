@@ -13,6 +13,16 @@ from util.codec import *
 from util.mock import MockEventLoop, MockTransport, MockWorldProxy
 
 
+def by_index(start: int, index: int) -> str:
+    """Return label string.
+
+    :param start: for example, 0x0c
+    :param index: it is added to start value
+    :return: for example, when start value is 0x0c and index is 1, return '0d:'
+    """
+    return '{:02x}:'.format(start + index)
+
+
 class _ProtocolProxy:
 
     def __init__(self) -> None:

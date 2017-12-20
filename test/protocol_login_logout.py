@@ -248,9 +248,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                     EncodedData(self.data.that_is_response_of('some_data')).is_(
                         RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
                             RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
-                        )
+                        ).with_label(by_index(0x0c, i))
                     )
-                    for _ in range(16)
+                    for i in range(16)
                 ],
                 # 1c
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
