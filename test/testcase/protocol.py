@@ -145,6 +145,8 @@ class _PacketReplacer(AnalyzingVisitor):
 
 class _PacketCollector(AnalyzingVisitor):
 
+    _MASK_ATTRIBUTE = ('payload', 'payloads', 'payload_length')
+
     def __init__(self, context: _ProtocolTestContext) -> None:
         self._context = context
         self._packets = []
@@ -183,15 +185,10 @@ class _PacketCollector(AnalyzingVisitor):
         # noinspection PyProtectedMember
         return packet._replace(**dynamic_args)
 
-    @staticmethod
-    def _replace_payload(packet: ValueObject) -> ValueObject:
-        if hasattr(packet, 'payload'):
-            # noinspection PyProtectedMember
-            return packet._replace(payload='[mask]')
-        if hasattr(packet, 'payloads'):
-            # noinspection PyProtectedMember
-            return packet._replace(payloads='[mask]')
-        return packet
+    def _replace_payload(self, packet: ValueObject) -> ValueObject:
+        kwargs = dict((name, '[mask]') for name in self._MASK_ATTRIBUTE if hasattr(packet, name))
+        # noinspection PyProtectedMember
+        return packet._replace(**kwargs)
 
     # noinspection PyMethodOverriding
     def visit_after_decoding(
