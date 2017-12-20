@@ -8,6 +8,7 @@ Action = ValueObject
 class ActionType(ValueType):
     LOGIN_PLAYER = 0
     UNKNOWN1 = 1
+    UNKNOWN2 = 2
 
 
 _action_specs = {
@@ -18,7 +19,11 @@ _action_specs = {
     ActionType.UNKNOWN1: [
         ('id', int),
         ('player_id', PlayerID)
-    ]
+    ],
+    ActionType.UNKNOWN2: [
+        ('id', int),
+        ('player_id', PlayerID)
+    ],
 }
 
 

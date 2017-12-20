@@ -622,6 +622,12 @@ class MCPEHandler(GameDataHandler):
             items=player.get_inventory_content(121))
         self._queue.send_immediately(res_packet, addr)
 
+        self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.get_id()))  # TODO remove
+
+    def _process_event_unknown2(self, event: Event) -> None:
+        addr = self._get_addr(event.player_id)
+        player = self._get_player_session(addr)
+
         res_packet = game_packet_factory.create(
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,

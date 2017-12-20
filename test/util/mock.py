@@ -191,6 +191,9 @@ class MockWorldProxy(WorldProxy):
         if ActionType(action.id) == ActionType.UNKNOWN1:
             self._event_queue.append(event_factory.create(EventType.UNKNOWN1, action.player_id))
             return
+        if ActionType(action.id) == ActionType.UNKNOWN2:
+            self._event_queue.append(event_factory.create(EventType.UNKNOWN2, action.player_id))
+            return
 
     def next_event(self) -> Optional[Event]:
         try:

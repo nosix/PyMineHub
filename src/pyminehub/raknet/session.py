@@ -1,10 +1,9 @@
-from collections import defaultdict
 from logging import getLogger
-from typing import List, Set, Dict, Callable
+from typing import Callable, Dict, List, Set, Tuple
 
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import MessageFragment
-from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame, raknet_frame_factory
+from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.queue import SendQueue
 
@@ -37,9 +36,7 @@ class Session:
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
         self._fragment = MessageFragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._resend_cache = {}  # type: Dict[int, RakNetPacket]  # send packets waiting for ACK / NCK
-        self._message_num = 0  # type: int  # for send reliable packet
-        self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
+        self._resend_cache = {}  # type: Dict[int, Tuple[int, ...]]  # sequence_num to reliable_message_num
         self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frames)
 
     def _get_packet_header_size(self) -> int:
@@ -103,11 +100,18 @@ class Session:
             action(sequence_num)
 
     def _nck_action(self, sequence_num: int) -> None:
-        res_packet = self._resend_cache[sequence_num]
-        self._send_to_client(res_packet)
+        try:
+            for reliable_sequence_num in self._resend_cache[sequence_num]:
+                self._send_queue.resend(reliable_sequence_num)
+        except KeyError:
+            pass
 
     def _ack_action(self, sequence_num: int) -> None:
-        del self._resend_cache[sequence_num]
+        try:
+            for reliable_sequence_num in self._resend_cache[sequence_num]:
+                self._send_queue.discard(reliable_sequence_num)
+        except KeyError:
+            pass
 
     def nck_received(self, packet: RakNetPacket) -> None:
         self._nck_or_ack_received(packet, self._nck_action)
@@ -152,48 +156,11 @@ class Session:
         self._nck_set.clear()
 
     def send_custom_packet(self, payload: bytes, reliability: Reliability) -> None:
-        reliable, channel = reliability
-        if channel is not None:
-            self._send_reliable_ordered_frame(payload, channel)
-        elif reliable:
-            self._send_reliable_frame(payload)
-        else:
-            self._send_unreliable_frame(payload)
+        self._send_queue.push(payload, reliability)
 
-    def _send_reliable_ordered_frame(self, payload: bytes, channel: int) -> None:
-        frame = raknet_frame_factory.create(
-            RakNetFrameType.RELIABLE_ORDERED,
-            len(payload) * 8,
-            self._message_num,
-            self._ordering_index[channel],
-            channel,
-            payload
-        )
-        self._send_queue.push(frame)
-        self._message_num += 1
-        self._ordering_index[channel] += 1
-
-    def _send_reliable_frame(self, payload: bytes) -> None:
-        frame = raknet_frame_factory.create(
-            RakNetFrameType.RELIABLE,
-            len(payload) * 8,
-            self._message_num,
-            payload
-        )
-        self._send_queue.push(frame)
-        self._message_num += 1
-
-    def _send_unreliable_frame(self, payload: bytes) -> None:
-        frame = raknet_frame_factory.create(
-            RakNetFrameType.UNRELIABLE,
-            len(payload) * 8,
-            payload
-        )
-        self._send_queue.push(frame)
-
-    def _send_frames(self, payload: bytes) -> None:
+    def _send_frames(self, payload: bytes, reliable_seqnence_num: Tuple[int, ...]) -> None:
         """Callback from SendQueue."""
         packet = _create_send_packet(self._sequence_num, payload)
-        self._resend_cache[packet.packet_sequence_num] = packet
+        self._resend_cache[packet.packet_sequence_num] = reliable_seqnence_num
         self._sequence_num += 1
         self._send_to_client(packet)

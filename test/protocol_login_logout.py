@@ -177,7 +177,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 06
-                EncodedData(self.data.that_is_response_of('some_data')).is_(
+                EncodedData(self.data.that_is_response_of('inventory_content')).is_(
                     RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
@@ -197,13 +197,13 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                     )
                 ),
                 # 07
-                EncodedData(self.data.that_is_response_of('some_data')).is_(
+                EncodedData(self.data.that_is_response_of('inventory_content')).is_(
                     RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
                     )
                 ),
                 # 08
-                EncodedData(self.data.that_is_response_of('some_data')).is_(
+                EncodedData(self.data.that_is_response_of('inventory_content')).is_(
                     RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
                             Batch().that_has(
@@ -211,7 +211,13 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
-                ),
+                )
+            ]
+        })
+        received_data = self.proxy.next_moment()
+        print_data(received_data, self._CLIENT_ADDRESS[0])
+        self.assert_that(received_data, {
+            self._CLIENT_ADDRESS[0]: [
                 # 09
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
                     RakNetPacket(RakNetPacketType.CUSTOM_PACKET_4).that_has(
@@ -220,7 +226,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                                 GamePacket(GamePacketType.MOB_EQUIPMENT)
                             )
                         ),
-                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.INVENTORY_SLOT)
                             )

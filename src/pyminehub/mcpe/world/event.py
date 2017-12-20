@@ -8,6 +8,7 @@ Event = ValueObject
 class EventType(ValueType):
     PLAYER_LOGGED_IN = 0
     UNKNOWN1 = 1
+    UNKNOWN2 = 2
 
 
 _event_specs = {
@@ -18,7 +19,11 @@ _event_specs = {
     EventType.UNKNOWN1: [
         ('id', int),
         ('player_id', PlayerID)
-    ]
+    ],
+    EventType.UNKNOWN2: [
+        ('id', int),
+        ('player_id', PlayerID)
+    ],
 }
 
 

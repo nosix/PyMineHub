@@ -160,7 +160,7 @@ class PacketAnalyzer:
         self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
         self._packet_type = self.__class__.__name__
         self._packet_id = packet_id
-        self._label = ''
+        self._label = None
         self._codec = codec
         self._data = None
         self._packet = None
@@ -171,7 +171,7 @@ class PacketAnalyzer:
         return called_line.replace(m[1], '.', 1)
 
     def get_called_line(self) -> str:
-        return '{}\n{}'.format(self._label, self._called_line)
+        return self._called_line if self._label is None else '{}\n{}'.format(self._label, self._called_line)
 
     def with_label(self, label: str):
         self._label = label
