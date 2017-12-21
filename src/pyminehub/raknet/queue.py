@@ -1,6 +1,7 @@
 import math
 import time
 from collections import defaultdict
+from queue import Empty
 from typing import Callable, Dict, Generator, Tuple
 
 from pyminehub.config import ConfigKey, get_value
@@ -82,8 +83,12 @@ class SendQueue:
     def send(self) -> None:
         buffer = bytearray()
         reliable_message_num_in_buffer = []
-        while self._queue:
-            send_time, frame = self._queue.get()
+        while True:
+            try:
+                send_time, frame = self._queue.get()
+            except Empty:
+                break
+
             if send_time > self._get_current_time():
                 self._queue.put(send_time, frame)
                 break

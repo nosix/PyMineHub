@@ -1,5 +1,6 @@
 import itertools
 from heapq import heappush, heappop
+from queue import Empty
 from typing import Callable, Dict, Generic, List, Optional, Tuple, TypeVar
 
 _UPPT = TypeVar('UPPT', int, float)
@@ -14,12 +15,6 @@ class UpdatablePriorityQueue(Generic[_UPPT, _UPKT, _UPTT]):
         self._heap_queue = []  # type: List[List[_UPPT, int, _UPTT]]
         self._entry_finder = {}  # type: Dict[_UPKT, _UPTT]
         self._counter = itertools.count()
-
-    def __bool__(self) -> bool:
-        return bool(self._heap_queue)
-
-    def __len__(self) -> int:
-        return len(self._heap_queue)
 
     def pop(self, key: _UPKT) -> _UPTT:
         """Remove a task of the specified key from this queue and get the task."""
@@ -45,7 +40,7 @@ class UpdatablePriorityQueue(Generic[_UPPT, _UPKT, _UPTT]):
             self._entry_finder[key] = entry
 
     def get(self) -> Tuple[_UPPT, _UPTT]:
-        """Get a minimum priority task from this queue."""
+        """Get a minimum priority task from this queue or raise Empty when queue is empty."""
         while self._heap_queue:
             priority, count, task = heappop(self._heap_queue)
             if task is None:
@@ -54,3 +49,4 @@ class UpdatablePriorityQueue(Generic[_UPPT, _UPKT, _UPTT]):
             if key is not None:
                 del self._entry_finder[key]
             return priority, task
+        raise Empty()
