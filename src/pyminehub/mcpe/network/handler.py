@@ -7,6 +7,7 @@ from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket
 from pyminehub.mcpe.network.packet import EXTRA_DATA
 from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
+from pyminehub.mcpe.network.reliability import UNRELIABLE
 from pyminehub.mcpe.player import Player, PlayerID
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
@@ -92,7 +93,7 @@ class MCPEHandler(GameDataHandler):
             ConnectionPacketType.CONNECTED_PONG,
             packet.ping_time_since_start,
             self._get_current_time())
-        self._send_connection_packet(res_packet, addr, Reliability(False, None))
+        self._send_connection_packet(res_packet, addr, UNRELIABLE)
 
     def _process_connected_pong(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.ping_time_since_start == self._ping_time[addr]:
@@ -103,7 +104,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = connection_packet_factory.create(
             ConnectionPacketType.CONNECTED_PING,
             self._get_current_time())
-        self._send_connection_packet(res_packet, addr, Reliability(False, None))
+        self._send_connection_packet(res_packet, addr, UNRELIABLE)
 
         self._accepted_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
@@ -113,7 +114,7 @@ class MCPEHandler(GameDataHandler):
             self._INTERNAL_ADDRESSES,
             packet.client_time_since_start,
             self._accepted_time[addr])
-        self._send_connection_packet(res_packet, addr, Reliability(False, None))
+        self._send_connection_packet(res_packet, addr, UNRELIABLE)
 
     def _process_new_incoming_connection(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.server_time_since_start != self._accepted_time[addr]:
