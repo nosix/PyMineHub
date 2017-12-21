@@ -37,7 +37,7 @@ class _ProtocolProxy:
         self._protocol = _RakNetServerProtocol(MockEventLoop(), MCPEHandler(MockWorldProxy()))
         self._protocol.connection_made(MockTransport(self._queue))
 
-    def _get_packets(self):
+    def receive(self):
         self._protocol.send_waiting_packets()
         d = defaultdict(list)
         for res_addr, res_data in self._queue:
@@ -45,13 +45,11 @@ class _ProtocolProxy:
         self._queue.clear()
         return d
 
-    def send(self, data_producer: Callable[[Address], str], from_: Address) -> ReceivedData:
+    def send(self, data_producer: Callable[[Address], str], from_: Address) -> None:
         self._protocol.datagram_received(unhex(data_producer(from_)), from_)
-        return self._get_packets()
 
-    def next_moment(self) -> ReceivedData:
+    def next_moment(self) -> None:
         self._protocol.next_moment()
-        return self._get_packets()
 
 
 class _ProtocolTestContext(AnalyzingContext):
@@ -114,6 +112,16 @@ class _DynamicValue(_NamedTuple('DynamicValue', [])):
 DYNAMIC = _DynamicValue()
 
 
+def _capture_dynamic_value(
+        packet: ValueObject, kwargs: dict, dynamic_value_found: Callable[[Dict[str, Any]], None]) -> Dict[str, Any]:
+    dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
+    dynamic_values = dict((key, getattr(packet, key)) for key, value in dynamic_args.items())
+    dynamic_value_found(dynamic_values)
+    for key in dynamic_args:
+        del kwargs[key]
+    return dynamic_args
+
+
 class _PacketReplacer(AnalyzingVisitor):
     """Replace attribute values on sending packet."""
 
@@ -133,9 +141,13 @@ class _PacketReplacer(AnalyzingVisitor):
     def assert_equal_for_encoding(self, expected: T, actual: T, message: str= '') -> None:
         pass
 
+    def dynamic_value_found(self, dynamic_values: Dict[str, Any]) -> None:
+        self.get_context().update(dynamic_values)
+
     def visit_after_decoding(
             self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
+        _capture_dynamic_value(packet, kwargs, self.dynamic_value_found)
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
@@ -177,11 +189,7 @@ class _PacketCollector(AnalyzingVisitor):
         return packet
 
     def _replace_dynamic_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
-        dynamic_args = dict((key, value) for key, value in kwargs.items() if value is DYNAMIC)
-        dynamic_values = dict((key, getattr(packet, key)) for key, value in dynamic_args.items())
-        self.dynamic_value_found(dynamic_values)
-        for key in dynamic_args:
-            del kwargs[key]
+        dynamic_args = _capture_dynamic_value(packet, kwargs, self.dynamic_value_found)
         # noinspection PyProtectedMember
         return packet._replace(**dynamic_args)
 

@@ -15,80 +15,27 @@ class LoginLogoutTestCase(UnconnectedTestCase):
 
     def test_login(self):
         self.test_connection_request()
+
         # 03 Fragment 1/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 04 Fragment 2/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 05 Fragment 3/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 06 Fragment 4/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 07 Fragment 5/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 08 Fragment 6/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 09 Fragment 7/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 0a Fragment 8/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                )
-            ]
-        })
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
         # 0b Fragment 9/9
-        received_data = self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
+        self.proxy.send(self.data.that_is('login'), from_=self._CLIENT_ADDRESS[0])
+
+        received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 03
@@ -111,9 +58,12 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 )
             ]
         })
+
         # 0c
-        received_data = self.proxy.send(
+        self.proxy.send(
             self.data.that_is('resource_pack_client_response'), from_=self._CLIENT_ADDRESS[0])
+
+        received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 04
@@ -131,7 +81,10 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 ),
             ]
         })
-        received_data = self.proxy.next_moment()
+
+        self.proxy.next_moment()
+
+        received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 05
@@ -173,7 +126,10 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 )
             ]
         })
-        received_data = self.proxy.next_moment()
+
+        self.proxy.next_moment()
+
+        received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 06
@@ -214,7 +170,10 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 )
             ]
         })
-        received_data = self.proxy.next_moment()
+
+        self.proxy.next_moment()
+
+        received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 09
