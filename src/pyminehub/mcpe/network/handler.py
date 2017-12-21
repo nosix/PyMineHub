@@ -156,6 +156,11 @@ class MCPEHandler(GameDataHandler):
         player = self._get_player_session(addr)
         self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.get_id()))
 
+    def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
+        # TODO update chunk
+        res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
+        self._queue.send_immediately(res_packet, addr)
+
     def _process_event_player_logged_in(self, event: Event) -> None:
         addr = self._get_addr(event.player_id)
         player = self._get_player_session(addr)
