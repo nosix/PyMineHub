@@ -28,7 +28,7 @@ __default_config = (
     (ConfigKey.SEED, 0),
     (ConfigKey.WORLD_NAME, 'PyMineHub Server'),
     (ConfigKey.SERVER_GUID, None),
-    (ConfigKey.RESEND_TIME, 500)  # ms
+    (ConfigKey.RESEND_TIME, 500)  # ms, greater than ACK/NCK arrives
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]

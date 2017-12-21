@@ -1,6 +1,8 @@
+from collections import defaultdict
 from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
 
+from pyminehub.raknet.channel import Channel
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
@@ -31,39 +33,28 @@ class Session:
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
-        self._frame_cache = {}  # type: Dict[int, RakNetFrame]  # received frame cache
         self._ack_set = set()  # type: Set[int]  # waiting ACKs for sending
         self._nck_set = set()  # type: Set[int]  # waiting NCKs for sending
+        self._resend_candidates = {}  # type: Dict[int, Tuple[int, ...]]  # sequence_num to reliable_message_num
+        self._channels = defaultdict(Channel)  # type: Dict[int, Channel]
         self._fragment = Fragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._resend_cache = {}  # type: Dict[int, Tuple[int, ...]]  # sequence_num to reliable_message_num
         self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frame_set)
 
     def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
+        # TODO make sure to need check reliable_message_num
+        self._ack_set.add(packet_sequence_num)
         if packet_sequence_num == self._expected_sequence_num:
-            self._process_frames(packet_sequence_num, frames)
             self._expected_sequence_num += 1
-            self._ack_set.add(packet_sequence_num)
-            self._process_cache()
         elif packet_sequence_num > self._expected_sequence_num:
-            self._frame_cache[packet_sequence_num] = frames
             for nck_sequence_num in range(self._expected_sequence_num, packet_sequence_num):
                 self._nck_set.add(nck_sequence_num)
-            self._ack_set.add(packet_sequence_num)
-        else:
-            _logger.warning('Packet that has old packet sequence number was received.')
-            for frame in frames:
-                _logger.warning('[%d] %s', packet_sequence_num, frame)
+            self._expected_sequence_num = packet_sequence_num + 1
+        self._process_frames(frames)
 
-    def _process_cache(self) -> None:
-        while self._expected_sequence_num in self._frame_cache:
-            frames = self._frame_cache.pop(self._expected_sequence_num)
-            self._process_frames(self._expected_sequence_num, frames)
-            self._expected_sequence_num += 1
-
-    def _process_frames(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
+    def _process_frames(self, frames: List[RakNetFrame]) -> None:
         for frame in frames:
-            _logger.debug('> %d:%s', packet_sequence_num, frame)
+            _logger.debug('> %s', frame)
             getattr(self, '_process_' + RakNetFrameType(frame.id).name.lower())(frame)
 
     def _process_unreliable(self, frame: RakNetFrame) -> None:
@@ -73,7 +64,10 @@ class Session:
         self._send_to_game_handler(frame.payload)
 
     def _process_reliable_ordered(self, frame: RakNetFrame) -> None:
-        self._send_to_game_handler(frame.payload)
+        channel = self._channels[frame.message_ordering_chanel]
+        channel.append(frame)
+        for payload in channel:
+            self._send_to_game_handler(payload)
 
     def _process_reliable_ordered_has_split(self, frame: RakNetFrame) -> None:
         self._fragment.append(
@@ -83,7 +77,9 @@ class Session:
             frame.payload)
         payload = self._fragment.pop(frame.split_packet_id)
         if payload is not None:
-            self._send_to_game_handler(payload)
+            # noinspection PyProtectedMember
+            frame = frame._replace(payload=payload)
+            self._process_reliable_ordered(frame)
 
     @staticmethod
     def _nck_or_ack_received(packet: RakNetPacket, action: Callable[[int], None]) -> None:
@@ -94,14 +90,14 @@ class Session:
 
     def _nck_action(self, sequence_num: int) -> None:
         try:
-            for reliable_sequence_num in self._resend_cache[sequence_num]:
+            for reliable_sequence_num in self._resend_candidates[sequence_num]:
                 self._send_queue.resend(reliable_sequence_num)
         except KeyError:
             pass
 
     def _ack_action(self, sequence_num: int) -> None:
         try:
-            for reliable_sequence_num in self._resend_cache[sequence_num]:
+            for reliable_sequence_num in self._resend_candidates[sequence_num]:
                 self._send_queue.discard(reliable_sequence_num)
         except KeyError:
             pass
@@ -154,6 +150,6 @@ class Session:
     def _send_frame_set(self, payload: bytes, reliable_seqnence_num: Tuple[int, ...]) -> None:
         """Callback from SendQueue."""
         packet = _create_send_packet(self._sequence_num, payload)
-        self._resend_cache[packet.packet_sequence_num] = reliable_seqnence_num
+        self._resend_candidates[packet.packet_sequence_num] = reliable_seqnence_num
         self._sequence_num += 1
         self._send_to_client(packet)
