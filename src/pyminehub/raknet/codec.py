@@ -109,13 +109,13 @@ for packet_id in (RakNetPacketType.NCK, RakNetPacketType.ACK):
 
 class _FramePayload(DataCodec[bytes]):
 
-    def read(self, data: bytearray, context: PacketCodecContext) -> bytes:
+    def read(self, data: bytearray, context: CompositeCodecContext) -> bytes:
         payload_length = context['payload_length'] // 8
         d = pop_first(data, payload_length)
         context.length += payload_length
         return bytes(d)
 
-    def write(self, data: bytearray, value: bytes, context: PacketCodecContext) -> None:
+    def write(self, data: bytearray, value: bytes, context: CompositeCodecContext) -> None:
         data += value
         context.length += len(value)
 
@@ -154,8 +154,8 @@ _frame_data_codecs = {
 }
 
 
-raknet_packet_codec = Codec(RakNetPacketType, raknet_packet_factory, _packet_data_codecs)
-raknet_frame_codec = Codec(RakNetFrameType, raknet_frame_factory, _frame_data_codecs)
+raknet_packet_codec = PacketCodec(RakNetPacketType, raknet_packet_factory, _packet_data_codecs)
+raknet_frame_codec = PacketCodec(RakNetFrameType, raknet_frame_factory, _frame_data_codecs)
 
 
 if __name__ == '__main__':

@@ -15,9 +15,10 @@ config -> typevar
 binutil -> typevar
   converter -> typevar
   instance -> .[converter]
+  composite -> typevar, .[converter]
 network -> binutil
   address
-  codec -> value, binutil.instance, .[address]
+  codec -> value, binutil.[composite, instance], .[address]
 raknet -> value, config, network
   - fragment -> value
   - packet -> value, network.[address]

@@ -6,7 +6,7 @@ from typing import Dict, Callable, Any
 # noinspection PyProtectedMember
 from pyminehub.mcpe.network.codec.batch import _RecipeList, _InventoryContentItems
 from pyminehub.mcpe.value import *
-from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.codec import CompositeCodecContext
 
 _KEY_CLASS_NAME = '__cls__'
 
@@ -68,7 +68,7 @@ def load_recipe(file_name: str) -> Tuple[Recipe, ...]:
 def encode_recipe(recipe: Tuple[Recipe, ...], file_name: str) -> None:
     """For example, pyminehub/mcpe/crafting-data-recipe.dat is encoded by this."""
     data = bytearray()
-    context = PacketCodecContext()
+    context = CompositeCodecContext()
     # noinspection PyProtectedMember
     _RecipeList._CODEC.write(data, recipe, context)
     with open(file_name, 'bw') as file:
@@ -94,7 +94,7 @@ def load_inventory_content(file_name: str) -> Tuple[Slot, ...]:
 def encode_inventory_content(content: Tuple[Slot, ...], file_name: str) -> None:
     """For example, pyminehub/mcpe/inventory-content-items121.dat is encoded by this."""
     data = bytearray()
-    context = PacketCodecContext()
+    context = CompositeCodecContext()
     # noinspection PyProtectedMember
     _InventoryContentItems._CODEC.write(data, content, context)
     with open(file_name, 'bw') as file:

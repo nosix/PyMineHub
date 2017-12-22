@@ -1,49 +1,21 @@
+from pyminehub.binutil.composite import *
 from pyminehub.binutil.instance import *
 from pyminehub.network.address import AddressInPacket
 from pyminehub.value import ValueObject
 
 
-class PacketCodecContext(DataCodecContext):
-
-    def __init__(self) -> None:
-        super().__init__()
-        self._values = []
-        self._stack = []
-
-    def append_value(self, value) -> None:
-        self._values.append(value)
-
-    def get_values(self) -> tuple:
-        return tuple(self._values)
-
-    def push_stack(self) -> None:
-        self._stack.append({})
-
-    def pop_stack(self) -> None:
-        self._stack.pop()
-
-    def __setitem__(self, key, value) -> None:
-        self._stack[-1][key] = value
-
-    def __getitem__(self, key) -> T:
-        for d in reversed(self._stack):
-            if key in d:
-                return d[key]
-        raise KeyError(key)
-
-
-class Codec:
+class PacketCodec:
 
     def __init__(self, packet_id_cls, packet_factory, data_codecs) -> None:
         self._packet_id_cls = packet_id_cls
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs
 
-    def encode(self, packet: ValueObject, context: PacketCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
+    def encode(self, packet: ValueObject, context: CompositeCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
         >>> p = _packet_factory.create(PacketType.unconnected_pong, 8721, 12985, 'MCPE;')
-        >>> context = PacketCodecContext()
+        >>> context = CompositeCodecContext()
         >>> hexlify(_packet_codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900054d4350453b'
         >>> context.length
@@ -57,7 +29,7 @@ class Codec:
         :return: bytes data obtained by encoding
         """
         id_encoder = id_encoder or BYTE_DATA
-        context = context or PacketCodecContext()
+        context = context or CompositeCodecContext()
         context.push_stack()
         data = bytearray()
         packet_id = self._packet_id_cls(packet[0])
@@ -69,11 +41,11 @@ class Codec:
         context.pop_stack()
         return bytes(data)
 
-    def decode(self, data: bytes, context: PacketCodecContext=None, id_decoder: DataCodec[int]=None) -> ValueObject:
+    def decode(self, data: bytes, context: CompositeCodecContext=None, id_decoder: DataCodec[int]=None) -> ValueObject:
         """ Decode bytes to packet.
 
         >>> data = unhexlify(b'1c000000000000221100000000000032b900054d4350453b')
-        >>> context = PacketCodecContext()
+        >>> context = CompositeCodecContext()
         >>> _packet_codec.decode(data, context, BYTE_DATA)
         UnconnectedPong(id=28, time_since_start=8721, server_guid=12985, server_id='MCPE;')
         >>> context.length
@@ -87,7 +59,7 @@ class Codec:
         :return: a packet obtained by decoding
         """
         id_decoder = id_decoder or BYTE_DATA
-        context = context or PacketCodecContext()
+        context = context or CompositeCodecContext()
         context.push_stack()
         buffer = bytearray(data)
         packet_id = self._packet_id_cls(id_decoder.read(buffer, context))
@@ -133,22 +105,6 @@ class AddressData(DataCodec[AddressInPacket]):
         B_SHORT_DATA.write(data, value.port, context)
 
 
-class NamedData(DataCodec[T]):
-
-    def __init__(self, name: str, data_codec: DataCodec[T]):
-        self._name = name
-        self._data_codec = data_codec
-
-    def read(self, data: bytearray, context: PacketCodecContext) -> T:
-        value = self._data_codec.read(data, context)
-        context[self._name] = value
-        return value
-
-    def write(self, data: bytearray, value: T, context: PacketCodecContext) -> None:
-        self._data_codec.write(data, value, context)
-        context[self._name] = value
-
-
 ADDRESS_DATA = AddressData()
 
 
@@ -177,7 +133,7 @@ if __name__ == '__main__':
     }
 
     _packet_factory = ValueObjectFactory(_packet_specs)
-    _packet_codec = Codec(PacketType, _packet_factory, _data_codecs)
+    _packet_codec = PacketCodec(PacketType, _packet_factory, _data_codecs)
 
     import doctest
     doctest_result = doctest.testmod()

@@ -21,8 +21,8 @@ from pyminehub.mcpe.network.codec import connection_packet_codec
 from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacketType
 from pyminehub.mcpe.network.packet import GamePacketType
-from pyminehub.network.codec import Codec
-from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.codec import CompositeCodecContext
+from pyminehub.network.codec import PacketCodec
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
@@ -156,7 +156,7 @@ _PAT = TypeVar('PAT', bound='PacketAnalyzer')
 
 class PacketAnalyzer:
 
-    def __init__(self, packet_id: ValueType, codec: Codec, stack_depth=3) -> None:
+    def __init__(self, packet_id: ValueType, codec: PacketCodec, stack_depth=3) -> None:
         self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
         self._packet_type = self.__class__.__name__
         self._packet_id = packet_id
@@ -226,7 +226,7 @@ class PacketAnalyzer:
         return not (self._data is None or self._packet is None)
 
     def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> int:
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         packet = self._codec.decode(data, context)
         packet_str = get_packet_str(packet, visitor.get_context().get_bytes_mask_threshold())
         visitor.assert_equal_for_decoding(
@@ -485,7 +485,7 @@ class DecodeAgent:
         return self
 
     def _decode_raknet_packet(self, data: bytearray) -> None:
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         packet = raknet_packet_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]
@@ -495,7 +495,7 @@ class DecodeAgent:
                 self._decode_raknet_frame(data)
 
     def _decode_raknet_frame(self, data: bytearray) -> None:
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         packet = raknet_frame_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]
@@ -514,7 +514,7 @@ class DecodeAgent:
             print('FRAGMENT APPENDED')
 
     def _decode_connection_packet(self, data: bytearray) -> None:
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         packet = connection_packet_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]
@@ -524,7 +524,7 @@ class DecodeAgent:
                 self._decode_game_packet(data)
 
     def _decode_game_packet(self, data: bytearray) -> None:
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         packet = game_packet_codec.decode(data, context)
         self._packet.append(packet)
         del data[:context.length]

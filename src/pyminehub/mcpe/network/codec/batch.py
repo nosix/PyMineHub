@@ -6,75 +6,21 @@ import json
 
 from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *
-from pyminehub.typevar import TT, ET
 
 _HEADER_EXTRA_DATA = RawData(2)
 
 
-class _VarListData(DataCodec[Tuple[T, ...]]):
-
-    def __init__(self, count_codec: DataCodec[int], item_codec: DataCodec[T]) -> None:
-        self._count_codec = count_codec
-        self._item_codec = item_codec
-
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[T, ...]:
-        count = self._count_codec.read(data, context)
-        return tuple(self._item_codec.read(data, context) for _ in range(count))
-
-    def write(self, data: bytearray, value: Tuple[T, ...], context: DataCodecContext) -> None:
-        self._count_codec.write(data, len(value), context)
-        for entry in value:
-            self._item_codec.write(data, entry, context)
-
-
-class _CompositeData(DataCodec[TT]):
-
-    def __init__(self, factory: Callable[..., TT], data_codecs: Tuple[DataCodec, ...]) -> None:
-        self._factory = factory
-        self._data_codecs = data_codecs
-
-    def read(self, data: bytearray, context: PacketCodecContext) -> TT:
-        context.push_stack()
-
-        def generate():
-            for data_codec in self._data_codecs:
-                value = data_codec.read(data, context)
-                yield value
-
-        args = tuple(generate())
-        context.pop_stack()
-        return self._factory(*args)
-
-    def write(self, data: bytearray, value: TT, context: PacketCodecContext) -> None:
-        context.push_stack()
-        for v, data_codec in zip(value, self._data_codecs):
-            data_codec.write(data, v, context)
-        context.pop_stack()
-
-
-_INT_VECTOR3_DATA = _CompositeData(Vector3, (
+_INT_VECTOR3_DATA = CompositeData(Vector3, (
     VAR_INT_DATA,
     VAR_INT_DATA,
     VAR_INT_DATA
 ))
 
-_FLOAT_VECTOR3_DATA = _CompositeData(Vector3, (
+_FLOAT_VECTOR3_DATA = CompositeData(Vector3, (
     L_FLOAT_DATA,
     L_FLOAT_DATA,
     L_FLOAT_DATA
 ))
-
-
-class _EnumData(DataCodec[ET]):
-
-    def __init__(self, data_codec: DataCodec[int], factory: Callable[[int], ET]) -> None:
-        self._filter = ValueFilter(data_codec, read=lambda _data: factory(_data), write=lambda _value: _value.value)
-
-    def read(self, data: bytearray, context: DataCodecContext) -> ET:
-        return self._filter.read(data, context)
-
-    def write(self, data: bytearray, value: ET, context: DataCodecContext) -> None:
-        self._filter.write(data, value, context)
 
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
@@ -103,7 +49,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         raise NotImplementedError()
 
 
-_PACK_ENTRY_DATA = _VarListData(L_SHORT_DATA, _CompositeData(PackEntry, (
+_PACK_ENTRY_DATA = VarListData(L_SHORT_DATA, CompositeData(PackEntry, (
     STRING_DATA,
     STRING_DATA,
     L_LONG_DATA,
@@ -111,13 +57,13 @@ _PACK_ENTRY_DATA = _VarListData(L_SHORT_DATA, _CompositeData(PackEntry, (
     STRING_DATA
 )))
 
-_PACK_STACK_DATA = _VarListData(VAR_INT_DATA, _CompositeData(PackStack, (
+_PACK_STACK_DATA = VarListData(VAR_INT_DATA, CompositeData(PackStack, (
     STRING_DATA,
     STRING_DATA,
     STRING_DATA
 )))
 
-_GAME_RULE_TYPE_DATA = _EnumData(VAR_INT_DATA, GameRuleType)
+_GAME_RULE_TYPE_DATA = EnumData(VAR_INT_DATA, GameRuleType)
 
 
 class _GameRule(DataCodec[GameRule]):
@@ -142,7 +88,7 @@ class _GameRule(DataCodec[GameRule]):
 
 class _CommandEnumIndex(DataCodec[int]):
 
-    def read(self, data: bytearray, context: PacketCodecContext) -> int:
+    def read(self, data: bytearray, context: CompositeCodecContext) -> int:
         enum_values_length = len(context['enum_values'])
         if enum_values_length < 256:
             return BYTE_DATA.read(data, context)
@@ -151,7 +97,7 @@ class _CommandEnumIndex(DataCodec[int]):
         else:
             return L_INT_DATA.read(data, context)
 
-    def write(self, data: bytearray, value: int, context: PacketCodecContext) -> None:
+    def write(self, data: bytearray, value: int, context: CompositeCodecContext) -> None:
         enum_values_length = len(context['enum_values'])
         if enum_values_length < 256:
             BYTE_DATA.write(data, value, context)
@@ -161,19 +107,19 @@ class _CommandEnumIndex(DataCodec[int]):
             L_INT_DATA.write(data, value, context)
 
 
-def _is_zero_first_value(context: PacketCodecContext):
+def _is_zero_first_value(context: CompositeCodecContext):
     return context['slot_id'] == 0
 
 
-_SLOT_DATA = _CompositeData(Slot, (
+_SLOT_DATA = CompositeData(Slot, (
     NamedData('slot_id', VAR_INT_DATA),
     OptionalData(VAR_INT_DATA, _is_zero_first_value),
     OptionalData(BytesData(len_codec=L_SHORT_DATA), _is_zero_first_value),
-    OptionalData(_VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value),
-    OptionalData(_VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value)
+    OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value),
+    OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value)
 ))
 
-_SLOTS = _VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
+_SLOTS = VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
 
 
 class _InventoryContentItems(DataCodec[Tuple[Slot, ...]]):
@@ -204,16 +150,16 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
         MetaDataType.FLOAT_VECTOR3: _FLOAT_VECTOR3_DATA
     }
 
-    def read(self, data: bytearray, context: PacketCodecContext) -> MetaDataValue:
+    def read(self, data: bytearray, context: CompositeCodecContext) -> MetaDataValue:
         meta_data_type = context['meta_data_type']
         return self._DATA_CODEC_MAP[meta_data_type].read(data, context)
 
-    def write(self, data: bytearray, value: MetaDataValue, context: PacketCodecContext) -> None:
+    def write(self, data: bytearray, value: MetaDataValue, context: CompositeCodecContext) -> None:
         meta_data_type = context['meta_data_type']
         self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
 
 
-_UUID_DATA = _CompositeData(UUID, (
+_UUID_DATA = CompositeData(UUID, (
     L_INT_DATA,
     L_INT_DATA,
     L_INT_DATA,
@@ -221,13 +167,13 @@ _UUID_DATA = _CompositeData(UUID, (
 ))
 
 
-def _is_type_remove(context: PacketCodecContext) -> bool:
+def _is_type_remove(context: CompositeCodecContext) -> bool:
     return context['player_list_type'] == PlayerListType.REMOVE
 
 
 class _RecipeData(DataCodec[RecipeData]):
 
-    def read(self, data: bytearray, context: PacketCodecContext) -> RecipeData:
+    def read(self, data: bytearray, context: CompositeCodecContext) -> RecipeData:
         recipe_type = context['recipe_type']
         if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
             width, height = None, None
@@ -248,7 +194,7 @@ class _RecipeData(DataCodec[RecipeData]):
         if recipe_type == RecipeType.MULTI:
             return RecipeForMulti(_UUID_DATA.read(data, context))
 
-    def write(self, data: bytearray, value: RecipeData, context: PacketCodecContext) -> None:
+    def write(self, data: bytearray, value: RecipeData, context: CompositeCodecContext) -> None:
         recipe_type = context['recipe_type']
         if recipe_type in (RecipeType.SHAPED, RecipeType.SHAPELESS, RecipeType.SHULKER_BOX):
             if recipe_type == RecipeType.SHAPED:
@@ -273,8 +219,8 @@ class _RecipeData(DataCodec[RecipeData]):
 
 class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
 
-    _CODEC = _VarListData(VAR_INT_DATA, _CompositeData(Recipe, (
-        NamedData('recipe_type', _EnumData(VAR_SIGNED_INT_DATA, RecipeType)),
+    _CODEC = VarListData(VAR_INT_DATA, CompositeData(Recipe, (
+        NamedData('recipe_type', EnumData(VAR_SIGNED_INT_DATA, RecipeType)),
         _RecipeData()
     )))  # type: DataCodec[Tuple[Recipe, ...]]
 
@@ -288,7 +234,7 @@ class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
             self._CODEC.write(data, value, context)
 
 
-_CHUNK_POSITION = _CompositeData(ChunkPosition, (
+_CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA,
     VAR_SIGNED_INT_DATA
 ))
@@ -302,7 +248,7 @@ _game_data_codecs = {
     ],
     GamePacketType.PLAY_STATUS: [
         _HEADER_EXTRA_DATA,
-        _EnumData(B_INT_DATA, PlayStatus)
+        EnumData(B_INT_DATA, PlayStatus)
     ],
     GamePacketType.RESOURCE_PACKS_INFO: [
         _HEADER_EXTRA_DATA,
@@ -318,22 +264,22 @@ _game_data_codecs = {
     ],
     GamePacketType.RESOURCE_PACK_CLIENT_RESPONSE: [
         _HEADER_EXTRA_DATA,
-        _EnumData(BYTE_DATA, ResourcePackStatus),
-        _VarListData(L_SHORT_DATA, STRING_DATA)
+        EnumData(BYTE_DATA, ResourcePackStatus),
+        VarListData(L_SHORT_DATA, STRING_DATA)
     ],
     GamePacketType.START_GAME: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA,
         VAR_INT_DATA,
-        _EnumData(VAR_SIGNED_INT_DATA, GameMode),
+        EnumData(VAR_SIGNED_INT_DATA, GameMode),
         _FLOAT_VECTOR3_DATA,
         L_FLOAT_DATA,
         L_FLOAT_DATA,
         VAR_SIGNED_INT_DATA,
-        _EnumData(VAR_SIGNED_INT_DATA, Dimension),
-        _EnumData(VAR_SIGNED_INT_DATA, Generator),
-        _EnumData(VAR_SIGNED_INT_DATA, GameMode),
-        _EnumData(VAR_SIGNED_INT_DATA, Difficulty),
+        EnumData(VAR_SIGNED_INT_DATA, Dimension),
+        EnumData(VAR_SIGNED_INT_DATA, Generator),
+        EnumData(VAR_SIGNED_INT_DATA, GameMode),
+        EnumData(VAR_SIGNED_INT_DATA, Difficulty),
         _INT_VECTOR3_DATA,
         BOOL_DATA,
         VAR_SIGNED_INT_DATA,
@@ -345,11 +291,11 @@ _game_data_codecs = {
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
-        _VarListData(VAR_INT_DATA, _GameRule()),
+        VarListData(VAR_INT_DATA, _GameRule()),
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
-        _EnumData(VAR_SIGNED_INT_DATA, PlayerPermission),
+        EnumData(VAR_SIGNED_INT_DATA, PlayerPermission),
         VAR_SIGNED_INT_DATA,
         VAR_STRING_DATA,
         VAR_STRING_DATA,
@@ -365,7 +311,7 @@ _game_data_codecs = {
     GamePacketType.UPDATE_ATTRIBUTES: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
-        _VarListData(VAR_INT_DATA, _CompositeData(Attribute, (
+        VarListData(VAR_INT_DATA, CompositeData(Attribute, (
             L_FLOAT_DATA,
             L_FLOAT_DATA,
             L_FLOAT_DATA,
@@ -375,19 +321,19 @@ _game_data_codecs = {
     ],
     GamePacketType.AVAILABLE_COMMANDS: [
         _HEADER_EXTRA_DATA,
-        NamedData('enum_values', _VarListData(VAR_INT_DATA, VAR_STRING_DATA)),
-        _VarListData(VAR_INT_DATA, VAR_STRING_DATA),
-        _VarListData(VAR_INT_DATA, _CompositeData(CommandEnum, (
+        NamedData('enum_values', VarListData(VAR_INT_DATA, VAR_STRING_DATA)),
+        VarListData(VAR_INT_DATA, VAR_STRING_DATA),
+        VarListData(VAR_INT_DATA, CompositeData(CommandEnum, (
             VAR_STRING_DATA,
-            _VarListData(VAR_INT_DATA, _CommandEnumIndex())
+            VarListData(VAR_INT_DATA, _CommandEnumIndex())
         ))),
-        _VarListData(VAR_INT_DATA, _CompositeData(CommandData, (
+        VarListData(VAR_INT_DATA, CompositeData(CommandData, (
             VAR_STRING_DATA,
             VAR_STRING_DATA,
             BYTE_DATA,
             BYTE_DATA,
             L_SIGNED_INT_DATA,
-            _VarListData(VAR_INT_DATA, _VarListData(VAR_INT_DATA, _CompositeData(CommandParameter, (
+            VarListData(VAR_INT_DATA, VarListData(VAR_INT_DATA, CompositeData(CommandParameter, (
                 VAR_STRING_DATA,
                 L_SIGNED_INT_DATA,
                 BOOL_DATA
@@ -406,9 +352,9 @@ _game_data_codecs = {
     GamePacketType.SET_ENTITY_DATA: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
-        _VarListData(VAR_INT_DATA, _CompositeData(EntityMetaData, (
+        VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
             VAR_INT_DATA,
-            NamedData('meta_data_type', _EnumData(VAR_INT_DATA, MetaDataType)),
+            NamedData('meta_data_type', EnumData(VAR_INT_DATA, MetaDataType)),
             _MetaDataValue()
         )))
     ],
@@ -433,12 +379,12 @@ _game_data_codecs = {
     ],
     GamePacketType.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
-        NamedData('player_list_type', _EnumData(BYTE_DATA, PlayerListType)),
-        _VarListData(VAR_INT_DATA, _CompositeData(PlayerListEntry, (
+        NamedData('player_list_type', EnumData(BYTE_DATA, PlayerListType)),
+        VarListData(VAR_INT_DATA, CompositeData(PlayerListEntry, (
             _UUID_DATA,
             OptionalData(VAR_INT_DATA, _is_type_remove),
             OptionalData(VAR_STRING_DATA, _is_type_remove),
-            OptionalData(_CompositeData(Skin, (
+            OptionalData(CompositeData(Skin, (
                 VAR_STRING_DATA,
                 VAR_BYTES_DATA,
                 VAR_STRING_DATA,
@@ -475,4 +421,4 @@ _game_data_codecs = {
 }
 
 
-game_packet_codec = Codec(GamePacketType, game_packet_factory, _game_data_codecs)
+game_packet_codec = PacketCodec(GamePacketType, game_packet_factory, _game_data_codecs)

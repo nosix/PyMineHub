@@ -8,6 +8,7 @@ class DocTestCase(unittest.TestCase):
         module_path = [
             'pyminehub/config',
             'pyminehub/binutil/converter',
+            'pyminehub/binutil/composite',
             'pyminehub/value',
             'pyminehub/network/codec',
             'pyminehub/raknet/codec',

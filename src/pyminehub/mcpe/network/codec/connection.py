@@ -86,7 +86,7 @@ _packet_data_codecs = {
 }
 
 
-connection_packet_codec = Codec(ConnectionPacketType, connection_packet_factory, _packet_data_codecs)
+connection_packet_codec = PacketCodec(ConnectionPacketType, connection_packet_factory, _packet_data_codecs)
 
 
 if __name__ == '__main__':

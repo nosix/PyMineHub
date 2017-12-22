@@ -2,7 +2,7 @@ import struct
 from binascii import hexlify, unhexlify
 from typing import NamedTuple as _NamedTuple, Callable, Generic, Optional
 
-from pyminehub.typevar import T, BT
+from pyminehub.typevar import T, BT, ET
 
 
 class BytesOperationError(Exception):
@@ -775,6 +775,36 @@ class ValueFilter(DataCodec[T]):
 
     def write(self, data: bytearray, value: T, context: DataCodecContext) -> None:
         self._data_codec.write(data, self._write_filter(value), context)
+
+
+class EnumData(DataCodec[ET]):
+    """Convert enum value.
+
+    >>> import enum
+    >>> class ID(enum.Enum):
+    ...     NG = 0
+    ...     OK = 1
+    >>> c = EnumData(ByteData(), ID)
+    >>> data = bytearray()
+    >>> context = DataCodecContext()
+    >>> c.write(data, ID.OK, context)
+    >>> hexlify(data)
+    b'01'
+    >>> context.clear()
+    >>> c.read(data, context)
+    <ID.OK: 1>
+    >>> hexlify(data)
+    b''
+    """
+
+    def __init__(self, data_codec: DataCodec[int], enum_cls: Callable[[int], ET]) -> None:
+        self._filter = ValueFilter(data_codec, read=lambda _data: enum_cls(_data), write=lambda _value: _value.value)
+
+    def read(self, data: bytearray, context: DataCodecContext) -> ET:
+        return self._filter.read(data, context)
+
+    def write(self, data: bytearray, value: ET, context: DataCodecContext) -> None:
+        self._filter.write(data, value, context)
 
 
 if __name__ == '__main__':

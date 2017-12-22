@@ -3,7 +3,7 @@ from logging import getLogger, basicConfig
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
-from pyminehub.network.codec import PacketCodecContext
+from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.frame import Reliability
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
@@ -93,7 +93,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def _process_frame_set(self, packet: RakNetPacket, addr: Address) -> None:
         session = self._sessions[addr]
-        context = PacketCodecContext()
+        context = CompositeCodecContext()
         frames = []
         length = 0
         while length < len(packet.payload):
