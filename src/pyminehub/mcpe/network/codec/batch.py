@@ -4,21 +4,12 @@ Codecs for game packet in batch
 import base64
 import json
 
-from pyminehub.mcpe.network.codec.common import *
+from pyminehub.binutil.instance import *
 from pyminehub.mcpe.network.packet import *
+from pyminehub.network.codec import *
 from pyminehub.typevar import TT, ET
 
 _HEADER_EXTRA_DATA = RawData(2)
-
-_LITTLE_ENDIAN_SHORT_DATA = ShortData(endian=Endian.LITTLE)
-_LITTLE_ENDIAN_INT_DATA = IntData(endian=Endian.LITTLE)
-_LITTLE_ENDIAN_LONG_DATA = LongData(endian=Endian.LITTLE)
-_LITTLE_ENDIAN_FLOAT_DATA = FloatData(endian=Endian.LITTLE)
-
-_LITTLE_ENDIAN_SIGNED_INT_DATA = IntData(endian=Endian.LITTLE, unsigned=False)
-
-_VAR_INT_LENGTH_BYTES_DATA = BytesData(len_codec=VAR_INT_DATA)
-_VAR_INT_LENGTH_STRING_DATA = StringData(len_codec=VAR_INT_DATA)
 
 
 class _VarListData(DataCodec[Tuple[T, ...]]):
@@ -69,9 +60,9 @@ _INT_VECTOR3_DATA = _CompositeData(Vector3, (
 ))
 
 _FLOAT_VECTOR3_DATA = _CompositeData(Vector3, (
-    _LITTLE_ENDIAN_FLOAT_DATA,
-    _LITTLE_ENDIAN_FLOAT_DATA,
-    _LITTLE_ENDIAN_FLOAT_DATA
+    L_FLOAT_DATA,
+    L_FLOAT_DATA,
+    L_FLOAT_DATA
 ))
 
 
@@ -103,9 +94,9 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         context.length += length
 
         local_context = DataCodecContext()
-        chain_data = json.loads(pop_first(d, _LITTLE_ENDIAN_INT_DATA.read(d, local_context)))
+        chain_data = json.loads(pop_first(d, L_INT_DATA.read(d, local_context)))
         chain_list = tuple(map(lambda chain: self._read_jwt(bytes(chain, 'ascii')), chain_data['chain']))
-        client_data_jwt = pop_first(d, _LITTLE_ENDIAN_INT_DATA.read(d, local_context))
+        client_data_jwt = pop_first(d, L_INT_DATA.read(d, local_context))
         client_data = self._read_jwt(client_data_jwt)
         return ConnectionRequest(chain_list, client_data)
 
@@ -113,10 +104,10 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         raise NotImplementedError()
 
 
-_PACK_ENTRY_DATA = _VarListData(_LITTLE_ENDIAN_SHORT_DATA, _CompositeData(PackEntry, (
+_PACK_ENTRY_DATA = _VarListData(L_SHORT_DATA, _CompositeData(PackEntry, (
     STRING_DATA,
     STRING_DATA,
-    _LITTLE_ENDIAN_LONG_DATA,
+    L_LONG_DATA,
     STRING_DATA,
     STRING_DATA
 )))
@@ -135,17 +126,17 @@ class _GameRule(DataCodec[GameRule]):
     _VALUE_DATA_MAP = {
         GameRuleType.BOOL: BOOL_DATA,
         GameRuleType.INT: VAR_INT_DATA,
-        GameRuleType.FLOAT: _LITTLE_ENDIAN_FLOAT_DATA
+        GameRuleType.FLOAT: L_FLOAT_DATA
     }
 
     def read(self, data: bytearray, context: DataCodecContext) -> GameRule:
-        rule_name = _VAR_INT_LENGTH_STRING_DATA.read(data, context)
+        rule_name = VAR_STRING_DATA.read(data, context)
         rule_type = _GAME_RULE_TYPE_DATA.read(data, context)
         rule_value = self._VALUE_DATA_MAP[rule_type].read(data, context)
         return GameRule(rule_name, rule_type, rule_value)
 
     def write(self, data: bytearray, value: GameRule, context: DataCodecContext) -> None:
-        _VAR_INT_LENGTH_STRING_DATA.write(data, value.name, context)
+        VAR_STRING_DATA.write(data, value.name, context)
         _GAME_RULE_TYPE_DATA.write(data, value.type, context)
         self._VALUE_DATA_MAP[value.type].write(data, value.value, context)
 
@@ -157,18 +148,18 @@ class _CommandEnumIndex(DataCodec[int]):
         if enum_values_length < 256:
             return BYTE_DATA.read(data, context)
         elif enum_values_length < 65536:
-            return _LITTLE_ENDIAN_SHORT_DATA.read(data, context)
+            return L_SHORT_DATA.read(data, context)
         else:
-            return _LITTLE_ENDIAN_INT_DATA.read(data, context)
+            return L_INT_DATA.read(data, context)
 
     def write(self, data: bytearray, value: int, context: PacketCodecContext) -> None:
         enum_values_length = len(context['enum_values'])
         if enum_values_length < 256:
             BYTE_DATA.write(data, value, context)
         elif enum_values_length < 65536:
-            _LITTLE_ENDIAN_SHORT_DATA.write(data, value, context)
+            L_SHORT_DATA.write(data, value, context)
         else:
-            _LITTLE_ENDIAN_INT_DATA.write(data, value, context)
+            L_INT_DATA.write(data, value, context)
 
 
 def _is_zero_first_value(context: PacketCodecContext):
@@ -178,9 +169,9 @@ def _is_zero_first_value(context: PacketCodecContext):
 _SLOT_DATA = _CompositeData(Slot, (
     NamedData('slot_id', VAR_INT_DATA),
     OptionalData(VAR_INT_DATA, _is_zero_first_value),
-    OptionalData(BytesData(len_codec=_LITTLE_ENDIAN_SHORT_DATA), _is_zero_first_value),
-    OptionalData(_VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value),
-    OptionalData(_VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA), _is_zero_first_value)
+    OptionalData(BytesData(len_codec=L_SHORT_DATA), _is_zero_first_value),
+    OptionalData(_VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value),
+    OptionalData(_VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value)
 ))
 
 _SLOTS = _VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
@@ -204,10 +195,10 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
 
     _DATA_CODEC_MAP = {
         MetaDataType.BYTE: BYTE_DATA,
-        MetaDataType.SHORT: _LITTLE_ENDIAN_SHORT_DATA,
+        MetaDataType.SHORT: L_SHORT_DATA,
         MetaDataType.INT: VAR_INT_DATA,
-        MetaDataType.FLOAT: _LITTLE_ENDIAN_FLOAT_DATA,
-        MetaDataType.STRING: _VAR_INT_LENGTH_STRING_DATA,
+        MetaDataType.FLOAT: L_FLOAT_DATA,
+        MetaDataType.STRING: VAR_STRING_DATA,
         MetaDataType.SLOT: _SLOT_DATA,
         MetaDataType.INT_VECTOR3: _INT_VECTOR3_DATA,
         MetaDataType.LONG: VAR_INT_DATA,
@@ -224,10 +215,10 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
 
 
 _UUID_DATA = _CompositeData(UUID, (
-    _LITTLE_ENDIAN_INT_DATA,
-    _LITTLE_ENDIAN_INT_DATA,
-    _LITTLE_ENDIAN_INT_DATA,
-    _LITTLE_ENDIAN_INT_DATA
+    L_INT_DATA,
+    L_INT_DATA,
+    L_INT_DATA,
+    L_INT_DATA
 ))
 
 
@@ -307,12 +298,12 @@ _CHUNK_POSITION = _CompositeData(ChunkPosition, (
 _game_data_codecs = {
     GamePacketType.LOGIN: [
         _HEADER_EXTRA_DATA,
-        INT_DATA,
+        B_INT_DATA,
         _ConnectionRequest()
     ],
     GamePacketType.PLAY_STATUS: [
         _HEADER_EXTRA_DATA,
-        _EnumData(INT_DATA, PlayStatus)
+        _EnumData(B_INT_DATA, PlayStatus)
     ],
     GamePacketType.RESOURCE_PACKS_INFO: [
         _HEADER_EXTRA_DATA,
@@ -329,7 +320,7 @@ _game_data_codecs = {
     GamePacketType.RESOURCE_PACK_CLIENT_RESPONSE: [
         _HEADER_EXTRA_DATA,
         _EnumData(BYTE_DATA, ResourcePackStatus),
-        _VarListData(_LITTLE_ENDIAN_SHORT_DATA, STRING_DATA)
+        _VarListData(L_SHORT_DATA, STRING_DATA)
     ],
     GamePacketType.START_GAME: [
         _HEADER_EXTRA_DATA,
@@ -337,8 +328,8 @@ _game_data_codecs = {
         VAR_INT_DATA,
         _EnumData(VAR_SIGNED_INT_DATA, GameMode),
         _FLOAT_VECTOR3_DATA,
-        _LITTLE_ENDIAN_FLOAT_DATA,
-        _LITTLE_ENDIAN_FLOAT_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
         VAR_SIGNED_INT_DATA,
         _EnumData(VAR_SIGNED_INT_DATA, Dimension),
         _EnumData(VAR_SIGNED_INT_DATA, Generator),
@@ -348,8 +339,8 @@ _game_data_codecs = {
         BOOL_DATA,
         VAR_SIGNED_INT_DATA,
         BOOL_DATA,
-        _LITTLE_ENDIAN_FLOAT_DATA,
-        _LITTLE_ENDIAN_FLOAT_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
         BOOL_DATA,
         BOOL_DATA,
         BOOL_DATA,
@@ -361,11 +352,11 @@ _game_data_codecs = {
         BOOL_DATA,
         _EnumData(VAR_SIGNED_INT_DATA, PlayerPermission),
         VAR_SIGNED_INT_DATA,
-        _VAR_INT_LENGTH_STRING_DATA,
-        _VAR_INT_LENGTH_STRING_DATA,
-        _VAR_INT_LENGTH_STRING_DATA,
+        VAR_STRING_DATA,
+        VAR_STRING_DATA,
+        VAR_STRING_DATA,
         BOOL_DATA,
-        _LITTLE_ENDIAN_LONG_DATA,
+        L_LONG_DATA,
         VAR_SIGNED_INT_DATA
     ],
     GamePacketType.SET_TIME: [
@@ -376,30 +367,30 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         _VarListData(VAR_INT_DATA, _CompositeData(Attribute, (
-            _LITTLE_ENDIAN_FLOAT_DATA,
-            _LITTLE_ENDIAN_FLOAT_DATA,
-            _LITTLE_ENDIAN_FLOAT_DATA,
-            _LITTLE_ENDIAN_FLOAT_DATA,
-            _VAR_INT_LENGTH_STRING_DATA
+            L_FLOAT_DATA,
+            L_FLOAT_DATA,
+            L_FLOAT_DATA,
+            L_FLOAT_DATA,
+            VAR_STRING_DATA
         )))
     ],
     GamePacketType.AVAILABLE_COMMANDS: [
         _HEADER_EXTRA_DATA,
-        NamedData('enum_values', _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA)),
-        _VarListData(VAR_INT_DATA, _VAR_INT_LENGTH_STRING_DATA),
+        NamedData('enum_values', _VarListData(VAR_INT_DATA, VAR_STRING_DATA)),
+        _VarListData(VAR_INT_DATA, VAR_STRING_DATA),
         _VarListData(VAR_INT_DATA, _CompositeData(CommandEnum, (
-            _VAR_INT_LENGTH_STRING_DATA,
+            VAR_STRING_DATA,
             _VarListData(VAR_INT_DATA, _CommandEnumIndex())
         ))),
         _VarListData(VAR_INT_DATA, _CompositeData(CommandData, (
-            _VAR_INT_LENGTH_STRING_DATA,
-            _VAR_INT_LENGTH_STRING_DATA,
+            VAR_STRING_DATA,
+            VAR_STRING_DATA,
             BYTE_DATA,
             BYTE_DATA,
-            _LITTLE_ENDIAN_SIGNED_INT_DATA,
+            L_SIGNED_INT_DATA,
             _VarListData(VAR_INT_DATA, _VarListData(VAR_INT_DATA, _CompositeData(CommandParameter, (
-                _VAR_INT_LENGTH_STRING_DATA,
-                _LITTLE_ENDIAN_SIGNED_INT_DATA,
+                VAR_STRING_DATA,
+                L_SIGNED_INT_DATA,
                 BOOL_DATA
             ))))
         )))
@@ -411,7 +402,7 @@ _game_data_codecs = {
         VAR_INT_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA,
-        _LITTLE_ENDIAN_LONG_DATA
+        L_LONG_DATA
     ],
     GamePacketType.SET_ENTITY_DATA: [
         _HEADER_EXTRA_DATA,
@@ -447,15 +438,15 @@ _game_data_codecs = {
         _VarListData(VAR_INT_DATA, _CompositeData(PlayerListEntry, (
             _UUID_DATA,
             OptionalData(VAR_INT_DATA, _is_type_remove),
-            OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove),
+            OptionalData(VAR_STRING_DATA, _is_type_remove),
             OptionalData(_CompositeData(Skin, (
-                _VAR_INT_LENGTH_STRING_DATA,
-                _VAR_INT_LENGTH_BYTES_DATA,
-                _VAR_INT_LENGTH_STRING_DATA,
-                _VAR_INT_LENGTH_STRING_DATA,
-                _VAR_INT_LENGTH_STRING_DATA
+                VAR_STRING_DATA,
+                VAR_BYTES_DATA,
+                VAR_STRING_DATA,
+                VAR_STRING_DATA,
+                VAR_STRING_DATA
             )), _is_type_remove),
-            OptionalData(_VAR_INT_LENGTH_STRING_DATA, _is_type_remove)
+            OptionalData(VAR_STRING_DATA, _is_type_remove)
         )))
     ],
     GamePacketType.CRAFTING_DATA: [
@@ -480,7 +471,7 @@ _game_data_codecs = {
     GamePacketType.FULL_CHUNK_DATA: [
         _HEADER_EXTRA_DATA,
         _CHUNK_POSITION,
-        _VAR_INT_LENGTH_BYTES_DATA
+        VAR_BYTES_DATA
     ]
 }
 

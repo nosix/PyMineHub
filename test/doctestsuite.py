@@ -7,10 +7,10 @@ class DocTestCase(unittest.TestCase):
     def test_doctest(self):
         module_path = [
             'pyminehub/config',
-            'pyminehub/binutil',
+            'pyminehub/binutil/converter',
             'pyminehub/value',
             'pyminehub/network/codec',
-            'pyminehub/mcpe/network/codec/common',
+            'pyminehub/raknet/codec',
             'pyminehub/mcpe/network/codec/connection',
         ]
         for path in module_path:

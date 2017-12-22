@@ -3,9 +3,10 @@ Codecs for connection packet
 """
 import zlib
 
+from pyminehub.binutil.instance import *
 from pyminehub.config import get_value, ConfigKey
-from pyminehub.mcpe.network.codec.common import *
 from pyminehub.mcpe.network.packet import *
+from pyminehub.network.codec import *
 
 
 class _AddressList(DataCodec[Tuple[AddressInPacket, ...]]):
@@ -54,29 +55,29 @@ class _CompressedPacketList(DataCodec[Tuple[bytes, ...]]):
 
 _packet_data_codecs = {
     ConnectionPacketType.CONNECTED_PING: [
-        LONG_DATA
+        B_LONG_DATA
     ],
     ConnectionPacketType.CONNECTED_PONG: [
-        LONG_DATA,
-        LONG_DATA
+        B_LONG_DATA,
+        B_LONG_DATA
     ],
     ConnectionPacketType.CONNECTION_REQUEST: [
-        LONG_DATA,
-        LONG_DATA,
+        B_LONG_DATA,
+        B_LONG_DATA,
         FALSE_DATA
     ],
     ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED: [
         ADDRESS_DATA,
-        SHORT_DATA,
+        B_SHORT_DATA,
         _AddressList(20),
-        LONG_DATA,
-        LONG_DATA
+        B_LONG_DATA,
+        B_LONG_DATA
     ],
     ConnectionPacketType.NEW_INCOMING_CONNECTION: [
         ADDRESS_DATA,
         _AddressList(20),
-        LONG_DATA,
-        LONG_DATA
+        B_LONG_DATA,
+        B_LONG_DATA
     ],
     ConnectionPacketType.DISCONNECTION_NOTIFICATION: [
     ],
