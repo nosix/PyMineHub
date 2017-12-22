@@ -1,5 +1,6 @@
 import inspect
 import json
+from binascii import unhexlify as unhex
 from os.path import dirname
 from typing import NamedTuple as _NamedTuple
 from unittest import TestCase

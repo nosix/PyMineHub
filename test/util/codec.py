@@ -1,18 +1,6 @@
-"""
-Debug tools for codec.
-
-When debugging, execute `from util.codec import *` in REPL.
-
->>> decode('840200000000480000000000003d3810')
-[0] 840200000000480000000000003d3810
-[1] CUSTOM_PACKET_4(id=132, packet_sequence_num=2, payload=b'\\x00\\x00H\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
-[2] UNRELIABLE(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
-[3] CONNECTED_PING(id=0, ping_time_since_start=4012048)
-"""
 import re
 import sys
 import traceback
-from binascii import unhexlify as unhex
 from collections import defaultdict
 from enum import Enum
 from typing import *
@@ -30,31 +18,8 @@ from pyminehub.raknet.frame import RakNetFrameType, RakNetFrame as _RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType
 from pyminehub.typevar import T
 from pyminehub.value import ValueObject, ValueType
+from tool.decoding import get_packet_str
 from util.exception import try_action
-
-_ASCII_CHARS = set(c for c in range(0x20, 0x7f))
-_ASCII_CHARS_FOR_DOUBLE_QUOTE = _ASCII_CHARS - {0x22, 0x5c, 0x5d}  # " - \
-_ASCII_CHARS_FOR_SINGLE_QUOTE = _ASCII_CHARS - {0x27, 0x5c, 0x5d}  # ' - \
-
-_BYTES_REGEXP_FOR_DOUBLE_QUOTE = re.compile(
-    r'(b"[{}\-\\\]]*?")'.format(''.join(chr(c) for c in _ASCII_CHARS_FOR_DOUBLE_QUOTE)))
-_BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
-    r"(b'[{}\-\\\]]*?')".format(''.join(chr(c) for c in _ASCII_CHARS_FOR_SINGLE_QUOTE)))
-
-
-def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) -> str:
-    if bytes_mask_threshold is not None:
-        def _summarize_bytes(m: re.match) -> str:
-            bytes_data = eval(m[1])  # type: bytes
-            length = len(bytes_data)
-            return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
-
-        packet_str = str(packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
-        packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(_summarize_bytes, packet_str)
-        packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
-    else:
-        packet_str = str(packet)
-    return packet_str
 
 
 class AnalyzingContext:
@@ -455,100 +420,3 @@ class RakNetPacket(PacketAnalyzer):
 
     def does_retry_encoding(self) -> bool:
         return True
-
-
-class DecodeAgent:
-
-    def __init__(self) -> None:
-        self._fragment = Fragment()
-        self._data = []
-        self._packet = []
-        self._decode_func = [
-            self._decode_raknet_packet,
-            self._decode_raknet_frame,
-            self._decode_connection_packet,
-            self._decode_game_packet]
-
-    def __repr__(self) -> str:
-        items = list(self._data)
-        items.extend(get_packet_str(p) for p in self._packet)
-        return '\n'.join('[{}] {}'.format(i, item) for i, item in enumerate(items))
-
-    def __getitem__(self, index: int) -> ValueObject:
-        if index < len(self._data):
-            return self._data[index]
-        else:
-            return self._packet[index - len(self._data)]
-
-    def clear(self):
-        self.__init__()
-        return self
-
-    def _decode_raknet_packet(self, data: bytearray) -> None:
-        context = CompositeCodecContext()
-        packet = raknet_packet_codec.decode(data, context)
-        self._packet.append(packet)
-        del data[:context.length]
-        if hasattr(packet, 'payload'):
-            data = bytearray(packet.payload)
-            while len(data) > 0:
-                self._decode_raknet_frame(data)
-
-    def _decode_raknet_frame(self, data: bytearray) -> None:
-        context = CompositeCodecContext()
-        packet = raknet_frame_codec.decode(data, context)
-        self._packet.append(packet)
-        del data[:context.length]
-
-        if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
-            self._fragment.append(
-                packet.split_packet_id, packet.split_packet_count, packet.split_packet_index, packet.payload)
-            payload = self._fragment.pop(packet.split_packet_id)
-        else:
-            payload = packet.payload
-
-        if payload is not None:
-            data = bytearray(payload)
-            self._decode_connection_packet(data)
-        else:
-            print('FRAGMENT APPENDED')
-
-    def _decode_connection_packet(self, data: bytearray) -> None:
-        context = CompositeCodecContext()
-        packet = connection_packet_codec.decode(data, context)
-        self._packet.append(packet)
-        del data[:context.length]
-        if hasattr(packet, 'payloads'):
-            for payload in packet.payloads:
-                data = bytearray(payload)
-                self._decode_game_packet(data)
-
-    def _decode_game_packet(self, data: bytearray) -> None:
-        context = CompositeCodecContext()
-        packet = game_packet_codec.decode(data, context)
-        self._packet.append(packet)
-        del data[:context.length]
-
-    def decode(self, data: str, depth: int=0):
-        self._data.append(data)
-        data = bytearray(unhex(data))
-        self._decode_func[depth](data)
-        if len(data) > 0:
-            print(data.hex())
-        return self
-
-
-agent = DecodeAgent()
-
-
-def decode(data: str, depth: int=0) -> DecodeAgent:
-    return agent.decode(data, depth)
-
-
-def clear() -> DecodeAgent:
-    return agent.clear()
-
-
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
