@@ -1,3 +1,4 @@
+import chunk_codec
 import codec_login_logout
 import doctestsuite
 import protocol_login_logout
@@ -8,6 +9,7 @@ import protocol_unconnected
 def load_tests(loader, tests, pattern):
     modules = (
         doctestsuite,
+        chunk_codec,
         codec_login_logout,
         protocol_unconnected,
         protocol_login_logout
