@@ -1,5 +1,4 @@
-from pyminehub.binutil.converter import *
-from pyminehub.binutil.instance import BYTE_DATA, B_SHORT_DATA
+from pyminehub.binutil.instance import *
 from pyminehub.network.address import AddressInPacket
 from pyminehub.value import ValueObject
 
@@ -156,7 +155,6 @@ ADDRESS_DATA = AddressData()
 if __name__ == '__main__':
     from binascii import hexlify, unhexlify
     from pyminehub.value import ValueType, ValueObjectFactory
-    from pyminehub.binutil.instance import B_LONG_DATA, STRING_DATA
 
     class PacketType(ValueType):
         unconnected_pong = 0x1c

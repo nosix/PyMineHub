@@ -1,4 +1,3 @@
-from pyminehub.binutil.instance import *
 from pyminehub.network.codec import *
 from pyminehub.raknet.frame import RakNetFrameType, raknet_frame_factory
 from pyminehub.raknet.packet import RakNetPacketType, raknet_packet_factory

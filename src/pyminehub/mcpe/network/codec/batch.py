@@ -4,7 +4,6 @@ Codecs for game packet in batch
 import base64
 import json
 
-from pyminehub.binutil.instance import *
 from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *
 from pyminehub.typevar import TT, ET

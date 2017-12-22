@@ -7,7 +7,7 @@ from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
-from pyminehub.raknet.send import SendQueue
+from pyminehub.raknet.sending import SendQueue
 
 _logger = getLogger(__name__)
 

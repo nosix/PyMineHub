@@ -10,35 +10,41 @@ Modules depend only on parents or siblings. Siblings depend only on the above si
 
 ```
 typevar
+value
 config -> typevar
 binutil -> typevar
-value
+  converter -> typevar
+  instance -> .[converter]
 network -> binutil
   address
-  codec -> binutil, value, .[address]
-raknet -> network
+  codec -> value, binutil.instance, .[address]
+raknet -> value, config, network
   - fragment -> value
   - packet -> value, network.[address]
   - frame -> .[packet]
   - codec -> network.[codec], .[frame, packet]
-  - queue -> config, .[codec, frame]
+  - sending -> config, .[codec, frame]
   - session -> .[codec, fragment, frame, packet, queue]
   - server -> config, network.[address, codec], .[codec, packet, frame, session]
 mcpe
   const
   geometry -> typevar
   value -> .[const, geometry]
-  world -> config, .[const]
   player -> .[const, geometry, value]
-  network
+  world -> value, .[const, player]
+    - action -> value, mcpe.[player]
+    - event -> value, mcpe.[player]
+    - proxy -> mcpe.[const], .[action, event]
+    - server -> .[proxy]
+  network -> typevar, value, config, network, raknet, mcpe.[const, value, player, world]
     - packet -> value, mcpe.[value], network.[address]
-    - codec -> typevar, config, network, mcpe.network.[packet]
-      - common -> network.[codec]
-      - batch -> typevar, mcpe.network.[packet], .[common]
-      - connection -> config, mcpe.network.[packet], .[common]
+    - codec -> typevar, config, network, .[packet]
+      - batch -> typevar, network.[codec], mcpe.network.[packet]
+      - connection -> config, network.[codec], mcpe.network.[packet]
     - queue -> raknet, network.[address], .[packet, codec]
     - handler -> typevar, raknet, network.[address], mcpe.[const, player, world], .[codec, packet, queue]
-  server -> raknet, .[network]
+  main
+    server -> raknet, mcpe.[network, world]
 
 - : Hidden from outside modules
 ```
