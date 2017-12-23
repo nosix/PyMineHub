@@ -8,12 +8,12 @@ When debugging, execute `from tool.decoding import *` in REPL.
 [1] FrameSet4(id=132, packet_sequence_num=2, payload=b'\\x00\\x00H\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
 [2] Unreliable(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
 [3] ConnectedPing(id=0, ping_time_since_start=4012048)
->>> len(extract_chunk('full_chunk.txt'))
-47
+>>> len(extract_chunk(load_packets('mppm_login_logout.txt')))
+58
 """
 import re
 from binascii import unhexlify as unhex
-from typing import List, Optional, Iterator
+from typing import NamedTuple as _NamedTuple, Iterator, List, Optional, Union
 
 from pyminehub.binutil.composite import CompositeCodecContext
 from pyminehub.mcpe.chunk import Chunk, decode_chunk
@@ -47,13 +47,15 @@ def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) 
     return packet_str
 
 
+_TaggedData = _NamedTuple('TaggedData', [('tag', str), ('data', str)])
+
+
 class DecodeAgent:
 
     def __init__(self, verbose=True) -> None:
         self._verbose = verbose
         self._fragment = Fragment()
-        self._data = []
-        self._packet = []
+        self._items = []  # type: List[Union[str, _TaggedData, ValueObject]]
         self._decode_func = [
             self._decode_raknet_packet,
             self._decode_raknet_frame,
@@ -61,19 +63,31 @@ class DecodeAgent:
             self._decode_game_packet]
 
     def __repr__(self) -> str:
-        items = list(self._data)
-        items.extend(get_packet_str(p) for p in self._packet)
-        return '\n'.join('[{}] {}'.format(i, item) for i, item in enumerate(items))
+        def to_str(item: Union[str, _TaggedData, ValueObject]) -> str:
+            if isinstance(item, str):
+                return item
+            if isinstance(item, _TaggedData):
+                return ': '.join(item)
+            if isinstance(item, ValueObject):
+                return get_packet_str(item)
+            raise AssertionError()
+        return '\n'.join('[{}] {}'.format(i, to_str(item)) for i, item in enumerate(self._items))
 
-    def __getitem__(self, index: int) -> ValueObject:
-        if index < len(self._data):
-            return self._data[index]
-        else:
-            return self._packet[index - len(self._data)]
+    def __getitem__(self, index: int) -> Union[bytes, ValueObject]:
+        item = self._items[index]
+        if isinstance(item, str):
+            return unhex(item)
+        if isinstance(item, _TaggedData):
+            # noinspection PyUnresolvedReferences
+            return unhex(item.data)  # FIXME why inspection report warning?
+        if isinstance(item, ValueObject):
+            return item
+        raise AssertionError()
 
     def __iter__(self) -> Iterator[ValueObject]:
-        for packet in self._packet:
-            yield packet
+        for item in self._items:
+            if isinstance(item, ValueObject):
+                yield item
 
     def clear(self):
         self.__init__(verbose=self._verbose)
@@ -82,7 +96,7 @@ class DecodeAgent:
     def _decode_raknet_packet(self, data: bytearray) -> None:
         context = CompositeCodecContext()
         packet = raknet_packet_codec.decode(data, context)
-        self._packet.append(packet)
+        self._items.append(packet)
         del data[:context.length]
         if hasattr(packet, 'payload'):
             data = bytearray(packet.payload)
@@ -92,7 +106,7 @@ class DecodeAgent:
     def _decode_raknet_frame(self, data: bytearray) -> None:
         context = CompositeCodecContext()
         packet = raknet_frame_codec.decode(data, context)
-        self._packet.append(packet)
+        self._items.append(packet)
         del data[:context.length]
 
         if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
@@ -111,7 +125,7 @@ class DecodeAgent:
     def _decode_connection_packet(self, data: bytearray) -> None:
         context = CompositeCodecContext()
         packet = connection_packet_codec.decode(data, context)
-        self._packet.append(packet)
+        self._items.append(packet)
         del data[:context.length]
         if hasattr(packet, 'payloads'):
             for payload in packet.payloads:
@@ -121,11 +135,11 @@ class DecodeAgent:
     def _decode_game_packet(self, data: bytearray) -> None:
         context = CompositeCodecContext()
         packet = game_packet_codec.decode(data, context)
-        self._packet.append(packet)
+        self._items.append(packet)
         del data[:context.length]
 
-    def decode(self, data: str, depth: int=0):
-        self._data.append(data)
+    def decode(self, data: str, depth: int=0, tag: str=None):
+        self._items.append(data if tag is None else _TaggedData(tag, data))
         data = bytearray(unhex(data))
         self._decode_func[depth](data)
         if len(data) > 0:
@@ -144,19 +158,7 @@ def clear() -> DecodeAgent:
     return agent.clear()
 
 
-def extract_chunk(file_name: str) -> List[Chunk]:
-    def generate_chunk() -> Iterator[Chunk]:
-        with open(file_name, 'r') as file:
-            _agent = DecodeAgent(verbose=False)
-            for line in file.readlines():
-                for packet in _agent.decode(line.strip()):
-                    if packet.__class__.__name__ == 'FullChunkData':
-                        yield decode_chunk(packet.data)
-                _agent.clear()
-    return list(generate_chunk())
-
-
-def read_pcap(file_name: str) -> List[str]:
+def load_raknet_raw(pcap_file_name: str) -> List[str]:
     import json
     import subprocess
     data = []
@@ -172,9 +174,33 @@ def read_pcap(file_name: str) -> List[str]:
             data.append('\t'.join(port_data_pair))
         return o
 
-    completed = subprocess.run('tshark -T jsonraw -r {}'.format(file_name), shell=True, stdout=subprocess.PIPE)
+    completed = subprocess.run('tshark -T jsonraw -r {}'.format(pcap_file_name), shell=True, stdout=subprocess.PIPE)
     json.loads(completed.stdout, object_hook=_collect_raknet_raw)
     return data
+
+
+def load_packets(raknet_raw_file_name: str) -> DecodeAgent:
+    import struct
+    _agent = DecodeAgent(verbose=False)
+    with open(raknet_raw_file_name, 'r') as file:
+        for i, line in enumerate(file.readlines()):
+            try:
+                port_raw, data_raw = line.split()
+                port, = struct.unpack('!H', unhex(port_raw))  # Don't remove comma, to get first one
+                _agent.decode(data_raw, tag=str(port))
+            except Exception as exc:
+                exc.args = ('{}, line {}, in {}'.format(exc.args[0], i + 1, raknet_raw_file_name), )
+                import traceback
+                traceback.print_exc()
+    return _agent
+
+
+def extract_chunk(packet_list: Iterator[ValueObject]) -> List[Chunk]:
+    def generate_chunk() -> Iterator[Chunk]:
+        for packet in packet_list:
+            if packet.__class__.__name__ == 'FullChunkData':
+                yield decode_chunk(packet.data)
+    return list(generate_chunk())
 
 
 if __name__ == '__main__':

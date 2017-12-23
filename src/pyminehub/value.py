@@ -1,10 +1,9 @@
-from collections import namedtuple
 from enum import Enum
-from typing import NamedTuple as _NamedTuple, Callable, Dict, Iterable, Sequence, Tuple
+from typing import NamedTuple as _NamedTuple, Callable, Dict, Iterable, Sequence, Tuple, Union
 
 ValueType = Enum
 
-ValueObject = namedtuple  # To suppress warnings, do not use NamedTuple
+ValueObject = Union[tuple, _NamedTuple('ValueObject', [])]  # To suppress warnings, NamedTuple is specified.
 
 
 def _snake2camel(name: str) -> str:
