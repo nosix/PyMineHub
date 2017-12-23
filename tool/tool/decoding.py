@@ -156,6 +156,21 @@ def extract_chunk(file_name: str) -> List[Chunk]:
     return list(generate_chunk())
 
 
+def read_pcap(file_name: str) -> List[str]:
+    import json
+    import subprocess
+    data = []
+
+    def _collect_raknet_raw(o):
+        if 'raknet_raw' in o:
+            data.append(o['raknet_raw'][0])
+        return o
+
+    completed = subprocess.run('tshark -T jsonraw -r {}'.format(file_name), shell=True, stdout=subprocess.PIPE)
+    json.loads(completed.stdout, object_hook=_collect_raknet_raw)
+    return data
+
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
