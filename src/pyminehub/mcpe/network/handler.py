@@ -1,6 +1,6 @@
 import time
 from logging import getLogger
-from typing import Callable, Dict, List
+from typing import Dict
 
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
@@ -8,14 +8,13 @@ from pyminehub.mcpe.network.packet import EXTRA_DATA
 from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE
-from pyminehub.mcpe.player import Player, PlayerID
+from pyminehub.mcpe.player import Player
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.mcpe.world.action import ActionType, action_factory
 from pyminehub.mcpe.world.event import EventType, Event
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import Reliability, GameDataHandler
-from pyminehub.typevar import T
 
 _logger = getLogger(__name__)
 
@@ -72,9 +71,6 @@ class MCPEHandler(GameDataHandler):
         if player_id not in self._addrs:
             raise PlayerSessionNotFound(player_id)
         return self._addrs[player_id]
-
-    def _foreach_players(self, action: Callable[[Player], T]) -> List[T]:
-        return list(action(player) for player in self._players.values())
 
     def _send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
         """Send connection packet to specified address.
@@ -157,7 +153,9 @@ class MCPEHandler(GameDataHandler):
         self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.get_id()))
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
-        # TODO update chunk
+        player = self._get_player_session(addr)
+        chunk_requests = player.get_required_chunk(packet.radius)
+        self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, chunk_requests))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._queue.send_immediately(res_packet, addr)
 
@@ -676,3 +674,11 @@ class MCPEHandler(GameDataHandler):
             True
         )
         self._queue.send_immediately(res_packet, addr)
+
+    def _process_event_full_chunk_loaded(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.FULL_CHUNK_DATA, EXTRA_DATA, event.position, event.data)
+        for addr, player in self._players.items():
+            if player.did_request_chunk(event.position):
+                self._queue.send_immediately(res_packet, addr)
+                player.discard_chunk_request(event.position)

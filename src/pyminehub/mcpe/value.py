@@ -1,7 +1,12 @@
-from typing import NamedTuple as _NamedTuple, Tuple, Union, Optional
+from typing import NamedTuple as _NamedTuple, Optional, Tuple
 
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
+
+PlayerID = int
+EntityUniqueID = int
+EntityRuntimeID = int
+
 
 PlayerData = _NamedTuple('PlayerData', [
     ('xuid', int),

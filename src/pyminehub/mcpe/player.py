@@ -1,14 +1,9 @@
 from pkgutil import get_data
-from typing import Tuple, Dict, List, Union
+from typing import Dict, List, Set, Tuple, Union
 
 from pyminehub.mcpe.const import GameMode, PlayerPermission
-from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import PlayerData, ClientData, Slot
-
-PlayerID = int
-EntityUniqueID = int
-EntityRuntimeID = int
-
+from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, to_chunk_area, ChunkPosition
+from pyminehub.mcpe.value import PlayerData, ClientData, Slot, PlayerID, EntityUniqueID, EntityRuntimeID
 
 _INVENTORY_CONTENT_ITEMS = get_data(__package__, 'inventory-content-items121.dat')
 
@@ -28,6 +23,7 @@ class Player:
         self._spawn = Vector3(512, 56, 512)
         self._permission = PlayerPermission.MEMBER
         self._inventory_content = {}  # type: Dict[int, List[Slot]]
+        self._requested_chunk_position = set()  # type: Set[ChunkPosition]
 
     def get_id(self) -> PlayerID:
         return self._player_data.xuid
@@ -63,3 +59,14 @@ class Player:
 
     def get_inventory_content(self, window_id: int) -> Union[Tuple[Slot, ...], bytes]:
         return tuple(self._inventory_content[window_id]) if window_id != 121 else _INVENTORY_CONTENT_ITEMS
+
+    def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
+        request = tuple(to_chunk_area(self._position, radius))
+        self._requested_chunk_position |= set(p.position for p in request)
+        return request
+
+    def did_request_chunk(self, position: ChunkPosition) -> bool:
+        return position in self._requested_chunk_position
+
+    def discard_chunk_request(self, position: ChunkPosition) -> None:
+        self._requested_chunk_position.discard(position)

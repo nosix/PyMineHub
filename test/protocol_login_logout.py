@@ -254,7 +254,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('request_chunk_radius')).is_(
+                EncodedData(self.data.that_is_response_of('full_chunk_data')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(

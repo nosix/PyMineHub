@@ -2,6 +2,7 @@ import asyncio
 import socket
 from asyncio import subprocess
 from collections import deque
+from pkgutil import get_data
 from typing import List, Tuple, Optional, Deque
 
 from pyminehub.mcpe.const import GameMode, Difficulty
@@ -183,16 +184,25 @@ class MockWorldProxy(WorldProxy):
 
     def __init__(self) -> None:
         self._event_queue = deque()  # type: Deque[Event]
+        self._chunk_data = get_data(__package__, 'chunk_data.dat')
 
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
-            self._event_queue.append(event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
+            self._event_queue.append(
+                event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
             return
         if ActionType(action.id) == ActionType.UNKNOWN1:
-            self._event_queue.append(event_factory.create(EventType.UNKNOWN1, action.player_id))
+            self._event_queue.append(
+                event_factory.create(EventType.UNKNOWN1, action.player_id))
             return
         if ActionType(action.id) == ActionType.UNKNOWN2:
-            self._event_queue.append(event_factory.create(EventType.UNKNOWN2, action.player_id))
+            self._event_queue.append(
+                event_factory.create(EventType.UNKNOWN2, action.player_id))
+            return
+        if ActionType(action.id) == ActionType.REQUEST_CHUNK:
+            for position in action.positions:
+                self._event_queue.append(event_factory.create(
+                    EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
             return
 
     def next_event(self) -> Optional[Event]:

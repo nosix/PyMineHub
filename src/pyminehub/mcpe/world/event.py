@@ -1,4 +1,4 @@
-from pyminehub.mcpe.player import PlayerID
+from pyminehub.mcpe.value import *
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
 
@@ -9,6 +9,7 @@ class EventType(ValueType):
     PLAYER_LOGGED_IN = 0
     UNKNOWN1 = 1
     UNKNOWN2 = 2
+    FULL_CHUNK_LOADED = 3
 
 
 _event_specs = {
@@ -24,6 +25,11 @@ _event_specs = {
         ('id', int),
         ('player_id', PlayerID)
     ],
+    EventType.FULL_CHUNK_LOADED: [
+        ('id', int),
+        ('position', ChunkPosition),
+        ('data', bytes)
+    ]
 }
 
 
