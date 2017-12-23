@@ -160,10 +160,16 @@ def read_pcap(file_name: str) -> List[str]:
     import json
     import subprocess
     data = []
+    port_data_pair = None
 
     def _collect_raknet_raw(o):
+        nonlocal port_data_pair
+        if 'udp.srcport_raw' in o:
+            port_data_pair = [o['udp.srcport_raw'][0]]
         if 'raknet_raw' in o:
-            data.append(o['raknet_raw'][0])
+            assert port_data_pair is not None
+            port_data_pair.append(o['raknet_raw'][0])
+            data.append('\t'.join(port_data_pair))
         return o
 
     completed = subprocess.run('tshark -T jsonraw -r {}'.format(file_name), shell=True, stdout=subprocess.PIPE)
