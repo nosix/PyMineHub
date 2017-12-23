@@ -11,7 +11,8 @@ class PacketCodec:
         self._packet_factory = packet_factory
         self._data_codecs = data_codecs
 
-    def encode(self, packet: ValueObject, context: CompositeCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
+    def encode(
+            self, packet: ValueObject, context: CompositeCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
         >>> p = _packet_factory.create(PacketType.unconnected_pong, 8721, 12985, 'MCPE;')

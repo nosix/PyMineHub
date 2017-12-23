@@ -235,7 +235,7 @@ class PacketAnalyzer:
             yield self.try_on_child(child.encode_on, visitor, label if label is _Label.NONE else _Label.HIDE)
 
     def _retry_encoding(
-            self, visitor: AnalyzingVisitor, exc: AssertionError, data: bytes, called_line: str) -> ValueObject:
+            self, visitor: AnalyzingVisitor, exc: AssertionError, data: bytes, called_line: str) -> bytes:
         """Overrides when there is processing at the time of exception occurrence."""
         if self.does_retry_encoding():
             print('Warning: There may be differences in compression results:\n', called_line, file=sys.stderr)
