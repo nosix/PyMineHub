@@ -9,7 +9,7 @@ When debugging, execute `from tool.decoding import *` in REPL.
 [2] Unreliable(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
 [3] ConnectedPing(id=0, ping_time_since_start=4012048)
 >>> len(extract_chunk(load_packets('mppm_login_logout.txt')))
-58
+223
 """
 import re
 from binascii import unhexlify as unhex
@@ -168,9 +168,9 @@ def load_raknet_raw(pcap_file_name: str) -> List[str]:
         nonlocal port_data_pair
         if 'udp.srcport_raw' in o:
             port_data_pair = [o['udp.srcport_raw'][0]]
-        if 'raknet_raw' in o:
+        if 'frame_raw' in o:
             assert port_data_pair is not None
-            port_data_pair.append(o['raknet_raw'][0])
+            port_data_pair.append(o['frame_raw'][0][84:])  # 84 is header size times 2
             data.append('\t'.join(port_data_pair))
         return o
 
