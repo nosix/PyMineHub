@@ -1,4 +1,5 @@
 from collections import defaultdict
+from logging import getLogger
 from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
@@ -7,6 +8,8 @@ from pyminehub.mcpe.network.packet import GamePacketType, GamePacket
 from pyminehub.mcpe.network.reliability import RELIABILITY_DICT
 from pyminehub.network.address import Address
 from pyminehub.raknet import Reliability
+
+_logger = getLogger(__name__)
 
 
 class _BatchQueue:
@@ -19,6 +22,7 @@ class _BatchQueue:
 
         :param packet: game packet
         """
+        _logger.debug('< %s', packet)
         self._packets.append((RELIABILITY_DICT[GamePacketType(packet.id)], packet))
 
     def send(self, sendto: Callable[[ConnectionPacket, Reliability], None]) -> None:

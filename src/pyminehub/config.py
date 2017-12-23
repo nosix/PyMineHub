@@ -21,6 +21,10 @@ class ConfigKey(Enum):
     WORLD_NAME = 3
     SERVER_GUID = 4
     RESEND_TIME = 5
+    GAME_MODE = 6
+    DIFFICULTY = 7
+    RAIN_LEVEL = 8
+    LIGHTNING_LEVEL = 9
 
 
 __default_config = (
@@ -28,7 +32,11 @@ __default_config = (
     (ConfigKey.SEED, 0),
     (ConfigKey.WORLD_NAME, 'PyMineHub Server'),
     (ConfigKey.SERVER_GUID, None),
-    (ConfigKey.RESEND_TIME, 500)  # ms, greater than ACK/NCK arrives
+    (ConfigKey.RESEND_TIME, 500),  # ms, greater than ACK/NCK arrives
+    (ConfigKey.GAME_MODE, 'SURVIVAL'),
+    (ConfigKey.DIFFICULTY, 'NORMAL'),
+    (ConfigKey.RAIN_LEVEL, 0.0),
+    (ConfigKey.LIGHTNING_LEVEL, 0.0),
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]
