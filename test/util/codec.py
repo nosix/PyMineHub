@@ -133,7 +133,7 @@ class PacketAnalyzer:
     @staticmethod
     def _mask_path(called_line: str) -> str:
         m = re.search(r'File "(.+)/.+\.py"', called_line)
-        return called_line.replace(m[1], '.', 1)
+        return called_line.replace(m.group(1), '.', 1)
 
     def get_called_line(self) -> str:
         return self._called_line if self._label is None else '{}\n{}'.format(self._label, self._called_line)

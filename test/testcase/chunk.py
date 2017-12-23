@@ -1,6 +1,6 @@
 import inspect
 from binascii import unhexlify as unhex
-from distutils import dirname
+from os.path import dirname
 from unittest import TestCase
 
 

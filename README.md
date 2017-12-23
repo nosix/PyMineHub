@@ -1,5 +1,10 @@
 # PyMineHub
 
+## Target version
+
+- Python 3.5.3
+  - 2017-09-07-raspbian-stretch-lite.img
+
 ## Development
 
 ### Module design

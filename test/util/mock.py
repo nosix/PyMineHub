@@ -3,7 +3,7 @@ import socket
 from asyncio import subprocess
 from collections import deque
 from pkgutil import get_data
-from typing import List, Tuple, Optional, Deque
+from typing import List, Tuple, Optional
 
 from pyminehub.mcpe.const import GameMode, Difficulty
 from pyminehub.mcpe.world import WorldProxy
@@ -183,7 +183,7 @@ class MockTransport(asyncio.transports.DatagramTransport):
 class MockWorldProxy(WorldProxy):
 
     def __init__(self) -> None:
-        self._event_queue = deque()  # type: Deque[Event]
+        self._event_queue = deque()
         self._chunk_data = get_data(__package__, 'chunk_data.dat')
 
     def perform(self, action: Action) -> None:

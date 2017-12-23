@@ -31,7 +31,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
     def _read_jwt(cls, data: bytes) -> str:
         head_base64, payload_base64, sig_base64 = data.split(b'.')
         padding = bytes(cls.BASE64_PADDING_BYTE for _ in range(len(payload_base64) % 4))
-        return json.loads(base64.decodebytes(payload_base64 + padding))
+        return json.loads(base64.decodebytes(payload_base64 + padding).decode())
 
     def read(self, data: bytearray, context: DataCodecContext) -> ConnectionRequest:
         length = VAR_INT_DATA.read(data, context)
@@ -39,7 +39,8 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         context.length += length
 
         local_context = DataCodecContext()
-        chain_data = json.loads(pop_first(d, L_INT_DATA.read(d, local_context)))
+        chain_data_raw = pop_first(d, L_INT_DATA.read(d, local_context))
+        chain_data = json.loads(chain_data_raw.decode())
         chain_list = tuple(map(lambda chain: self._read_jwt(bytes(chain, 'ascii')), chain_data['chain']))
         client_data_jwt = pop_first(d, L_INT_DATA.read(d, local_context))
         client_data = self._read_jwt(client_data_jwt)

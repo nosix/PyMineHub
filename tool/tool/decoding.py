@@ -35,7 +35,7 @@ _BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
 def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) -> str:
     if bytes_mask_threshold is not None:
         def _summarize_bytes(m: re.match) -> str:
-            bytes_data = eval(m[1])  # type: bytes
+            bytes_data = eval(m.group(1))  # type: bytes
             length = len(bytes_data)
             return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
 
