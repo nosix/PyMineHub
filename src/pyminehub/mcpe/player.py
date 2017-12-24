@@ -24,6 +24,8 @@ class Player:
         self._permission = PlayerPermission.MEMBER
         self._inventory_content = {}  # type: Dict[int, List[Slot]]
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
+        self._near_chunk_position = set()  # type: Set[ChunkPosition]
+        self._is_living = False
 
     def get_id(self) -> PlayerID:
         return self._player_data.xuid
@@ -63,6 +65,7 @@ class Player:
     def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
         request = tuple(to_chunk_area(self._position, radius))
         self._requested_chunk_position |= set(p.position for p in request)
+        self._near_chunk_position = set(p.position for p in to_chunk_area(self._position, 2))
         return request
 
     def did_request_chunk(self, position: ChunkPosition) -> bool:
@@ -70,3 +73,12 @@ class Player:
 
     def discard_chunk_request(self, position: ChunkPosition) -> None:
         self._requested_chunk_position.discard(position)
+
+    def is_living(self) -> bool:
+        return self._is_living
+
+    def is_ready(self) -> bool:
+        return len(self._requested_chunk_position - self._near_chunk_position) == 0
+
+    def sapwn(self) -> None:
+        self._is_living = True

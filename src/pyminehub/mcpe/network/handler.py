@@ -681,3 +681,19 @@ class MCPEHandler(GameDataHandler):
             if player.did_request_chunk(event.position):
                 self._queue.send_immediately(res_packet, addr)
                 player.discard_chunk_request(event.position)
+            self._spawn_player(player, addr)
+
+    def _spawn_player(self, player: Player, addr: Address) -> None:
+        if not player.is_living() and player.is_ready():
+            res_packet = game_packet_factory.create(
+                GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.PLAYER_SPAWN)
+            self._queue.send_immediately(res_packet, addr)
+
+            res_packet = game_packet_factory.create(
+                GamePacketType.SET_ENTITY_DATA, EXTRA_DATA, player.get_entity_runtime_id(), (
+                    EntityMetaData(0, MetaDataType.LONG, 211106233679872),
+                    EntityMetaData(4, MetaDataType.STRING, 'MatteMussel3620')
+                ))
+            self._queue.send_immediately(res_packet, addr)
+
+            player.sapwn()
