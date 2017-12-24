@@ -60,8 +60,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         })
 
         # 0c
-        self.proxy.send(
-            self.data.that_is('resource_pack_client_response'), from_=self._CLIENT_ADDRESS[0])
+        self.proxy.send(self.data.that_is('resource_pack_client_response'), from_=self._CLIENT_ADDRESS[0])
 
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
@@ -82,13 +81,15 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             ]
         })
 
+        self.proxy.send(self.data.that_is('resource_pack_client_response_completed'), from_=self._CLIENT_ADDRESS[0])
+
         self.proxy.next_moment()
 
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 # 05
-                EncodedData(self.data.that_is_response_of('start_game')).is_(
+                EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
@@ -123,6 +124,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
+                ),
+                EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
+                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })

@@ -406,7 +406,9 @@ class RakNetPacket(PacketAnalyzer):
         for analyzer in self._children:
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
         visitor.assert_equal_for_decoding(
-            len(data), payload_length, 'RakNetPacket payload may be missing, the payload is "{}"'.format(data.hex()))
+            len(data), payload_length,
+            'RakNetFrame may be missing. The decoded payload length is {} and undecoded payload is "{}"'.format(
+                payload_length, data[payload_length:].hex()))
 
     def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> None:
         def action():

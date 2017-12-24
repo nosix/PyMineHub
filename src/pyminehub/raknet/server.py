@@ -40,14 +40,18 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self._handler = handler
         self._sessions = {}  # TODO session timeout
         self._guid = get_value(ConfigKey.SERVER_GUID)
-        self.server_id = 'MCPE;Steve;137;1.2.3;1;5;472877960873915065;testWorld;Survival;'
+        self.server_id = 'MCPE;PyMineHub Server;160;1.2.7;0;20;{};{};{};'.format(
+            get_value(ConfigKey.SERVER_GUID),
+            get_value(ConfigKey.WORLD_NAME),
+            get_value(ConfigKey.GAME_MODE).title()
+        )
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         # noinspection PyAttributeOutsideInit
         self._transport = transport
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
-        _logger.debug('%s [%d] %s', addr, len(data), data.hex())
+        _logger.debug('> %s %s', addr, data.hex())
         packet = raknet_packet_codec.decode(data)
         _logger.debug('> %s %s', addr, packet)
         getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
@@ -98,7 +102,6 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         length = 0
         while length < len(packet.payload):
             payload = packet.payload[length:]
-            _logger.debug('%s', payload.hex())
             frames.append(raknet_frame_codec.decode(payload, context))
             length += context.length
             context.clear()

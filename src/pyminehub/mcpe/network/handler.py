@@ -36,11 +36,11 @@ class MCPEHandler(GameDataHandler):
         self._players = {}  # type: Dict[Address, Player]
         self._addrs = {}  # type: Dict[PlayerID, Address]
         self._queue = GamePacketQueue(self._send_connection_packet)
+        # TODO world clock
 
     # GameDataHandler interface methods
 
     def data_received(self, data: bytes, addr: Address) -> None:
-        _logger.debug('%s [%d] %s', addr, len(data), data.hex())
         packet = connection_packet_codec.decode(data)
         _logger.debug('> %s %s', addr, packet)
         getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
@@ -49,7 +49,7 @@ class MCPEHandler(GameDataHandler):
         event = self._world.next_event()
         if event is None:
             return True
-        _logger.debug('%s', event)
+        _logger.debug('EVENT:%s', event)
         try:
             getattr(self, '_process_event_' + EventType(event.id).name.lower())(event)
         except PlayerSessionNotFound as exc:
@@ -121,7 +121,6 @@ class MCPEHandler(GameDataHandler):
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
         for data in packet.payloads:
-            _logger.debug('%s [%d] %s', addr, len(data), data.hex())
             packet = game_packet_codec.decode(data)
             _logger.debug('> %s %s', addr, packet)
             try:
@@ -145,12 +144,12 @@ class MCPEHandler(GameDataHandler):
     def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
-        elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:  # TODO does need?
+        elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:
             res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
             self._queue.send_immediately(res_packet, addr)
-
-        player = self._get_player_session(addr)
-        self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.get_id()))
+        elif packet.status == ResourcePackStatus.COMPLETED:
+            player = self._get_player_session(addr)
+            self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.get_id()))
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
         player = self._get_player_session(addr)

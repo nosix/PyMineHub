@@ -50,11 +50,11 @@ class Session:
             for nck_sequence_num in range(self._expected_sequence_num, packet_sequence_num):
                 self._nck_set.add(nck_sequence_num)
             self._expected_sequence_num = packet_sequence_num + 1
-        self._process_frames(frames)
+        self._process_frames(packet_sequence_num, frames)
 
-    def _process_frames(self, frames: List[RakNetFrame]) -> None:
+    def _process_frames(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         for frame in frames:
-            _logger.debug('> %s', frame)
+            _logger.debug('> [%d] %s', packet_sequence_num, frame)
             getattr(self, '_process_' + RakNetFrameType(frame.id).name.lower())(frame)
 
     def _process_unreliable(self, frame: RakNetFrame) -> None:
