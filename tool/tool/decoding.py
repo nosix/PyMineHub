@@ -9,7 +9,7 @@ When debugging, execute `from tool.decoding import *` in REPL.
 [2] Unreliable(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
 [3] ConnectedPing(id=0, ping_time_since_start=4012048)
 >>> len(extract_chunk(load_packets('mppm_login_logout.txt')))
-223
+224
 """
 import re
 from binascii import unhexlify as unhex
@@ -86,6 +86,8 @@ class DecodeAgent:
 
     def __iter__(self) -> Iterator[ValueObject]:
         for item in self._items:
+            if isinstance(item, _TaggedData):  # since ValueObject is tuple, it also matches TaggedData
+                continue
             if isinstance(item, ValueObject):
                 yield item
 
@@ -170,7 +172,12 @@ def load_raknet_raw(pcap_file_name: str) -> List[str]:
             port_data_pair = [o['udp.srcport_raw'][0]]
         if 'frame_raw' in o:
             assert port_data_pair is not None
-            port_data_pair.append(o['frame_raw'][0][84:])  # 84 is header size times 2
+            port_data_pair.append(o['frame_raw'][0])
+        if 'raknet_raw' in o:
+            assert port_data_pair is not None
+            raknet_raw = o['raknet_raw'][0]
+            frame_raw = port_data_pair.pop()
+            port_data_pair.append(frame_raw[frame_raw.find(raknet_raw):])
             data.append('\t'.join(port_data_pair))
         return o
 
