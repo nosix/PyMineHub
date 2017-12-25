@@ -198,7 +198,20 @@ class MockWorldProxy(WorldProxy):
                     0.0,
                     358.0,
                     Vector3(512, 56, 512),
-                    PlayerPermission.MEMBER
+                    PlayerPermission.MEMBER,
+                    (
+                        Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
+                        Attribute(0.0, 2048.0, 16.0, 16.0, 'minecraft:follow_range'),
+                        Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:knockback_resistance'),
+                        Attribute(0.0, 3.4028234663852886e+38, 0.10000000149011612, 0.10000000149011612, 'minecraft:movement'),
+                        Attribute(0.0, 3.4028234663852886e+38, 1.0, 1.0, 'minecraft:attack_damage'),
+                        Attribute(0.0, 3.4028234663852886e+38, 0.0, 0.0, 'minecraft:absorption'),
+                        Attribute(0.0, 20.0, 10.0, 20.0, 'minecraft:player.saturation'),
+                        Attribute(0.0, 5.0, 0.8000399470329285, 0.0, 'minecraft:player.exhaustion'),
+                        Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:player.hunger'),
+                        Attribute(0.0, 24791.0, 0.0, 0.0, 'minecraft:player.level'),
+                        Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:player.experience')
+                    )
                 ))
             return
         if ActionType(action.id) == ActionType.UNKNOWN1:

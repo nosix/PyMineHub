@@ -23,7 +23,8 @@ _event_specs = {
         ('pitch', float),
         ('yaw', float),
         ('spawn', Vector3),
-        ('permission', PlayerPermission)
+        ('permission', PlayerPermission),
+        ('attributes', Tuple[Attribute, ...])
     ],
     EventType.UNKNOWN1: [
         ('id', int),
