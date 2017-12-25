@@ -56,6 +56,35 @@ class PlayerPermission(Enum):
     VISITOR = 0
 
 
+class CommandPermission(Enum):
+    NORMAL = 0
+    OPERATOR = 1
+    HOST = 2
+    AUTOMATION = 3
+    ADMIN = 4
+
+
+class AdventureSettingFlags1(Enum):
+    WORLD_IMMUTABLE = 0x01
+    NO_PVP = 0x02
+    AUTO_JUMP = 0x20
+    ALLOW_FLIGHT = 0x40
+    NO_CLIP = 0x80
+    WORLD_BUILDER = 0x100
+    FLYING = 0x200
+    MUTED = 0x400
+
+
+class AdventureSettingFlags2(Enum):
+    BUILD_AND_MINE = 0x01
+    DOORS_AND_SWITCHES = 0x02
+    OPEN_CONTAINERS = 0x04
+    ATTACK_PLAYERS = 0x08
+    ATTACK_MOBS = 0x10
+    OPERATOR = 0x20
+    TELEPORT = 0x80
+
+
 class MetaDataType(Enum):
     BYTE = 0
     SHORT = 1

@@ -2,6 +2,7 @@ from pkgutil import get_data
 from typing import Optional
 
 from pyminehub.mcpe.const import GameMode, Difficulty
+from pyminehub.mcpe.value import AdventureSettings
 from pyminehub.mcpe.world.action import Action
 from pyminehub.mcpe.world.event import Event
 
@@ -39,4 +40,7 @@ class WorldProxy:
         raise NotImplementedError()
 
     def get_time(self) -> int:
+        raise NotImplementedError()
+
+    def get_adventure_settings(self) -> AdventureSettings:
         raise NotImplementedError()

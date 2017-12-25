@@ -1,5 +1,5 @@
 import math
-import operator
+import operator as _op
 from numbers import Number
 from typing import NamedTuple as _NamedTuple, Generic, Union, Iterator
 
@@ -31,7 +31,7 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
         >>> Vector3(1, 2, 3) + (4, 5)
         Vector3(x=5, y=2, z=8)
         """
-        return self._calc(operator.add, value)
+        return self._calc(_op.add, value)
 
     def __sub__(self, value) -> 'Vector3':
         """
@@ -42,22 +42,22 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
         >>> Vector3(3, 2, 1) - (4, 5)
         Vector3(x=-1, y=2, z=-4)
         """
-        return self._calc(operator.sub, value)
+        return self._calc(_op.sub, value)
 
     def __mul__(self, value) -> 'Vector3':
-        return self._calc(operator.mul, value)
+        return self._calc(_op.mul, value)
 
     def __truediv__(self, value) -> 'Vector3':
-        return self._calc(operator.truediv, value)
+        return self._calc(_op.truediv, value)
 
     def __radd__(self, value) -> 'Vector3':
-        return self._calc(operator.add, value)
+        return self._calc(_op.add, value)
 
     def __rsub__(self, value) -> 'Vector3':
-        return self._calc(operator.sub, value)
+        return self._calc(_op.sub, value)
 
     def __rmul__(self, value) -> 'Vector3':
-        return self._calc(operator.mul, value)
+        return self._calc(_op.mul, value)
 
     def distance(self, other: 'Vector3') -> Number:
         diff = self - other

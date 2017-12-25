@@ -1,6 +1,5 @@
 import time
 from logging import getLogger
-from typing import Dict
 
 from pyminehub.mcpe.command import get_command_spec
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
@@ -230,10 +229,17 @@ class MCPEHandler(GameDataHandler):
         )
         self._queue.send_immediately(res_packet, addr)
 
+        adventure_settings = self._world.get_adventure_settings()
+
         res_packet = game_packet_factory.create(
             GamePacketType.ADVENTURE_SETTINGS,
             EXTRA_DATA,
-            flags=32, command_permission=0, flags2=4294967295, player_permission=1, custom_flags=0, entity_unique_id=1
+            flags=adventure_settings.flags,
+            command_permission=command_spec.permission,
+            flags2=adventure_settings.flags2,
+            player_permission=event.permission,
+            custom_flags=0,
+            entity_unique_id=event.entity_unique_id
         )
         self._queue.send_immediately(res_packet, addr)
 

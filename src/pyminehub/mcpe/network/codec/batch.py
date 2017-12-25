@@ -344,9 +344,9 @@ _game_data_codecs = {
     GamePacketType.ADVENTURE_SETTINGS: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
+        EnumData(VAR_INT_DATA, CommandPermission),
         VAR_INT_DATA,
-        VAR_INT_DATA,
-        VAR_INT_DATA,
+        EnumData(VAR_INT_DATA, PlayerPermission),
         VAR_INT_DATA,
         L_LONG_DATA
     ],

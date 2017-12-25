@@ -259,11 +259,11 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('flags', int),
-        ('command_permission', int),
+        ('command_permission', CommandPermission),
         ('flags2', int),
-        ('player_permission', int),
+        ('player_permission', PlayerPermission),
         ('custom_flags', int),
-        ('entity_unique_id', int)
+        ('entity_unique_id', EntityUniqueID)
     ],
     GamePacketType.SET_ENTITY_DATA: [
         ('id', int),

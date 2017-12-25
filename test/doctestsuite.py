@@ -16,6 +16,7 @@ class DocTestCase(unittest.TestCase):
             'pyminehub/value',
             'pyminehub/network/codec',
             'pyminehub/raknet/codec',
+            'pyminehub/mcpe/value',
             'pyminehub/mcpe/network/codec/connection',
         ]
         for path in module_path:

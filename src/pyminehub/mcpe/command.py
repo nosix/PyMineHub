@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from pyminehub.mcpe.const import CommandPermission
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum
 
 _ENUM_VALUES = ('suicide', 'pl', 'w', 'msg', 'ver', 'about')
@@ -324,6 +325,10 @@ class CommandSpec:
     @property
     def command_data(self) -> Tuple[CommandData, ...]:
         return _COMMAND_DATA
+
+    @property
+    def permission(self) -> CommandPermission:
+        return CommandPermission.NORMAL
 
 
 _INSTANCE = CommandSpec()

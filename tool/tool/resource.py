@@ -1,7 +1,7 @@
 import json
 from binascii import unhexlify as unhex
 from collections import namedtuple
-from typing import Dict, Callable, Any
+from typing import Callable, Any
 
 # noinspection PyProtectedMember
 from pyminehub.mcpe.network.codec.batch import _RecipeList, _InventoryContentItems

@@ -1,5 +1,6 @@
-from typing import NamedTuple as _NamedTuple, Optional, Tuple
+from typing import NamedTuple as _NamedTuple, Dict, Optional, Tuple
 
+from pyminehub.binutil.converter import dict_to_flags, flags_to_dict
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
 
@@ -88,6 +89,32 @@ CommandData = _NamedTuple('CommandData', [
     ('overloads', Tuple[Tuple[CommandParameter], ...])
 ])
 
+
+class AdventureSettings(_NamedTuple('AdventureSettings', [
+    ('flags', int),
+    ('flags2', int)
+])):
+    @staticmethod
+    def create(**kwargs: bool) -> 'AdventureSettings':
+        """
+        >>> AdventureSettings.create(world_immutable=True, attack_players=True, flying=True, teleport=True)
+        AdventureSettings(flags=513, flags2=136)
+        """
+        flags = dict_to_flags(AdventureSettingFlags1, **kwargs)
+        flags2 = dict_to_flags(AdventureSettingFlags2, **kwargs)
+        return AdventureSettings(flags, flags2)
+
+    def to_dict(self) -> Dict[str, bool]:
+        """
+        >>> AdventureSettings(513, 136).to_dict()
+        {'world_immutable': True, 'flying': True, 'attack_players': True, 'teleport': True}
+        """
+        d = {}
+        d.update(flags_to_dict(AdventureSettingFlags1, self.flags))
+        d.update(flags_to_dict(AdventureSettingFlags2, self.flags2))
+        return d
+
+
 Slot = _NamedTuple('Slot', [
     ('id', int),
     ('aux_value', Optional[int]),
@@ -151,3 +178,8 @@ Recipe = _NamedTuple('Recipe', [
     ('type', RecipeType),
     ('data', RecipeData)
 ])
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest_result = doctest.testmod()

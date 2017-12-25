@@ -1,12 +1,38 @@
 import struct
 from binascii import hexlify, unhexlify
-from typing import NamedTuple as _NamedTuple, Callable, Generic, Optional
+from enum import Enum
+from typing import NamedTuple as _NamedTuple, Callable, Dict, Generic, Optional, Type
 
 from pyminehub.typevar import T, BT, ET
 
 
 class BytesOperationError(Exception):
     pass
+
+
+def dict_to_flags(enum_cls: Type[Enum], **kwargs: bool) -> int:
+    """
+    >>> class Settings(Enum):
+    ...     FOO = 0x1
+    ...     BAR = 0x2
+    ...     MOO = 0x4
+    >>> dict_to_flags(Settings, foo=True, moo=True)
+    5
+    """
+    flags_bits = tuple(enum_value.value for enum_value in enum_cls if kwargs.get(enum_value.name.lower(), False))
+    return sum(flags_bits)
+
+
+def flags_to_dict(enum_cls: Type[Enum], flags: int) -> Dict[str, bool]:
+    """
+    >>> class Settings(Enum):
+    ...     FOO = 0x1
+    ...     BAR = 0x2
+    ...     MOO = 0x4
+    >>> flags_to_dict(Settings, 5)
+    {'foo': True, 'moo': True}
+    """
+    return dict((enum_value.name.lower(), True) for enum_value in enum_cls if flags & enum_value.value)
 
 
 def to_bytes(hex_str: str) -> bytes:

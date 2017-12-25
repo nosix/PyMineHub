@@ -58,7 +58,7 @@ ReliableOrdered(id=96, payload_length=7384, reliable_message_num=6, message_orde
   File "./codec_login_logout.py", line 121, in test_login_logout_s09
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-AdventureSettings(id=55, extra=b'\x00\x00', flags=32, command_permission=0, flags2=4294967295, player_permission=1, custom_flags=0, entity_unique_id=1)
+AdventureSettings(id=55, extra=b'\x00\x00', flags=32, command_permission=<CommandPermission.NORMAL: 0>, flags2=4294967295, player_permission=<PlayerPermission.MEMBER: 1>, custom_flags=0, entity_unique_id=1)
   -> 3700002000ffffffff0f01000100000000000000
   File "./codec_login_logout.py", line 128, in test_login_logout_s09
     GamePacket(GamePacketType.ADVENTURE_SETTINGS)

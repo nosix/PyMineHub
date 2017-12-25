@@ -254,3 +254,6 @@ class MockWorldProxy(WorldProxy):
 
     def get_time(self) -> int:
         return 4800
+
+    def get_adventure_settings(self) -> AdventureSettings:
+        return AdventureSettings(32, 4294967295)
