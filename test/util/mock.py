@@ -5,6 +5,7 @@ from collections import deque
 from pkgutil import get_data
 from typing import List
 
+from pyminehub.mcpe.metadata import create_entity_meta_data
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.mcpe.world.action import Action, ActionType
 from pyminehub.mcpe.world.event import *
@@ -216,7 +217,19 @@ class MockWorldProxy(WorldProxy):
             return
         if ActionType(action.id) == ActionType.UNKNOWN1:
             self._event_queue.append(
-                event_factory.create(EventType.UNKNOWN1, action.player_id))
+                event_factory.create(
+                    EventType.UNKNOWN1,
+                    action.player_id,
+                    (
+                        create_entity_meta_data(EntityMetaDataKey.FLAGS, 211106233679872),
+                        create_entity_meta_data(EntityMetaDataKey.AIR, 0),
+                        create_entity_meta_data(EntityMetaDataKey.MAX_AIR, 400),
+                        create_entity_meta_data(EntityMetaDataKey.NAMETAG, 'MatteMussel3620'),
+                        create_entity_meta_data(EntityMetaDataKey.LEAD_HOLDER_EID, 1),
+                        create_entity_meta_data(EntityMetaDataKey.SCALE, 1.0),
+                        create_entity_meta_data(EntityMetaDataKey.BED_POSITION, Vector3(0, 0, 0))
+                    )
+                ))
             return
         if ActionType(action.id) == ActionType.UNKNOWN2:
             self._event_queue.append(

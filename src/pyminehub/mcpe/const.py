@@ -97,6 +97,84 @@ class MetaDataType(Enum):
     FLOAT_VECTOR3 = 8
 
 
+class EntityMetaDataKey(Enum):
+    FLAGS = 0
+    HEALTH = 1  # minecart/boat
+    VARIANT = 2
+    COLOR = 3
+    NAMETAG = 4
+    OWNER_EID = 5
+    TARGET_EID = 6
+    AIR = 7
+    POTION_COLOR = 8  # ARGB!
+    POTION_AMBIENT = 9
+    # 10 (byte)
+    HURT_TIME = 11  # minecart/boat
+    HURT_DIRECTION = 12  # minecart/boat
+    PADDLE_TIME_LEFT = 13
+    PADDLE_TIME_RIGHT = 14
+    EXPERIENCE_VALUE = 15  # xp orb
+    MINECART_DISPLAY_BLOCK = 16  # id | (data << 16)
+    MINECART_DISPLAY_OFFSET = 17
+    MINECART_HAS_DISPLAY = 18  # must be 1 for minecart to show block inside
+    # 19..22
+    ENDERMAN_HELD_ITEM_ID = 23
+    ENDERMAN_HELD_ITEM_DAMAGE = 24
+    ENTITY_AGE = 25
+    # 27 (byte) player-specific flags
+    # 28 (int) player "index"?
+    BED_POSITION = 29
+    FIREBALL_POWER_X = 30
+    FIREBALL_POWER_Y = 31
+    FIREBALL_POWER_Z = 32
+    # 33 (unknown)
+    # 34 (float) fishing bobber
+    # 35 (float) fishing bobber
+    # 36 (float) fishing bobber
+    POTION_AUX_VALUE = 37
+    LEAD_HOLDER_EID = 38
+    SCALE = 39
+    INTERACTIVE_TAG = 40  # button text
+    NPC_SKIN_ID = 41
+    URL_TAG = 42
+    MAX_AIR = 43
+    MARK_VARIANT = 44
+    # 45 (byte) container stuff
+    # 46 (int) container stuff
+    # 47 (int) container stuff
+    BLOCK_TARGET = 48  # ender crystal
+    WITHER_INVULNERABLE_TICKS = 49
+    WITHER_TARGET_1 = 50
+    WITHER_TARGET_2 = 51
+    WITHER_TARGET_3 = 52
+    # 53 (short)
+    BOUNDING_BOX_WIDTH = 54
+    BOUNDING_BOX_HEIGHT = 55
+    FUSE_LENGTH = 56
+    RIDER_SEAT_POSITION = 57
+    RIDER_ROTATION_LOCKED = 58
+    RIDER_MAX_ROTATION = 59
+    RIDER_MIN_ROTATION = 60
+    AREA_EFFECT_CLOUD_RADIUS = 61
+    AREA_EFFECT_CLOUD_WAITING = 62
+    AREA_EFFECT_CLOUD_PARTICLE_ID = 63
+    # 64 (int) shulker-related
+    SHULKER_ATTACH_FACE = 65
+    # 66 (short) shulker-related
+    SHULKER_ATTACH_POS = 67
+    TRADING_PLAYER_EID = 68
+    # 69
+    # 70 (byte) command-block
+    COMMAND_BLOCK_COMMAND = 71
+    COMMAND_BLOCK_LAST_OUTPUT = 72
+    COMMAND_BLOCK_TRACK_OUTPUT = 73
+    CONTROLLING_RIDER_SEAT_NUMBER = 74
+    STRENGTH = 75
+    MAX_STRENGTH = 76
+    # 77 (int)
+    # 78 (int)
+
+
 class PlayerListType(Enum):
     ADD = 0
     REMOVE = 1

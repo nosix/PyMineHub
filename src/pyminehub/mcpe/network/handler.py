@@ -253,15 +253,7 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.SET_ENTITY_DATA,
             EXTRA_DATA,
             entity_runtime_id=player.entity_runtime_id,
-            meta_data=(
-                EntityMetaData(key=0, type=MetaDataType.LONG, value=211106233679872),
-                EntityMetaData(key=7, type=MetaDataType.SHORT, value=0),
-                EntityMetaData(key=43, type=MetaDataType.SHORT, value=400),
-                EntityMetaData(key=4, type=MetaDataType.STRING, value='MatteMussel3620'),
-                EntityMetaData(key=38, type=MetaDataType.LONG, value=1),
-                EntityMetaData(key=39, type=MetaDataType.FLOAT, value=1.0),
-                EntityMetaData(key=29, type=MetaDataType.INT_VECTOR3, value=Vector3(x=0, y=0, z=0))
-            )
+            meta_data=event.entity_data
         )
         self._queue.send_immediately(res_packet, addr)
 

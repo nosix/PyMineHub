@@ -126,7 +126,7 @@ Slot = _NamedTuple('Slot', [
 MetaDataValue = Union[int, float, str, Vector3, Slot]
 
 EntityMetaData = _NamedTuple('EntityMetaData', [
-    ('key', int),
+    ('key', EntityMetaDataKey),
     ('type', MetaDataType),
     ('value', MetaDataValue)
 ])

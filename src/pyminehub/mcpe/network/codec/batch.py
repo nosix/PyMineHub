@@ -354,7 +354,7 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
         VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
-            VAR_INT_DATA,
+            EnumData(VAR_INT_DATA, EntityMetaDataKey),
             NamedData('meta_data_type', EnumData(VAR_INT_DATA, MetaDataType)),
             _MetaDataValue()
         )))
