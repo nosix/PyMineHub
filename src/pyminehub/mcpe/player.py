@@ -1,10 +1,7 @@
-from pkgutil import get_data
-from typing import Dict, List, Set, Tuple, Union
+from typing import Set, Tuple
 
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, to_chunk_area, ChunkPosition
-from pyminehub.mcpe.value import PlayerData, ClientData, Slot, PlayerID, EntityRuntimeID
-
-_INVENTORY_CONTENT_ITEMS = get_data(__package__, 'inventory-content-items121.dat')
+from pyminehub.mcpe.value import PlayerData, ClientData, PlayerID, EntityRuntimeID
 
 
 class Player:
@@ -15,7 +12,6 @@ class Player:
         self._client_data = None
         self._entity_runtime_id = 0
         self._position = Vector3(256.0, 57.625, 256.0)
-        self._inventory_content = {}  # type: Dict[int, List[Slot]]
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
@@ -45,9 +41,6 @@ class Player:
         self._protocol = protocol
         self._player_data = player_data
         self._client_data = client_data
-
-    def get_inventory_content(self, window_id: int) -> Union[Tuple[Slot, ...], bytes]:
-        return tuple(self._inventory_content[window_id]) if window_id != 121 else _INVENTORY_CONTENT_ITEMS
 
     def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
         request = tuple(to_chunk_area(self._position, radius))

@@ -257,70 +257,14 @@ class MCPEHandler(GameDataHandler):
         )
         self._queue.send_immediately(res_packet, addr)
 
-        res_packet = game_packet_factory.create(
-            GamePacketType.INVENTORY_CONTENT,
-            EXTRA_DATA,
-            window_id=0,
-            items=(
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)
+        for inventory in event.inventory:
+            res_packet = game_packet_factory.create(
+                GamePacketType.INVENTORY_CONTENT,
+                EXTRA_DATA,
+                window_id=inventory.window_type,
+                items=inventory.slots
             )
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.INVENTORY_CONTENT,
-            EXTRA_DATA,
-            window_id=120,
-            items=(
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-                Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)
-            )
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.INVENTORY_CONTENT,
-            EXTRA_DATA,
-            window_id=121,
-            items=player.get_inventory_content(121))
-        self._queue.send_immediately(res_packet, addr)
+            self._queue.send_immediately(res_packet, addr)
 
         self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.id))  # TODO remove
 

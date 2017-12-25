@@ -361,7 +361,7 @@ _game_data_codecs = {
     ],
     GamePacketType.INVENTORY_CONTENT: [
         _HEADER_EXTRA_DATA,
-        VAR_INT_DATA,
+        EnumData(VAR_INT_DATA, WindowType),
         _InventoryContentItems()
     ],
     GamePacketType.MOB_EQUIPMENT: [

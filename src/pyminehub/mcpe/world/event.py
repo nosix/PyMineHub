@@ -29,7 +29,8 @@ _event_specs = {
     EventType.UNKNOWN1: [
         ('id', int),
         ('player_id', PlayerID),
-        ('entity_data', Tuple[EntityMetaData, ...])
+        ('entity_data', Tuple[EntityMetaData, ...]),
+        ('inventory', Tuple[Inventory, ...])
     ],
     EventType.UNKNOWN2: [
         ('id', int),

@@ -131,6 +131,11 @@ EntityMetaData = _NamedTuple('EntityMetaData', [
     ('value', MetaDataValue)
 ])
 
+Inventory = _NamedTuple('Inventory', [
+    ('window_type', WindowType),
+    ('slots', Tuple[Slot, ...])
+])
+
 UUID = _NamedTuple('UUID', [
     ('part1', int),
     ('part0', int),

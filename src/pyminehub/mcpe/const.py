@@ -180,6 +180,16 @@ class PlayerListType(Enum):
     REMOVE = 1
 
 
+class WindowType(Enum):
+    INVENTORY = 0
+    OFFHAND = 119
+    ARMOR = 120
+    CREATIVE = 121
+    HOTBAR = 122
+    FIXED_INVENTORY = 123
+    CURSOR = 124
+
+    
 class RecipeType(Enum):
     SHAPELESS = 0
     SHAPED = 1
