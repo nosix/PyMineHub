@@ -1,11 +1,9 @@
 from collections import deque
 from pkgutil import get_data
-from typing import Optional
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.world.action import Action, ActionType
-from pyminehub.mcpe.world.event import Event, GameMode, Difficulty, EventType
-from pyminehub.mcpe.world.event import event_factory
+from pyminehub.mcpe.world.event import *
 from pyminehub.mcpe.world.proxy import WorldProxy
 
 
@@ -51,7 +49,18 @@ class _World(WorldProxy):
 
     def _process_login_player(self, action: Action) -> None:
         # TODO keep player
-        self._notify_event(event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
+        self._notify_event(event_factory.create(
+            EventType.PLAYER_LOGGED_IN,
+            action.player_id,
+            1,
+            1,
+            GameMode.SURVIVAL,
+            Vector3(256.0, 57.625, 256.0),
+            0.0,
+            358.0,
+            Vector3(512, 56, 512),
+            PlayerPermission.MEMBER
+        ))
 
     def _process_unknown1(self, action: Action) -> None:
         self._notify_event(event_factory.create(EventType.UNKNOWN1, action.player_id))

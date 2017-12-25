@@ -3,12 +3,11 @@ import socket
 from asyncio import subprocess
 from collections import deque
 from pkgutil import get_data
-from typing import List, Tuple, Optional
+from typing import List
 
-from pyminehub.mcpe.const import GameMode, Difficulty
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.mcpe.world.action import Action, ActionType
-from pyminehub.mcpe.world.event import event_factory, EventType, Event
+from pyminehub.mcpe.world.event import *
 from pyminehub.network.address import Address
 
 
@@ -189,7 +188,18 @@ class MockWorldProxy(WorldProxy):
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
             self._event_queue.append(
-                event_factory.create(EventType.PLAYER_LOGGED_IN, action.player_id))
+                event_factory.create(
+                    EventType.PLAYER_LOGGED_IN,
+                    action.player_id,
+                    1,
+                    1,
+                    GameMode.SURVIVAL,
+                    Vector3(256.0, 57.625, 256.0),
+                    0.0,
+                    358.0,
+                    Vector3(512, 56, 512),
+                    PlayerPermission.MEMBER
+                ))
             return
         if ActionType(action.id) == ActionType.UNKNOWN1:
             self._event_queue.append(

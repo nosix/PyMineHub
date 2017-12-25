@@ -15,7 +15,15 @@ class EventType(ValueType):
 _event_specs = {
     EventType.PLAYER_LOGGED_IN: [
         ('id', int),
-        ('player_id', PlayerID)
+        ('player_id', PlayerID),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('game_mode', GameMode),
+        ('position', Vector3),
+        ('pitch', float),
+        ('yaw', float),
+        ('spawn', Vector3),
+        ('permission', PlayerPermission)
     ],
     EventType.UNKNOWN1: [
         ('id', int),

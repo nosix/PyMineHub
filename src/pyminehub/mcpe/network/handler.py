@@ -134,7 +134,7 @@ class MCPEHandler(GameDataHandler):
         client_data = packet.connection_request.get_client_data()
         # TODO check the logged-in player and log out the same player
         player.login(packet.protocol, player_data, client_data)
-        self._addrs[player.get_id()] = addr
+        self._addrs[player.id] = addr
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
         self._queue.send_immediately(res_packet, addr)
@@ -149,7 +149,7 @@ class MCPEHandler(GameDataHandler):
             self._queue.send_immediately(res_packet, addr)
         elif packet.status == ResourcePackStatus.COMPLETED:
             player = self._get_player_session(addr)
-            self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.get_id()))
+            self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
         player = self._get_player_session(addr)
@@ -162,21 +162,24 @@ class MCPEHandler(GameDataHandler):
         addr = self._get_addr(event.player_id)
         player = self._get_player_session(addr)
 
+        player.entity_runtime_id = event.entity_runtime_id
+        player.position = event.position
+
         res_packet = game_packet_factory.create(
             GamePacketType.START_GAME,
             EXTRA_DATA,
-            player.get_entity_unique_id(),
-            player.get_entity_runtime_id(),
-            player.get_game_mode(),
-            player.get_position(),
-            player.get_pitch(),
-            player.get_yaw(),
+            event.entity_unique_id,
+            event.entity_runtime_id,
+            event.game_mode,
+            player.position,
+            event.pitch,
+            event.yaw,
             self._world.get_seed(),
             Dimension.OVERWORLD,
             Generator.INFINITE,
             self._world.get_game_mode(),
             self._world.get_difficulty(),
-            player.get_sapwn(),
+            event.spawn,
             has_achievements_disabled=True,
             time=self._world.get_time(),
             edu_mode=False,
@@ -191,7 +194,7 @@ class MCPEHandler(GameDataHandler):
             has_bonus_chest_enabled=False,
             has_start_with_map_enabled=False,
             has_trust_players_enabled=False,
-            default_player_permission=player.get_permission(),
+            default_player_permission=event.permission,
             xbox_live_broadcast_mode=0,
             level_id='',
             world_name=self._world.get_world_name(),
@@ -209,7 +212,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = game_packet_factory.create(
             GamePacketType.UPDATE_ATTRIBUTES,
             EXTRA_DATA,
-            player.get_entity_runtime_id(),
+            player.entity_runtime_id,
             (
                 Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
                 Attribute(0.0, 2048.0, 16.0, 16.0, 'minecraft:follow_range'),
@@ -538,7 +541,7 @@ class MCPEHandler(GameDataHandler):
         )
         self._queue.send_immediately(res_packet, addr)
 
-        self._world.perform(action_factory.create(ActionType.UNKNOWN1, player.get_id()))  # TODO remove
+        self._world.perform(action_factory.create(ActionType.UNKNOWN1, player.id))  # TODO remove
 
     def _process_event_unknown1(self, event: Event) -> None:
         addr = self._get_addr(event.player_id)
@@ -547,7 +550,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = game_packet_factory.create(
             GamePacketType.SET_ENTITY_DATA,
             EXTRA_DATA,
-            entity_runtime_id=player.get_entity_runtime_id(),
+            entity_runtime_id=player.entity_runtime_id,
             meta_data=(
                 EntityMetaData(key=0, type=MetaDataType.LONG, value=211106233679872),
                 EntityMetaData(key=7, type=MetaDataType.SHORT, value=0),
@@ -625,7 +628,7 @@ class MCPEHandler(GameDataHandler):
             items=player.get_inventory_content(121))
         self._queue.send_immediately(res_packet, addr)
 
-        self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.get_id()))  # TODO remove
+        self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.id))  # TODO remove
 
     def _process_event_unknown2(self, event: Event) -> None:
         addr = self._get_addr(event.player_id)
@@ -634,7 +637,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = game_packet_factory.create(
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,
-            entity_runtime_id=player.get_entity_runtime_id(),
+            entity_runtime_id=player.entity_runtime_id,
             item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
             inventory_slot=0, hotbar_slot=0, window_id=0
         )
@@ -690,7 +693,7 @@ class MCPEHandler(GameDataHandler):
             self._queue.send_immediately(res_packet, addr)
 
             res_packet = game_packet_factory.create(
-                GamePacketType.SET_ENTITY_DATA, EXTRA_DATA, player.get_entity_runtime_id(), (
+                GamePacketType.SET_ENTITY_DATA, EXTRA_DATA, player.entity_runtime_id, (
                     EntityMetaData(0, MetaDataType.LONG, 211106233679872),
                     EntityMetaData(4, MetaDataType.STRING, 'MatteMussel3620')
                 ))
