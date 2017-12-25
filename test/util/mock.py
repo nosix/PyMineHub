@@ -228,3 +228,6 @@ class MockWorldProxy(WorldProxy):
 
     def get_world_name(self) -> str:
         return 'PyMineHub Server'
+
+    def get_time(self) -> int:
+        return 4800

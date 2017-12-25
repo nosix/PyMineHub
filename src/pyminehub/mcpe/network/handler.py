@@ -178,7 +178,7 @@ class MCPEHandler(GameDataHandler):
             self._world.get_difficulty(),
             player.get_sapwn(),
             has_achievements_disabled=True,
-            time=self._get_current_time(),
+            time=self._world.get_time(),
             edu_mode=False,
             rain_level=self._world.get_rain_level(),
             lightning_level=self._world.get_lightning_level(),
@@ -203,7 +203,7 @@ class MCPEHandler(GameDataHandler):
         self._queue.send_immediately(res_packet, addr)
 
         res_packet = game_packet_factory.create(
-            GamePacketType.SET_TIME, EXTRA_DATA, 33868)  # TODO set time
+            GamePacketType.SET_TIME, EXTRA_DATA, self._world.get_time())
         self._queue.send_immediately(res_packet, addr)
 
         res_packet = game_packet_factory.create(

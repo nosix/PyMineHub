@@ -64,6 +64,9 @@ class _World(WorldProxy):
             self._event_queue.append(event_factory.create(
                 EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
 
+    def get_time(self) -> int:
+        return 4800
+
 
 def run() -> WorldProxy:
     return _World()

@@ -98,14 +98,17 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             Batch().that_has(
                                 GamePacket(
                                     GamePacketType.START_GAME,
-                                    time=DYNAMIC,
+                                    time=4800,
                                     world_name='PyMineHub Server'
                                 )
                             )
                         ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
-                                GamePacket(GamePacketType.SET_TIME)
+                                GamePacket(
+                                    GamePacketType.SET_TIME,
+                                    time=4800
+                                )
                             )
                         ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(

@@ -37,3 +37,6 @@ class WorldProxy:
 
     def get_world_name(self) -> str:
         raise NotImplementedError()
+
+    def get_time(self) -> int:
+        raise NotImplementedError()
