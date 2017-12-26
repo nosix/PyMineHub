@@ -1,3 +1,4 @@
+import base64
 import struct
 from binascii import hexlify, unhexlify
 from enum import Enum
@@ -8,6 +9,12 @@ from pyminehub.typevar import T, BT, ET
 
 class BytesOperationError(Exception):
     pass
+
+
+def decode_base64(base64_encoded_data: bytes) -> bytes:
+    padding_byte = ord('=')
+    padding = bytes(padding_byte for _ in range(len(base64_encoded_data) % 4))
+    return base64.decodebytes(base64_encoded_data + padding)
 
 
 def dict_to_flags(enum_cls: Type[Enum], **kwargs: bool) -> int:

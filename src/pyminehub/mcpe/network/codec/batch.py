@@ -1,7 +1,6 @@
 """
 Codecs for game packet in batch
 """
-import base64
 import json
 
 from pyminehub.mcpe.network.packet import *
@@ -25,13 +24,10 @@ _FLOAT_VECTOR3_DATA = CompositeData(Vector3, (
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
 
-    BASE64_PADDING_BYTE = ord('=')
-
     @classmethod
     def _read_jwt(cls, data: bytes) -> str:
         head_base64, payload_base64, sig_base64 = data.split(b'.')
-        padding = bytes(cls.BASE64_PADDING_BYTE for _ in range(len(payload_base64) % 4))
-        return json.loads(base64.decodebytes(payload_base64 + padding).decode())
+        return json.loads(decode_base64(payload_base64).decode())
 
     def read(self, data: bytearray, context: DataCodecContext) -> ConnectionRequest:
         length = VAR_INT_DATA.read(data, context)
@@ -41,7 +37,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         local_context = DataCodecContext()
         chain_data_raw = pop_first(d, L_INT_DATA.read(d, local_context))
         chain_data = json.loads(chain_data_raw.decode())
-        chain_list = tuple(map(lambda chain: self._read_jwt(bytes(chain, 'ascii')), chain_data['chain']))
+        chain_list = tuple(map(lambda chain: self._read_jwt(chain.encode('ascii')), chain_data['chain']))
         client_data_jwt = pop_first(d, L_INT_DATA.read(d, local_context))
         client_data = self._read_jwt(client_data_jwt)
         return ConnectionRequest(chain_list, client_data)

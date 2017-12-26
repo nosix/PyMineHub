@@ -1,6 +1,7 @@
+import re
 from typing import NamedTuple as _NamedTuple, Dict, Optional, Tuple
 
-from pyminehub.binutil.converter import dict_to_flags, flags_to_dict
+from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_base64
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
 
@@ -9,6 +10,14 @@ EntityUniqueID = int
 EntityRuntimeID = int
 
 
+Skin = _NamedTuple('Skin', [
+    ('id', str),
+    ('data', bytes),
+    ('cape', str),
+    ('geometry_name', str),
+    ('geometry_data', str)
+])
+
 PlayerData = _NamedTuple('PlayerData', [
     ('xuid', int),
     ('identity', str),
@@ -16,10 +25,19 @@ PlayerData = _NamedTuple('PlayerData', [
     ('identity_public_key', str)
 ])
 
-ClientData = _NamedTuple('ClientData', [
+
+class ClientData(_NamedTuple('ClientData', [
     ('client_random_id', int),
-    ('language_code', str)
-])
+    ('language_code', str),
+    ('cape_data', str),
+    ('skin_id', str),
+    ('skin_data', bytes),
+    ('skin_geometry_name', str),
+    ('skin_geometry_data', str)
+])):
+    @property
+    def skin(self) -> Skin:
+        return Skin(self.skin_id, self.skin_data, self.cape_data, self.skin_geometry_name, self.skin_geometry_data)
 
 
 class ConnectionRequest(_NamedTuple('ConnectionRequest', [
@@ -27,8 +45,10 @@ class ConnectionRequest(_NamedTuple('ConnectionRequest', [
     ('client', dict)  # NOTE: dict is mutable
 ])):
     _KEY_EXTRA = 'extraData'
+    _MINIMIZE_REGEXP = re.compile(r'\s+')
 
-    def get_player_data(self) -> PlayerData:
+    @property
+    def player_data(self) -> PlayerData:
         for webtoken in self.chain:
             if self._KEY_EXTRA in webtoken:
                 extra_data = webtoken[self._KEY_EXTRA]
@@ -37,8 +57,19 @@ class ConnectionRequest(_NamedTuple('ConnectionRequest', [
                     webtoken['identityPublicKey'])
         raise AssertionError('ConnectionRequest must have extraData.')
 
-    def get_client_data(self) -> ClientData:
-        return ClientData(self.client['ClientRandomId'], self.client['LanguageCode'])
+    @property
+    def client_data(self) -> ClientData:
+        skin_data = decode_base64(self.client['SkinData'].encode('ascii'))
+        skin_geometry = decode_base64(self.client['SkinGeometry'].encode('ascii')).decode()
+        return ClientData(
+            self.client['ClientRandomId'],
+            self.client['LanguageCode'],
+            self.client['CapeData'],
+            self.client['SkinId'],
+            skin_data,
+            self.client['SkinGeometryName'],
+            self._MINIMIZE_REGEXP.sub('', skin_geometry).replace('.0', '')  # TODO remove replace '.0'
+        )
 
 
 PackEntry = _NamedTuple('PackEntry', [
@@ -141,14 +172,6 @@ UUID = _NamedTuple('UUID', [
     ('part0', int),
     ('part3', int),
     ('part2', int)
-])
-
-Skin = _NamedTuple('Skin', [
-    ('id', str),
-    ('data', bytes),
-    ('cape', str),
-    ('geometry_name', str),
-    ('geometry_data', str)
 ])
 
 PlayerListEntry = _NamedTuple('PlayerListEntry', [

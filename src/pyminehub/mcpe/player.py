@@ -1,7 +1,7 @@
 from typing import Set, Tuple
 
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, to_chunk_area, ChunkPosition
-from pyminehub.mcpe.value import PlayerData, ClientData, PlayerID, EntityRuntimeID
+from pyminehub.mcpe.value import PlayerData, ClientData, PlayerID, EntityRuntimeID, EntityUniqueID, Skin
 
 
 class Player:
@@ -10,15 +10,40 @@ class Player:
         self._protocol = None
         self._player_data = None
         self._client_data = None
+        self._entity_unique_id = 0
         self._entity_runtime_id = 0
         self._position = Vector3(256.0, 57.625, 256.0)
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
 
+    def login(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:
+        self._protocol = protocol
+        self._player_data = player_data
+        self._client_data = client_data
+
     @property
     def id(self) -> PlayerID:
         return self._player_data.xuid
+
+    @property
+    def name(self) -> str:
+        assert self._player_data
+        return self._player_data.display_name
+
+    @property
+    def skin(self) -> Skin:
+        assert self._client_data
+        return self._client_data.skin
+
+    @property
+    def entity_unique_id(self) -> EntityUniqueID:
+        assert self._entity_unique_id != 0
+        return self._entity_unique_id
+
+    @entity_unique_id.setter
+    def entity_unique_id(self, entity_unique_id: EntityUniqueID) -> None:
+        self._entity_unique_id = entity_unique_id
 
     @property
     def entity_runtime_id(self) -> EntityRuntimeID:
@@ -36,11 +61,6 @@ class Player:
     @position.setter
     def position(self, position: Vector3[float]) -> None:
         self._position = position
-
-    def login(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:
-        self._protocol = protocol
-        self._player_data = player_data
-        self._client_data = client_data
 
     def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
         request = tuple(to_chunk_area(self._position, radius))
