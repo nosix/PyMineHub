@@ -1,6 +1,5 @@
-from pkgutil import get_data
-
 from pyminehub.mcpe.const import WindowType
+from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import Slot, Inventory
 
 _INVENTORY_SIZE = {
@@ -8,12 +7,10 @@ _INVENTORY_SIZE = {
     WindowType.ARMOR: 4
 }
 
-_INVENTORY_CONTENT_ITEMS = get_data(__package__, 'inventory-content-items121.dat')
-
 
 def create_inventory(window_type: WindowType) -> Inventory:
     if window_type == WindowType.CREATIVE:
-        return Inventory(window_type, _INVENTORY_CONTENT_ITEMS)
+        return Inventory(window_type, INVENTORY_CONTENT_ITEMS121)
     else:
         return Inventory(
             window_type,

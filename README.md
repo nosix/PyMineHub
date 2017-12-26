@@ -36,14 +36,16 @@ mcpe
   const
   geometry -> typevar
   value -> binutil.[converter], .[const, geometry]
+  resource
+    - loader
   metadata -> .[const, geometry, value]
-  inventory -> .[const, value]
+  inventory -> mcpe.[resource], .[const, value]
   command -> .[const, value]
   player -> .[geometry, value]
   world -> value, .[const, player]
     - action -> value, mcpe.[player]
     - event -> value, mcpe.[player]
-    - proxy -> mcpe.[const, value], .[action, event]
+    - proxy -> mcpe.[const, value, resource], .[action, event]
     - server -> mcpe.[metadata, inventory], .[proxy]
   network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, player, world]
     - packet -> value, mcpe.[value], network.[address]

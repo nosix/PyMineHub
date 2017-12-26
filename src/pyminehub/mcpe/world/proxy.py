@@ -1,19 +1,17 @@
-from pkgutil import get_data
 from typing import Optional
 
 from pyminehub.mcpe.const import GameMode, Difficulty
+from pyminehub.mcpe.resource import CRAFGING_DATA_RECIPE
 from pyminehub.mcpe.value import AdventureSettings
 from pyminehub.mcpe.world.action import Action
 from pyminehub.mcpe.world.event import Event
-
-_CRAFGING_DATA_RECIPE = get_data(__package__, 'crafting-data-recipe.dat')
 
 
 class WorldProxy:
 
     @staticmethod
     def get_recipe() -> bytes:
-        return _CRAFGING_DATA_RECIPE
+        return CRAFGING_DATA_RECIPE
 
     def perform(self, action: Action) -> None:
         raise NotImplementedError()
