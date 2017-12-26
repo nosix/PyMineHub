@@ -22,8 +22,9 @@ class BatchSpaceGenerator(SpaceGenerator):
     def generate_space(self, db: DataBase, x_length: int, z_length: int) -> None:
         assert self._db is None
         self._db = db
-        for position, chunk in self._create_chunks(x_length, z_length):
-            self._db.save_chunk(position, chunk, insert_only=True)
+        if self._db.count_chunk() != x_length * z_length:
+            for position, chunk in self._create_chunks(x_length, z_length):
+                self._db.save_chunk(position, chunk, insert_only=True)
 
     @staticmethod
     def _create_chunks(x_length: int, z_length: int) -> Iterator[Tuple[ChunkPosition, Chunk]]:
