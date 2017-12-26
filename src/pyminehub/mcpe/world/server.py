@@ -1,21 +1,28 @@
+import asyncio
 from collections import deque
-from pkgutil import get_data
 
 from pyminehub.config import ConfigKey, get_value
+from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.inventory import create_inventory
 from pyminehub.mcpe.world.action import Action, ActionType
+from pyminehub.mcpe.world.database import DataBase
 from pyminehub.mcpe.world.event import *
+from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.proxy import WorldProxy
+from pyminehub.mcpe.world.space import Space
 
 
 class _World(WorldProxy):
 
-    def __init__(self) -> None:
+    def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
+        self._loop = loop
+        self._space = Space(generator, db)
         self._event_queue = deque()
-        self._chunk_data = get_data(__package__, 'chunk_data.dat')  # TODO remove this
+        loop.call_soon(self._space.init_space)
 
     def perform(self, action: Action) -> None:
-        getattr(self, '_process_' + ActionType(action.id).name.lower())(action)
+        self._loop.call_soon(
+            getattr(self, '_process_' + ActionType(action.id).name.lower()), action)
 
     def next_event(self) -> Optional[Event]:
         try:
@@ -40,6 +47,12 @@ class _World(WorldProxy):
 
     def get_world_name(self) -> str:
         return get_value(ConfigKey.WORLD_NAME)
+
+    def get_time(self) -> int:
+        return 4800
+
+    def get_adventure_settings(self) -> AdventureSettings:
+        return AdventureSettings(32, 4294967295)
 
     # local methods
 
@@ -106,16 +119,15 @@ class _World(WorldProxy):
         ))
 
     def _process_request_chunk(self, action: Action) -> None:
-        for position in action.positions:
+        for request in action.positions:
+            chunk = self._space.get_chunk(request)
             self._event_queue.append(event_factory.create(
-                EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
-
-    def get_time(self) -> int:
-        return 4800
-
-    def get_adventure_settings(self) -> AdventureSettings:
-        return AdventureSettings(32, 4294967295)
+                EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
 
 
-def run() -> WorldProxy:
-    return _World()
+def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:
+    from pyminehub.mcpe.world.database import DataBase
+    from pyminehub.mcpe.world.generator import BatchSpaceGenerator
+    db = DataBase()
+    world = _World(loop, BatchSpaceGenerator(), db)
+    return world

@@ -130,20 +130,13 @@ async def _tick_time(protocol: _RakNetServerProtocol):
             pass  # TODO break by time
 
 
-def run(handler: GameDataHandler, log_level=None) -> None:
+def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler, log_level=None) -> asyncio.Transport:
     not log_level or basicConfig(level=log_level)
-    loop = asyncio.get_event_loop()
     listen = loop.create_datagram_endpoint(
         lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)
-    try:
-        loop.run_until_complete(_tick_time(protocol))
-        loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        transport.close()
-        loop.close()
+    loop.run_until_complete(_tick_time(protocol))
+    return transport
 
 
 if __name__ == '__main__':
@@ -157,4 +150,12 @@ if __name__ == '__main__':
         def update(self) -> bool:
             return True
 
-    run(MockHandler(), logging.DEBUG)
+    _loop = asyncio.get_event_loop()
+    _transport = run(_loop, MockHandler(), logging.DEBUG)
+    try:
+        _loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        _transport.close()
+        _loop.close()

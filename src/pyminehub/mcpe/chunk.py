@@ -3,6 +3,15 @@ from pyminehub.binutil.instance import *
 from pyminehub.mcpe.geometry import ChunkGeometry
 
 
+_layout = {
+    'sub_chunk_header': 1,
+    'sub_chunk_block_id': ChunkGeometry.Sub.SHAPE.volume,
+    'sub_chunk_block_data': ChunkGeometry.Sub.SHAPE.volume // 2,
+    'chunk_height_map': ChunkGeometry.SHAPE.area * 2,
+    'chunk_biome_id': ChunkGeometry.SHAPE.area
+}
+
+
 class _SubChunk:
     """Chunk of ChunkGeometry.Sub.SHAPE blocks."""
 
@@ -42,15 +51,6 @@ class Chunk:
         yield tuple(self._extra_data)
 
 
-_layout = {
-    'sub_chunk_header': 1,
-    'sub_chunk_block_id': ChunkGeometry.Sub.SHAPE.volume,
-    'sub_chunk_block_data': ChunkGeometry.Sub.SHAPE.volume // 2,
-    'chunk_height_map': ChunkGeometry.SHAPE.area * 2,
-    'chunk_biome_id': ChunkGeometry.SHAPE.area
-}
-
-
 _chunk_codec_spec = (
     VarListData(BYTE_DATA, CompositeData(_SubChunk, (
         RawData(_layout['sub_chunk_header']),
@@ -73,3 +73,8 @@ def encode_chunk(chunk: Chunk) -> bytes:
 
 def decode_chunk(data: bytes) -> Chunk:
     return Chunk(*_chunk_codec.decode(data))
+
+
+def create_empty_chunk() -> Chunk:
+    return Chunk(
+        tuple(), b'\00' * _layout['chunk_height_map'], b'\00' * _layout['chunk_biome_id'], tuple(), tuple())
