@@ -239,7 +239,13 @@ class MockWorldProxy(WorldProxy):
             return
         if ActionType(action.id) == ActionType.UNKNOWN2:
             self._event_queue.append(
-                event_factory.create(EventType.UNKNOWN2, action.player_id))
+                event_factory.create(
+                    EventType.UNKNOWN2,
+                    action.player_id,
+                    Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
+                    0,
+                    0
+                ))
             return
         if ActionType(action.id) == ActionType.REQUEST_CHUNK:
             for position in action.positions:

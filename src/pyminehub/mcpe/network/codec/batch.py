@@ -370,11 +370,11 @@ _game_data_codecs = {
         _SLOT_DATA,
         BYTE_DATA,
         BYTE_DATA,
-        BYTE_DATA
+        EnumData(BYTE_DATA, WindowType)
     ],
     GamePacketType.INVENTORY_SLOT: [
         _HEADER_EXTRA_DATA,
-        VAR_INT_DATA,
+        EnumData(VAR_INT_DATA, WindowType),
         VAR_INT_DATA,
         _SLOT_DATA
     ],

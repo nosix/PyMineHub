@@ -98,7 +98,13 @@ class _World(WorldProxy):
         ))
 
     def _process_unknown2(self, action: Action) -> None:
-        self._notify_event(event_factory.create(EventType.UNKNOWN2, action.player_id))
+        self._notify_event(event_factory.create(
+            EventType.UNKNOWN2,
+            action.player_id,
+            Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
+            0,
+            0
+        ))
 
     def _process_request_chunk(self, action: Action) -> None:
         for position in action.positions:

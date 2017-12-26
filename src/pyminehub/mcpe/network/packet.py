@@ -280,16 +280,16 @@ _game_packet_specs = {
     GamePacketType.MOB_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),
-        ('entity_runtime_id', int),
+        ('entity_runtime_id', EntityRuntimeID),
         ('item', Slot),
         ('inventory_slot', int),
         ('hotbar_slot', int),
-        ('window_id', int)
+        ('window_id', WindowType)
     ],
     GamePacketType.INVENTORY_SLOT: [
         ('id', int),
         ('extra', bytes),
-        ('window_id', int),
+        ('window_id', WindowType),
         ('inventory_slot', int),
         ('item', Slot)
     ],

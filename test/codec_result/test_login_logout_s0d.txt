@@ -1,4 +1,4 @@
-MobEquipment(id=31, extra=b'\x00\x00', entity_runtime_id=1, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), inventory_slot=0, hotbar_slot=0, window_id=0)
+MobEquipment(id=31, extra=b'\x00\x00', entity_runtime_id=1, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), inventory_slot=0, hotbar_slot=0, window_id=<WindowType.INVENTORY: 0>)
   -> 1f00000100000000
   File "./codec_login_logout.py", line 173, in test_login_logout_s0d
     GamePacket(GamePacketType.MOB_EQUIPMENT)
@@ -13,7 +13,7 @@ ReliableOrdered(id=96, payload_length=168, reliable_message_num=13, message_orde
   File "./codec_login_logout.py", line 171, in test_login_logout_s0d
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-InventorySlot(id=50, extra=b'\x00\x00', window_id=0, inventory_slot=0, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None))
+InventorySlot(id=50, extra=b'\x00\x00', window_id=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None))
   -> 320000000000
   File "./codec_login_logout.py", line 178, in test_login_logout_s0d
     GamePacket(GamePacketType.INVENTORY_SLOT)

@@ -276,17 +276,19 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,
             entity_runtime_id=player.entity_runtime_id,
-            item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
-            inventory_slot=0, hotbar_slot=0, window_id=0
+            item=event.equipped_item,
+            inventory_slot=event.inventory_slot,
+            hotbar_slot=event.hotbar_slot,
+            window_id=WindowType.INVENTORY
         )
         self._queue.send_immediately(res_packet, addr)
 
         res_packet = game_packet_factory.create(
             GamePacketType.INVENTORY_SLOT,
             EXTRA_DATA,
-            window_id=0,
-            inventory_slot=0,
-            item=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None)
+            window_id=WindowType.INVENTORY,
+            inventory_slot=event.inventory_slot,
+            item=event.equipped_item
         )
         self._queue.send_immediately(res_packet, addr)
 

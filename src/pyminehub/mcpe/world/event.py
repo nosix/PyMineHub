@@ -34,7 +34,10 @@ _event_specs = {
     ],
     EventType.UNKNOWN2: [
         ('id', int),
-        ('player_id', PlayerID)
+        ('player_id', PlayerID),
+        ('equipped_item', Slot),
+        ('inventory_slot', int),
+        ('hotbar_slot', int)
     ],
     EventType.FULL_CHUNK_LOADED: [
         ('id', int),
