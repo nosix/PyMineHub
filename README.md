@@ -35,20 +35,24 @@ raknet -> value, config, network
 mcpe
   const
   geometry -> typevar
-  value -> .[const, geometry]
-  player -> .[const, geometry, value]
+  value -> binutil.[converter], .[const, geometry]
+  metadata -> .[const, geometry, value]
+  inventory -> .[const, value]
+  command -> .[const, value]
+  player -> .[geometry, value]
   world -> value, .[const, player]
     - action -> value, mcpe.[player]
     - event -> value, mcpe.[player]
-    - proxy -> mcpe.[const], .[action, event]
-    - server -> .[proxy]
-  network -> typevar, value, config, network, raknet, mcpe.[const, value, player, world]
+    - proxy -> mcpe.[const, value], .[action, event]
+    - server -> mcpe.[metadata, inventory], .[proxy]
+  network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, player, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]
       - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
     - queue -> raknet, network.[address], .[packet, codec]
-    - handler -> typevar, raknet, network.[address], mcpe.[const, player, world], .[codec, packet, queue]
+    - handler -> typevar, raknet, network.[address],
+                 mcpe.[const, metadata, command, player, world], .[codec, packet, queue]
   main
     server -> raknet, mcpe.[network, world]
 
