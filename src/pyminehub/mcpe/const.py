@@ -64,25 +64,25 @@ class CommandPermission(Enum):
     ADMIN = 4
 
 
-class AdventureSettingFlags1(Enum):
-    WORLD_IMMUTABLE = 0x01
-    NO_PVP = 0x02
-    AUTO_JUMP = 0x20
-    ALLOW_FLIGHT = 0x40
-    NO_CLIP = 0x80
-    WORLD_BUILDER = 0x100
-    FLYING = 0x200
-    MUTED = 0x400
+class AdventureSettingFlag1(Enum):
+    WORLD_IMMUTABLE = 0
+    NO_PVP = 1
+    AUTO_JUMP = 5
+    ALLOW_FLIGHT = 6
+    NO_CLIP = 7
+    WORLD_BUILDER = 8
+    FLYING = 9
+    MUTED = 10
 
 
-class AdventureSettingFlags2(Enum):
-    BUILD_AND_MINE = 0x01
-    DOORS_AND_SWITCHES = 0x02
-    OPEN_CONTAINERS = 0x04
-    ATTACK_PLAYERS = 0x08
-    ATTACK_MOBS = 0x10
-    OPERATOR = 0x20
-    TELEPORT = 0x80
+class AdventureSettingFlag2(Enum):
+    BUILD_AND_MINE = 0
+    DOORS_AND_SWITCHES = 1
+    OPEN_CONTAINERS = 2
+    ATTACK_PLAYERS = 3
+    ATTACK_MOBS = 4
+    OPERATOR = 5
+    TELEPORT = 7
 
 
 class MetaDataType(Enum):
@@ -173,6 +173,58 @@ class EntityMetaDataKey(Enum):
     MAX_STRENGTH = 76
     # 77 (int)
     # 78 (int)
+
+
+class EntityMetaDataFlag(Enum):
+    ONFIRE = 0
+    SNEAKING = 1
+    RIDING = 2
+    SPRINTING = 3
+    ACTION = 4
+    INVISIBLE = 5
+    TEMPTED = 6
+    INLOVE = 7
+    SADDLED = 8
+    POWERED = 9
+    IGNITED = 10
+    BABY = 11
+    CONVERTING = 12
+    CRITICAL = 13
+    CAN_SHOW_NAMETAG = 14
+    ALWAYS_SHOW_NAMETAG = 15
+    IMMOBILE = 16  # NO_AI
+    SILENT = 17
+    WALLCLIMBING = 18
+    CAN_CLIMB = 19
+    SWIMMER = 20
+    CAN_FLY = 21
+    RESTING = 22
+    SITTING = 23
+    ANGRY = 24
+    INTERESTED = 25
+    CHARGED = 26
+    TAMED = 27
+    LEASHED = 28
+    SHEARED = 29
+    GLIDING = 30
+    ELDER = 31
+    MOVING = 32
+    BREATHING = 33
+    CHESTED = 34
+    STACKABLE = 35
+    SHOWBASE = 36
+    REARING = 37
+    VIBRATING = 38
+    IDLING = 39
+    EVOKER_SPELL = 40
+    CHARGE_ATTACK = 41
+    WASD_CONTROLLED = 42
+    CAN_POWER_JUMP = 43
+    LINGER = 44
+    HAS_COLLISION = 45
+    AFFECTED_BY_GRAVITY = 46
+    FIRE_IMMUNE = 47
+    DANCING = 48
 
 
 class PlayerListType(Enum):

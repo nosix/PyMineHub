@@ -19,17 +19,18 @@ _event_specs = {
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
         ('game_mode', GameMode),
-        ('position', Vector3),
+        ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
-        ('spawn', Vector3),
+        ('spawn', Vector3[int]),
         ('permission', PlayerPermission),
         ('attributes', Tuple[Attribute, ...])
     ],
     EventType.UNKNOWN1: [
         ('id', int),
         ('player_id', PlayerID),
-        ('entity_data', Tuple[EntityMetaData, ...]),
+        ('flags', EntityMetaDataFlagValue),
+        ('bed_position', Vector3[int]),
         ('inventory', Tuple[Inventory, ...])
     ],
     EventType.UNKNOWN2: [

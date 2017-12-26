@@ -251,11 +251,21 @@ class MCPEHandler(GameDataHandler):
         addr = self._get_addr(event.player_id)
         player = self._get_player_session(addr)
 
+        player.metadata_flags = event.flags
+
         res_packet = game_packet_factory.create(
             GamePacketType.SET_ENTITY_DATA,
             EXTRA_DATA,
             entity_runtime_id=player.entity_runtime_id,
-            meta_data=event.entity_data
+            meta_data=(
+                create_entity_meta_data(EntityMetaDataKey.FLAGS, player.metadata_flags.flags),
+                create_entity_meta_data(EntityMetaDataKey.AIR, 0),
+                create_entity_meta_data(EntityMetaDataKey.MAX_AIR, 400),
+                create_entity_meta_data(EntityMetaDataKey.NAMETAG, player.name),
+                create_entity_meta_data(EntityMetaDataKey.LEAD_HOLDER_EID, player.entity_runtime_id),  # TODO check
+                create_entity_meta_data(EntityMetaDataKey.SCALE, 1.0),
+                create_entity_meta_data(EntityMetaDataKey.BED_POSITION, event.bed_position)
+            )
         )
         self._queue.send_immediately(res_packet, addr)
 
@@ -332,8 +342,8 @@ class MCPEHandler(GameDataHandler):
 
             res_packet = game_packet_factory.create(
                 GamePacketType.SET_ENTITY_DATA, EXTRA_DATA, player.entity_runtime_id, (
-                    create_entity_meta_data(EntityMetaDataKey.FLAGS, 211106233679872),
-                    create_entity_meta_data(EntityMetaDataKey.NAMETAG, 'MatteMussel3620')
+                    create_entity_meta_data(EntityMetaDataKey.FLAGS, player.metadata_flags.flags),
+                    create_entity_meta_data(EntityMetaDataKey.NAMETAG, player.name)
                 ))
             self._queue.send_immediately(res_packet, addr)
 

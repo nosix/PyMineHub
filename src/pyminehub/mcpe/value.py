@@ -131,8 +131,8 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
         >>> AdventureSettings.create(world_immutable=True, attack_players=True, flying=True, teleport=True)
         AdventureSettings(flags=513, flags2=136)
         """
-        flags = dict_to_flags(AdventureSettingFlags1, **kwargs)
-        flags2 = dict_to_flags(AdventureSettingFlags2, **kwargs)
+        flags = dict_to_flags(AdventureSettingFlag1, **kwargs)
+        flags2 = dict_to_flags(AdventureSettingFlag2, **kwargs)
         return AdventureSettings(flags, flags2)
 
     def to_dict(self) -> Dict[str, bool]:
@@ -141,8 +141,8 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
         {'world_immutable': True, 'flying': True, 'attack_players': True, 'teleport': True}
         """
         d = {}
-        d.update(flags_to_dict(AdventureSettingFlags1, self.flags))
-        d.update(flags_to_dict(AdventureSettingFlags2, self.flags2))
+        d.update(flags_to_dict(AdventureSettingFlag1, self.flags))
+        d.update(flags_to_dict(AdventureSettingFlag2, self.flags2))
         return d
 
 
@@ -161,6 +161,26 @@ EntityMetaData = _NamedTuple('EntityMetaData', [
     ('type', MetaDataType),
     ('value', MetaDataValue)
 ])
+
+
+class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
+    ('flags', int)
+])):
+    @staticmethod
+    def create(**kwargs: bool) -> 'EntityMetaDataFlagValue':
+        """
+        >>> EntityMetaDataFlagValue.create(always_show_nametag=True, immobile=True, swimmer=True)
+        EntityMetaDataFlagValue(flags=1146880)
+        """
+        return EntityMetaDataFlagValue(dict_to_flags(EntityMetaDataFlag, **kwargs))
+
+    def to_dict(self) -> Dict[str, bool]:
+        """
+        >>> EntityMetaDataFlagValue(1146880).to_dict()
+        {'always_show_nametag': True, 'immobile': True, 'swimmer': True}
+        """
+        return flags_to_dict(EntityMetaDataFlag, self.flags)
+
 
 Inventory = _NamedTuple('Inventory', [
     ('window_type', WindowType),
