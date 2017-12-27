@@ -123,6 +123,23 @@ def _capture_dynamic_value(
     return dynamic_args
 
 
+class Replace:
+
+    def __init__(self, pattern: str, repl: str) -> None:
+        self._pattern = pattern
+        self._repl = repl
+
+    def replace(self, value: str) -> Tuple[str, str]:
+        replaced = ''
+
+        def capture(m):
+            nonlocal replaced
+            replaced = m.group(0)
+            return self._repl
+
+        return re.sub(self._pattern, capture, value), replaced
+
+
 class _PacketReplacer(AnalyzingVisitor):
     """Replace attribute values on sending packet."""
 
@@ -189,6 +206,22 @@ class _PacketCollector(AnalyzingVisitor):
     def replace_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         return packet
 
+    @staticmethod
+    def _remove_replace_pattern(kwargs: Dict[str, Any]) -> Dict[str, Replace]:
+        replace_args = dict((key, value) for key, value in kwargs.items() if isinstance(value, Replace))
+        for key in replace_args:
+            del kwargs[key]
+        return replace_args
+
+    def _replace_pattern(self, packet: ValueObject, replace_pattern: Dict[str, Replace]) -> str:
+        replaced_dict = {}
+        packet_str = str(packet)
+        for key, pattern in replace_pattern.items():
+            packet_str, replaced = pattern.replace(packet_str)
+            replaced_dict[key] = replaced
+        self.dynamic_value_found(replaced_dict)
+        return packet_str
+
     def _replace_dynamic_values(self, packet: ValueObject, kwargs: Dict[str, Any]) -> ValueObject:
         dynamic_args = _capture_dynamic_value(packet, kwargs, self.dynamic_value_found)
         # noinspection PyProtectedMember
@@ -204,10 +237,12 @@ class _PacketCollector(AnalyzingVisitor):
             self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
         """Collect packets whose attributes is replaced with kwargs."""
+        replace_pattern = self._remove_replace_pattern(kwargs)
         tmp_packet = self._replace_dynamic_values(packet, kwargs)
         tmp_packet = self._replace_payload(tmp_packet)
         tmp_packet = self.replace_values(tmp_packet, kwargs)
-        self._packets.append(_DecodingInfo(tmp_packet, data, called, '  ' + packet_str))
+        tmp_packet_str = self._replace_pattern(tmp_packet, replace_pattern)
+        self._packets.append(_DecodingInfo(tmp_packet_str, data, called, '  ' + packet_str))
         return packet
 
 

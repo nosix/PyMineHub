@@ -310,7 +310,7 @@ class MCPEHandler(GameDataHandler):
             type=PlayerListType.ADD,
             entries=(
                 PlayerListEntry(
-                    uuid=UUID(part1=2190162599, part0=3565326202, part3=403835033, part2=2246581936),
+                    uuid=player.uuid,
                     entity_unique_id=2,
                     user_name=player.name,
                     skin=player.skin,

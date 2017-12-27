@@ -156,12 +156,7 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
         self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
 
 
-_UUID_DATA = CompositeData(UUID, (
-    L_INT_DATA,
-    L_INT_DATA,
-    L_INT_DATA,
-    L_INT_DATA
-))
+_UUID_DATA = ValueFilter(RawData(16), read=lambda _data: UUID(bytes=_data), write=lambda _value: _value.bytes)
 
 
 def _is_type_remove(context: CompositeCodecContext) -> bool:

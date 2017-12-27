@@ -209,7 +209,10 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
                             Batch().that_has(
-                                GamePacket(GamePacketType.PLAYER_LIST)
+                                GamePacket(
+                                    GamePacketType.PLAYER_LIST,
+                                    uuid=Replace(r'UUID\(.+?\)', '[uuid value]')
+                                )
                             )
                         )
                     )

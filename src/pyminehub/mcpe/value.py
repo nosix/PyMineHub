@@ -1,5 +1,6 @@
 import re
 from typing import NamedTuple as _NamedTuple, Dict, Optional, Tuple
+from uuid import UUID
 
 from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_base64
 from pyminehub.mcpe.const import *
@@ -185,13 +186,6 @@ class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
 Inventory = _NamedTuple('Inventory', [
     ('window_type', WindowType),
     ('slots', Tuple[Slot, ...])
-])
-
-UUID = _NamedTuple('UUID', [
-    ('part1', int),
-    ('part0', int),
-    ('part3', int),
-    ('part2', int)
 ])
 
 PlayerListEntry = _NamedTuple('PlayerListEntry', [

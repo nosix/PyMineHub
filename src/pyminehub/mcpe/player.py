@@ -1,3 +1,4 @@
+import uuid
 from typing import Set
 
 from pyminehub.mcpe.value import *
@@ -6,6 +7,7 @@ from pyminehub.mcpe.value import *
 class Player:
 
     def __init__(self) -> None:
+        self._uuid = uuid.uuid4()
         self._protocol = None
         self._player_data = None
         self._client_data = None
@@ -21,6 +23,10 @@ class Player:
         self._protocol = protocol
         self._player_data = player_data
         self._client_data = client_data
+
+    @property
+    def uuid(self) -> UUID:
+        return self._uuid
 
     @property
     def id(self) -> PlayerID:
