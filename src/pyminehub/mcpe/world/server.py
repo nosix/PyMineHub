@@ -62,6 +62,10 @@ class _World(WorldProxy):
     # action handling methods
 
     def _process_login_player(self, action: Action) -> None:
+        position = Vector3(256.0, 57.625, 256.0)
+        height = self._space.get_height(position)
+        if position.y < height + 1:
+            position = position.copy(y=height + 1)
         # TODO keep player
         self._notify_event(event_factory.create(
             EventType.PLAYER_LOGGED_IN,
@@ -69,7 +73,7 @@ class _World(WorldProxy):
             1,
             1,
             GameMode.SURVIVAL,
-            Vector3(256.0, 57.625, 256.0),
+            position,
             0.0,
             358.0,
             Vector3(512, 56, 512),

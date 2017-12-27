@@ -8,6 +8,16 @@ from pyminehub.typevar import NT
 
 class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):
 
+    def copy(self, x: NT=None, y: NT=None, z: NT=None) -> 'Vector3[NT]':
+        """
+        >>> v = Vector3(1, 2, 3)
+        >>> v.copy()
+        Vector3(x=1, y=2, z=3)
+        >>> v.copy(y=4)
+        Vector3(x=1, y=4, z=3)
+        """
+        return Vector3(self.x if x is None else x, self.y if y is None else y, self.z if z is None else z)
+
     area = property(lambda self: self.x * self.z)
 
     volume = property(lambda self: self.x * self.y * self.z)
@@ -105,14 +115,14 @@ class ChunkPosition(_NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
     def __sub__(self, other: tuple) -> 'ChunkPosition':
         return ChunkPosition(self.x - other[0], self.z - other[1])
 
-
-def to_chunk_position(v: Vector3) -> ChunkPosition:
-    """
-    >>> v = Vector3(256.0, 57.625, 256.0)
-    >>> to_chunk_position(v)
-    ChunkPosition(x=16, z=16)
-    """
-    return ChunkPosition(int(v.x // ChunkGeometry.SHAPE.x), int(v.z // ChunkGeometry.SHAPE.z))
+    @staticmethod
+    def at(position: Vector3) -> 'ChunkPosition':
+        """
+        >>> v = Vector3(256.0, 57.625, 266.5)
+        >>> ChunkPosition.at(v)
+        ChunkPosition(x=16, z=16)
+        """
+        return ChunkPosition(int(position.x // ChunkGeometry.SHAPE.x), int(position.z // ChunkGeometry.SHAPE.z))
 
 
 ChunkPositionWithDistance = _NamedTuple('ChunkPositionWithDistance', [('distance', int), ('position', ChunkPosition)])
@@ -130,7 +140,7 @@ def to_chunk_area(center: Vector3, radius: int) -> Iterator[ChunkPositionWithDis
     >>> len(list(to_chunk_area(Vector3(256.0, 57.625, 256.0), 8)))
     73
     """
-    p = to_chunk_position(center)
+    p = ChunkPosition.at(center)
     yield ChunkPositionWithDistance(0, p)
     for l in range(1, radius + 1):
         s = 2 * (l & 1) - 1
@@ -140,6 +150,18 @@ def to_chunk_area(center: Vector3, radius: int) -> Iterator[ChunkPositionWithDis
         for _ in range(l):
             p += (0, s)
             yield ChunkPositionWithDistance(l, p)
+
+
+def to_local_position(position: Vector3) -> Vector3[int]:
+    """Convert the position to a position in a chunk.
+    >>> v = Vector3(256.0, 57.625, 266.5)
+    >>> to_local_position(v)
+    Vector3(x=0, y=57, z=10)
+    """
+    return Vector3(
+        int(position.x % ChunkGeometry.SHAPE.x),
+        int(position.y),
+        int(position.z % ChunkGeometry.SHAPE.z))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 import re
-from typing import NamedTuple as _NamedTuple, Dict, Optional, Tuple
+from typing import NamedTuple as _NamedTuple, Dict, Optional
 
 from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_base64
 from pyminehub.mcpe.const import *
