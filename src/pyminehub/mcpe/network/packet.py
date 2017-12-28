@@ -359,6 +359,34 @@ _game_packet_specs = {
         ('action', PlayerActionType),
         ('position', Vector3[int]),
         ('face', int),
+    ],
+    GamePacketType.ADD_PLAYER: [
+        ('id', int),
+        ('extra', bytes),
+        ('uuid', UUID),
+        ('user_name', str),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('motion', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('head_yaw', float),
+        ('item', Slot),
+        ('metadata', EntityMetaData),
+        ('unknown1', int),
+        ('unknown2', int),
+        ('unknown3', int),
+        ('unknown4', int),
+        ('unknown5', int),
+        ('unknown_long', int),
+        ('links', Tuple[EntityLink, ...])
+    ],
+    GamePacketType.MOB_ARMOR_EQUIPMENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('slots', Tuple[Slot, ...])
     ]
 }
 

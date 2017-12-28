@@ -103,6 +103,21 @@ class NamedData(DataCodec[T]):
         context[self._name] = value
 
 
+class ListData(DataCodec[Tuple[T, ...]]):
+
+    def __init__(self, count: int, item_codec: DataCodec[T]) -> None:
+        self._count = count
+        self._item_codec = item_codec
+
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[T, ...]:
+        return tuple(self._item_codec.read(data, context) for _ in range(self._count))
+
+    def write(self, data: bytearray, value: Tuple[T, ...], context: DataCodecContext) -> None:
+        assert self._count == len(value)
+        for entry in value:
+            self._item_codec.write(data, entry, context)
+
+
 class VarListData(DataCodec[Tuple[T, ...]]):
 
     def __init__(self, count_codec: DataCodec[int], item_codec: DataCodec[T]) -> None:

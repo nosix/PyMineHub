@@ -43,6 +43,28 @@ class PlayTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_add_player(self):
+        assertion = EncodedDataInFile(self).is_(
+            RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.ADD_PLAYER)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.MOB_ARMOR_EQUIPMENT)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.FULL_CHUNK_DATA)
+                    )
+                ),
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest

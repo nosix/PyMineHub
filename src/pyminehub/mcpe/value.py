@@ -221,6 +221,12 @@ Recipe = _NamedTuple('Recipe', [
     ('data', RecipeData)
 ])
 
+EntityLink = _NamedTuple('EntityLink', [
+    ('from_entity_unique_id', EntityUniqueID),
+    ('to_entity_unique_id', EntityUniqueID),
+    ('type', int),
+    ('bool1', bool)
+])
 
 if __name__ == '__main__':
     import doctest

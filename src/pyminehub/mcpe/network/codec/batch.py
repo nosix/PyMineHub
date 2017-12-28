@@ -226,7 +226,14 @@ class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
             self._CODEC.write(data, value, context)
 
 
+_ENTITY_UNIQUE_ID = VAR_SIGNED_INT_DATA
 _ENTITY_RUNTIME_ID = VAR_INT_DATA
+
+_ENTITY_METADATA = VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
+    EnumData(VAR_INT_DATA, EntityMetaDataKey),
+    NamedData('meta_data_type', EnumData(VAR_INT_DATA, MetaDataType)),
+    _MetaDataValue()
+)))
 
 _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA,
@@ -263,7 +270,7 @@ _game_data_codecs = {
     ],
     GamePacketType.START_GAME: [
         _HEADER_EXTRA_DATA,
-        VAR_SIGNED_INT_DATA,
+        _ENTITY_UNIQUE_ID,
         _ENTITY_RUNTIME_ID,
         EnumData(VAR_SIGNED_INT_DATA, GameMode),
         _FLOAT_VECTOR3_DATA,
@@ -346,11 +353,7 @@ _game_data_codecs = {
     GamePacketType.SET_ENTITY_DATA: [
         _HEADER_EXTRA_DATA,
         VAR_INT_DATA,
-        VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
-            EnumData(VAR_INT_DATA, EntityMetaDataKey),
-            NamedData('meta_data_type', EnumData(VAR_INT_DATA, MetaDataType)),
-            _MetaDataValue()
-        )))
+        _ENTITY_METADATA
     ],
     GamePacketType.INVENTORY_CONTENT: [
         _HEADER_EXTRA_DATA,
@@ -376,7 +379,7 @@ _game_data_codecs = {
         NamedData('player_list_type', EnumData(BYTE_DATA, PlayerListType)),
         VarListData(VAR_INT_DATA, CompositeData(PlayerListEntry, (
             _UUID_DATA,
-            OptionalData(VAR_SIGNED_INT_DATA, _is_type_remove),
+            OptionalData(_ENTITY_UNIQUE_ID, _is_type_remove),
             OptionalData(VAR_STRING_DATA, _is_type_remove),
             OptionalData(CompositeData(Skin, (
                 VAR_STRING_DATA,
@@ -440,6 +443,37 @@ _game_data_codecs = {
         EnumData(VAR_INT_DATA, PlayerActionType),
         _INT_VECTOR3_DATA,
         VAR_INT_DATA
+    ],
+    GamePacketType.ADD_PLAYER: [
+        _HEADER_EXTRA_DATA,
+        _UUID_DATA,
+        VAR_STRING_DATA,
+        _ENTITY_UNIQUE_ID,
+        _ENTITY_RUNTIME_ID,
+        _FLOAT_VECTOR3_DATA,
+        _FLOAT_VECTOR3_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        _SLOT_DATA,
+        _ENTITY_METADATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        L_LONG_DATA,
+        VarListData(VAR_INT_DATA, CompositeData(EntityLink, (
+            _ENTITY_UNIQUE_ID,
+            _ENTITY_UNIQUE_ID,
+            BYTE_DATA,
+            BOOL_DATA
+        )))
+    ],
+    GamePacketType.MOB_ARMOR_EQUIPMENT: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        ListData(4, _SLOT_DATA)
     ]
 }
 
