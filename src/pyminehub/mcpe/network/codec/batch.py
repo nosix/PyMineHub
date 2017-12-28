@@ -376,7 +376,7 @@ _game_data_codecs = {
         NamedData('player_list_type', EnumData(BYTE_DATA, PlayerListType)),
         VarListData(VAR_INT_DATA, CompositeData(PlayerListEntry, (
             _UUID_DATA,
-            OptionalData(VAR_INT_DATA, _is_type_remove),
+            OptionalData(VAR_SIGNED_INT_DATA, _is_type_remove),
             OptionalData(VAR_STRING_DATA, _is_type_remove),
             OptionalData(CompositeData(Skin, (
                 VAR_STRING_DATA,
