@@ -91,7 +91,7 @@ mcpe
   - `codec_login_logout` module
   - `codec_play` module
 - Tool (in tool directory)
-  - `decoding` module
+  - `tool.decoding` module
 
 ### Reference
 
