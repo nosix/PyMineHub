@@ -65,8 +65,12 @@ class PacketCodec:
         buffer = bytearray(data)
         packet_id = self._packet_id_cls(id_decoder.read(buffer, context))
         context.append_value(packet_id)
-        for decoder in self._data_codecs[packet_id]:
-            context.append_value(decoder.read(buffer, context))
+        try:
+            for decoder in self._data_codecs[packet_id]:
+                context.append_value(decoder.read(buffer, context))
+        except KeyError as exc:
+            exc.args = ("{}, when decode '{}'".format(exc.args[0], data.hex()), )
+            raise exc
         context.pop_stack()
         return self._packet_factory.create(*context.get_values())
 
