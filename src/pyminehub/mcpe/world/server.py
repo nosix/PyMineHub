@@ -137,6 +137,19 @@ class _World(WorldProxy):
             self._event_queue.append(event_factory.create(
                 EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
 
+    def _process_move_player(self, action: Action) -> None:
+        self._event_queue.append(event_factory.create(
+            EventType.PLAYER_MOVED,
+            action.entity_runtime_id,
+            action.position,
+            action.pitch,
+            action.yaw,
+            action.head_yaw,
+            action.mode,
+            action.on_ground,
+            action.riding_eid
+        ))
+
 
 def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:
     from pyminehub.mcpe.world.database import DataBase

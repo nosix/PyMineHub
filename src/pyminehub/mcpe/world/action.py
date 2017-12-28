@@ -1,7 +1,4 @@
-from typing import Tuple
-
-from pyminehub.mcpe.geometry import ChunkPositionWithDistance
-from pyminehub.mcpe.value import PlayerID
+from pyminehub.mcpe.value import *
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
 Action = ValueObject
@@ -12,6 +9,7 @@ class ActionType(ValueType):
     UNKNOWN1 = 1
     UNKNOWN2 = 2
     REQUEST_CHUNK = 3
+    MOVE_PLAYER = 4
 
 
 _action_specs = {
@@ -30,6 +28,17 @@ _action_specs = {
     ActionType.REQUEST_CHUNK: [
         ('id', int),
         ('positions', Tuple[ChunkPositionWithDistance, ...])
+    ],
+    ActionType.MOVE_PLAYER: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('head_yaw', float),
+        ('mode', MoveMode),
+        ('on_ground', bool),
+        ('riding_eid', EntityRuntimeID)
     ]
 }
 

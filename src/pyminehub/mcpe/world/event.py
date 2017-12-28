@@ -10,6 +10,7 @@ class EventType(ValueType):
     UNKNOWN1 = 1
     UNKNOWN2 = 2
     FULL_CHUNK_LOADED = 3
+    PLAYER_MOVED = 4
 
 
 _event_specs = {
@@ -44,6 +45,17 @@ _event_specs = {
         ('id', int),
         ('position', ChunkPosition),
         ('data', bytes)
+    ],
+    EventType.PLAYER_MOVED: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('head_yaw', float),
+        ('mode', MoveMode),
+        ('on_ground', bool),
+        ('riding_eid', EntityRuntimeID)
     ]
 }
 

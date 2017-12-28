@@ -82,7 +82,7 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('< %s', LogString(packet))
         self.sendto(connection_packet_codec.encode(packet), addr, reliability)
 
-    # packet and event handling methods
+    # packet handling methods
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
         res_packet = connection_packet_factory.create(
@@ -157,6 +157,25 @@ class MCPEHandler(GameDataHandler):
         self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, chunk_requests))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._queue.send_immediately(res_packet, addr)
+
+    def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
+        assert OWN_PLAYER_ENTITY_ID == packet.entity_runtime_id,\
+            'expected: {}, actual: {}'.format(OWN_PLAYER_ENTITY_ID, packet.entity_runtime_id)
+        assert packet.mode != MoveMode.TELEPORT
+        player = self._get_player_session(addr)
+        self._world.perform(action_factory.create(
+            ActionType.MOVE_PLAYER,
+            player.entity_runtime_id,
+            packet.position,
+            packet.pitch,
+            packet.yaw,
+            packet.head_yaw,
+            packet.mode,
+            packet.on_ground,
+            packet.riding_eid
+        ))
+
+    # event handling methods
 
     def _process_event_player_logged_in(self, event: Event) -> None:
         addr = self._get_addr(event.player_id)
@@ -360,3 +379,22 @@ class MCPEHandler(GameDataHandler):
             self._queue.send_immediately(res_packet, addr)
 
             player.spawn()
+
+    def _process_event_player_moved(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.MOVE_PLAYER,
+            EXTRA_DATA,
+            event.entity_runtime_id,
+            event.position,
+            event.pitch,
+            event.yaw,
+            event.head_yaw,
+            event.mode,
+            event.on_ground,
+            event.riding_eid,
+            None,
+            None
+        )
+        for addr, player in self._players.items():
+            if player.entity_runtime_id != event.entity_runtime_id:
+                self._queue.send_immediately(res_packet, addr)
