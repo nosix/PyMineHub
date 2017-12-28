@@ -70,6 +70,27 @@ mcpe
 - : Hidden from outside modules
 ```
 
+#### Codecs for packet
+
+- Packet class definition (immutable value object by NamedTuple)
+  - `raknet.packet` module
+  - `raknet.frame` module
+  - `mcpe.network.packet` module
+  - These are based on
+    - `value` module
+- Codec object definition
+  - `raknet.codec` module
+  - `mcpe.network.codec.connection` module
+  - `mcpe.network.codec.batch` module
+  - These are based on
+    - `binutil` module
+    - `network.codec` module
+- Testcase (in test directory)
+  - `codec_login_logout` module
+  - `codec_play` module
+- Tool (in tool directory)
+  - `decoding` module
+
 ### Reference
 
 - This project is implemented by referring to [PocketMine-MP](https://github.com/pmmp/PocketMine-MP) source code.
