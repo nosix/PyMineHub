@@ -13,6 +13,10 @@ from pyminehub.value import LogString
 _logger = getLogger(__name__)
 
 
+class SessionNotFound(Exception):
+    pass
+
+
 class GameDataHandler:
 
     def register_protocol(self, protocol) -> None:
@@ -55,15 +59,21 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.debug('%s > %s', addr, data.hex())
         packet = raknet_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
-        getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
+        try:
+            getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
+        except SessionNotFound:
+            _logger.info('%s session is not found.', addr)
 
     def connection_lost(self, exc: Exception) -> None:
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
     def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
-        session = self._sessions[addr]
-        session.send_frame(data, reliability)
+        try:
+            session = self._get_session(addr)
+            session.send_frame(data, reliability)
+        except SessionNotFound:
+            _logger.info('%s session is not found.', addr)
 
     def send_to_client(self, packet: RakNetPacket, addr: Address) -> None:
         _logger.debug('< %s', LogString(packet))
@@ -77,6 +87,12 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
 
     def next_moment(self) -> bool:
         return self._handler.update()
+
+    def _get_session(self, addr: Address) -> Session:
+        try:
+            return self._sessions[addr]
+        except KeyError:
+            raise SessionNotFound(addr)
 
     def _process_unconnected_ping(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
@@ -99,7 +115,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             lambda _packet: self.send_to_client(_packet, addr))
 
     def _process_frame_set(self, packet: RakNetPacket, addr: Address) -> None:
-        session = self._sessions[addr]
+        session = self._get_session(addr)
         context = CompositeCodecContext()
         frames = []
         length = 0
@@ -117,11 +133,11 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self._process_frame_set(packet, addr)
 
     def _process_nck(self, packet: RakNetPacket, addr: Address) -> None:
-        session = self._sessions[addr]
+        session = self._get_session(addr)
         session.nck_received(packet)
 
     def _process_ack(self, packet: RakNetPacket, addr: Address) -> None:
-        session = self._sessions[addr]
+        session = self._get_session(addr)
         session.ack_received(packet)
 
 
