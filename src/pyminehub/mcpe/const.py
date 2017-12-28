@@ -586,3 +586,10 @@ class BiomeType(Enum):
     MUTATED_MESA = 165
     MUTATED_MESA_ROCK = 166
     MUTATED_MESA_CLEAR_ROCK = 167
+
+
+class MoveMode(Enum):
+    NORMAL = 0
+    RESET = 1
+    TELEPORT = 2
+    PITCH = 3

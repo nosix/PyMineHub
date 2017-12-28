@@ -201,8 +201,8 @@ _game_packet_specs = {
     GamePacketType.START_GAME: [
         ('id', int),
         ('extra', bytes),
-        ('entity_unique_id', int),
-        ('entity_runtime_id', int),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
         ('player_game_mode', GameMode),
         ('player_position', Vector3[float]),
         ('pitch', float),
@@ -244,7 +244,7 @@ _game_packet_specs = {
     GamePacketType.UPDATE_ATTRIBUTES: [
         ('id', int),
         ('extra', bytes),
-        ('entity_runtime_id', int),
+        ('entity_runtime_id', EntityRuntimeID),
         ('entries', Tuple[Attribute, ...])
     ],
     GamePacketType.AVAILABLE_COMMANDS: [
@@ -327,6 +327,20 @@ _game_packet_specs = {
         ('extra', bytes),
         ('position', ChunkPosition),
         ('data', bytes)
+    ],
+    GamePacketType.MOVE_PLAYER: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('head_yaw', float),
+        ('mode', MoveMode),
+        ('on_ground', bool),
+        ('riding_eid', EntityRuntimeID),
+        ('int1', Optional[int]),
+        ('int2', Optional[int])
     ]
 }
 

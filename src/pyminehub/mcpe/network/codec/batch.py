@@ -226,6 +226,8 @@ class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
             self._CODEC.write(data, value, context)
 
 
+_ENTITY_RUNTIME_ID = VAR_INT_DATA
+
 _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA,
     VAR_SIGNED_INT_DATA
@@ -262,7 +264,7 @@ _game_data_codecs = {
     GamePacketType.START_GAME: [
         _HEADER_EXTRA_DATA,
         VAR_SIGNED_INT_DATA,
-        VAR_INT_DATA,
+        _ENTITY_RUNTIME_ID,
         EnumData(VAR_SIGNED_INT_DATA, GameMode),
         _FLOAT_VECTOR3_DATA,
         L_FLOAT_DATA,
@@ -357,7 +359,7 @@ _game_data_codecs = {
     ],
     GamePacketType.MOB_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
-        VAR_INT_DATA,
+        _ENTITY_RUNTIME_ID,
         _SLOT_DATA,
         BYTE_DATA,
         BYTE_DATA,
@@ -409,6 +411,19 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _CHUNK_POSITION,
         VAR_BYTES_DATA
+    ],
+    GamePacketType.MOVE_PLAYER: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        _FLOAT_VECTOR3_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        NamedData('mode', EnumData(BYTE_DATA, MoveMode)),
+        BOOL_DATA,
+        _ENTITY_RUNTIME_ID,
+        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
+        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
     ]
 }
 
