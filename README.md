@@ -15,8 +15,8 @@ Modules depend only on parents or siblings. Siblings depend only on the above si
 
 ```
 typevar
-value
 config -> typevar
+value -> config
 binutil -> typevar
   converter -> typevar
   instance -> .[converter]
@@ -29,9 +29,9 @@ raknet -> value, config, network
   - packet -> value, network.[address]
   - frame -> .[packet]
   - codec -> network.[codec], .[frame, packet]
-  - sending -> config, .[codec, frame]
-  - session -> .[codec, fragment, frame, packet, queue]
-  - server -> config, network.[address, codec], .[codec, packet, frame, session]
+  - sending -> config, value, .[codec, frame]
+  - session -> value, .[codec, fragment, frame, packet, queue]
+  - server -> config, value, network.[address, codec], .[codec, packet, frame, session]
 mcpe
   const
   geometry -> typevar
@@ -61,8 +61,8 @@ mcpe
     - codec -> typevar, config, network, .[packet]
       - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
-    - queue -> raknet, network.[address], .[packet, codec]
-    - handler -> typevar, raknet, network.[address],
+    - queue -> value, raknet, network.[address], .[packet, codec]
+    - handler -> typevar, value, raknet, network.[address],
                  mcpe.[const, metadata, command, player, world], .[codec, packet, queue]
   main
     server -> raknet, mcpe.[network, world]

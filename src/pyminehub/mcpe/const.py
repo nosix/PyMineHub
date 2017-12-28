@@ -1,6 +1,9 @@
 from enum import Enum
 
 
+OWN_PLAYER_ENTITY_ID = 1
+
+
 class PlayStatus(Enum):
     LOGIN_SUCCESS = 0
     LOGIN_FAILED_CLIENT = 1

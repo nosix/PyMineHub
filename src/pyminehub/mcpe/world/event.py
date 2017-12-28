@@ -23,14 +23,14 @@ _event_specs = {
         ('pitch', float),
         ('yaw', float),
         ('spawn', Vector3[int]),
+        ('bed_position', Vector3[int]),
         ('permission', PlayerPermission),
-        ('attributes', Tuple[Attribute, ...])
+        ('attributes', Tuple[Attribute, ...]),
+        ('metadata_flags', EntityMetaDataFlagValue)
     ],
     EventType.UNKNOWN1: [
         ('id', int),
         ('player_id', PlayerID),
-        ('flags', EntityMetaDataFlagValue),
-        ('bed_position', Vector3[int]),
         ('inventory', Tuple[Inventory, ...])
     ],
     EventType.UNKNOWN2: [

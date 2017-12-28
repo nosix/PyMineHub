@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import NamedTuple as _NamedTuple, Callable, Dict, Iterable, Sequence, Tuple, Union
 
+from pyminehub.config import ConfigKey, get_value
+
 ValueType = Enum
 
 ValueObject = Union[tuple, _NamedTuple('ValueObject', [])]  # To suppress warnings, NamedTuple is specified.
@@ -47,6 +49,17 @@ class ValueObjectFactory:
         UnconnectedPong(id=28, time_since_start=8721, server_guid=5065, valid_message_data_id=True, server_id='MCPE;')
         """
         return self._factory[value_type](value_type.value, *args, **kwargs)
+
+
+class LogString:
+    """For lazy evaluation when logging."""
+
+    def __init__(self, value: ValueObject) -> None:
+        self._value = value
+
+    def __str__(self) -> str:
+        max_length = get_value(ConfigKey.MAX_LOG_LENGTH)
+        return str(self._value) if max_length is None else str(self._value)[:max_length]
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@ from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.sending import SendQueue
+from pyminehub.value import LogString
 
 _logger = getLogger(__name__)
 
@@ -50,11 +51,11 @@ class Session:
             for nck_sequence_num in range(self._expected_sequence_num, packet_sequence_num):
                 self._nck_set.add(nck_sequence_num)
             self._expected_sequence_num = packet_sequence_num + 1
-        self._process_frames(packet_sequence_num, frames)
+        self._process_frames(frames)
 
-    def _process_frames(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
+    def _process_frames(self, frames: List[RakNetFrame]) -> None:
         for frame in frames:
-            _logger.debug('> [%d] %s', packet_sequence_num, frame)
+            _logger.debug('> %s', LogString(frame))
             getattr(self, '_process_' + RakNetFrameType(frame.id).name.lower())(frame)
 
     def _process_unreliable(self, frame: RakNetFrame) -> None:
@@ -137,7 +138,7 @@ class Session:
         if min_sequence_num is not None:
             send_ack_or_nck()
 
-    def send_waiting_pacckets(self) -> None:
+    def send_waiting_packets(self) -> None:
         self._send_queue.send()
         self._send_ack_or_nck(RakNetPacketType.ACK, self._ack_set)
         self._send_ack_or_nck(RakNetPacketType.NCK, self._nck_set)
@@ -147,9 +148,9 @@ class Session:
     def send_frame(self, payload: bytes, reliability: Reliability) -> None:
         self._send_queue.push(payload, reliability)
 
-    def _send_frame_set(self, payload: bytes, reliable_seqnence_num: Tuple[int, ...]) -> None:
+    def _send_frame_set(self, payload: bytes, reliable_sequence_num: Tuple[int, ...]) -> None:
         """Callback from SendQueue."""
         packet = _create_send_packet(self._sequence_num, payload)
-        self._resend_candidates[packet.packet_sequence_num] = reliable_seqnence_num
+        self._resend_candidates[packet.packet_sequence_num] = reliable_sequence_num
         self._sequence_num += 1
         self._send_to_client(packet)

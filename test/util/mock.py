@@ -192,13 +192,14 @@ class MockWorldProxy(WorldProxy):
                 event_factory.create(
                     EventType.PLAYER_LOGGED_IN,
                     action.player_id,
-                    1,
-                    1,
+                    2,
+                    2,
                     GameMode.SURVIVAL,
                     Vector3(256.0, 57.625, 256.0),
                     0.0,
                     358.0,
                     Vector3(512, 56, 512),
+                    Vector3(0, 0, 0),
                     PlayerPermission.MEMBER,
                     (
                         Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
@@ -212,23 +213,21 @@ class MockWorldProxy(WorldProxy):
                         Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:player.hunger'),
                         Attribute(0.0, 24791.0, 0.0, 0.0, 'minecraft:player.level'),
                         Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:player.experience')
+                    ),
+                    EntityMetaDataFlagValue.create(
+                        always_show_nametag=True,
+                        immobile=True,
+                        swimmer=True,
+                        affected_by_gravity=True,
+                        fire_immune=True
                     )
                 ))
             return
         if ActionType(action.id) == ActionType.UNKNOWN1:
-            metadata_flags = EntityMetaDataFlagValue.create(
-                always_show_nametag=True,
-                immobile=True,
-                swimmer=True,
-                affected_by_gravity=True,
-                fire_immune=True
-            )
             self._event_queue.append(
                 event_factory.create(
                     EventType.UNKNOWN1,
                     action.player_id,
-                    metadata_flags,
-                    Vector3(0, 0, 0),
                     (
                         create_inventory(WindowType.INVENTORY),
                         create_inventory(WindowType.ARMOR),

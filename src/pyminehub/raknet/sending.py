@@ -1,6 +1,7 @@
 import math
 import time
 from collections import defaultdict
+from logging import getLogger
 from queue import Empty
 from typing import Callable, Dict, Generator, Tuple
 
@@ -8,6 +9,9 @@ from pyminehub.config import ConfigKey, get_value
 from pyminehub.queue import UpdatablePriorityQueue
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame, raknet_frame_factory
+from pyminehub.value import LogString
+
+_logger = getLogger(__name__)
 
 
 def _get_header_size() -> Dict[RakNetFrameType, int]:
@@ -71,6 +75,7 @@ class SendQueue:
 
     def push(self, payload: bytes, reliability: Reliability, send_time_in_future=0) -> None:
         for frame in self._create_frame(payload, reliability):
+            _logger.debug('< %s', LogString(frame))
             self._queue.put(self._get_current_time() + send_time_in_future, frame)
 
     def discard(self, reliable_message_num: int) -> None:

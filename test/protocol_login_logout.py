@@ -118,6 +118,11 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                         ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
+                                GamePacket(GamePacketType.SET_ENTITY_DATA)
+                            )
+                        ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
                                 GamePacket(GamePacketType.AVAILABLE_COMMANDS)
                             )
                         ),
@@ -142,11 +147,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 # 06
                 EncodedData(self.data.that_is_response_of('inventory_content')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
-                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
-                            Batch().that_has(
-                                GamePacket(GamePacketType.SET_ENTITY_DATA)
-                            )
-                        ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
                                 GamePacket(GamePacketType.INVENTORY_CONTENT)
@@ -198,25 +198,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                         )
                     )
                 ),
-                # 0a
-                EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
-                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
-                    )
-                ),
-                # 0b
-                EncodedData(self.data.that_is_response_of('some_data')).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
-                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
-                            Batch().that_has(
-                                GamePacket(
-                                    GamePacketType.PLAYER_LIST,
-                                    uuid=Replace(r'UUID\(.+?\)', '[uuid value]')
-                                )
-                            )
-                        )
-                    )
-                ),
                 # 0c-1b
                 *[
                     EncodedData(self.data.that_is_response_of('some_data')).is_(
@@ -234,6 +215,14 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                                 GamePacket(GamePacketType.CRAFTING_DATA)
                             )
                         ),
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                            Batch().that_has(
+                                GamePacket(
+                                    GamePacketType.PLAYER_LIST,
+                                    uuid=Replace(r'UUID\(.+?\)', '[uuid value]')
+                                )
+                            )
+                        )
                     )
                 )
             ]

@@ -25,6 +25,7 @@ class ConfigKey(Enum):
     DIFFICULTY = 7
     RAIN_LEVEL = 8
     LIGHTNING_LEVEL = 9
+    MAX_LOG_LENGTH = 10
 
 
 __default_config = (
@@ -37,6 +38,7 @@ __default_config = (
     (ConfigKey.DIFFICULTY, 'NORMAL'),
     (ConfigKey.RAIN_LEVEL, 0.0),
     (ConfigKey.LIGHTNING_LEVEL, 0.0),
+    (ConfigKey.MAX_LOG_LENGTH, 100)
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]

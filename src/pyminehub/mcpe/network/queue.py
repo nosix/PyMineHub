@@ -8,6 +8,7 @@ from pyminehub.mcpe.network.packet import GamePacketType, GamePacket
 from pyminehub.mcpe.network.reliability import RELIABILITY_DICT
 from pyminehub.network.address import Address
 from pyminehub.raknet import Reliability
+from pyminehub.value import LogString
 
 _logger = getLogger(__name__)
 
@@ -22,10 +23,12 @@ class _BatchQueue:
 
         :param packet: game packet
         """
-        _logger.debug('< %s', packet)
+        _logger.debug('< %s', LogString(packet))
         self._packets.append((RELIABILITY_DICT[GamePacketType(packet.id)], packet))
 
     def send(self, sendto: Callable[[ConnectionPacket, Reliability], None]) -> None:
+        if len(self._packets) == 0:
+            return
         payloads = []
         last_reliability = None
         for reliability, packet in self._packets:

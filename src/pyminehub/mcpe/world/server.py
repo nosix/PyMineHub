@@ -1,5 +1,6 @@
 import asyncio
 from collections import deque
+from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.chunk import encode_chunk
@@ -10,6 +11,9 @@ from pyminehub.mcpe.world.event import *
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.proxy import WorldProxy
 from pyminehub.mcpe.world.space import Space
+from pyminehub.value import LogString
+
+_logger = getLogger(__name__)
 
 
 class _World(WorldProxy):
@@ -18,15 +22,19 @@ class _World(WorldProxy):
         self._loop = loop
         self._space = Space(generator, db)
         self._event_queue = deque()
+        self._next_entity_id = 2
         loop.call_soon(self._space.init_space)
 
     def perform(self, action: Action) -> None:
+        _logger.debug('>> %s', LogString(action))
         self._loop.call_soon(
             getattr(self, '_process_' + ActionType(action.id).name.lower()), action)
 
     def next_event(self) -> Optional[Event]:
         try:
-            return self._event_queue.popleft()
+            event = self._event_queue.popleft()
+            _logger.debug('<< %s', LogString(event))
+            return event
         except IndexError:
             return None
 
@@ -67,16 +75,19 @@ class _World(WorldProxy):
         if position.y < height + 1:
             position = position.copy(y=height + 1)
         # TODO keep player
+        entity_id = self._next_entity_id
+        self._next_entity_id += 1
         self._notify_event(event_factory.create(
             EventType.PLAYER_LOGGED_IN,
             action.player_id,
-            1,
-            1,
+            entity_id,
+            entity_id,
             GameMode.SURVIVAL,
             position,
             0.0,
             358.0,
             Vector3(512, 56, 512),
+            Vector3(0, 0, 0),
             PlayerPermission.MEMBER,
             (
                 Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
@@ -90,22 +101,20 @@ class _World(WorldProxy):
                 Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:player.hunger'),
                 Attribute(0.0, 24791.0, 0.0, 0.0, 'minecraft:player.level'),
                 Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:player.experience')
+            ),
+            EntityMetaDataFlagValue.create(
+                always_show_nametag=True,
+                immobile=True,
+                swimmer=True,
+                affected_by_gravity=True,
+                fire_immune=True
             )
         ))
 
     def _process_unknown1(self, action: Action) -> None:
-        metadata_flags = EntityMetaDataFlagValue.create(
-            always_show_nametag=True,
-            immobile=True,
-            swimmer=True,
-            affected_by_gravity=True,
-            fire_immune=True
-        )
         self._notify_event(event_factory.create(
             EventType.UNKNOWN1,
             action.player_id,
-            metadata_flags,
-            Vector3(0, 0, 0),
             (
                 create_inventory(WindowType.INVENTORY),
                 create_inventory(WindowType.ARMOR),

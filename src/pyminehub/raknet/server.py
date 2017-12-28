@@ -8,6 +8,7 @@ from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.frame import Reliability
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.session import Session
+from pyminehub.value import LogString
 
 _logger = getLogger(__name__)
 
@@ -51,9 +52,9 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         self._transport = transport
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
-        _logger.debug('> %s %s', addr, data.hex())
+        _logger.debug('%s > %s', addr, data.hex())
         packet = raknet_packet_codec.decode(data)
-        _logger.debug('> %s %s', addr, packet)
+        _logger.debug('> %s', LogString(packet))
         getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
 
     def connection_lost(self, exc: Exception) -> None:
@@ -65,12 +66,14 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         session.send_frame(data, reliability)
 
     def send_to_client(self, packet: RakNetPacket, addr: Address) -> None:
-        _logger.debug('< %s %s', addr, packet)
-        self._transport.sendto(raknet_packet_codec.encode(packet), addr)
+        _logger.debug('< %s', LogString(packet))
+        data = raknet_packet_codec.encode(packet)
+        _logger.debug('%s < %s', addr, data.hex())
+        self._transport.sendto(data, addr)
 
     def send_waiting_packets(self) -> None:
         for addr, session in self._sessions.items():
-            session.send_waiting_pacckets()
+            session.send_waiting_packets()
 
     def next_moment(self) -> bool:
         return self._handler.update()
