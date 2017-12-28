@@ -15,6 +15,7 @@ Modules depend only on parents or siblings. Siblings depend only on the above si
 
 ```
 typevar
+queue
 config -> typevar
 value -> config
 binutil -> typevar
@@ -28,9 +29,10 @@ raknet -> value, config, network
   - fragment -> value
   - packet -> value, network.[address]
   - frame -> .[packet]
+  - channel -> .[frame]
   - codec -> network.[codec], .[frame, packet]
-  - sending -> config, value, .[codec, frame]
-  - session -> value, .[codec, fragment, frame, packet, queue]
+  - sending -> config, value, queue, .[codec, frame]
+  - session -> value, .[channel, codec, fragment, frame, packet, sending]
   - server -> config, value, network.[address, codec], .[codec, packet, frame, session]
 mcpe
   const
