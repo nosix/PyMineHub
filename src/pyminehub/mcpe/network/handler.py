@@ -175,6 +175,12 @@ class MCPEHandler(GameDataHandler):
             packet.riding_eid
         ))
 
+    def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
+        raise NotImplementedError()
+
+    def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
+        raise NotImplementedError()
+
     # event handling methods
 
     def _process_event_player_logged_in(self, event: Event) -> None:

@@ -424,6 +424,22 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
         OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
+    ],
+    GamePacketType.SOUND_EVENT: [
+        _HEADER_EXTRA_DATA,
+        EnumData(BYTE_DATA, SoundType),
+        _FLOAT_VECTOR3_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        BOOL_DATA,
+        BOOL_DATA
+    ],
+    GamePacketType.PLAYER_ACTION: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        EnumData(VAR_INT_DATA, PlayerActionType),
+        _INT_VECTOR3_DATA,
+        VAR_INT_DATA
     ]
 }
 

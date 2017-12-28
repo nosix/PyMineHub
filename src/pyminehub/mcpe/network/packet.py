@@ -41,7 +41,7 @@ class GamePacketType(ValueType):
     UPDATE_BLOCK = 0x15
     ADD_PAINTING = 0x16
     EXPLODE = 0x17
-    LEVEL_SOUND_EVENT = 0x18
+    SOUND_EVENT = 0x18
     LEVEL_EVENT = 0x19
     BLOCK_EVENT = 0x1a
     ENTITY_EVENT = 0x1b
@@ -341,6 +341,24 @@ _game_packet_specs = {
         ('riding_eid', EntityRuntimeID),
         ('int1', Optional[int]),
         ('int2', Optional[int])
+    ],
+    GamePacketType.SOUND_EVENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('sound', SoundType),
+        ('position', Vector3[float]),
+        ('extra_data', int),
+        ('pitch', int),
+        ('unknown', bool),
+        ('disable_relative_volume', bool)
+    ],
+    GamePacketType.PLAYER_ACTION: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('action', PlayerActionType),
+        ('position', Vector3[int]),
+        ('face', int),
     ]
 }
 
