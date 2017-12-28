@@ -21,7 +21,7 @@ class UnconnectedTestCase(ProtocolTestCase):
                 EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(
                         RakNetPacketType.UNCONNECTED_PONG,
-                        server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;3167636187078062397;PyMineHub Server;Survival;'
+                        server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;3167636187078062397;PyMineHub;Survival;'
                     )
                 )
             ]

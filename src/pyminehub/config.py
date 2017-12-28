@@ -16,29 +16,34 @@ from pyminehub.typevar import T
 
 
 class ConfigKey(Enum):
-    BATCH_COMPRESS_THRESHOLD = 1
-    SEED = 2
-    WORLD_NAME = 3
-    SERVER_GUID = 4
-    RESEND_TIME = 5
-    GAME_MODE = 6
-    DIFFICULTY = 7
-    RAIN_LEVEL = 8
-    LIGHTNING_LEVEL = 9
-    MAX_LOG_LENGTH = 10
+    # system
+    MAX_LOG_LENGTH = 101
+    # raknet
+    SERVER_GUID = 201
+    RESEND_TIME = 202
+    # mcpe.world
+    SEED = 301
+    DIFFICULTY = 302
+    RAIN_LEVEL = 303
+    LIGHTNING_LEVEL = 304
+    # raknet and mcpe.world
+    WORLD_NAME = 401
+    GAME_MODE = 402
+    # mcpe.network
+    BATCH_COMPRESS_THRESHOLD = 501
 
 
 __default_config = (
-    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes
+    (ConfigKey.MAX_LOG_LENGTH, 100),  # cut log string. don't cut if value is None
+    (ConfigKey.SERVER_GUID, None),  # use random value if value is None
+    (ConfigKey.RESEND_TIME, 500),  # ms, interval that is greater than interval of ACK/NCK arrives
+    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes, compress if exceeded
     (ConfigKey.SEED, 0),
-    (ConfigKey.WORLD_NAME, 'PyMineHub Server'),
-    (ConfigKey.SERVER_GUID, None),
-    (ConfigKey.RESEND_TIME, 500),  # ms, greater than ACK/NCK arrives
-    (ConfigKey.GAME_MODE, 'SURVIVAL'),
-    (ConfigKey.DIFFICULTY, 'NORMAL'),
+    (ConfigKey.DIFFICULTY, 'NORMAL'),  # see mcpe.const.Difficulty
     (ConfigKey.RAIN_LEVEL, 0.0),
     (ConfigKey.LIGHTNING_LEVEL, 0.0),
-    (ConfigKey.MAX_LOG_LENGTH, 100)
+    (ConfigKey.WORLD_NAME, 'PyMineHub'),
+    (ConfigKey.GAME_MODE, 'SURVIVAL'),  # see mcpe.const.GameMode
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]
