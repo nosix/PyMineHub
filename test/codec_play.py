@@ -30,6 +30,19 @@ class PlayTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_player_action(self):
+        assertion = EncodedDataInFile(self).is_(
+            RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.PLAYER_ACTION),
+                        GamePacket(GamePacketType.MOVE_PLAYER)
+                    )
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest
