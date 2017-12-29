@@ -195,7 +195,7 @@ class MockWorldProxy(WorldProxy):
                     2,
                     2,
                     GameMode.SURVIVAL,
-                    Vector3(256.0, 57.625, 256.0),
+                    Vector3(256.0, 64.0, 256.0),
                     0.0,
                     358.0,
                     Vector3(512, 56, 512),
@@ -258,7 +258,7 @@ class MockWorldProxy(WorldProxy):
             return None
 
     def get_seed(self) -> int:
-        return -1
+        return 0
 
     def get_game_mode(self) -> GameMode:
         return GameMode.SURVIVAL
@@ -273,7 +273,7 @@ class MockWorldProxy(WorldProxy):
         return 0.0
 
     def get_world_name(self) -> str:
-        return 'PyMineHub Server'
+        return 'PyMineHub'
 
     def get_time(self) -> int:
         return 4800

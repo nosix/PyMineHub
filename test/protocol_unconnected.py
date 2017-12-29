@@ -5,11 +5,11 @@ from testcase.protocol import *
 class UnconnectedTestCase(ProtocolTestCase):
 
     _CLIENT_ADDRESS = [
-        ('192.168.179.2', 58985)
+        ('192.168.179.2', 34089)
     ]
 
     def setUp(self) -> None:
-        set_config(server_guid=3167636187078062397)
+        set_config(server_guid=1326711636852997873)
         super().setUp()
 
     def test_unconnected_ping_pong(self):
@@ -21,7 +21,7 @@ class UnconnectedTestCase(ProtocolTestCase):
                 EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(
                         RakNetPacketType.UNCONNECTED_PONG,
-                        server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;3167636187078062397;PyMineHub;Survival;'
+                        server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;1326711636852997873;PyMineHub;Survival;'
                     )
                 )
             ]

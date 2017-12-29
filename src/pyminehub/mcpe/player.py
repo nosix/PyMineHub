@@ -14,12 +14,13 @@ class Player:
         self._entity_unique_id = 0
         self._entity_runtime_id = 0
         self._position = Vector3(256.0, 57.625, 256.0)
+        self._metadata = None
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
 
     def __eq__(self, other: 'Player') -> bool:
-        assert isinstance(other, Player)
+        assert isinstance(other, Player), type(other)
         return self.id == other.id
 
     def login(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:
@@ -66,6 +67,14 @@ class Player:
     @position.setter
     def position(self, value: Vector3[float]) -> None:
         self._position = value
+
+    @property
+    def metadata(self) -> Tuple[EntityMetaData, ...]:
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value: Tuple[EntityMetaData, ...]) -> None:
+        self._metadata = value
 
     def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
         request = tuple(to_chunk_area(self._position, radius))

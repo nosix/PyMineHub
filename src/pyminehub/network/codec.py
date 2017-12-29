@@ -70,7 +70,6 @@ class PacketCodec:
                 context.append_value(decoder.read(buffer, context))
         except KeyError as exc:
             exc.args = ("{}, when decode '{}'".format(exc.args[0], data.hex()), )
-            raise exc
         context.pop_stack()
         return self._packet_factory.create(*context.get_values())
 

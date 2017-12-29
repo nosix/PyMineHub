@@ -1,16 +1,14 @@
 from protocol_unconnected import UnconnectedTestCase
-from pyminehub.config import set_config
 from testcase.protocol import *
 
 
 class LoginLogoutTestCase(UnconnectedTestCase):
 
     _CLIENT_ADDRESS = [
-        ('192.168.179.2', 58985)
+        ('192.168.179.2', 34089)
     ]
 
     def setUp(self) -> None:
-        set_config(seed=-1)
         super().setUp()
 
     def test_login(self):
@@ -81,6 +79,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             ]
         })
 
+        # 0d
         self.proxy.send(self.data.that_is('resource_pack_client_response_completed'), from_=self._CLIENT_ADDRESS[0])
 
         self.proxy.next_moment()
@@ -91,24 +90,14 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                 # 05
                 EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
-                        RakNetFrame(
-                            RakNetFrameType.RELIABLE_ORDERED,
-                            payload_length=DYNAMIC
-                        ).that_has(
+                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
-                                GamePacket(
-                                    GamePacketType.START_GAME,
-                                    time=4800,
-                                    world_name='PyMineHub Server'
-                                )
+                                GamePacket(GamePacketType.START_GAME)
                             )
                         ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                             Batch().that_has(
-                                GamePacket(
-                                    GamePacketType.SET_TIME,
-                                    time=4800
-                                )
+                                GamePacket(GamePacketType.SET_TIME)
                             )
                         ),
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
@@ -198,16 +187,16 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                         )
                     )
                 ),
-                # 0c-1b
+                # 0a-19
                 *[
                     EncodedData(self.data.that_is_response_of('some_data')).is_(
                         RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                             RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT)
-                        ).with_label(by_index(0x0c, i))
+                        ).with_label(by_index(0x0a, i))
                     )
                     for i in range(16)
                 ],
-                # 1c
+                # 1a
                 EncodedData(self.data.that_is_response_of('some_data')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT).that_has(
@@ -228,11 +217,13 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             ]
         })
 
+        # 0e
         self.proxy.send(self.data.that_is('request_chunk_radius'), from_=self._CLIENT_ADDRESS[0])
 
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                # 1b
                 EncodedData(self.data.that_is_response_of('request_chunk_radius')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
@@ -253,6 +244,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                # 1c
                 EncodedData(self.data.that_is_response_of('full_chunk_data')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                         RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
