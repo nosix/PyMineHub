@@ -9,14 +9,8 @@ def run() -> None:
     loop = asyncio.get_event_loop()
     proxy = run_world(loop)
     transport = run_raknet(loop, MCPEHandler(proxy))
-    try:
-        loop.run_forever()
-        pass
-    except KeyboardInterrupt:
-        pass
-    finally:
-        transport.close()
-        loop.close()
+    transport.close()
+    loop.close()
 
 
 if __name__ == '__main__':

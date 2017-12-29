@@ -15,14 +15,10 @@ from pyminehub.mcpe.world import WorldProxy
 from pyminehub.mcpe.world.action import ActionType, action_factory
 from pyminehub.mcpe.world.event import EventType, Event
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.raknet import Reliability, GameDataHandler
+from pyminehub.raknet import Reliability, SessionNotFound, GameDataHandler
 from pyminehub.value import LogString
 
 _logger = getLogger(__name__)
-
-
-class PlayerSessionNotFound(Exception):
-    pass
 
 
 class MCPEHandler(GameDataHandler):
@@ -44,20 +40,19 @@ class MCPEHandler(GameDataHandler):
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
-        try:
-            getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
-        except PlayerSessionNotFound as exc:
-            _logger.info('Player is not logged in. (key=%s)', exc)
+        getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
 
     def update(self) -> bool:
         event = self._world.next_event()
         if event is None:
             return True
-        try:
-            getattr(self, '_process_event_' + EventType(event.id).name.lower())(event)
-        except PlayerSessionNotFound as exc:
-            _logger.info('Player is not logged in. (key=%s)', exc)
+        getattr(self, '_process_event_' + EventType(event.id).name.lower())(event)
         return False
+
+    def shutdown(self) -> None:
+        res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
+        for addr in self._players:
+            self._send_connection_packet(res_packet, addr, DEFAULT_CHANEL)
 
     # local methods
 
@@ -67,12 +62,12 @@ class MCPEHandler(GameDataHandler):
 
     def _get_player_session(self, addr: Address) -> Player:
         if addr not in self._players:
-            raise PlayerSessionNotFound(addr)
+            raise SessionNotFound(addr)
         return self._players[addr]
 
     def _get_addr(self, player_id: PlayerID) -> Address:
         if player_id not in self._addrs:
-            raise PlayerSessionNotFound(player_id)
+            raise SessionNotFound(player_id)
         return self._addrs[player_id]
 
     def _send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
@@ -122,6 +117,12 @@ class MCPEHandler(GameDataHandler):
         self._send_connection_packet(res_packet, addr, UNRELIABLE)
 
         self._players[addr] = Player()
+
+    def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
+        if addr in self._players:
+            del self._players[addr]
+        self._send_connection_packet(packet, addr, DEFAULT_CHANEL)
+        raise SessionNotFound(addr)
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
         for data in packet.payloads:

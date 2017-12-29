@@ -1,4 +1,5 @@
 from .frame import Reliability
-from .server import GameDataHandler, run
+from .handler import SessionNotFound, GameDataHandler
+from .server import run
 
-__all__ = [Reliability, GameDataHandler, run]
+__all__ = [Reliability, SessionNotFound, GameDataHandler, run]

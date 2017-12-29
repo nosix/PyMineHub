@@ -6,35 +6,12 @@ from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.frame import Reliability
+from pyminehub.raknet.handler import SessionNotFound, GameDataHandler
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.session import Session
 from pyminehub.value import LogString
 
 _logger = getLogger(__name__)
-
-
-class SessionNotFound(Exception):
-    pass
-
-
-class GameDataHandler:
-
-    def register_protocol(self, protocol) -> None:
-        # noinspection PyAttributeOutsideInit
-        self._protocol = protocol
-
-    def sendto(self, data: bytes, addr: Address, reliability: Reliability) -> None:
-        self._protocol.game_data_received(data, addr, reliability)
-
-    def data_received(self, data: bytes, addr: Address) -> None:
-        raise NotImplementedError()
-
-    def update(self) -> bool:
-        """Update something of handler state.
-
-        :return: return True, if there is nothing to do
-        """
-        raise NotImplementedError()
 
 
 class _RakNetServerProtocol(asyncio.DatagramProtocol):
@@ -63,17 +40,15 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
         except SessionNotFound:
             _logger.info('%s session is not found.', addr)
+            self._remove_session(addr)
 
     def connection_lost(self, exc: Exception) -> None:
         _logger.exception('RakNet connection lost', exc_info=exc)
         self._loop.stop()
 
     def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
-        try:
-            session = self._get_session(addr)
-            session.send_frame(data, reliability)
-        except SessionNotFound:
-            _logger.info('%s session is not found.', addr)
+        session = self._get_session(addr)
+        session.send_frame(data, reliability)
 
     def send_to_client(self, packet: RakNetPacket, addr: Address) -> None:
         _logger.debug('< %s', LogString(packet))
@@ -86,7 +61,16 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             session.send_waiting_packets()
 
     def next_moment(self) -> bool:
-        return self._handler.update()
+        try:
+            return self._handler.update()
+        except SessionNotFound as exc:
+            _logger.info('%s session is not found.', exc.addr)
+            self._remove_session(exc.addr)
+            return True
+
+    def _remove_session(self, addr: Address) -> None:
+        if addr in self._sessions:
+            del self._sessions[addr]
 
     def _get_session(self, addr: Address) -> Session:
         try:
@@ -153,8 +137,12 @@ def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler, log_level=Non
     not log_level or basicConfig(level=log_level)
     listen = loop.create_datagram_endpoint(
         lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
-    transport, protocol = loop.run_until_complete(listen)
-    loop.run_until_complete(_tick_time(protocol))
+    transport, protocol = loop.run_until_complete(listen)  # non-blocking
+    try:
+        loop.run_until_complete(_tick_time(protocol))  # blocking
+    except KeyboardInterrupt:
+        handler.shutdown()
+        protocol.send_waiting_packets()
     return transport
 
 
@@ -168,6 +156,9 @@ if __name__ == '__main__':
 
         def update(self) -> bool:
             return True
+
+        def shutdown(self) -> None:
+            pass
 
     _loop = asyncio.get_event_loop()
     _transport = run(_loop, MockHandler(), logging.DEBUG)
