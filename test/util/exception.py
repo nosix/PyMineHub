@@ -47,7 +47,7 @@ def try_action(
     try:
         return action_of_raising_exception()
     except _WrappedException as e:
-        message = '{}'.format(e.args[0])
+        message = str(e.args[0]).replace(r'\n', '\n')
         if exception_factory is None:
             raise _WrappedException(e.exc, e.tb, message) from None
         else:

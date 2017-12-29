@@ -36,6 +36,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('login')).is_(
+                    RakNetPacket(RakNetPacketType.ACK)
+                ),
                 # 03
                 EncodedData(self.data.that_is_response_of('login')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
@@ -50,9 +53,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
-                ),
-                EncodedData(self.data.that_is_response_of('login')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -63,6 +63,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('resource_pack_client_response')).is_(
+                    RakNetPacket(RakNetPacketType.ACK)
+                ),
                 # 04
                 EncodedData(self.data.that_is_response_of('resource_pack_client_response')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
@@ -72,10 +75,7 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
-                ),
-                EncodedData(self.data.that_is_response_of('resource_pack_client_response')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
-                ),
+                )
             ]
         })
 
@@ -87,6 +87,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
+                    RakNetPacket(RakNetPacketType.ACK)
+                ),
                 # 05
                 EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
@@ -121,9 +124,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
-                ),
-                EncodedData(self.data.that_is_response_of('resource_pack_client_response_completed')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })
@@ -223,6 +223,9 @@ class LoginLogoutTestCase(UnconnectedTestCase):
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
+                EncodedData(self.data.that_is_response_of('request_chunk_radius')).is_(
+                    RakNetPacket(RakNetPacketType.ACK)
+                ),
                 # 1b
                 EncodedData(self.data.that_is_response_of('request_chunk_radius')).is_(
                     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
@@ -232,9 +235,6 @@ class LoginLogoutTestCase(UnconnectedTestCase):
                             )
                         )
                     )
-                ),
-                EncodedData(self.data.that_is_response_of('request_chunk_radius')).is_(
-                    RakNetPacket(RakNetPacketType.ACK)
                 )
             ]
         })

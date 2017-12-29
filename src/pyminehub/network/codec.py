@@ -4,6 +4,12 @@ from pyminehub.network.address import AddressInPacket
 from pyminehub.value import ValueObject
 
 
+IP_HEADER_SIZE = 20
+UDP_HEADER_SIZE = 8
+PACKET_HEADER_SIZE = IP_HEADER_SIZE + UDP_HEADER_SIZE
+RAKNET_WEIRD = 8
+
+
 class PacketCodec:
 
     def __init__(self, packet_id_cls, packet_factory, data_codecs) -> None:

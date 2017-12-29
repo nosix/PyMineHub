@@ -2,6 +2,7 @@ from collections import defaultdict
 from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
 
+from pyminehub.network.codec import PACKET_HEADER_SIZE, RAKNET_WEIRD
 from pyminehub.raknet.channel import Channel
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
@@ -17,11 +18,7 @@ def _create_send_packet(sequence_num: int, payload: bytes) -> RakNetPacket:
     return raknet_packet_factory.create(RakNetPacketType.FRAME_SET_4, sequence_num, payload)
 
 
-_PACKET_HEADER_SIZE = (
-    20 +  # IP header size  # TODO why does need?
-    8 +  # UDP header size  # TODO why does need?
-    8 +  # RakNet weird ?   # TODO why does need?
-    len(raknet_packet_codec.encode(_create_send_packet(0, b''))))
+_ALL_HEADER_SIZE = PACKET_HEADER_SIZE + RAKNET_WEIRD + len(raknet_packet_codec.encode(_create_send_packet(0, b'')))
 
 
 class Session:
@@ -40,7 +37,7 @@ class Session:
         self._channels = defaultdict(Channel)  # type: Dict[int, Channel]
         self._fragment = Fragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
-        self._send_queue = SendQueue(mtu_size - _PACKET_HEADER_SIZE, self._send_frame_set)
+        self._send_queue = SendQueue(mtu_size - _ALL_HEADER_SIZE, self._send_frame_set)
 
     def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         # TODO make sure to need check reliable_message_num
@@ -139,11 +136,11 @@ class Session:
             send_ack_or_nck()
 
     def send_waiting_packets(self) -> None:
-        self._send_queue.send()
         self._send_ack_or_nck(RakNetPacketType.ACK, self._ack_set)
         self._send_ack_or_nck(RakNetPacketType.NCK, self._nck_set)
         self._ack_set.clear()
         self._nck_set.clear()
+        self._send_queue.send()
 
     def send_frame(self, payload: bytes, reliability: Reliability) -> None:
         self._send_queue.push(payload, reliability)

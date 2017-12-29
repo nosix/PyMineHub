@@ -8,7 +8,7 @@ from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket
 from pyminehub.mcpe.network.packet import EXTRA_DATA
 from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
-from pyminehub.mcpe.network.reliability import UNRELIABLE
+from pyminehub.mcpe.network.reliability import UNRELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.player import Player
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
@@ -27,8 +27,7 @@ class PlayerSessionNotFound(Exception):
 
 class MCPEHandler(GameDataHandler):
 
-    _INTERNAL_ADDRESSES = \
-        (to_packet_format(('127.0.0.1', 0)),) + tuple(to_packet_format(('0.0.0.0', 0)) for _ in range(19))
+    _INTERNAL_ADDRESSES = tuple(to_packet_format(('0.0.0.0', 0)) for _ in range(20))
 
     def __init__(self, world: WorldProxy) -> None:
         self._world = world
@@ -100,12 +99,6 @@ class MCPEHandler(GameDataHandler):
             del self._ping_time[addr]
 
     def _process_connection_request(self, packet: ConnectionPacket, addr: Address) -> None:
-        self._ping_time[addr] = self._get_current_time()
-        res_packet = connection_packet_factory.create(
-            ConnectionPacketType.CONNECTED_PING,
-            self._get_current_time())
-        self._send_connection_packet(res_packet, addr, UNRELIABLE)
-
         self._accepted_time[addr] = self._get_current_time()
         res_packet = connection_packet_factory.create(
             ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED,
@@ -114,13 +107,20 @@ class MCPEHandler(GameDataHandler):
             self._INTERNAL_ADDRESSES,
             packet.client_time_since_start,
             self._accepted_time[addr])
-        self._send_connection_packet(res_packet, addr, UNRELIABLE)
+        self._send_connection_packet(res_packet, addr, DEFAULT_CHANEL)
 
     def _process_new_incoming_connection(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.server_time_since_start != self._accepted_time[addr]:
             _logger.warning('The packet of new incoming connection has invalid time. (expected:%d, actual: %d)',
                             self._accepted_time[addr], packet.server_time_since_start)
             return
+
+        self._ping_time[addr] = self._get_current_time()
+        res_packet = connection_packet_factory.create(
+            ConnectionPacketType.CONNECTED_PING,
+            self._get_current_time())
+        self._send_connection_packet(res_packet, addr, UNRELIABLE)
+
         self._players[addr] = Player()
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:

@@ -7,10 +7,10 @@ class _MtuSizeData(DataCodec[int]):
 
     def read(self, data: bytearray, context: DataCodecContext) -> int:
         RAW_DATA.read(data, context)
-        return context.length
+        return context.length + PACKET_HEADER_SIZE
 
     def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
-        RAW_DATA.write(data, b'0' * (value - context.length), context)
+        RAW_DATA.write(data, b'0' * (value - context.length - PACKET_HEADER_SIZE), context)
 
 
 class _MagicData(DataCodec[bool]):

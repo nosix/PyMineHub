@@ -7,6 +7,21 @@
 
 ## Development
 
+### Data Length
+
+| Mark | Part | Length [bytes] | Note |
+|:---:|:---|---:|:---:|
+| A | MTU | 1492 | B + D + E |
+| B | OpenConnectionRequest1 | 1464 | |
+| C | OpenConnectionRequest1 zero padding | 1446 | |
+| D | IP header | 20 | |
+| E | UDP header | 8 | |
+| F | RakNet weird | 8 | ? | 
+| G | RakNet packet (datagram) header | 4 | |
+| H | Max frame header | 20 | |
+| I | All header | 60 | D + E + F + G + H |
+| J | Max frame payload | 1432 | A - I |
+
 ### Module design
 
 #### Dependency
