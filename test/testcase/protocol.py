@@ -281,6 +281,7 @@ class EncodedData:
 
     def __call__(self, addr: Address) -> str:
         def replace_packet_attributes():
+            # noinspection PyArgumentList
             self._analyzer.decode_on(visitor, unhex(self._data_producer(addr)))
             self._analyzer.encode_on(visitor)
         visitor = _PacketReplacer(self._data_producer.get_context())
@@ -291,6 +292,7 @@ class EncodedData:
         context = self._data_producer.get_context()
         collector_for_expected = _ExpectedPacketCollector(context)
         collector_for_actual = _ActualPacketCollector(context)
+        # noinspection PyArgumentList
         self._analyzer.decode_on(collector_for_expected, unhex(self._data_producer(addr)))
         self._analyzer.decode_on(collector_for_actual, actual_data)
         return list(collector_for_expected.get_packets()), list(collector_for_actual.get_packets())
@@ -304,19 +306,19 @@ class ProtocolTestCase(TestCase):
         super().__init__(method_name)
         self.context = _ProtocolTestContext(self)
 
-    def _get_file_name(self, test_name: str) -> str:
+    def _get_file_name(self, kind: str, test_name: str, ext: str='json') -> str:
         module_file_name = inspect.getmodule(self).__file__
-        return '{}/{}/{}.{}'.format(dirname(module_file_name), 'protocol_data', test_name, 'json')
+        return '{}/{}/{}.{}'.format(dirname(module_file_name), kind, test_name, ext)
 
     def _import_json(self, test_name_list: List[str]) -> Dict:
         data_json = {}
         for test_name in test_name_list:
-            with open(self._get_file_name(test_name), 'r') as file:
+            with open(self._get_file_name('protocol_data', test_name), 'r') as file:
                 data_json.update(json.load(file))
         return data_json
 
     def _load_data(self) -> _TestData:
-        with open(self._get_file_name(self._testMethodName), 'r') as file:
+        with open(self._get_file_name('protocol_data', self._testMethodName), 'r') as file:
             data_json = json.load(file)
             if self._JSON_IMPORT_KEY in data_json:
                 data_json.update(self._import_json(data_json[self._JSON_IMPORT_KEY]))
@@ -328,8 +330,10 @@ class ProtocolTestCase(TestCase):
             self.skipTest('This test is defined in super class.')
         self.proxy = _ProtocolProxy()
         self.data = self._load_data()
+        self._result_output = open(self._get_file_name('protocol_result', self._testMethodName, 'txt'), 'w')
 
     def tearDown(self) -> None:
+        self._result_output.close()
         self.proxy = None
         self.data = None
         self.context = None
@@ -357,6 +361,7 @@ class ProtocolTestCase(TestCase):
             def action():
                 self.assertEqual(expected.packet, actual.packet,
                                  "Actual data is '{}'".format(actual.data.hex()))
+            print(actual.packet_str.strip(), file=self._result_output)
             try_action(action, called_line=actual.called, packet_info=actual.packet_str)
         self.assertEqual(len(expected_packets), len(actual_packets),
                          'Following packets were left:\n'

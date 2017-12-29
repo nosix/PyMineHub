@@ -1,0 +1,1 @@
+UnconnectedPong(id=28, time_since_start=3963780, server_guid=3167636187078062397, valid_message_data_id=True, server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;3167636187078062397;PyMineHub;Survival;')
