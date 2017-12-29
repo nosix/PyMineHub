@@ -1,15 +1,14 @@
 import time
 from logging import getLogger
 
-from pyminehub.mcpe.command import get_command_spec
-from pyminehub.mcpe.metadata import create_entity_meta_data
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
+from pyminehub.mcpe.network.login import login_sequence
 from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
 from pyminehub.mcpe.network.packet import EXTRA_DATA
 from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE, DEFAULT_CHANEL
-from pyminehub.mcpe.player import Player
+from pyminehub.mcpe.network.session import SessionManager
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.mcpe.world.action import ActionType, action_factory
@@ -30,8 +29,7 @@ class MCPEHandler(GameDataHandler):
         self._start_time = time.time()
         self._ping_time = {}  # type: Dict[Address, int]
         self._accepted_time = {}  # type: Dict[Address, int]
-        self._players = {}  # type: Dict[Address, Player]
-        self._addrs = {}  # type: Dict[PlayerID, Address]
+        self._session_manager = SessionManager()
         self._queue = GamePacketQueue(self._send_connection_packet)
         # TODO world clock
 
@@ -51,7 +49,7 @@ class MCPEHandler(GameDataHandler):
 
     def shutdown(self) -> None:
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
-        for addr in self._players:
+        for addr in self._session_manager.addresses:
             self._send_connection_packet(res_packet, addr, DEFAULT_CHANEL)
 
     # local methods
@@ -59,16 +57,6 @@ class MCPEHandler(GameDataHandler):
     def _get_current_time(self) -> int:
         """Get millisec time since starting handler."""
         return int(1000 * (time.time() - self._start_time))
-
-    def _get_player_session(self, addr: Address) -> Player:
-        if addr not in self._players:
-            raise SessionNotFound(addr)
-        return self._players[addr]
-
-    def _get_addr(self, player_id: PlayerID) -> Address:
-        if player_id not in self._addrs:
-            raise SessionNotFound(player_id)
-        return self._addrs[player_id]
 
     def _send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
         """Send connection packet to specified address.
@@ -116,11 +104,10 @@ class MCPEHandler(GameDataHandler):
             self._get_current_time())
         self._send_connection_packet(res_packet, addr, UNRELIABLE)
 
-        self._players[addr] = Player()
+        self._session_manager.append(addr)
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
-        if addr in self._players:
-            del self._players[addr]
+        del self._session_manager[addr]
         self._send_connection_packet(packet, addr, DEFAULT_CHANEL)
         raise SessionNotFound(addr)
 
@@ -134,12 +121,14 @@ class MCPEHandler(GameDataHandler):
                 _logger.warning('%s is not supported in batch processing.', exc)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:
-        player = self._get_player_session(addr)
+        player = self._session_manager[addr]
         player_data = packet.connection_request.player_data
         client_data = packet.connection_request.client_data
         # TODO check the logged-in player and log out the same player
-        player.login(packet.protocol, player_data, client_data)
-        self._addrs[player.id] = addr
+        player.login(
+            packet.protocol, player_data, client_data,
+            login_sequence(player, addr, self._session_manager, self._world, self._queue.send_immediately))
+        self._session_manager.bind(player.id, addr)
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
         self._queue.send_immediately(res_packet, addr)
@@ -153,12 +142,12 @@ class MCPEHandler(GameDataHandler):
             res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
             self._queue.send_immediately(res_packet, addr)
         elif packet.status == ResourcePackStatus.COMPLETED:
-            player = self._get_player_session(addr)
+            player = self._session_manager[addr]
             self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
-        player = self._get_player_session(addr)
-        chunk_requests = player.get_required_chunk(packet.radius)
+        player = self._session_manager[addr]
+        chunk_requests = player.update_required_chunk(packet.radius)
         self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, chunk_requests))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._queue.send_immediately(res_packet, addr)
@@ -179,262 +168,43 @@ class MCPEHandler(GameDataHandler):
         ))
 
     def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
-        player = self._get_player_session(addr)
-        for addr, p in self._players.items():
+        player = self._session_manager[addr]
+        for addr, p in self._session_manager:
             if p != player:
                 self._queue.send_immediately(packet, addr)
 
     def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
-        player = self._get_player_session(addr)
+        player = self._session_manager[addr]
         # noinspection PyProtectedMember
         res_packet = packet._replace(entity_runtime_id=player.entity_runtime_id)
-        for addr, p in self._players.items():
+        for addr, p in self._session_manager:
             if p != player:
                 self._queue.send_immediately(res_packet, addr)
 
     # event handling methods
 
     def _process_event_player_logged_in(self, event: Event) -> None:
-        addr = self._get_addr(event.player_id)
-        player = self._get_player_session(addr)
-
-        player.set_identity(event.entity_unique_id, event.entity_runtime_id)
-        player.position = event.position
-        player.metadata = (
-            create_entity_meta_data(EntityMetaDataKey.FLAGS, event.metadata_flags.flags),
-            create_entity_meta_data(EntityMetaDataKey.AIR, 0),
-            create_entity_meta_data(EntityMetaDataKey.MAX_AIR, 400),
-            create_entity_meta_data(EntityMetaDataKey.NAMETAG, player.name),
-            create_entity_meta_data(EntityMetaDataKey.LEAD_HOLDER_EID, OWN_PLAYER_ENTITY_ID),
-            create_entity_meta_data(EntityMetaDataKey.SCALE, 1.0),
-            create_entity_meta_data(EntityMetaDataKey.BED_POSITION, event.bed_position)
-        )
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.START_GAME,
-            EXTRA_DATA,
-            player.entity_unique_id,
-            player.entity_runtime_id,
-            event.game_mode,
-            player.position,
-            event.pitch,
-            event.yaw,
-            self._world.get_seed(),
-            Dimension.OVERWORLD,
-            Generator.INFINITE,
-            self._world.get_game_mode(),
-            self._world.get_difficulty(),
-            event.spawn,
-            has_achievements_disabled=True,
-            time=self._world.get_time(),
-            edu_mode=False,
-            rain_level=self._world.get_rain_level(),
-            lightning_level=self._world.get_lightning_level(),
-            is_multi_player_game=True,
-            has_lan_broadcast=True,
-            has_xbox_live_broadcast=False,
-            commands_enabled=True,
-            is_texture_packs_required=True,
-            game_rules=(),
-            has_bonus_chest_enabled=False,
-            has_start_with_map_enabled=False,
-            has_trust_players_enabled=False,
-            default_player_permission=event.permission,
-            xbox_live_broadcast_mode=0,
-            level_id='',
-            world_name=self._world.get_world_name(),
-            premium_world_template_id='',
-            unknown_bool=False,
-            current_tick=0,  # TODO set value
-            enchantment_seed=0
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.SET_TIME, EXTRA_DATA, self._world.get_time())
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.UPDATE_ATTRIBUTES,
-            EXTRA_DATA,
-            player.entity_runtime_id,
-            event.attributes
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.SET_ENTITY_DATA,
-            EXTRA_DATA,
-            entity_runtime_id=player.entity_runtime_id,
-            meta_data=player.metadata
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        command_spec = get_command_spec()
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.AVAILABLE_COMMANDS,
-            EXTRA_DATA,
-            enum_values=command_spec.enum_values,
-            postfixes=command_spec.postfixes,
-            enums=command_spec.enums,
-            command_data=command_spec.command_data
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        adventure_settings = self._world.get_adventure_settings()
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.ADVENTURE_SETTINGS,
-            EXTRA_DATA,
-            flags=adventure_settings.flags,
-            command_permission=command_spec.permission,
-            flags2=adventure_settings.flags2,
-            player_permission=event.permission,
-            custom_flags=0,
-            entity_unique_id=player.entity_unique_id
-        )
-        self._queue.send_immediately(res_packet, addr)
-
+        player = self._session_manager[event.player_id]
+        player.next_login_sequence(event)
         self._world.perform(action_factory.create(ActionType.UNKNOWN1, player.id))  # TODO remove
 
     def _process_event_unknown1(self, event: Event) -> None:
-        addr = self._get_addr(event.player_id)
-        player = self._get_player_session(addr)
-
-        for inventory in event.inventory:
-            res_packet = game_packet_factory.create(
-                GamePacketType.INVENTORY_CONTENT,
-                EXTRA_DATA,
-                window_id=inventory.window_type,
-                items=inventory.slots
-            )
-            self._queue.send_immediately(res_packet, addr)
-
+        player = self._session_manager[event.player_id]
+        player.next_login_sequence(event)
         self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.id))  # TODO remove
 
     def _process_event_unknown2(self, event: Event) -> None:
-        addr = self._get_addr(event.player_id)
-        player = self._get_player_session(addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.MOB_EQUIPMENT,
-            EXTRA_DATA,
-            entity_runtime_id=player.entity_runtime_id,
-            item=event.equipped_item,
-            inventory_slot=event.inventory_slot,
-            hotbar_slot=event.hotbar_slot,
-            window_id=WindowType.INVENTORY
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.INVENTORY_SLOT,
-            EXTRA_DATA,
-            window_id=WindowType.INVENTORY,
-            inventory_slot=event.inventory_slot,
-            item=event.equipped_item
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.CRAFTING_DATA,
-            EXTRA_DATA,
-            self._world.get_recipe(),
-            True
-        )
-        self._queue.send_immediately(res_packet, addr)
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.PLAYER_LIST,
-            EXTRA_DATA,
-            type=PlayerListType.ADD,
-            entries=tuple(
-                PlayerListEntry(
-                    uuid=p.uuid,
-                    entity_unique_id=p.entity_unique_id,
-                    user_name=p.name,
-                    skin=p.skin,
-                    xbox_user_id='')
-                for p in self._players.values() if p != player and p.has_identity()))
-        self._queue.send_immediately(res_packet, addr)
-
-        self._notify_new_player(player)
-
-    def _notify_new_player(self, player: Player) -> None:
-        assert player.has_identity()
-
-        res_packet = game_packet_factory.create(
-            GamePacketType.PLAYER_LIST,
-            EXTRA_DATA,
-            type=PlayerListType.ADD,
-            entries=(
-                PlayerListEntry(
-                    uuid=player.uuid,
-                    entity_unique_id=player.entity_unique_id,
-                    user_name=player.name,
-                    skin=player.skin,
-                    xbox_user_id=''),
-            )
-        )
-        for addr, p in self._players.items():
-            if p != player and p.has_identity():
-                self._queue.send_immediately(res_packet, addr)
+        player = self._session_manager[event.player_id]
+        player.next_login_sequence(event)
 
     def _process_event_full_chunk_loaded(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
             GamePacketType.FULL_CHUNK_DATA, EXTRA_DATA, event.position, event.data)
-        for addr, player in self._players.items():
+        for addr, player in self._session_manager:
             if player.did_request_chunk(event.position):
                 self._queue.send_immediately(res_packet, addr)
                 player.discard_chunk_request(event.position)
-            self._spawn_player(player, addr)
-
-    def _spawn_player(self, player: Player, addr: Address) -> None:
-        if not player.is_living() and player.is_ready():
-            res_packet = game_packet_factory.create(
-                GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.PLAYER_SPAWN)
-            self._queue.send_immediately(res_packet, addr)
-
-            player.spawn()
-
-            new_player_packet = game_packet_factory.create(
-                GamePacketType.ADD_PLAYER,
-                EXTRA_DATA,
-                player.uuid,
-                player.name,
-                player.entity_unique_id,
-                player.entity_runtime_id,
-                player.position,
-                Vector3(0.0, 0.0, 0.0),
-                0.0, 0.0, 0.0,
-                Slot(0, None, None, None, None),
-                player.metadata,
-                0, 0, 0, 0, 0,
-                0,
-                tuple()
-            )
-            for other_player_addr, p in self._players.items():
-                if p != player:
-                    self._queue.send_immediately(new_player_packet, other_player_addr)
-
-                    other_player_packet = game_packet_factory.create(
-                        GamePacketType.ADD_PLAYER,
-                        EXTRA_DATA,
-                        p.uuid,
-                        p.name,
-                        p.entity_unique_id,
-                        p.entity_runtime_id,
-                        p.position,
-                        Vector3(0.0, 0.0, 0.0),
-                        0.0, 0.0, 0.0,
-                        Slot(0, None, None, None, None),
-                        p.metadata,
-                        0, 0, 0, 0, 0,
-                        0,
-                        tuple()
-                    )
-                    self._queue.send_immediately(other_player_packet, addr)
+                player.next_login_sequence(event)
 
     def _process_event_player_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -451,6 +221,6 @@ class MCPEHandler(GameDataHandler):
             None,
             None
         )
-        for addr, player in self._players.items():
+        for addr, player in self._session_manager:
             if player.entity_runtime_id != event.entity_runtime_id:
                 self._queue.send_immediately(res_packet, addr)

@@ -278,7 +278,7 @@ _game_data_codecs = {
         L_FLOAT_DATA,
         VAR_SIGNED_INT_DATA,
         EnumData(VAR_SIGNED_INT_DATA, Dimension),
-        EnumData(VAR_SIGNED_INT_DATA, Generator),
+        EnumData(VAR_SIGNED_INT_DATA, GeneratorType),
         EnumData(VAR_SIGNED_INT_DATA, GameMode),
         EnumData(VAR_SIGNED_INT_DATA, Difficulty),
         _INT_VECTOR3_DATA,

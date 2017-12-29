@@ -60,7 +60,7 @@ mcpe
   inventory -> mcpe.[resource], .[const, value]
   command -> .[const, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
-  player -> .[value]
+  player -> .[value, world]
   plugin
     generator -> mcpe.[geometry, chunk]
     default
@@ -79,9 +79,11 @@ mcpe
     - codec -> typevar, config, network, .[packet]
       - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
+    - session -> raknet, networkd.[address], mcpe.[value, player]
     - queue -> value, raknet, network.[address], .[packet, codec]
+    - login -> network.[address], mcpe.[command, metadata, player, world], .[packet, session]
     - handler -> typevar, value, raknet, network.[address],
-                 mcpe.[const, metadata, command, player, world], .[codec, packet, queue]
+                 mcpe.[const, world], .[codec, packet, session, queue, login]
   main
     server -> raknet, mcpe.[network, world]
 

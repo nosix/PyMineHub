@@ -1,7 +1,8 @@
 import uuid
-from typing import Set
+from typing import Generator, Set
 
 from pyminehub.mcpe.value import *
+from pyminehub.mcpe.world.event import Event
 
 
 class Player:
@@ -18,15 +19,24 @@ class Player:
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
+        self._login_sequence = None
 
     def __eq__(self, other: 'Player') -> bool:
         assert isinstance(other, Player), type(other)
         return self.id == other.id
 
-    def login(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:
+    def login(
+            self,
+            protocol: int,
+            player_data: PlayerData,
+            client_data: ClientData,
+            login_sequence: Generator[None, Event, None]
+    ) -> None:
         self._protocol = protocol
         self._player_data = player_data
         self._client_data = client_data
+        self._login_sequence = login_sequence
+        login_sequence.send(None)
 
     def set_identity(self, entity_unique_id: EntityUniqueID, entity_runtime_id: EntityRuntimeID):
         self._entity_unique_id = entity_unique_id
@@ -76,7 +86,7 @@ class Player:
     def metadata(self, value: Tuple[EntityMetaData, ...]) -> None:
         self._metadata = value
 
-    def get_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
+    def update_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
         request = tuple(to_chunk_area(self._position, radius))
         self._requested_chunk_position |= set(p.position for p in request)
         self._near_chunk_position = set(p.position for p in to_chunk_area(self._position, 2))
@@ -91,11 +101,18 @@ class Player:
     def has_identity(self) -> bool:
         return self._entity_runtime_id != 0 and self._entity_runtime_id != 0
 
+    def is_ready(self) -> bool:
+        return len(self._near_chunk_position) > 0 and \
+               len(self._requested_chunk_position - self._near_chunk_position) == 0
+
     def is_living(self) -> bool:
         return self._is_living
 
-    def is_ready(self) -> bool:
-        return len(self._requested_chunk_position - self._near_chunk_position) == 0
-
-    def spawn(self) -> None:
-        self._is_living = True
+    def next_login_sequence(self, event: Event) -> None:
+        if self._login_sequence is None:
+            return
+        try:
+            self._login_sequence.send(event)
+        except StopIteration:
+            self._is_living = True
+            self._login_sequence = None

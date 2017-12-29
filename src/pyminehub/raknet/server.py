@@ -64,8 +64,9 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         try:
             return self._handler.update()
         except SessionNotFound as exc:
-            _logger.info('%s session is not found.', exc.addr)
-            self._remove_session(exc.addr)
+            if exc.addr is not None:
+                _logger.info('%s session is not found.', exc.addr)
+                self._remove_session(exc.addr)
             return True
 
     def _remove_session(self, addr: Address) -> None:

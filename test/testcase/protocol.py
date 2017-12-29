@@ -361,7 +361,7 @@ class ProtocolTestCase(TestCase):
             def action():
                 self.assertEqual(expected.packet, actual.packet,
                                  "Actual data is '{}'".format(actual.data.hex()))
-            print(actual.packet_str.strip(), file=self._result_output)
+            print(get_packet_str(actual.packet), file=self._result_output)
             try_action(action, called_line=actual.called, packet_info=actual.packet_str)
         self.assertEqual(len(expected_packets), len(actual_packets),
                          'Following packets were left:\n'

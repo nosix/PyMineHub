@@ -1,14 +1,16 @@
+from typing import Optional
+
 from pyminehub.network.address import Address
 from pyminehub.raknet.frame import Reliability
 
 
 class SessionNotFound(Exception):
 
-    def __init__(self, addr: Address) -> None:
+    def __init__(self, addr: Optional[Address]=None) -> None:
         super().__init__(addr)
 
     @property
-    def addr(self) -> Address:
+    def addr(self) -> Optional[Address]:
         return self.args[0]
 
 

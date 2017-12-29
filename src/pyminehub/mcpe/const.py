@@ -27,7 +27,7 @@ class Dimension(Enum):
     THE_END = 2
 
     
-class Generator(Enum):
+class GeneratorType(Enum):
     OLD = 0
     INFINITE = 1
     FLAT = 2

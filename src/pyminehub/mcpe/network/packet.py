@@ -209,7 +209,7 @@ _game_packet_specs = {
         ('yaw', float),
         ('seed', int),
         ('dimension', Dimension),
-        ('generator', Generator),
+        ('generator', GeneratorType),
         ('world_game_mode', GameMode),
         ('difficulty', Difficulty),
         ('spawn', Vector3[int]),
