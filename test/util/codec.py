@@ -77,7 +77,7 @@ class AnalyzingVisitor:
     def visit_after_decoding(
             self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
-        """It is called after each packet is decodec.
+        """It is called after each packet is decoded.
 
         :param data: decoded data
         :param packet_id: packet ID specified by PacketAnalyzer constructor argument
@@ -175,7 +175,7 @@ class PacketAnalyzer:
         return True
 
     def does_retry_encoding(self) -> bool:
-        """Return True if AacketAnalyzer retry encoding when encoding result does not match original encoded data.
+        """Return True if PacketAnalyzer retry encoding when encoding result does not match original encoded data.
 
         When retrying, the encoded data is decoded and the decoded data is re-encoded.
         """
@@ -407,7 +407,7 @@ class RakNetPacket(PacketAnalyzer):
             payload_length += self.try_on_child(analyzer.decode_on, visitor, data[payload_length:])
         visitor.assert_equal_for_decoding(
             len(data), payload_length,
-            'RakNetFrame may be missing. The decoded payload length is {} and undecoded payload is "{}"'.format(
+            'RakNetFrame may be missing. The decoded payload length is {} and un-decoded payload is "{}"'.format(
                 payload_length, data[payload_length:].hex()))
 
     def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> None:

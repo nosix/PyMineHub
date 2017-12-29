@@ -1,6 +1,6 @@
 """Fragment
 
-Fragment show splitted frame.
+Fragment show split frame.
 
 This is called fragmented frame in http://wiki.vg/Pocket_Edition_Protocol_Documentation
 and message fragment in Wireshark.

@@ -15,8 +15,8 @@ class UnconnectedTestCase(ProtocolTestCase):
     def test_unconnected_ping_pong(self):
         self.proxy.send(self.data.that_is('unconnected_ping'), from_=self._CLIENT_ADDRESS[0])
 
-        receieved_data = self.proxy.receive()
-        self.assert_that(receieved_data, {
+        received_data = self.proxy.receive()
+        self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
                     RakNetPacket(

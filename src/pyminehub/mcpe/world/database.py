@@ -21,8 +21,8 @@ class DataBase:
                 'CREATE TABLE IF NOT EXISTS chunk(x INTEGER, z INTEGER, data BLOB, PRIMARY KEY(x, z))')
 
     def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False):
-        encodec_chunk = encode_chunk(chunk)
-        param = (encodec_chunk, position.x, position.z)
+        encoded_chunk = encode_chunk(chunk)
+        param = (encoded_chunk, position.x, position.z)
         with self._connection:
             if not insert_only:
                 self._connection.execute(
