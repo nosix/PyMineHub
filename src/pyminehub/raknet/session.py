@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
@@ -23,11 +24,13 @@ _ALL_HEADER_SIZE = PACKET_HEADER_SIZE + RAKNET_WEIRD + len(raknet_packet_codec.e
 
 class Session:
 
-    def __init__(self,
-                 mtu_size: int,
-                 send_to_game_handler: Callable[[bytes], None],
-                 send_to_client: Callable[[RakNetPacket], None]
-                 ) -> None:
+    def __init__(
+            self,
+            loop: asyncio.AbstractEventLoop,
+            mtu_size: int,
+            send_to_game_handler: Callable[[bytes], None],
+            send_to_client: Callable[[RakNetPacket], None]
+    ) -> None:
         self._send_to_game_handler = send_to_game_handler
         self._send_to_client = send_to_client
         self._expected_sequence_num = 0  # type: int  # next sequence number for receive packet
@@ -38,6 +41,20 @@ class Session:
         self._fragment = Fragment()  # for split receive packet
         self._sequence_num = 0  # type: int  # next sequence number for send packet
         self._send_queue = SendQueue(mtu_size - _ALL_HEADER_SIZE, self._send_frame_set)
+        self._sendable = asyncio.Event()
+        self._sending_task = self._start_loop_to_send(loop)
+
+    def _start_loop_to_send(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+        async def loop_to_send():
+            while True:
+                await self._sendable.wait()
+                self._send_waiting_packets()
+                self._sendable.clear()
+        return asyncio.ensure_future(loop_to_send(), loop=loop)
+
+    def close(self):
+        self._sending_task.cancel()
+        self._send_waiting_packets()
 
     def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
         # TODO make sure to need check reliable_message_num
@@ -49,6 +66,7 @@ class Session:
                 self._nck_set.add(nck_sequence_num)
             self._expected_sequence_num = packet_sequence_num + 1
         self._process_frames(frames)
+        self._sendable.set()
 
     def _process_frames(self, frames: List[RakNetFrame]) -> None:
         for frame in frames:
@@ -79,6 +97,12 @@ class Session:
             frame = frame._replace(payload=payload)
             self._process_reliable_ordered(frame)
 
+    def nck_received(self, packet: RakNetPacket) -> None:
+        self._nck_or_ack_received(packet, self._nck_action)
+
+    def ack_received(self, packet: RakNetPacket) -> None:
+        self._nck_or_ack_received(packet, self._ack_action)
+
     @staticmethod
     def _nck_or_ack_received(packet: RakNetPacket, action: Callable[[int], None]) -> None:
         min_sequence_num = packet.packet_sequence_number_min
@@ -100,11 +124,16 @@ class Session:
         except KeyError:
             pass
 
-    def nck_received(self, packet: RakNetPacket) -> None:
-        self._nck_or_ack_received(packet, self._nck_action)
+    def send_frame(self, payload: bytes, reliability: Reliability) -> None:
+        self._send_queue.push(payload, reliability)
+        self._sendable.set()
 
-    def ack_received(self, packet: RakNetPacket) -> None:
-        self._nck_or_ack_received(packet, self._ack_action)
+    def _send_waiting_packets(self) -> None:
+        self._send_ack_or_nck(RakNetPacketType.ACK, self._ack_set)
+        self._send_ack_or_nck(RakNetPacketType.NCK, self._nck_set)
+        self._ack_set.clear()
+        self._nck_set.clear()
+        self._send_queue.send()
 
     def _send_ack_or_nck(self, packet_id: RakNetPacketType, ack_set: Set[int]) -> None:
         sendto = self._send_to_client
@@ -134,16 +163,6 @@ class Session:
                 max_sequence_num = None
         if min_sequence_num is not None:
             send_ack_or_nck()
-
-    def send_waiting_packets(self) -> None:
-        self._send_ack_or_nck(RakNetPacketType.ACK, self._ack_set)
-        self._send_ack_or_nck(RakNetPacketType.NCK, self._nck_set)
-        self._ack_set.clear()
-        self._nck_set.clear()
-        self._send_queue.send()
-
-    def send_frame(self, payload: bytes, reliability: Reliability) -> None:
-        self._send_queue.push(payload, reliability)
 
     def _send_frame_set(self, payload: bytes, reliable_sequence_num: Tuple[int, ...]) -> None:
         """Callback from SendQueue."""

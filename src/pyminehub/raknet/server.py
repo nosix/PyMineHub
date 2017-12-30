@@ -1,12 +1,12 @@
 import asyncio
-from logging import getLogger, basicConfig
+from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import IP_VERSION, Address, to_packet_format
 from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.frame import Reliability
-from pyminehub.raknet.handler import SessionNotFound, GameDataHandler
+from pyminehub.raknet.handler import SessionNotFound, RakNetProtocol, GameDataHandler
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.session import Session
 from pyminehub.value import LogString
@@ -14,7 +14,7 @@ from pyminehub.value import LogString
 _logger = getLogger(__name__)
 
 
-class _RakNetServerProtocol(asyncio.DatagramProtocol):
+class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
 
     def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler) -> None:
         handler.register_protocol(self)
@@ -27,6 +27,18 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             get_value(ConfigKey.WORLD_NAME),
             get_value(ConfigKey.GAME_MODE).title()
         )
+        self._update_task = self._start_loop_to_update(loop)
+
+    def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+        async def loop_to_update():
+            while True:
+                await self._next_moment()
+        return asyncio.ensure_future(loop_to_update(), loop=loop)
+
+    def terminate(self) -> None:
+        self._update_task.cancel()
+        for session in self._sessions.values():
+            session.close()
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         # noinspection PyAttributeOutsideInit
@@ -56,21 +68,17 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         _logger.debug('%s < %s', addr, data.hex())
         self._transport.sendto(data, addr)
 
-    def send_waiting_packets(self) -> None:
-        for addr, session in self._sessions.items():
-            session.send_waiting_packets()
-
-    def next_moment(self) -> bool:
+    async def _next_moment(self) -> None:
         try:
-            return self._handler.update()
+            await self._handler.update()
         except SessionNotFound as exc:
             if exc.addr is not None:
                 _logger.info('%s session is not found.', exc.addr)
                 self._remove_session(exc.addr)
-            return True
 
     def _remove_session(self, addr: Address) -> None:
         if addr in self._sessions:
+            self._sessions[addr].close()
             del self._sessions[addr]
 
     def _get_session(self, addr: Address) -> Session:
@@ -95,7 +103,7 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
             RakNetPacketType.OPEN_CONNECTION_REPLY2, True, self._guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
         self._sessions[addr] = Session(
-            packet.mtu_size,
+            self._loop, packet.mtu_size,
             lambda _data: self._handler.data_received(_data, addr),
             lambda _packet: self.send_to_client(_packet, addr))
 
@@ -126,47 +134,40 @@ class _RakNetServerProtocol(asyncio.DatagramProtocol):
         session.ack_received(packet)
 
 
-async def _tick_time(protocol: _RakNetServerProtocol):
-    while True:
-        await asyncio.sleep(0.1)
-        protocol.send_waiting_packets()
-        while not protocol.next_moment():
-            pass  # TODO break by time
-
-
-def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler, log_level=None) -> asyncio.Transport:
-    not log_level or basicConfig(level=log_level)
+def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> asyncio.Transport:
     listen = loop.create_datagram_endpoint(
-        lambda: _RakNetServerProtocol(loop, handler), local_addr=('0.0.0.0', 19132))
+        lambda: _RakNetProtocolImpl(loop, handler), local_addr=('0.0.0.0', 19132))
     transport, protocol = loop.run_until_complete(listen)  # non-blocking
     try:
-        loop.run_until_complete(_tick_time(protocol))  # blocking
+        loop.run_forever()  # blocking
     except KeyboardInterrupt:
-        handler.shutdown()
-        protocol.send_waiting_packets()
+        pass
+    finally:
+        handler.terminate()
+        protocol.terminate()
+        pending = asyncio.Task.all_tasks()
+        try:
+            loop.run_until_complete(asyncio.gather(*pending))
+        except asyncio.CancelledError:
+            pass
     return transport
 
 
 if __name__ == '__main__':
-    import logging
-
     class MockHandler(GameDataHandler):
 
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))
 
-        def update(self) -> bool:
-            return True
-
-        def shutdown(self) -> None:
+        async def update(self) -> None:
             pass
 
+        def terminate(self) -> None:
+            pass
+
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
     _loop = asyncio.get_event_loop()
-    _transport = run(_loop, MockHandler(), logging.DEBUG)
-    try:
-        _loop.run_forever()
-    except KeyboardInterrupt:
-        pass
-    finally:
-        _transport.close()
-        _loop.close()
+    _transport = run(_loop, MockHandler())
+    _transport.close()
+    _loop.close()

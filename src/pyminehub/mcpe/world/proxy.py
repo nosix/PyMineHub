@@ -16,7 +16,7 @@ class WorldProxy:
     def perform(self, action: Action) -> None:
         raise NotImplementedError()
 
-    def next_event(self) -> Optional[Event]:
+    async def next_event(self) -> Optional[Event]:
         raise NotImplementedError()
 
     def get_seed(self) -> int:

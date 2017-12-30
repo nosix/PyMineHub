@@ -9,7 +9,7 @@ from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.network.address import Address
 from pyminehub.raknet.frame import RakNetFrame as _RakNetFrame
 # noinspection PyProtectedMember
-from pyminehub.raknet.server import _RakNetServerProtocol
+from pyminehub.raknet.server import _RakNetProtocolImpl
 from util.codec import *
 from util.mock import MockEventLoop, MockTransport, MockWorldProxy
 
@@ -35,11 +35,13 @@ class _ProtocolProxy:
 
     def __init__(self) -> None:
         self._queue = []  # type: List[Tuple[Address, bytes]]
-        self._protocol = _RakNetServerProtocol(MockEventLoop(), MCPEHandler(MockWorldProxy()))
+        self._loop = MockEventLoop()
+        self._proxy = MockWorldProxy()
+        self._protocol = _RakNetProtocolImpl(self._loop, MCPEHandler(self._proxy))
         self._protocol.connection_made(MockTransport(self._queue))
 
     def receive(self):
-        self._protocol.send_waiting_packets()
+        self._loop.send_waiting_packets()
         d = defaultdict(list)
         for res_addr, res_data in self._queue:
             d[res_addr].append(res_data)
@@ -50,7 +52,8 @@ class _ProtocolProxy:
         self._protocol.datagram_received(unhex(data_producer(from_)), from_)
 
     def next_moment(self) -> None:
-        self._protocol.next_moment()
+        self._proxy.put_next_event()
+        self._loop.next_moment()
 
 
 class _ProtocolTestContext(AnalyzingContext):

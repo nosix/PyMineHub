@@ -14,6 +14,17 @@ from pyminehub.network.address import Address
 
 class MockEventLoop(asyncio.events.AbstractEventLoop):
 
+    def __init__(self):
+        self._loop_to_update_coro = None
+        self._loop_to_send_coro = []
+
+    def next_moment(self):
+        self._loop_to_update_coro.send(None)
+
+    def send_waiting_packets(self):
+        for coro in self._loop_to_send_coro:
+            coro.send(None)
+
     def run_forever(self):
         pass
 
@@ -51,7 +62,11 @@ class MockEventLoop(asyncio.events.AbstractEventLoop):
         pass
 
     def create_task(self, coro):
-        pass
+        if coro.__name__ == 'loop_to_update':
+            self._loop_to_update_coro = coro
+        if coro.__name__ == 'loop_to_send':
+            self._loop_to_send_coro.append(coro)
+        return asyncio.Task(coro)
 
     def call_soon_threadsafe(self, callback, *args):
         pass
@@ -183,12 +198,13 @@ class MockTransport(asyncio.transports.DatagramTransport):
 class MockWorldProxy(WorldProxy):
 
     def __init__(self) -> None:
-        self._event_queue = deque()
+        self._waiting_queue = deque()
+        self._event_queue = asyncio.Queue()
         self._chunk_data = get_data(__package__, 'chunk_data.dat')
 
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
-            self._event_queue.append(
+            self._waiting_queue.append(
                 event_factory.create(
                     EventType.PLAYER_LOGGED_IN,
                     action.player_id,
@@ -222,7 +238,7 @@ class MockWorldProxy(WorldProxy):
                         fire_immune=True
                     )
                 ))
-            self._event_queue.append(
+            self._waiting_queue.append(
                 event_factory.create(
                     EventType.INVENTORY_LOADED,
                     action.player_id,
@@ -232,7 +248,7 @@ class MockWorldProxy(WorldProxy):
                         create_inventory(WindowType.CREATIVE)
                     )
                 ))
-            self._event_queue.append(
+            self._waiting_queue.append(
                 event_factory.create(
                     EventType.SLOT_INITIALIZED,
                     action.player_id,
@@ -243,15 +259,16 @@ class MockWorldProxy(WorldProxy):
             return
         if ActionType(action.id) == ActionType.REQUEST_CHUNK:
             for position in action.positions:
-                self._event_queue.append(event_factory.create(
+                self._waiting_queue.append(event_factory.create(
                     EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
             return
 
-    def next_event(self) -> Optional[Event]:
-        try:
-            return self._event_queue.popleft()
-        except IndexError:
-            return None
+    def put_next_event(self) -> None:
+        if len(self._waiting_queue) > 0:
+            self._event_queue.put_nowait(self._waiting_queue.popleft())
+
+    async def next_event(self) -> Optional[Event]:
+        return await self._event_queue.get()
 
     def get_seed(self) -> int:
         return 0

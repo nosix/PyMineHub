@@ -40,14 +40,11 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('> %s', LogString(packet))
         getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
 
-    def update(self) -> bool:
-        event = self._world.next_event()
-        if event is None:
-            return True
+    async def update(self) -> None:
+        event = await self._world.next_event()
         getattr(self, '_process_event_' + EventType(event.id).name.lower())(event)
-        return False
 
-    def shutdown(self) -> None:
+    def terminate(self) -> None:
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
         for addr in self._session_manager.addresses:
             self._send_connection_packet(res_packet, addr, DEFAULT_CHANEL)

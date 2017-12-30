@@ -14,9 +14,15 @@ class SessionNotFound(Exception):
         return self.args[0]
 
 
+class RakNetProtocol:
+
+    def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
+        raise NotImplementedError()
+
+
 class GameDataHandler:
 
-    def register_protocol(self, protocol) -> None:
+    def register_protocol(self, protocol: RakNetProtocol) -> None:
         """The protocol object registers itself.
 
         Don't override and/or call this method.
@@ -44,13 +50,12 @@ class GameDataHandler:
         """
         raise NotImplementedError()
 
-    def update(self) -> bool:
+    async def update(self) -> None:
         """Update something of handler state.
 
-        :return: return True, if there is nothing to do
         :raises SessionNotFound: if player session is lost (But, there may be something else to do)
         """
         raise NotImplementedError()
 
-    def shutdown(self) -> None:
+    def terminate(self) -> None:
         raise NotImplementedError()

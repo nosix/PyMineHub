@@ -1,5 +1,4 @@
 import asyncio
-from collections import deque
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
@@ -21,7 +20,7 @@ class _World(WorldProxy):
     def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
         self._loop = loop
         self._space = Space(generator, db)
-        self._event_queue = deque()
+        self._event_queue = asyncio.Queue()
         self._next_entity_id = 2
         loop.call_soon(self._space.init_space)
 
@@ -30,13 +29,10 @@ class _World(WorldProxy):
         self._loop.call_soon(
             getattr(self, '_process_' + ActionType(action.id).name.lower()), action)
 
-    def next_event(self) -> Optional[Event]:
-        try:
-            event = self._event_queue.popleft()
-            _logger.debug('<< %s', LogString(event))
-            return event
-        except IndexError:
-            return None
+    async def next_event(self) -> Optional[Event]:
+        event = await self._event_queue.get()
+        _logger.debug('<< %s', LogString(event))
+        return event
 
     def get_seed(self) -> int:
         return get_value(ConfigKey.SEED)
@@ -65,7 +61,7 @@ class _World(WorldProxy):
     # local methods
 
     def _notify_event(self, event: Event) -> None:
-        self._event_queue.append(event)
+        self._event_queue.put_nowait(event)
 
     # action handling methods
 
@@ -130,11 +126,11 @@ class _World(WorldProxy):
     def _process_request_chunk(self, action: Action) -> None:
         for request in action.positions:
             chunk = self._space.get_chunk(request)
-            self._event_queue.append(event_factory.create(
+            self._notify_event(event_factory.create(
                 EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
 
     def _process_move_player(self, action: Action) -> None:
-        self._event_queue.append(event_factory.create(
+        self._notify_event(event_factory.create(
             EventType.PLAYER_MOVED,
             action.entity_runtime_id,
             action.position,
