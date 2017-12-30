@@ -397,6 +397,11 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('slots', Tuple[Slot, ...])
+    ],
+    GamePacketType.REMOVE_ENTITY: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_unique_id', EntityUniqueID)
     ]
 }
 

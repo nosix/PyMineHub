@@ -1,15 +1,15 @@
 ConnectionRequest(id=9, client_guid=9700202662021728174, client_time_since_start=4012035, use_encryption=False)
   -> 09869e0aed5f1a87ae00000000003d380300
-  File "./codec_login_logout.py", line 12, in test_login_logout_c00
+  File "./codec_login_logout.py", line 12, in test_login_c00
     ConnectionPacket(ConnectionPacketType.CONNECTION_REQUEST)
 
 Reliable(id=64, payload_length=144, reliable_message_num=0, payload=[18 bytes])
   -> 40009000000009869e0aed5f1a87ae00000000003d380300
-  File "./codec_login_logout.py", line 11, in test_login_logout_c00
+  File "./codec_login_logout.py", line 11, in test_login_c00
     RakNetFrame(RakNetFrameType.RELIABLE).that_has(
 
 FrameSet4(id=132, packet_sequence_num=0, payload=[24 bytes])
   -> 8400000040009000000009869e0aed5f1a87ae00000000003d380300
-  File "./codec_login_logout.py", line 10, in test_login_logout_c00
+  File "./codec_login_logout.py", line 10, in test_login_c00
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
 

@@ -486,6 +486,10 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         ListData(4, _SLOT_DATA)
+    ],
+    GamePacketType.REMOVE_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_UNIQUE_ID
     ]
 }
 

@@ -110,21 +110,34 @@ class MCPEHandler(GameDataHandler):
         self._session_manager.append(addr)
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
-        player_name = self._session_manager[addr].name
+        player = self._session_manager[addr]
         del self._session_manager[addr]
         self._send_connection_packet(packet, addr, DEFAULT_CHANEL)
-        res_packet = game_packet_factory.create(
+        text_packet = game_packet_factory.create(
             GamePacketType.TEXT,
             EXTRA_DATA,
             TextType.TRANSLATION,
             False,
             None,
             EscapeSequence.YELLOW.value + '%multiplayer.player.left',
-            (player_name, ),
+            (player.name, ),
             ''
         )
-        for addr, player in self._session_manager:
-            self._send_game_packet_immediately(res_packet, addr)
+        remove_entity_packet = game_packet_factory.create(
+            GamePacketType.REMOVE_ENTITY,
+            EXTRA_DATA,
+            player.entity_unique_id
+        )
+        remove_player_packet = game_packet_factory.create(
+            GamePacketType.PLAYER_LIST,
+            EXTRA_DATA,
+            PlayerListType.REMOVE,
+            (PlayerListEntry(player.uuid, None, None, None, None), )
+        )
+        for addr in self._session_manager.addresses:
+            self._send_game_packet_immediately(text_packet, addr)
+            self._send_game_packet_immediately(remove_entity_packet, addr)
+            self._send_game_packet_immediately(remove_player_packet, addr)
         raise SessionNotFound(addr)
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:

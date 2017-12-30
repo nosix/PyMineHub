@@ -3,7 +3,7 @@ from testcase.codec import *
 
 class LoginLogoutTestCase(CodecTestCase):
 
-    def test_login_logout_c00(self):
+    def test_login_c00(self):
         assertion = EncodedData(
             '8400000040009000000009869e0aed5f1a87ae00000000003d380300'
         ).is_(
@@ -15,7 +15,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s01(self):
+    def test_login_s01(self):
         assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
@@ -25,7 +25,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_c01(self):
+    def test_login_c01(self):
         assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.UNRELIABLE).that_has(
@@ -41,7 +41,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_c0c(self):
+    def test_login_c0c(self):
         assertion = EncodedDataInFile(self).is_(
             Batch().that_has(
                 GamePacket(GamePacketType.LOGIN)
@@ -49,7 +49,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=False)
 
-    def test_login_logout_s04(self):
+    def test_login_s04(self):
         assertion = EncodedData(
             '840400006000a000000000000000fe7801010800f7ff0702000000000000004e'
             '000a6000a801000001000000fe7801010900f6ff080600000000000000008100'
@@ -70,7 +70,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_c0d(self):
+    def test_login_c0d(self):
         config.set_config(batch_compress_threshold=0)  # TODO
         assertion = EncodedData(
             '840d00006000800b000002000000fe78da63e360606066600000006a0012'
@@ -85,7 +85,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s05(self):
+    def test_login_s05(self):
         assertion = EncodedData(
             '8405000060009802000002000000fe7801010700f8ff06070000000000005b00'
             '0e'
@@ -100,7 +100,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s09(self):
+    def test_login_s09(self):
         assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
@@ -132,7 +132,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s0a(self):
+    def test_login_s0a(self):
         assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
@@ -154,7 +154,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s0c(self):
+    def test_login_s0c(self):
         assertion = EncodedDataInFile(self).is_(
             Batch().that_has(
                 GamePacket(GamePacketType.INVENTORY_CONTENT)
@@ -162,7 +162,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s0d(self):
+    def test_login_s0d(self):
         assertion = EncodedData(
             '840d00006000a80d00000c000000fe7801010900f6ff081f0000010000000001'
             '4e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039'
@@ -182,7 +182,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s0f(self):
+    def test_login_s0f(self):
         assertion = EncodedDataInFile(self).is_(
             Batch().that_has(
                 GamePacket(GamePacketType.PLAYER_LIST)
@@ -190,7 +190,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s20(self):
+    def test_login_s20(self):
         assertion = EncodedDataInFile(self).is_(
             Batch().that_has(
                 GamePacket(GamePacketType.CRAFTING_DATA)
@@ -198,7 +198,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_c12(self):
+    def test_login_c12(self):
         assertion = EncodedData(
             '841200006000700e000004000000fe78da63716560100000013d005a'
         ).is_(
@@ -212,7 +212,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s21(self):
+    def test_login_s21(self):
         assertion = EncodedData(
             '8421000060008822000010000000fe7801010500faff04460000100141005b'
         ).is_(
@@ -226,7 +226,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s22(self):
+    def test_login_s22(self):
         assertion = EncodedData(
             '842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303'
             '300cf10268'
@@ -241,7 +241,7 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s23(self):
+    def test_login_s23(self):
         assertion = EncodedDataInFile(self).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
@@ -253,13 +253,35 @@ class LoginLogoutTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
-    def test_login_logout_s85(self):
+    def test_login_s85(self):
         assertion = EncodedData(
             '84850100600008a002008402000015'
         ).is_(
             RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
                 RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
                     ConnectionPacket(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
+                )
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
+    def test_logout(self):
+        assertion = EncodedDataInFile(self).is_(
+            RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.TEXT)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.REMOVE_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.PLAYER_LIST)
+                    )
                 )
             )
         )
