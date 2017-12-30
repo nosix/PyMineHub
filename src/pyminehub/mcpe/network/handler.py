@@ -1,6 +1,8 @@
 import time
 from logging import getLogger
 
+from pyminehub.mcpe.action import ActionType, action_factory
+from pyminehub.mcpe.event import EventType, Event
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.login import login_sequence
 from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
@@ -11,8 +13,6 @@ from pyminehub.mcpe.network.reliability import UNRELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.session import SessionManager
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
-from pyminehub.mcpe.world.action import ActionType, action_factory
-from pyminehub.mcpe.world.event import EventType, Event
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import Reliability, SessionNotFound, GameDataHandler
 from pyminehub.value import LogString

@@ -1,8 +1,8 @@
 import uuid
 from typing import Generator, Set
 
+from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.value import *
-from pyminehub.mcpe.world.event import Event
 
 
 class Player:

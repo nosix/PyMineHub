@@ -5,10 +5,10 @@ from collections import deque
 from pkgutil import get_data
 from typing import List
 
+from pyminehub.mcpe.action import Action, ActionType
+from pyminehub.mcpe.event import *
 from pyminehub.mcpe.inventory import create_inventory
 from pyminehub.mcpe.world import WorldProxy
-from pyminehub.mcpe.world.action import Action, ActionType
-from pyminehub.mcpe.world.event import *
 from pyminehub.network.address import Address
 
 

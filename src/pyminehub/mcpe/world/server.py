@@ -2,11 +2,11 @@ import asyncio
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
+from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import encode_chunk
+from pyminehub.mcpe.event import *
 from pyminehub.mcpe.inventory import create_inventory
-from pyminehub.mcpe.world.action import Action, ActionType
 from pyminehub.mcpe.world.database import DataBase
-from pyminehub.mcpe.world.event import *
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.proxy import WorldProxy
 from pyminehub.mcpe.world.space import Space
