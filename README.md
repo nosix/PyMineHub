@@ -1,5 +1,9 @@
 # PyMineHub
 
+Multiplay server of Minecraft Pocket Edition
+
+The goal of this project is to make the server small and to work with others.
+
 ## Target version
 
 - Python 3.5.3
