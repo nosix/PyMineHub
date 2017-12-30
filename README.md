@@ -3,6 +3,7 @@
 Multiplay server of Minecraft Pocket Edition
 
 The goal of this project is to make the server small and to work with others.
+Extensibility than full spec implementation.
 
 ## Target version
 
@@ -25,6 +26,8 @@ The goal of this project is to make the server small and to work with others.
 | H | Max frame header | 20 | |
 | I | All header | 60 | D + E + F + G + H |
 | J | Max frame payload | 1432 | A - I |
+
+The length of A,B,C,J is an example.
 
 ### Module design
 
@@ -65,14 +68,14 @@ mcpe
   command -> .[const, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
   player -> .[value, world]
+  action -> value, .[player]
+  event -> value, .[player]
   plugin
     generator -> mcpe.[geometry, chunk]
     default
       - generator -> mcpe.[chunk], mcpe.plugin.[generator]
     loader -> .[generator, default]
   world -> value, .[const, player]
-    - action -> value, mcpe.[player]
-    - event -> value, mcpe.[player]
     - database -> config, mcpe.[geometry, chunk]
     - generator -> mcpe.[geometry, chunk, plugin], .[database]
     - space -> mcpe.[geometry, chunk], .[database, generator]
@@ -110,8 +113,7 @@ mcpe
     - `binutil` module
     - `network.codec` module
 - Testcase (in test directory)
-  - `codec_login_logout` module
-  - `codec_play` module
+  - `codec_*` module
 - Tool (in tool directory)
   - `tool.decoding` module
 
@@ -120,3 +122,4 @@ mcpe
 - This project is implemented by referring to [PocketMine-MP](https://github.com/pmmp/PocketMine-MP) source code.
 - [RakNet](http://www.raknet.net/raknet/manual/systemoverview.html)
 - [Pocket Edition Protocol Documentation](http://wiki.vg/Pocket_Edition_Protocol_Documentation)
+- [Java Edition data values](https://minecraft.gamepedia.com/Java_Edition_data_values)
