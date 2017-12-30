@@ -13,7 +13,7 @@ When debugging, execute `from tool.decoding import *` in REPL.
 """
 import re
 from binascii import unhexlify as unhex
-from typing import NamedTuple as _NamedTuple, Iterator, List, Optional, Union
+from typing import NamedTuple as _NamedTuple, Iterator, List, Optional, Union, Sequence
 
 from pyminehub.binutil.composite import CompositeCodecContext
 from pyminehub.mcpe.chunk import Chunk, decode_chunk
@@ -208,6 +208,38 @@ def extract_chunk(packet_list: Iterator[ValueObject]) -> List[Chunk]:
             if packet.__class__.__name__ == 'FullChunkData':
                 yield decode_chunk(packet.data)
     return list(generate_chunk())
+
+
+_FILTER_PREFIX = (
+    'FrameSet',
+    'Reliable',
+    'Unreliable',
+    'Batch',
+    'Ack',
+    'UnconnectedPing',
+    'UnconnectedPong',
+    'ConnectedPing',
+    'ConnectedPong',
+    'UpdateBlock',
+    'FullChunk'
+)
+
+
+def extract_packet(pcap_file_name: str, filter_prefix: Sequence[str]=_FILTER_PREFIX) -> None:
+    import re
+    regexp = re.compile('^({})'.format('|'.join(filter_prefix)))
+    import os.path
+    basename = os.path.splitext(os.path.basename(pcap_file_name))[0]
+    intermediate_file_name = basename + '.txt'
+    with open(intermediate_file_name, 'w') as file:
+        for line in load_raknet_raw(pcap_file_name):
+            print(line, file=file)
+    summary_file_name = 'summary_' + intermediate_file_name
+    with open(summary_file_name, 'w') as file:
+        for p in load_packets(intermediate_file_name):
+            if regexp.match(p.__class__.__name__):
+                continue
+            print(p, file=file)
 
 
 if __name__ == '__main__':
