@@ -171,7 +171,7 @@ def login_sequence(
                 user_name=p.name,
                 skin=p.skin,
                 xbox_user_id='')
-            for _, p in session if p != player and p.has_identity()))
+            for _, p in session.excluding(player)))
     send(res_packet, addr)
 
     _notify_new_player(player, session, send)
@@ -203,9 +203,8 @@ def _notify_new_player(
                 xbox_user_id=''),
         )
     )
-    for addr, p in session:
-        if p != player and p.has_identity():
-            send(res_packet, addr)
+    for addr, p in session.excluding(player):
+        send(res_packet, addr)
 
 
 def _spawn_player(
@@ -248,24 +247,23 @@ def _spawn_player(
         tuple()
     )
 
-    for other_player_addr, p in session:
-        if p != player:
-            send(new_player_packet, other_player_addr)
+    for other_player_addr, p in session.excluding(player):
+        send(new_player_packet, other_player_addr)
 
-            other_player_packet = game_packet_factory.create(
-                GamePacketType.ADD_PLAYER,
-                EXTRA_DATA,
-                p.uuid,
-                p.name,
-                p.entity_unique_id,
-                p.entity_runtime_id,
-                p.position,
-                Vector3(0.0, 0.0, 0.0),
-                0.0, 0.0, 0.0,
-                Slot(0, None, None, None, None),
-                p.metadata,
-                0, 0, 0, 0, 0,
-                0,
-                tuple()
-            )
-            send(other_player_packet, addr)
+        other_player_packet = game_packet_factory.create(
+            GamePacketType.ADD_PLAYER,
+            EXTRA_DATA,
+            p.uuid,
+            p.name,
+            p.entity_unique_id,
+            p.entity_runtime_id,
+            p.position,
+            Vector3(0.0, 0.0, 0.0),
+            0.0, 0.0, 0.0,
+            Slot(0, None, None, None, None),
+            p.metadata,
+            0, 0, 0, 0, 0,
+            0,
+            tuple()
+        )
+        send(other_player_packet, addr)

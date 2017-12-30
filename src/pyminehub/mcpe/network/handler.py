@@ -185,17 +185,15 @@ class MCPEHandler(GameDataHandler):
 
     def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
-        for addr, p in self._session_manager:
-            if p != player:
-                self._send_game_packet_immediately(packet, addr)
+        for addr, p in self._session_manager.excluding(player):
+            self._send_game_packet_immediately(packet, addr)
 
     def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         # noinspection PyProtectedMember
         res_packet = packet._replace(entity_runtime_id=player.entity_runtime_id)
-        for addr, p in self._session_manager:
-            if p != player:
-                self._send_game_packet_immediately(res_packet, addr)
+        for addr, p in self._session_manager.excluding(player):
+            self._send_game_packet_immediately(res_packet, addr)
 
     # event handling methods
 
