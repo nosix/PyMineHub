@@ -68,6 +68,9 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('< %s', LogString(packet))
         self.sendto(connection_packet_codec.encode(packet), addr, reliability)
 
+    def _send_game_packet_immediately(self, packet: GamePacket, addr: Address) -> None:
+        self._queue.send_immediately(packet, addr)
+
     # packet handling methods
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
@@ -121,7 +124,7 @@ class MCPEHandler(GameDataHandler):
             ''
         )
         for addr, player in self._session_manager:
-            self._queue.send_immediately(res_packet, addr)
+            self._send_game_packet_immediately(res_packet, addr)
         raise SessionNotFound(addr)
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
@@ -140,20 +143,20 @@ class MCPEHandler(GameDataHandler):
         # TODO check the logged-in player and log out the same player
         player.login(
             packet.protocol, player_data, client_data,
-            login_sequence(player, addr, self._session_manager, self._world, self._queue.send_immediately))
+            login_sequence(player, addr, self._session_manager, self._world, self._send_game_packet_immediately))
         self._session_manager.bind(player.id, addr)
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
-        self._queue.send_immediately(res_packet, addr)
+        self._send_game_packet_immediately(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
-        self._queue.send_immediately(res_packet, addr)
+        self._send_game_packet_immediately(res_packet, addr)
 
     def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:
             res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
-            self._queue.send_immediately(res_packet, addr)
+            self._send_game_packet_immediately(res_packet, addr)
         elif packet.status == ResourcePackStatus.COMPLETED:
             player = self._session_manager[addr]
             self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
@@ -163,7 +166,7 @@ class MCPEHandler(GameDataHandler):
         chunk_requests = player.update_required_chunk(packet.radius)
         self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, chunk_requests))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
-        self._queue.send_immediately(res_packet, addr)
+        self._send_game_packet_immediately(res_packet, addr)
 
     # noinspection PyUnusedLocal
     def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
@@ -184,7 +187,7 @@ class MCPEHandler(GameDataHandler):
         player = self._session_manager[addr]
         for addr, p in self._session_manager:
             if p != player:
-                self._queue.send_immediately(packet, addr)
+                self._send_game_packet_immediately(packet, addr)
 
     def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
@@ -192,7 +195,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = packet._replace(entity_runtime_id=player.entity_runtime_id)
         for addr, p in self._session_manager:
             if p != player:
-                self._queue.send_immediately(res_packet, addr)
+                self._send_game_packet_immediately(res_packet, addr)
 
     # event handling methods
 
@@ -215,7 +218,7 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.FULL_CHUNK_DATA, EXTRA_DATA, event.position, event.data)
         for addr, player in self._session_manager:
             if player.did_request_chunk(event.position):
-                self._queue.send_immediately(res_packet, addr)
+                self._send_game_packet_immediately(res_packet, addr)
                 player.discard_chunk_request(event.position)
                 player.next_login_sequence(event)
 
@@ -236,4 +239,4 @@ class MCPEHandler(GameDataHandler):
         )
         for addr, player in self._session_manager:
             if player.entity_runtime_id != event.entity_runtime_id:
-                self._queue.send_immediately(res_packet, addr)
+                self._send_game_packet_immediately(res_packet, addr)
