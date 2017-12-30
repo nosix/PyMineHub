@@ -798,7 +798,7 @@ class TextType(Enum):
     WHISPER = (7, True, False)
     ANNOUNCEMENT = (8, True, False)
 
-    def __init__(self, value: int, with_source: bool, with_parameters: bool) -> None:
+    def __new__(cls, value: int, with_source: bool, with_parameters: bool) -> 'TextType':
         """
         >>> TextType.CHAT
         <TextType.CHAT: 1>
@@ -806,10 +806,16 @@ class TextType(Enum):
         True
         >>> TextType.CHAT.with_parameters
         False
+        >>> TextType(1)
+        <TextType.CHAT: 1>
+        >>> TextType['CHAT']
+        <TextType.CHAT: 1>
         """
-        self._value_ = value
-        self.with_source = with_source
-        self.with_parameters = with_parameters
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj.with_source = with_source
+        obj.with_parameters = with_parameters
+        return obj
 
 
 class EscapeSequence(Enum):
@@ -836,12 +842,18 @@ class EscapeSequence(Enum):
     ITALIC = 'o'
     RESET = 'r'
 
-    def __init__(self, value: str) -> None:
+    def __new__(cls, value: str) -> 'EscapeSequence':
         """
         >>> EscapeSequence.BLACK
         <EscapeSequence.BLACK: '§0'>
+        >>> EscapeSequence('§0')
+        <EscapeSequence.BLACK: '§0'>
+        >>> EscapeSequence['BLACK']
+        <EscapeSequence.BLACK: '§0'>
         """
-        self._value_ = b'\xc2\xa7'.decode() + value  # '§[value]'
+        obj = object.__new__(cls)
+        obj._value_ = b'\xc2\xa7'.decode() + value  # '§[value]'
+        return obj
 
 
 if __name__ == '__main__':
