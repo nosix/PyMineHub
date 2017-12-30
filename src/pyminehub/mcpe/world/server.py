@@ -110,10 +110,8 @@ class _World(WorldProxy):
                 fire_immune=True
             )
         ))
-
-    def _process_unknown1(self, action: Action) -> None:
         self._notify_event(event_factory.create(
-            EventType.UNKNOWN1,
+            EventType.INVENTORY_LOADED,
             action.player_id,
             (
                 create_inventory(WindowType.INVENTORY),
@@ -121,10 +119,8 @@ class _World(WorldProxy):
                 create_inventory(WindowType.CREATIVE)
             )
         ))
-
-    def _process_unknown2(self, action: Action) -> None:
         self._notify_event(event_factory.create(
-            EventType.UNKNOWN2,
+            EventType.SLOT_INITIALIZED,
             action.player_id,
             Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
             0,

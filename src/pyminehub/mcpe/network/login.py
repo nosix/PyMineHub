@@ -118,7 +118,7 @@ def login_sequence(
     send(res_packet, addr)
 
     event = yield
-    assert type(event).__name__ == 'Unknown1'
+    assert type(event).__name__ == 'InventoryLoaded'
 
     for inventory in event.inventory:
         res_packet = game_packet_factory.create(
@@ -130,7 +130,7 @@ def login_sequence(
         send(res_packet, addr)
 
     event = yield
-    assert type(event).__name__ == 'Unknown2'
+    assert type(event).__name__ == 'SlotInitialized'
 
     res_packet = game_packet_factory.create(
         GamePacketType.MOB_EQUIPMENT,

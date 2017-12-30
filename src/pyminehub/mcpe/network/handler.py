@@ -213,14 +213,12 @@ class MCPEHandler(GameDataHandler):
     def _process_event_player_logged_in(self, event: Event) -> None:
         player = self._session_manager[event.player_id]
         player.next_login_sequence(event)
-        self._world.perform(action_factory.create(ActionType.UNKNOWN1, player.id))  # TODO remove
 
-    def _process_event_unknown1(self, event: Event) -> None:
+    def _process_event_inventory_loaded(self, event: Event) -> None:
         player = self._session_manager[event.player_id]
         player.next_login_sequence(event)
-        self._world.perform(action_factory.create(ActionType.UNKNOWN2, player.id))  # TODO remove
 
-    def _process_event_unknown2(self, event: Event) -> None:
+    def _process_event_slot_initialized(self, event: Event) -> None:
         player = self._session_manager[event.player_id]
         player.next_login_sequence(event)
 

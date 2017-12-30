@@ -7,8 +7,8 @@ Event = ValueObject
 
 class EventType(ValueType):
     PLAYER_LOGGED_IN = 0
-    UNKNOWN1 = 1
-    UNKNOWN2 = 2
+    INVENTORY_LOADED = 1
+    SLOT_INITIALIZED = 2
     FULL_CHUNK_LOADED = 3
     PLAYER_MOVED = 4
 
@@ -29,12 +29,12 @@ _event_specs = {
         ('attributes', Tuple[Attribute, ...]),
         ('metadata_flags', EntityMetaDataFlagValue)
     ],
-    EventType.UNKNOWN1: [
+    EventType.INVENTORY_LOADED: [
         ('id', int),
         ('player_id', PlayerID),
         ('inventory', Tuple[Inventory, ...])
     ],
-    EventType.UNKNOWN2: [
+    EventType.SLOT_INITIALIZED: [
         ('id', int),
         ('player_id', PlayerID),
         ('equipped_item', Slot),

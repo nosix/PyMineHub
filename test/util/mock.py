@@ -222,11 +222,9 @@ class MockWorldProxy(WorldProxy):
                         fire_immune=True
                     )
                 ))
-            return
-        if ActionType(action.id) == ActionType.UNKNOWN1:
             self._event_queue.append(
                 event_factory.create(
-                    EventType.UNKNOWN1,
+                    EventType.INVENTORY_LOADED,
                     action.player_id,
                     (
                         create_inventory(WindowType.INVENTORY),
@@ -234,11 +232,9 @@ class MockWorldProxy(WorldProxy):
                         create_inventory(WindowType.CREATIVE)
                     )
                 ))
-            return
-        if ActionType(action.id) == ActionType.UNKNOWN2:
             self._event_queue.append(
                 event_factory.create(
-                    EventType.UNKNOWN2,
+                    EventType.SLOT_INITIALIZED,
                     action.player_id,
                     Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
                     0,
