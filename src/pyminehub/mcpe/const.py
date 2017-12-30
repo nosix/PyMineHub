@@ -785,3 +785,65 @@ class PlayerActionType(Enum):
     BUILD_DENIED = 17
     CONTINUE_BREAK = 18
     SET_ENCHANTMENT_SEED = 20
+
+
+class TextType(Enum):
+    RAW = (0, False, False)
+    CHAT = (1, True, False)
+    TRANSLATION = (2, False, True)
+    POPUP = (3, False, True)
+    JUKEBOX_POPUP = (4, False, True)
+    TIP = (5, False, False)
+    SYSTEM = (6, False, False)
+    WHISPER = (7, True, False)
+    ANNOUNCEMENT = (8, True, False)
+
+    def __init__(self, value: int, with_source: bool, with_parameters: bool) -> None:
+        """
+        >>> TextType.CHAT
+        <TextType.CHAT: 1>
+        >>> TextType.CHAT.with_source
+        True
+        >>> TextType.CHAT.with_parameters
+        False
+        """
+        self._value_ = value
+        self.with_source = with_source
+        self.with_parameters = with_parameters
+
+
+class EscapeSequence(Enum):
+    BLACK = '0'
+    DARK_BLUE = '1'
+    DARK_GREEN = '2'
+    DARK_AQUA = '3'
+    DARK_RED = '4'
+    DARK_PURPLE = '5'
+    GOLD = '6'
+    GRAY = '7'
+    DARK_GRAY = '8'
+    BLUE = '9'
+    GREEN = 'a'
+    AQUA = 'b'
+    RED = 'c'
+    LIGHT_PURPLE = 'd'
+    YELLOW = 'e'
+    WHITE = 'f'
+    OBFUSCATED = 'k'
+    BOLD = 'l'
+    STRIKE_THROUGH = 'm'
+    UNDERLINE = 'n'
+    ITALIC = 'o'
+    RESET = 'r'
+
+    def __init__(self, value: str) -> None:
+        """
+        >>> EscapeSequence.BLACK
+        <EscapeSequence.BLACK: '§0'>
+        """
+        self._value_ = b'\xc2\xa7'.decode() + value  # '§[value]'
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest_result = doctest.testmod()

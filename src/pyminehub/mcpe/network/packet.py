@@ -382,6 +382,16 @@ _game_packet_specs = {
         ('unknown_long', int),
         ('links', Tuple[EntityLink, ...])
     ],
+    GamePacketType.TEXT: [
+        ('id', int),
+        ('extra', bytes),
+        ('type', TextType),
+        ('needs_translation', bool),
+        ('source', Optional[str]),
+        ('message', str),
+        ('parameters', Optional[Tuple[str, ...]]),
+        ('xbox_user_id', str)
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),

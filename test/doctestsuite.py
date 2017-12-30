@@ -10,15 +10,16 @@ class DocTestCase(unittest.TestCase):
         module_file_name = inspect.getmodule(self).__file__
         test_dir = dirname(module_file_name)
         module_path = [
-            'pyminehub/binutil/converter',
-            'pyminehub/mcpe/geometry',
-            'pyminehub/value',
             'pyminehub/config',
-            'pyminehub/mcpe/value',
-            'pyminehub/mcpe/network/codec/connection',
-            'pyminehub/raknet/codec',
+            'pyminehub/value',
+            'pyminehub/binutil/converter',
             'pyminehub/binutil/composite',
             'pyminehub/network/codec',
+            'pyminehub/raknet/codec',
+            'pyminehub/mcpe/const',
+            'pyminehub/mcpe/geometry',
+            'pyminehub/mcpe/value',
+            'pyminehub/mcpe/network/codec/connection',
         ]
         for path in module_path:
             with self.subTest(module=path):

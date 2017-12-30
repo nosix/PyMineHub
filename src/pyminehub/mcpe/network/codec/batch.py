@@ -470,6 +470,18 @@ _game_data_codecs = {
             BOOL_DATA
         )))
     ],
+    GamePacketType.TEXT: [
+        _HEADER_EXTRA_DATA,
+        NamedData('text_type', EnumData(BYTE_DATA, TextType)),
+        BOOL_DATA,
+        OptionalData(VAR_STRING_DATA, lambda _context: not _context['text_type'].with_source),
+        VAR_STRING_DATA,
+        OptionalData(
+            VarListData(VAR_INT_DATA, VAR_STRING_DATA),
+            lambda _context: not _context['text_type'].with_parameters
+        ),
+        VAR_STRING_DATA
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,

@@ -217,6 +217,20 @@ def _spawn_player(
         GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.PLAYER_SPAWN)
     send(res_packet, addr)
 
+    text_packet = game_packet_factory.create(
+        GamePacketType.TEXT,
+        EXTRA_DATA,
+        TextType.TRANSLATION,
+        False,
+        None,
+        EscapeSequence.YELLOW.value + '%multiplayer.player.joined',
+        (player.name, ),
+        ''
+    )
+
+    for other_player_addr, p in session:
+        send(text_packet, other_player_addr)
+
     new_player_packet = game_packet_factory.create(
         GamePacketType.ADD_PLAYER,
         EXTRA_DATA,
@@ -233,6 +247,7 @@ def _spawn_player(
         0,
         tuple()
     )
+
     for other_player_addr, p in session:
         if p != player:
             send(new_player_packet, other_player_addr)
