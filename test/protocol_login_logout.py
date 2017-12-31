@@ -1,4 +1,5 @@
 from protocol_unconnected import UnconnectedTestCase
+from pyminehub.mcpe.geometry import Vector3, to_chunk_area
 from testcase.protocol import *
 
 
@@ -239,23 +240,90 @@ class LoginLogoutTestCase(UnconnectedTestCase):
             ]
         })
 
-        self.proxy.next_moment()
+        player_position = Vector3(256.0, 64.0, 256.0)
+        required_chunk = len(tuple(to_chunk_area(player_position, 2)))
+        expected_chunk_pos = tuple(to_chunk_area(player_position, 8))
+        expected_packet_sequence_num = 28
+        expected_reliable_message_num = 35
+        expected_message_ordering_index = 18
 
-        received_data = self.proxy.receive()
-        self.assert_that(received_data, {
-            self._CLIENT_ADDRESS[0]: [
-                # 1c
-                EncodedData(self.data.that_is_response_of('full_chunk_data')).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
-                        RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
-                            Batch().that_has(
-                                GamePacket(GamePacketType.FULL_CHUNK_DATA)
-                            )
+        for i in range(len(expected_chunk_pos)):
+            self.proxy.next_moment()
+
+            received_data = self.proxy.receive()
+            if i + 1 != required_chunk:
+                self.assert_that(received_data, {
+                    self._CLIENT_ADDRESS[0]: [
+                        # 1c-
+                        EncodedData(self.data.that_is_response_of('full_chunk_data')).is_(
+                            RakNetPacket(
+                                RakNetPacketType.FRAME_SET_4,
+                                packet_sequence_num=expected_packet_sequence_num
+                            ).that_has(
+                                RakNetFrame(
+                                    RakNetFrameType.RELIABLE_ORDERED,
+                                    reliable_message_num=expected_reliable_message_num,
+                                    message_ordering_index=expected_message_ordering_index
+                                ).that_has(
+                                    Batch().that_has(
+                                        GamePacket(
+                                            GamePacketType.FULL_CHUNK_DATA,
+                                            position=expected_chunk_pos[i].position
+                                        )
+                                    )
+                                )
+                            ).with_label(i+1)
                         )
-                    )
-                )
-            ]
-        })
+                    ]
+                })
+                expected_packet_sequence_num += 1
+                expected_reliable_message_num += 1
+                expected_message_ordering_index += 1
+            else:
+                self.assert_that(received_data, {
+                    self._CLIENT_ADDRESS[0]: [
+                        EncodedData(self.data.that_is_response_of('full_chunk_data')).is_(
+                            RakNetPacket(
+                                RakNetPacketType.FRAME_SET_4,
+                                packet_sequence_num=expected_packet_sequence_num
+                            ).that_has(
+                                RakNetFrame(
+                                    RakNetFrameType.RELIABLE_ORDERED,
+                                    reliable_message_num=expected_reliable_message_num,
+                                    message_ordering_index=expected_message_ordering_index
+                                ).that_has(
+                                    Batch().that_has(
+                                        GamePacket(
+                                            GamePacketType.FULL_CHUNK_DATA,
+                                            position=expected_chunk_pos[i].position
+                                        )
+                                    )
+                                ),
+                                RakNetFrame(
+                                    RakNetFrameType.RELIABLE_ORDERED,
+                                    reliable_message_num=expected_reliable_message_num + 1,
+                                    message_ordering_index=expected_message_ordering_index + 1
+                                ).that_has(
+                                    Batch().that_has(
+                                        GamePacket(GamePacketType.PLAY_STATUS)
+                                    )
+                                ),
+                                RakNetFrame(
+                                    RakNetFrameType.RELIABLE_ORDERED,
+                                    reliable_message_num=expected_reliable_message_num + 2,
+                                    message_ordering_index=expected_message_ordering_index + 2
+                                ).that_has(
+                                    Batch().that_has(
+                                        GamePacket(GamePacketType.TEXT)
+                                    )
+                                )
+                            ).with_label(i+1)
+                        )
+                    ]
+                })
+                expected_packet_sequence_num += 1
+                expected_reliable_message_num += 3
+                expected_message_ordering_index += 3
 
 
 if __name__ == '__main__':

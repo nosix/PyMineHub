@@ -136,7 +136,7 @@ class PacketAnalyzer:
         return called_line.replace(m.group(1), '.', 1)
 
     def get_called_line(self) -> str:
-        return self._called_line if self._label is None else '{}\n{}'.format(self._label, self._called_line)
+        return self._called_line if self._label is None else '  {}:\n{}'.format(self._label, self._called_line)
 
     def with_label(self, label: str):
         self._label = label

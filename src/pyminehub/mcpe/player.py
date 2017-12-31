@@ -103,7 +103,7 @@ class Player:
 
     def is_ready(self) -> bool:
         return len(self._near_chunk_position) > 0 and \
-               len(self._requested_chunk_position - self._near_chunk_position) == 0
+               len(self._requested_chunk_position & self._near_chunk_position) == 0
 
     def is_living(self) -> bool:
         return self._is_living
