@@ -166,7 +166,7 @@ def login_sequence(
         type=PlayerListType.ADD,
         entries=tuple(
             PlayerListEntry(
-                uuid=p.uuid,
+                uuid=p.id,
                 entity_unique_id=p.entity_unique_id,
                 user_name=p.name,
                 skin=p.skin,
@@ -196,7 +196,7 @@ def _notify_new_player(
         type=PlayerListType.ADD,
         entries=(
             PlayerListEntry(
-                uuid=player.uuid,
+                uuid=player.id,
                 entity_unique_id=player.entity_unique_id,
                 user_name=player.name,
                 skin=player.skin,
@@ -233,7 +233,7 @@ def _spawn_player(
     new_player_packet = game_packet_factory.create(
         GamePacketType.ADD_PLAYER,
         EXTRA_DATA,
-        player.uuid,
+        player.id,
         player.name,
         player.entity_unique_id,
         player.entity_runtime_id,
@@ -253,7 +253,7 @@ def _spawn_player(
         other_player_packet = game_packet_factory.create(
             GamePacketType.ADD_PLAYER,
             EXTRA_DATA,
-            p.uuid,
+            p.id,
             p.name,
             p.entity_unique_id,
             p.entity_runtime_id,

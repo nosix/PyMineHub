@@ -129,7 +129,7 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.PLAYER_LIST,
             EXTRA_DATA,
             PlayerListType.REMOVE,
-            (PlayerListEntry(player.uuid, None, None, None, None), )
+            (PlayerListEntry(player.id, None, None, None, None), )
         )
         for addr in self._session_manager.addresses:
             self._send_game_packet_immediately(text_packet, addr)

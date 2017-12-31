@@ -1,4 +1,3 @@
-import uuid
 from typing import Generator, Set
 
 from pyminehub.mcpe.event import Event
@@ -8,7 +7,6 @@ from pyminehub.mcpe.value import *
 class Player:
 
     def __init__(self) -> None:
-        self._uuid = uuid.uuid4()
         self._protocol = None
         self._player_data = None
         self._client_data = None
@@ -43,12 +41,8 @@ class Player:
         self._entity_runtime_id = entity_runtime_id
 
     @property
-    def uuid(self) -> UUID:
-        return self._uuid
-
-    @property
     def id(self) -> PlayerID:
-        return self._player_data.xuid
+        return self._player_data.identity
 
     @property
     def name(self) -> str:

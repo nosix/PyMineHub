@@ -6,7 +6,7 @@ from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_bas
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
 
-PlayerID = int
+PlayerID = UUID
 EntityUniqueID = int
 EntityRuntimeID = int
 
@@ -20,8 +20,8 @@ Skin = _NamedTuple('Skin', [
 ])
 
 PlayerData = _NamedTuple('PlayerData', [
-    ('xuid', int),
-    ('identity', str),
+    ('xuid', str),
+    ('identity', UUID),
     ('display_name', str),
     ('identity_public_key', str)
 ])
@@ -53,8 +53,9 @@ class ConnectionRequest(_NamedTuple('ConnectionRequest', [
         for webtoken in self.chain:
             if self._KEY_EXTRA in webtoken:
                 extra_data = webtoken[self._KEY_EXTRA]
+                identity = UUID('{' + extra_data['identity'] + '}')
                 return PlayerData(
-                    int(extra_data['XUID']), extra_data['identity'], extra_data['displayName'],
+                    extra_data['XUID'], identity, extra_data['displayName'],
                     webtoken['identityPublicKey'])
         raise AssertionError('ConnectionRequest must have extraData.')
 
