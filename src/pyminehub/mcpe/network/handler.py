@@ -173,8 +173,8 @@ class MCPEHandler(GameDataHandler):
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
-        chunk_requests = player.update_required_chunk(packet.radius)
-        self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, chunk_requests))
+        player.update_required_chunk(packet.radius)
+        self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._send_game_packet_immediately(res_packet, addr)
 
@@ -246,3 +246,6 @@ class MCPEHandler(GameDataHandler):
         for addr, player in self._session_manager:
             if player.entity_runtime_id != event.entity_runtime_id:
                 self._send_game_packet_immediately(res_packet, addr)
+            else:
+                player.position = event.position
+                self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))

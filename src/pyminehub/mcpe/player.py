@@ -3,6 +3,8 @@ from typing import Generator, Set
 from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.value import *
 
+_NEAR_CHUNK_RADIUS = 2
+
 
 class Player:
 
@@ -14,6 +16,7 @@ class Player:
         self._entity_runtime_id = 0
         self._position = Vector3(256.0, 57.625, 256.0)
         self._metadata = None
+        self._chunk_radius = 0
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
@@ -80,11 +83,19 @@ class Player:
     def metadata(self, value: Tuple[EntityMetaData, ...]) -> None:
         self._metadata = value
 
-    def update_required_chunk(self, radius: int) -> Tuple[ChunkPositionWithDistance, ...]:
-        request = tuple(to_chunk_area(self._position, radius))
-        self._requested_chunk_position |= set(p.position for p in request)
-        self._near_chunk_position = set(p.position for p in to_chunk_area(self._position, 2))
-        return request
+    def next_required_chunk(self) -> Tuple[ChunkPositionWithDistance, ...]:
+        if ChunkPosition.at(self._position) not in self._near_chunk_position:
+            request = tuple(to_chunk_area(self._position, self._chunk_radius))
+            request_chunk_position = set(p.position for p in request) - self._requested_chunk_position
+            self._requested_chunk_position |= request_chunk_position
+            self._near_chunk_position = set(p.position for p in request if p.distance <= _NEAR_CHUNK_RADIUS)
+            return tuple(p for p in request if p.position in request_chunk_position)
+        else:
+            return tuple()
+
+    def update_required_chunk(self, radius: int) -> None:
+        self._chunk_radius = radius
+        self._near_chunk_position = set()
 
     def did_request_chunk(self, position: ChunkPosition) -> bool:
         return position in self._requested_chunk_position

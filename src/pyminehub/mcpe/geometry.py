@@ -30,7 +30,7 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
                 return Vector3(f(self.x, value[0]), f(self.y, value[1]), f(self.z, value[2]))
             if len(value) == 2:
                 return Vector3(f(self.x, value[0]), self.y, f(self.z, value[1]))
-        raise NotImplementedError()
+        return NotImplemented
 
     def __add__(self, value) -> 'Vector3':
         """
@@ -114,6 +114,13 @@ class ChunkPosition(_NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
 
     def __sub__(self, other: tuple) -> 'ChunkPosition':
         return ChunkPosition(self.x - other[0], self.z - other[1])
+
+    def __mod__(self, other: tuple) -> 'ChunkPosition':
+        """
+        >>> ChunkPosition(99, -199) % (100, 100)
+        ChunkPosition(x=99, z=1)
+        """
+        return ChunkPosition(self.x % other[0], self.z % other[1])
 
     @staticmethod
     def at(position: Vector3) -> 'ChunkPosition':
