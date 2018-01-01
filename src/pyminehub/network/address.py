@@ -1,12 +1,22 @@
+from ipaddress import ip_address
 from typing import NamedTuple
 
-
-IP_VERSION = 4
+from pyminehub.config import ConfigKey, get_value
 
 Address = tuple
 
 AddressInPacket = NamedTuple('Address', [('ip_version', int), ('address', bytes), ('port', int)])
 
+_UNSPECIFIED_ADDRESSES = {
+    4: '0.0.0.0',
+    6: '::'
+}
+
+
+def get_unspecified_address() -> str:
+    return _UNSPECIFIED_ADDRESSES[get_value(ConfigKey.IP_VERSION)]
+
 
 def to_packet_format(addr: Address) -> AddressInPacket:
-    return AddressInPacket(IP_VERSION, bytes(int(v) for v in addr[0].split('.')), addr[1])
+    ip_addr = ip_address(addr[0])
+    return AddressInPacket(ip_addr.version, ip_addr.packed, addr[1])

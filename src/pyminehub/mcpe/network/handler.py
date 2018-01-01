@@ -13,7 +13,7 @@ from pyminehub.mcpe.network.reliability import UNRELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.session import SessionManager
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
-from pyminehub.network.address import Address, to_packet_format
+from pyminehub.network.address import Address, get_unspecified_address, to_packet_format
 from pyminehub.raknet import Reliability, SessionNotFound, GameDataHandler
 from pyminehub.value import LogString
 
@@ -22,7 +22,7 @@ _logger = getLogger(__name__)
 
 class MCPEHandler(GameDataHandler):
 
-    _INTERNAL_ADDRESSES = tuple(to_packet_format(('0.0.0.0', 0)) for _ in range(20))
+    _INTERNAL_ADDRESSES = tuple(to_packet_format((get_unspecified_address(), 0)) for _ in range(20))
 
     def __init__(self, world: WorldProxy) -> None:
         self._world = world

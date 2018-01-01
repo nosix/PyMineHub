@@ -2,7 +2,7 @@ import asyncio
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
-from pyminehub.network.address import IP_VERSION, Address, to_packet_format
+from pyminehub.network.address import Address, get_unspecified_address, to_packet_format
 from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.frame import Reliability
@@ -98,7 +98,6 @@ class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
         self.send_to_client(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: RakNetPacket, addr: Address) -> None:
-        assert packet.server_address.ip_version == IP_VERSION
         res_packet = raknet_packet_factory.create(
             RakNetPacketType.OPEN_CONNECTION_REPLY2, True, self._guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_client(res_packet, addr)
@@ -135,8 +134,9 @@ class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
 
 
 def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> asyncio.Transport:
+    server_address = (get_unspecified_address(), get_value(ConfigKey.SERVER_PORT))
     listen = loop.create_datagram_endpoint(
-        lambda: _RakNetProtocolImpl(loop, handler), local_addr=('0.0.0.0', get_value(ConfigKey.SERVER_PORT)))
+        lambda: _RakNetProtocolImpl(loop, handler), local_addr=server_address)
     transport, protocol = loop.run_until_complete(listen)  # non-blocking
     try:
         loop.run_forever()  # blocking
