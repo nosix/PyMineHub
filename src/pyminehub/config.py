@@ -18,6 +18,7 @@ from pyminehub.typevar import T
 class ConfigKey(Enum):
     # system
     MAX_LOG_LENGTH = 101
+    SERVER_PORT = 102
     # raknet
     SERVER_GUID = 201
     RESEND_TIME = 202
@@ -35,6 +36,7 @@ class ConfigKey(Enum):
 
 __default_config = (
     (ConfigKey.MAX_LOG_LENGTH, 100),  # cut log string. don't cut if value is None
+    (ConfigKey.SERVER_PORT, 19133),
     (ConfigKey.SERVER_GUID, None),  # use random value if value is None
     (ConfigKey.RESEND_TIME, 500),  # ms, interval that is greater than interval of ACK/NCK arrives
     (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes, compress if exceeded

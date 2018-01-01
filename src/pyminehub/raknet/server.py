@@ -136,7 +136,7 @@ class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
 
 def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> asyncio.Transport:
     listen = loop.create_datagram_endpoint(
-        lambda: _RakNetProtocolImpl(loop, handler), local_addr=('0.0.0.0', 19132))
+        lambda: _RakNetProtocolImpl(loop, handler), local_addr=('0.0.0.0', get_value(ConfigKey.SERVER_PORT)))
     transport, protocol = loop.run_until_complete(listen)  # non-blocking
     try:
         loop.run_forever()  # blocking
