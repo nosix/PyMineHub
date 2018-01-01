@@ -139,8 +139,8 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
 
     def to_dict(self) -> Dict[str, bool]:
         """
-        >>> AdventureSettings(513, 136).to_dict()
-        {'world_immutable': True, 'flying': True, 'attack_players': True, 'teleport': True}
+        >>> sorted(AdventureSettings(513, 136).to_dict().items())
+        [('attack_players', True), ('flying', True), ('teleport', True), ('world_immutable', True)]
         """
         d = {}
         d.update(flags_to_dict(AdventureSettingFlag1, self.flags))
@@ -178,8 +178,8 @@ class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
 
     def to_dict(self) -> Dict[str, bool]:
         """
-        >>> EntityMetaDataFlagValue(1146880).to_dict()
-        {'always_show_nametag': True, 'immobile': True, 'swimmer': True}
+        >>> sorted(EntityMetaDataFlagValue(1146880).to_dict().items())
+        [('always_show_nametag', True), ('immobile', True), ('swimmer', True)]
         """
         return flags_to_dict(EntityMetaDataFlag, self.flags)
 

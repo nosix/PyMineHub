@@ -36,8 +36,8 @@ def flags_to_dict(enum_cls: Type[Enum], flags: int) -> Dict[str, bool]:
     ...     FOO = 0
     ...     BAR = 1
     ...     MOO = 2
-    >>> flags_to_dict(Settings, 5)
-    {'foo': True, 'moo': True}
+    >>> sorted(flags_to_dict(Settings, 5).items())
+    [('foo', True), ('moo', True)]
     """
     return dict((enum_value.name.lower(), True) for enum_value in enum_cls if flags & (1 << enum_value.value))
 
