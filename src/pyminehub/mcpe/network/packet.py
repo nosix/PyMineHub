@@ -409,6 +409,17 @@ _game_packet_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('event_type', EntityEventType),
         ('data', int)
+    ],
+    GamePacketType.MOVE_ENTITY: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('head_yaw', float),
+        ('yaw', float),
+        ('on_ground', bool),
+        ('teleported', bool)
     ]
 }
 

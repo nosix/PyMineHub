@@ -240,6 +240,7 @@ _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA
 ))
 
+_ANGLE_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data * (360 / 256), write=lambda _value: _value // (360 / 256))
 
 _game_data_codecs = {
     GamePacketType.LOGIN: [
@@ -496,6 +497,16 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         EnumData(BYTE_DATA, EntityEventType),
         VAR_SIGNED_INT_DATA
+    ],
+    GamePacketType.MOVE_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        _FLOAT_VECTOR3_DATA,
+        _ANGLE_DATA,
+        _ANGLE_DATA,
+        _ANGLE_DATA,
+        BOOL_DATA,
+        BOOL_DATA
     ]
 }
 
