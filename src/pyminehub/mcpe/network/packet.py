@@ -420,6 +420,12 @@ _game_packet_specs = {
         ('yaw', float),
         ('on_ground', bool),
         ('teleported', bool)
+    ],
+    GamePacketType.SET_ENTITY_MOTION: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('motion', Vector3[float])
     ]
 }
 

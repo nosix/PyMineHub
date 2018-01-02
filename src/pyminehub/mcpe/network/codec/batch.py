@@ -507,6 +507,11 @@ _game_data_codecs = {
         _ANGLE_DATA,
         BOOL_DATA,
         BOOL_DATA
+    ],
+    GamePacketType.SET_ENTITY_MOTION: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        _FLOAT_VECTOR3_DATA
     ]
 }
 
