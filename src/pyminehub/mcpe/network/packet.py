@@ -352,7 +352,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('hide_disconnection_screen', bool),
-        ('message', str)
+        ('message', Optional[str])
     ],
     GamePacketType.TEXT: [
         ('id', int),
