@@ -434,6 +434,13 @@ _game_packet_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('unknown', Optional[float])
     ],
+    GamePacketType.INVENTORY_TRANSACTION: [
+        ('id', int),
+        ('extra', bytes),
+        ('type', InventoryTransactionType),
+        ('actions', Tuple[InventoryAction, ...]),
+        ('data', Optional[TransactionData])
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),

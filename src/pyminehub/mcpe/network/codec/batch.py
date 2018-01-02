@@ -21,6 +21,12 @@ _FLOAT_VECTOR3_DATA = CompositeData(Vector3, (
     L_FLOAT_DATA
 ))
 
+_BLOCK_POSITION_DATA = CompositeData(Vector3, (
+    VAR_SIGNED_INT_DATA,
+    VAR_INT_DATA,
+    VAR_SIGNED_INT_DATA
+))
+
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
 
@@ -241,6 +247,48 @@ _CHUNK_POSITION = CompositeData(ChunkPosition, (
 ))
 
 _ANGLE_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data * (360 / 256), write=lambda _value: _value // (360 / 256))
+
+
+class _TransactionData(DataCodec[Optional[TransactionData]]):
+
+    _CODECS = {
+        InventoryTransactionType.USE_ITEM: CompositeData(TransactionToUseItem, (
+            VAR_INT_DATA,
+            _BLOCK_POSITION_DATA,
+            VAR_SIGNED_INT_DATA,
+            VAR_SIGNED_INT_DATA,
+            _SLOT_DATA,
+            _FLOAT_VECTOR3_DATA,
+            _FLOAT_VECTOR3_DATA
+        )),
+        InventoryTransactionType.USE_ITEM_ON_ENTITY: CompositeData(TransactionToUseItemOnEntity, (
+            _ENTITY_RUNTIME_ID,
+            VAR_INT_DATA,
+            VAR_SIGNED_INT_DATA,
+            _SLOT_DATA,
+            _FLOAT_VECTOR3_DATA,
+            _FLOAT_VECTOR3_DATA
+        )),
+        InventoryTransactionType.RELEASE_ITEM: CompositeData(TransactionToReleaseItem, (
+            VAR_INT_DATA,
+            VAR_SIGNED_INT_DATA,
+            _SLOT_DATA,
+            _FLOAT_VECTOR3_DATA
+        ))
+    }
+
+    def read(self, data: bytearray, context: CompositeCodecContext) -> Optional[TransactionData]:
+        try:
+            return self._CODECS[context['transaction_type']].read(data, context)
+        except KeyError:
+            return None
+
+    def write(self, data: bytearray, value: Optional[TransactionData], context: CompositeCodecContext) -> None:
+        try:
+            self._CODECS[context['transaction_type']].write(data, value, context)
+        except KeyError:
+            assert value is None
+
 
 _game_data_codecs = {
     GamePacketType.LOGIN: [
@@ -519,6 +567,21 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         OptionalData(L_FLOAT_DATA, lambda _context: not _context['action_type'] & 0x80)
     ],
+    GamePacketType.INVENTORY_TRANSACTION: [
+        _HEADER_EXTRA_DATA,
+        NamedData('transaction_type', EnumData(VAR_INT_DATA, InventoryTransactionType)),
+        VarListData(VAR_INT_DATA, CompositeData(InventoryAction, (
+            NamedData('source_type', EnumData(VAR_INT_DATA, SourceType)),
+            OptionalData(VAR_SIGNED_INT_DATA,
+                         lambda _context: _context['source_type'] in (SourceType.WORLD, SourceType.CREATIVE)),
+            OptionalData(VAR_INT_DATA,
+                         lambda _context: _context['source_type'] != SourceType.WORLD),
+            VAR_INT_DATA,
+            _SLOT_DATA,
+            _SLOT_DATA
+        ))),
+        _TransactionData()
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
@@ -526,7 +589,7 @@ _game_data_codecs = {
     ],
     GamePacketType.UPDATE_BLOCK: [
         _HEADER_EXTRA_DATA,
-        _INT_VECTOR3_DATA,
+        _BLOCK_POSITION_DATA,
         VAR_INT_DATA,
         VAR_INT_DATA
     ],

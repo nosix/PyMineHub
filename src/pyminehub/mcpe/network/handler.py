@@ -65,8 +65,16 @@ class MCPEHandler(GameDataHandler):
         _logger.debug('< %s', LogString(packet))
         self.sendto(connection_packet_codec.encode(packet), addr, reliability)
 
-    def _send_game_packet_immediately(self, packet: GamePacket, addr: Address) -> None:
-        self._queue.send_immediately(packet, addr)
+    def _send_game_packet(self, packet: GamePacket, addr: Address, immediately=True) -> None:
+        if immediately:
+            self._queue.send_immediately(packet, addr)
+        else:
+            self._queue.append(packet, addr)
+
+    def _forward_packet_to_other_players(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        player = self._session_manager[addr]
+        for addr, p in self._session_manager.excluding(player):
+            self._send_game_packet(packet, addr, is_last)
 
     # packet handling methods
 
@@ -132,54 +140,60 @@ class MCPEHandler(GameDataHandler):
             (PlayerListEntry(player.id, None, None, None, None), )
         )
         for addr in self._session_manager.addresses:
-            self._send_game_packet_immediately(text_packet, addr)
-            self._send_game_packet_immediately(remove_entity_packet, addr)
-            self._send_game_packet_immediately(remove_player_packet, addr)
+            self._send_game_packet(text_packet, addr)
+            self._send_game_packet(remove_entity_packet, addr)
+            self._send_game_packet(remove_player_packet, addr)
         raise SessionNotFound(addr)
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
-        for data in packet.payloads:
+        last_index = len(packet.payloads) - 1
+        for i, data in enumerate(packet.payloads):
             try:
                 packet = game_packet_codec.decode(data)
                 _logger.debug('> %s', LogString(packet))
-                getattr(self, '_process_' + GamePacketType(packet.id).name.lower())(packet, addr)
+                getattr(self, '_process_' + GamePacketType(packet.id).name.lower())(packet, addr, i == last_index)
+            except AttributeError as exc:
+                _logger.warning('%s', exc)
             except KeyError as exc:
                 _logger.warning('%s is not supported in batch processing.', exc)
 
-    def _process_login(self, packet: GamePacket, addr: Address) -> None:
+    def _process_login(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert is_last
         player = self._session_manager[addr]
         player_data = packet.connection_request.player_data
         client_data = packet.connection_request.client_data
         # TODO check the logged-in player and log out the same player
         player.login(
             packet.protocol, player_data, client_data,
-            login_sequence(player, addr, self._session_manager, self._world, self._send_game_packet_immediately))
+            login_sequence(player, addr, self._session_manager, self._world, self._send_game_packet))
         self._session_manager.bind(player.id, addr)
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
-        self._send_game_packet_immediately(res_packet, addr)
+        self._send_game_packet(res_packet, addr)
         res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
-        self._send_game_packet_immediately(res_packet, addr)
+        self._send_game_packet(res_packet, addr)
 
-    def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address) -> None:
+    def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert is_last
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:
             res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACK_STACK, EXTRA_DATA, False, (), ())
-            self._send_game_packet_immediately(res_packet, addr)
+            self._send_game_packet(res_packet, addr)
         elif packet.status == ResourcePackStatus.COMPLETED:
             player = self._session_manager[addr]
             self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
 
-    def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
+    def _process_request_chunk_radius(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert is_last
         player = self._session_manager[addr]
         player.update_required_chunk(packet.radius)
         self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
-        self._send_game_packet_immediately(res_packet, addr)
+        self._send_game_packet(res_packet, addr)
 
     # noinspection PyUnusedLocal
-    def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
+    def _process_move_player(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         assert packet.mode != MoveMode.TELEPORT
         self._world.perform(action_factory.create(
             ActionType.MOVE_PLAYER,
@@ -193,22 +207,20 @@ class MCPEHandler(GameDataHandler):
             packet.riding_eid
         ))
 
-    def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
-        player = self._session_manager[addr]
-        for addr, p in self._session_manager.excluding(player):
-            self._send_game_packet_immediately(packet, addr)
+    def _process_player_action(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        self._forward_packet_to_other_players(packet, addr, is_last)
 
-    def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
-        player = self._session_manager[addr]
-        # noinspection PyProtectedMember
-        res_packet = packet._replace(entity_runtime_id=player.entity_runtime_id)
-        for addr, p in self._session_manager.excluding(player):
-            self._send_game_packet_immediately(res_packet, addr)
+    def _process_sound_event(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        self._forward_packet_to_other_players(packet, addr, is_last)
 
-    def _process_animate(self, packet: GamePacket, addr: Address) -> None:
-        player = self._session_manager[addr]
-        for addr, _ in self._session_manager.excluding(player):
-            self._send_game_packet_immediately(packet, addr)
+    def _process_animate(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        self._forward_packet_to_other_players(packet, addr, is_last)
+
+    def _process_interact(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        pass  # TODO implement
+
+    def _process_inventory_transaction(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        pass  # TODO implement
 
     # event handling methods
 
@@ -229,7 +241,7 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.FULL_CHUNK_DATA, EXTRA_DATA, event.position, event.data)
         for addr, player in self._session_manager:
             if player.did_request_chunk(event.position):
-                self._send_game_packet_immediately(res_packet, addr)
+                self._send_game_packet(res_packet, addr)
                 player.discard_chunk_request(event.position)
                 player.next_login_sequence(event)
 
@@ -250,7 +262,7 @@ class MCPEHandler(GameDataHandler):
         )
         for addr, player in self._session_manager:
             if player.entity_runtime_id != event.entity_runtime_id:
-                self._send_game_packet_immediately(res_packet, addr)
+                self._send_game_packet(res_packet, addr)
             else:
                 player.position = event.position
                 self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))

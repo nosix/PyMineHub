@@ -908,6 +908,21 @@ class EntityEventType(Enum):
     ITEM_ENTITY_MERGE = 69
 
 
+class InventoryTransactionType(Enum):
+    NORMAL = 0
+    MISMATCH = 1
+    USE_ITEM = 2
+    USE_ITEM_ON_ENTITY = 3
+    RELEASE_ITEM = 4
+
+
+class SourceType(Enum):
+    CONTAINER = 0
+    WORLD = 2
+    CREATIVE = 3
+    TODO = 99999
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

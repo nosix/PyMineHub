@@ -229,6 +229,44 @@ EntityLink = _NamedTuple('EntityLink', [
     ('bool1', bool)
 ])
 
+InventoryAction = _NamedTuple('InventoryAction', [
+    ('source_type', SourceType),
+    ('window_type', Optional[WindowType]),
+    ('unknown1', Optional[int]),
+    ('inventory_slot', int),
+    ('old_item', Slot),
+    ('new_item', Slot)
+])
+
+TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
+    ('action_type', int),
+    ('position', Vector3[int]),
+    ('face', int),
+    ('hotbar_slot', int),
+    ('item_in_hand', Slot),
+    ('player_position', Vector3[float]),
+    ('click_position', Vector3[float])
+])
+
+TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
+    ('entity_runtime_id', EntityRuntimeID),
+    ('action_type', int),
+    ('hotbar_slot', int),
+    ('item_in_hand', Slot),
+    ('unknown1', float),
+    ('unknown2', float)
+])
+
+TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
+    ('action_type', int),
+    ('hotbar_slot', int),
+    ('item_in_hand', Slot),
+    ('head_position', Vector3[float])
+])
+
+TransactionData = Union[TransactionToUseItem, TransactionToUseItemOnEntity, TransactionToReleaseItem]
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()
