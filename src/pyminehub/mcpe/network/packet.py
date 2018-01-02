@@ -293,12 +293,6 @@ _game_packet_specs = {
         ('inventory_slot', int),
         ('item', Slot)
     ],
-    GamePacketType.PLAYER_LIST: [
-        ('id', int),
-        ('extra', bytes),
-        ('type', PlayerListType),
-        ('entries', Tuple[PlayerListEntry, ...])
-    ],
     GamePacketType.CRAFTING_DATA: [
         ('id', int),
         ('extra', bytes),
@@ -315,50 +309,17 @@ _game_packet_specs = {
         ('extra', bytes),
         ('radius', int)
     ],
-    GamePacketType.UPDATE_BLOCK: [
-        ('id', int),
-        ('extra', bytes),
-        ('position', Vector3[int]),
-        ('block_id', int),
-        ('aux', int)
-    ],
     GamePacketType.FULL_CHUNK_DATA: [
         ('id', int),
         ('extra', bytes),
         ('position', ChunkPosition),
         ('data', bytes)
     ],
-    GamePacketType.MOVE_PLAYER: [
+    GamePacketType.PLAYER_LIST: [
         ('id', int),
         ('extra', bytes),
-        ('entity_runtime_id', EntityRuntimeID),
-        ('position', Vector3[float]),
-        ('pitch', float),
-        ('yaw', float),
-        ('head_yaw', float),
-        ('mode', MoveMode),
-        ('on_ground', bool),
-        ('riding_eid', EntityRuntimeID),
-        ('int1', Optional[int]),
-        ('int2', Optional[int])
-    ],
-    GamePacketType.SOUND_EVENT: [
-        ('id', int),
-        ('extra', bytes),
-        ('sound', SoundType),
-        ('position', Vector3[float]),
-        ('extra_data', int),
-        ('pitch', int),
-        ('unknown', bool),
-        ('disable_relative_volume', bool)
-    ],
-    GamePacketType.PLAYER_ACTION: [
-        ('id', int),
-        ('extra', bytes),
-        ('entity_runtime_id', EntityRuntimeID),
-        ('action_type', PlayerActionType),
-        ('position', Vector3[int]),
-        ('face', int),
+        ('type', PlayerListType),
+        ('entries', Tuple[PlayerListEntry, ...])
     ],
     GamePacketType.ADD_PLAYER: [
         ('id', int),
@@ -382,22 +343,6 @@ _game_packet_specs = {
         ('unknown_long', int),
         ('links', Tuple[EntityLink, ...])
     ],
-    GamePacketType.TEXT: [
-        ('id', int),
-        ('extra', bytes),
-        ('type', TextType),
-        ('needs_translation', bool),
-        ('source', Optional[str]),
-        ('message', str),
-        ('parameters', Optional[Tuple[str, ...]]),
-        ('xbox_user_id', str)
-    ],
-    GamePacketType.MOB_ARMOR_EQUIPMENT: [
-        ('id', int),
-        ('extra', bytes),
-        ('entity_runtime_id', EntityRuntimeID),
-        ('slots', Tuple[Slot, ...])
-    ],
     GamePacketType.REMOVE_ENTITY: [
         ('id', int),
         ('extra', bytes),
@@ -409,12 +354,37 @@ _game_packet_specs = {
         ('hide_disconnection_screen', bool),
         ('message', str)
     ],
-    GamePacketType.ENTITY_EVENT: [
+    GamePacketType.TEXT: [
+        ('id', int),
+        ('extra', bytes),
+        ('type', TextType),
+        ('needs_translation', bool),
+        ('source', Optional[str]),
+        ('message', str),
+        ('parameters', Optional[Tuple[str, ...]]),
+        ('xbox_user_id', str)
+    ],
+    GamePacketType.MOVE_PLAYER: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
-        ('event_type', EntityEventType),
-        ('data', int)
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('head_yaw', float),
+        ('mode', MoveMode),
+        ('on_ground', bool),
+        ('riding_eid', EntityRuntimeID),
+        ('int1', Optional[int]),
+        ('int2', Optional[int])
+    ],
+    GamePacketType.PLAYER_ACTION: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('action_type', PlayerActionType),
+        ('position', Vector3[int]),
+        ('face', int),
     ],
     GamePacketType.MOVE_ENTITY: [
         ('id', int),
@@ -427,11 +397,28 @@ _game_packet_specs = {
         ('on_ground', bool),
         ('teleported', bool)
     ],
+    GamePacketType.ENTITY_EVENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('event_type', EntityEventType),
+        ('data', int)
+    ],
     GamePacketType.SET_ENTITY_MOTION: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('motion', Vector3[float])
+    ],
+    GamePacketType.SOUND_EVENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('sound', SoundType),
+        ('position', Vector3[float]),
+        ('extra_data', int),
+        ('pitch', int),
+        ('unknown', bool),
+        ('disable_relative_volume', bool)
     ],
     GamePacketType.INTERACT: [
         ('id', int),
@@ -439,7 +426,20 @@ _game_packet_specs = {
         ('action_type', int),
         ('target', EntityRuntimeID),
         ('position', Vector3[float])
-    ]
+    ],
+    GamePacketType.MOB_ARMOR_EQUIPMENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('slots', Tuple[Slot, ...])
+    ],
+    GamePacketType.UPDATE_BLOCK: [
+        ('id', int),
+        ('extra', bytes),
+        ('position', Vector3[int]),
+        ('block_id', int),
+        ('aux', int)
+    ],
 }
 
 

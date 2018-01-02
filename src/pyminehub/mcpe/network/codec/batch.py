@@ -375,6 +375,24 @@ _game_data_codecs = {
         VAR_INT_DATA,
         _SLOT_DATA
     ],
+    GamePacketType.CRAFTING_DATA: [
+        _HEADER_EXTRA_DATA,
+        _RecipeList(),
+        BOOL_DATA
+    ],
+    GamePacketType.REQUEST_CHUNK_RADIUS: [
+        _HEADER_EXTRA_DATA,
+        VAR_SIGNED_INT_DATA
+    ],
+    GamePacketType.CHUNK_RADIUS_UPDATED: [
+        _HEADER_EXTRA_DATA,
+        VAR_SIGNED_INT_DATA
+    ],
+    GamePacketType.FULL_CHUNK_DATA: [
+        _HEADER_EXTRA_DATA,
+        _CHUNK_POSITION,
+        VAR_BYTES_DATA
+    ],
     GamePacketType.PLAYER_LIST: [
         _HEADER_EXTRA_DATA,
         NamedData('player_list_type', EnumData(BYTE_DATA, PlayerListType)),
@@ -391,59 +409,6 @@ _game_data_codecs = {
             )), _is_type_remove),
             OptionalData(VAR_STRING_DATA, _is_type_remove)
         )))
-    ],
-    GamePacketType.CRAFTING_DATA: [
-        _HEADER_EXTRA_DATA,
-        _RecipeList(),
-        BOOL_DATA
-    ],
-    GamePacketType.REQUEST_CHUNK_RADIUS: [
-        _HEADER_EXTRA_DATA,
-        VAR_SIGNED_INT_DATA
-    ],
-    GamePacketType.CHUNK_RADIUS_UPDATED: [
-        _HEADER_EXTRA_DATA,
-        VAR_SIGNED_INT_DATA
-    ],
-    GamePacketType.UPDATE_BLOCK: [
-        _HEADER_EXTRA_DATA,
-        _INT_VECTOR3_DATA,
-        VAR_INT_DATA,
-        VAR_INT_DATA
-    ],
-    GamePacketType.FULL_CHUNK_DATA: [
-        _HEADER_EXTRA_DATA,
-        _CHUNK_POSITION,
-        VAR_BYTES_DATA
-    ],
-    GamePacketType.MOVE_PLAYER: [
-        _HEADER_EXTRA_DATA,
-        _ENTITY_RUNTIME_ID,
-        _FLOAT_VECTOR3_DATA,
-        L_FLOAT_DATA,
-        L_FLOAT_DATA,
-        L_FLOAT_DATA,
-        NamedData('mode', EnumData(BYTE_DATA, MoveMode)),
-        BOOL_DATA,
-        _ENTITY_RUNTIME_ID,
-        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
-        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
-    ],
-    GamePacketType.SOUND_EVENT: [
-        _HEADER_EXTRA_DATA,
-        EnumData(BYTE_DATA, SoundType),
-        _FLOAT_VECTOR3_DATA,
-        VAR_INT_DATA,
-        VAR_INT_DATA,
-        BOOL_DATA,
-        BOOL_DATA
-    ],
-    GamePacketType.PLAYER_ACTION: [
-        _HEADER_EXTRA_DATA,
-        _ENTITY_RUNTIME_ID,
-        EnumData(VAR_INT_DATA, PlayerActionType),
-        _INT_VECTOR3_DATA,
-        VAR_INT_DATA
     ],
     GamePacketType.ADD_PLAYER: [
         _HEADER_EXTRA_DATA,
@@ -471,6 +436,15 @@ _game_data_codecs = {
             BOOL_DATA
         )))
     ],
+    GamePacketType.REMOVE_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_UNIQUE_ID
+    ],
+    GamePacketType.DISCONNECT: [
+        _HEADER_EXTRA_DATA,
+        NamedData('hide_screen', BOOL_DATA),
+        OptionalData(VAR_STRING_DATA, lambda _context: _context['hide_screen'])
+    ],
     GamePacketType.TEXT: [
         _HEADER_EXTRA_DATA,
         NamedData('text_type', EnumData(BYTE_DATA, TextType)),
@@ -483,25 +457,25 @@ _game_data_codecs = {
         ),
         VAR_STRING_DATA
     ],
-    GamePacketType.MOB_ARMOR_EQUIPMENT: [
+    GamePacketType.MOVE_PLAYER: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
-        ListData(4, _SLOT_DATA)
+        _FLOAT_VECTOR3_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        NamedData('mode', EnumData(BYTE_DATA, MoveMode)),
+        BOOL_DATA,
+        _ENTITY_RUNTIME_ID,
+        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
+        OptionalData(L_INT_DATA, lambda _context: _context['mode'] != MoveMode.TELEPORT),
     ],
-    GamePacketType.REMOVE_ENTITY: [
-        _HEADER_EXTRA_DATA,
-        _ENTITY_UNIQUE_ID
-    ],
-    GamePacketType.DISCONNECT: [
-        _HEADER_EXTRA_DATA,
-        NamedData('hide_screen', BOOL_DATA),
-        OptionalData(VAR_STRING_DATA, lambda _context: _context['hide_screen'])
-    ],
-    GamePacketType.ENTITY_EVENT: [
+    GamePacketType.PLAYER_ACTION: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
-        EnumData(BYTE_DATA, EntityEventType),
-        VAR_SIGNED_INT_DATA
+        EnumData(VAR_INT_DATA, PlayerActionType),
+        _INT_VECTOR3_DATA,
+        VAR_INT_DATA
     ],
     GamePacketType.MOVE_ENTITY: [
         _HEADER_EXTRA_DATA,
@@ -513,17 +487,43 @@ _game_data_codecs = {
         BOOL_DATA,
         BOOL_DATA
     ],
+    GamePacketType.ENTITY_EVENT: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        EnumData(BYTE_DATA, EntityEventType),
+        VAR_SIGNED_INT_DATA
+    ],
     GamePacketType.SET_ENTITY_MOTION: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA
+    ],
+    GamePacketType.SOUND_EVENT: [
+        _HEADER_EXTRA_DATA,
+        EnumData(BYTE_DATA, SoundType),
+        _FLOAT_VECTOR3_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA,
+        BOOL_DATA,
+        BOOL_DATA
     ],
     GamePacketType.INTERACT: [
         _HEADER_EXTRA_DATA,
         BYTE_DATA,
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA
-    ]
+    ],
+    GamePacketType.MOB_ARMOR_EQUIPMENT: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        ListData(4, _SLOT_DATA)
+    ],
+    GamePacketType.UPDATE_BLOCK: [
+        _HEADER_EXTRA_DATA,
+        _INT_VECTOR3_DATA,
+        VAR_INT_DATA,
+        VAR_INT_DATA
+    ],
 }
 
 
