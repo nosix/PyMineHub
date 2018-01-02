@@ -490,6 +490,12 @@ _game_data_codecs = {
     GamePacketType.REMOVE_ENTITY: [
         _HEADER_EXTRA_DATA,
         _ENTITY_UNIQUE_ID
+    ],
+    GamePacketType.ENTITY_EVENT: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        EnumData(BYTE_DATA, EntityEventType),
+        VAR_SIGNED_INT_DATA
     ]
 }
 

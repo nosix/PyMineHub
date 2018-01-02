@@ -856,6 +856,57 @@ class EscapeSequence(Enum):
         return obj
 
 
+class EntityEventType(Enum):
+    HURT_ANIMATION = 2
+    DEATH_ANIMATION = 3
+    ARM_SWING = 4
+    # 5
+    TAME_FAIL = 6
+    TAME_SUCCESS = 7
+    SHAKE_WET = 8
+    USE_ITEM = 9
+    EAT_GRASS_ANIMATION = 10
+    FISH_HOOK_BUBBLE = 11
+    FISH_HOOK_POSITION = 12
+    FISH_HOOK_HOOK = 13
+    FISH_HOOK_TEASE = 14
+    SQUID_INK_CLOUD = 15
+    ZOMBIE_VILLAGER_CURE = 16
+    # 17
+    RESPAWN = 18
+    IRON_GOLEM_OFFER_FLOWER = 19
+    IRON_GOLEM_WITHDRAW_FLOWER = 20
+    LOVE_PARTICLES = 21  # breeding
+    # 22-23
+    WITCH_SPELL_PARTICLES = 24
+    FIREWORK_PARTICLES = 25
+    # 26
+    SILVERFISH_SPAWN_ANIMATION = 27
+    # 28
+    WITCH_DRINK_POTION = 29
+    WITCH_THROW_POTION = 30
+    MINECART_TNT_PRIME_FUSE = 31
+    # 32-33
+    PLAYER_ADD_XP_LEVELS = 34
+    ELDER_GUARDIAN_CURSE = 35
+    AGENT_ARM_SWING = 36
+    ENDER_DRAGON_DEATH = 37
+    DUST_PARTICLES = 38  # not sure what this is
+    # 39-56
+    EATING_ITEM = 57
+    # 58-59
+    BABY_ANIMAL_FEED = 60  # green particles, like bonemeal on crops
+    DEATH_SMOKE_CLOUD = 61
+    COMPLETE_TRADE = 62
+    REMOVE_LEASH = 63  # data 1 = cut leash
+    # 64
+    CONSUME_TOTEM = 65
+    PLAYER_CHECK_TREASURE_HUNTER_ACHIEVEMENT = 66
+    ENTITY_SPAWN = 67  # used for MinecraftEventing stuff, not needed
+    DRAGON_PUKE = 68  # they call this puke particles
+    ITEM_ENTITY_MERGE = 69
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

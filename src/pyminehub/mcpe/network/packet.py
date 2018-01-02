@@ -356,7 +356,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
-        ('action', PlayerActionType),
+        ('action_type', PlayerActionType),
         ('position', Vector3[int]),
         ('face', int),
     ],
@@ -402,6 +402,13 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID)
+    ],
+    GamePacketType.ENTITY_EVENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('event_type', EntityEventType),
+        ('data', int)
     ]
 }
 
