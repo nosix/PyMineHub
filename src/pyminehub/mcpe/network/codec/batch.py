@@ -512,6 +512,12 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA
+    ],
+    GamePacketType.INTERACT: [
+        _HEADER_EXTRA_DATA,
+        BYTE_DATA,
+        _ENTITY_RUNTIME_ID,
+        _FLOAT_VECTOR3_DATA
     ]
 }
 

@@ -426,6 +426,13 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('motion', Vector3[float])
+    ],
+    GamePacketType.INTERACT: [
+        ('id', int),
+        ('extra', bytes),
+        ('action_type', int),
+        ('target', EntityRuntimeID),
+        ('position', Vector3[float])
     ]
 }
 
