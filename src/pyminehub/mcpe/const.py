@@ -785,6 +785,7 @@ class PlayerActionType(Enum):
     BUILD_DENIED = 17
     CONTINUE_BREAK = 18
     SET_ENCHANTMENT_SEED = 20
+    UNKNOWN_36 = 36
 
 
 class TextType(Enum):

@@ -427,6 +427,13 @@ _game_packet_specs = {
         ('target', EntityRuntimeID),
         ('position', Vector3[float])
     ],
+    GamePacketType.ANIMATE: [
+        ('id', int),
+        ('extra', bytes),
+        ('action_type', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('unknown', Optional[float])
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),

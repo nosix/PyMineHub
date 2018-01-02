@@ -205,6 +205,11 @@ class MCPEHandler(GameDataHandler):
         for addr, p in self._session_manager.excluding(player):
             self._send_game_packet_immediately(res_packet, addr)
 
+    def _process_animate(self, packet: GamePacket, addr: Address) -> None:
+        player = self._session_manager[addr]
+        for addr, _ in self._session_manager.excluding(player):
+            self._send_game_packet_immediately(packet, addr)
+
     # event handling methods
 
     def _process_event_player_logged_in(self, event: Event) -> None:

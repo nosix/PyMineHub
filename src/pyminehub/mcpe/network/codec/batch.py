@@ -513,6 +513,12 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA
     ],
+    GamePacketType.ANIMATE: [
+        _HEADER_EXTRA_DATA,
+        NamedData('action_type', VAR_INT_DATA),
+        _ENTITY_RUNTIME_ID,
+        OptionalData(L_FLOAT_DATA, lambda _context: not _context['action_type'] & 0x80)
+    ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
