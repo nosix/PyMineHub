@@ -492,6 +492,11 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_UNIQUE_ID
     ],
+    GamePacketType.DISCONNECT: [
+        _HEADER_EXTRA_DATA,
+        NamedData('hide_screen', BOOL_DATA),
+        OptionalData(VAR_STRING_DATA, lambda _context: _context['hide_screen'])
+    ],
     GamePacketType.ENTITY_EVENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,

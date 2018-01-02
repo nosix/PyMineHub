@@ -403,6 +403,12 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID)
     ],
+    GamePacketType.DISCONNECT: [
+        ('id', int),
+        ('extra', bytes),
+        ('hide_disconnection_screen', bool),
+        ('message', str)
+    ],
     GamePacketType.ENTITY_EVENT: [
         ('id', int),
         ('extra', bytes),
