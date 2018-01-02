@@ -20,4 +20,5 @@ class Channel:
             _logger.debug('Channel is cashing packets. The ordering index %d is missing.', self._index)
 
     def append(self, frame: RakNetFrame) -> None:
-        self._cache[frame.message_ordering_index] = frame.payload
+        if frame.message_ordering_index >= self._index:
+            self._cache[frame.message_ordering_index] = frame.payload
