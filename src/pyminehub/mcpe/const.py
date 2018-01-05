@@ -916,6 +916,22 @@ class InventoryTransactionType(Enum):
     RELEASE_ITEM = 4
 
 
+class UseItemActionType(Enum):
+    CLICK_BLOCK = 0
+    CLICK_AIR = 1
+    BREAK_BLOCK = 2
+
+
+class UseItemOnEntityActionType(Enum):
+    INTERACT = 0
+    ATTACK = 1
+
+
+class ReleaseItemActionType(Enum):
+    RELEASE = 0  # bow shoot
+    CONSUME = 1  # eat food, drink potion
+    
+
 class SourceType(Enum):
     CONTAINER = 0
     WORLD = 2

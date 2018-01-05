@@ -261,7 +261,7 @@ class _TransactionData(DataCodec[Optional[TransactionData]]):
 
     _CODECS = {
         InventoryTransactionType.USE_ITEM: CompositeData(TransactionToUseItem, (
-            VAR_INT_DATA,
+            EnumData(VAR_INT_DATA, UseItemActionType),
             _BLOCK_POSITION_DATA,
             VAR_SIGNED_INT_DATA,
             VAR_SIGNED_INT_DATA,
@@ -271,14 +271,14 @@ class _TransactionData(DataCodec[Optional[TransactionData]]):
         )),
         InventoryTransactionType.USE_ITEM_ON_ENTITY: CompositeData(TransactionToUseItemOnEntity, (
             _ENTITY_RUNTIME_ID,
-            VAR_INT_DATA,
+            EnumData(VAR_INT_DATA, UseItemOnEntityActionType),
             VAR_SIGNED_INT_DATA,
             _SLOT_DATA,
             _FLOAT_VECTOR3_DATA,
             _FLOAT_VECTOR3_DATA
         )),
         InventoryTransactionType.RELEASE_ITEM: CompositeData(TransactionToReleaseItem, (
-            VAR_INT_DATA,
+            EnumData(VAR_INT_DATA, ReleaseItemActionType),
             VAR_SIGNED_INT_DATA,
             _SLOT_DATA,
             _FLOAT_VECTOR3_DATA

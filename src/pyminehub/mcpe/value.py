@@ -246,7 +246,7 @@ InventoryAction = _NamedTuple('InventoryAction', [
 ])
 
 TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
-    ('action_type', int),
+    ('action_type', UseItemActionType),
     ('position', Vector3[int]),
     ('face', int),
     ('hotbar_slot', int),
@@ -257,7 +257,7 @@ TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
 
 TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
     ('entity_runtime_id', EntityRuntimeID),
-    ('action_type', int),
+    ('action_type', UseItemOnEntityActionType),
     ('hotbar_slot', int),
     ('item_in_hand', Slot),
     ('unknown1', float),
@@ -265,7 +265,7 @@ TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
 ])
 
 TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
-    ('action_type', int),
+    ('action_type', ReleaseItemActionType),
     ('hotbar_slot', int),
     ('item_in_hand', Slot),
     ('head_position', Vector3[float])
