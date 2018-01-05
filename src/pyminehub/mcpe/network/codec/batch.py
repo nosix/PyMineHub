@@ -619,6 +619,15 @@ _game_data_codecs = {
         VAR_INT_DATA,
         VAR_INT_DATA
     ],
+    GamePacketType.ADD_ITEM_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_UNIQUE_ID,
+        _ENTITY_RUNTIME_ID,
+        _SLOT_DATA,
+        _FLOAT_VECTOR3_DATA,
+        _FLOAT_VECTOR3_DATA,
+        _ENTITY_METADATA
+    ],
 }
 
 

@@ -1,0 +1,75 @@
+UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=475, y=71, z=639), block_id=0, aux=176)
+  -> 150000b60747fe0900b001
+  File "./codec_play.py", line 105, in test_add_item_entity
+    GamePacket(GamePacketType.UPDATE_BLOCK)
+
+Batch(id=254, payloads=(b'\x15\x00\x00\xb6\x07G\xfe\t\x00\xb0\x01',))
+  -> fe7801010c00f3ff0b150000b60747fe0900b0010f7d02dd
+  File "./codec_play.py", line 104, in test_add_item_entity
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=192, reliable_message_num=1148, message_ordering_index=1110, message_ordering_chanel=0, payload=[24 bytes])
+  -> 6000c07c040056040000fe7801010c00f3ff0b150000b60747fe0900b0010f7d02dd
+  File "./codec_play.py", line 103, in test_add_item_entity
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+AddItemEntity(id=15, extra=b'\x00\x00', entity_unique_id=2, entity_runtime_id=2, item=Slot(id=6, aux_value=2, nbt=b'', place_on=(), destroy=()), position=Vector3(x=475.5, y=71.5, z=639.5), motion=Vector3(x=-0.07571947574615479, y=0.20000000298023224, z=-0.0741855576634407), metadata=(EntityMetaData(key=<EntityMetaDataKey.FLAGS: 0>, type=<MetaDataType.LONG: 7>, value=211106232532992), EntityMetaData(key=<EntityMetaDataKey.AIR: 7>, type=<MetaDataType.SHORT: 1>, value=300), EntityMetaData(key=<EntityMetaDataKey.MAX_AIR: 43>, type=<MetaDataType.SHORT: 1>, value=400), EntityMetaData(key=<EntityMetaDataKey.NAMETAG: 4>, type=<MetaDataType.STRING: 4>, value=''), EntityMetaData(key=<EntityMetaDataKey.LEAD_HOLDER_EID: 38>, type=<MetaDataType.LONG: 7>, value=1), EntityMetaData(key=<EntityMetaDataKey.SCALE: 39>, type=<MetaDataType.FLOAT: 3>, value=1.0)))
+  -> 0f0000040206020000000000c0ed4300008f4200e01f44d0129bbdcdcc4c3e99ee97bd0600078080808080803007012c012b01900104040026070127030000803f
+  File "./codec_play.py", line 110, in test_add_item_entity
+    GamePacket(GamePacketType.ADD_ITEM_ENTITY)
+
+Batch(id=254, payloads=([65 bytes],))
+  -> fe7801014200bdff410f0000040206020000000000c0ed4300008f4200e01f44d0129bbdcdcc4c3e99ee97bd0600078080808080803007012c012b01900104040026070127030000803f43ed10e9
+  File "./codec_play.py", line 109, in test_add_item_entity
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=624, reliable_message_num=1149, message_ordering_index=1111, message_ordering_chanel=0, payload=[78 bytes])
+  -> 6002707d040057040000fe7801014200bdff410f0000040206020000000000c0ed4300008f4200e01f44d0129bbdcdcc4c3e99ee97bd0600078080808080803007012c012b01900104040026070127030000803f43ed10e9
+  File "./codec_play.py", line 108, in test_add_item_entity
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+UpdateAttributes(id=29, extra=b'\x00\x00', entity_runtime_id=1, entries=(Attribute(min=0.0, max=5.0, current=1.5118200778961182, default=0.0, name='minecraft:player.exhaustion'),))
+  -> 1d00000101000000000000a0405283c13f000000001b6d696e6563726166743a706c617965722e65786861757374696f6e
+  File "./codec_play.py", line 115, in test_add_item_entity
+    GamePacket(GamePacketType.UPDATE_ATTRIBUTES)
+
+Batch(id=254, payloads=([49 bytes],))
+  -> fe7801013200cdff311d00000101000000000000a0405283c13f000000001b6d696e6563726166743a706c617965722e65786861757374696f6e0ae30e17
+  File "./codec_play.py", line 114, in test_add_item_entity
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=496, reliable_message_num=1150, message_ordering_index=1112, message_ordering_chanel=0, payload=[62 bytes])
+  -> 6001f07e040058040000fe7801013200cdff311d00000101000000000000a0405283c13f000000001b6d696e6563726166743a706c617965722e65786861757374696f6e0ae30e17
+  File "./codec_play.py", line 113, in test_add_item_entity
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.PARTICLE_PUNCH_BLOCK: 2014>, position=Vector3(x=475.0, y=71.0, z=639.0), data=65538)
+  -> 190000bc1f0080ed4300008e4200c01f44848008
+  File "./codec_play.py", line 120, in test_add_item_entity
+    GamePacket(GamePacketType.SPACE_EVENT),
+
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.PARTICLE_DESTROY: 2001>, position=Vector3(x=475.5, y=71.5, z=639.5), data=2)
+  -> 190000a21f00c0ed4300008f4200e01f4404
+  File "./codec_play.py", line 121, in test_add_item_entity
+    GamePacket(GamePacketType.SPACE_EVENT),
+
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.PARTICLE_PUNCH_BLOCK: 2014>, position=Vector3(x=475.0, y=71.0, z=638.0), data=196610)
+  -> 190000bc1f0080ed4300008e4200801f44848018
+  File "./codec_play.py", line 122, in test_add_item_entity
+    GamePacket(GamePacketType.SPACE_EVENT)
+
+Batch(id=254, payloads=([20 bytes], [18 bytes], [20 bytes]))
+  -> fe7801013d00c2ff14190000bc1f0080ed4300008e4200c01f4484800812190000a21f00c0ed4300008f4200e01f440414190000bc1f0080ed4300008e4200801f44848018e9671033
+  File "./codec_play.py", line 119, in test_add_item_entity
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=584, reliable_message_num=1151, message_ordering_index=1113, message_ordering_chanel=0, payload=[73 bytes])
+  -> 6002487f040059040000fe7801013d00c2ff14190000bc1f0080ed4300008e4200c01f4484800812190000a21f00c0ed4300008f4200e01f440414190000bc1f0080ed4300008e4200801f44848018e9671033
+  File "./codec_play.py", line 118, in test_add_item_entity
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+FrameSet4(id=132, packet_sequence_num=879, payload=[277 bytes])
+  -> 846f03006000c07c040056040000fe7801010c00f3ff0b150000b60747fe0900b0010f7d02dd6002707d040057040000fe7801014200bdff410f0000040206020000000000c0ed4300008f4200e01f44d0129bbdcdcc4c3e99ee97bd0600078080808080803007012c012b01900104040026070127030000803f43ed10e96001f07e040058040000fe7801013200cdff311d00000101000000000000a0405283c13f000000001b6d696e6563726166743a706c617965722e65786861757374696f6e0ae30e176002487f040059040000fe7801013d00c2ff14190000bc1f0080ed4300008e4200c01f4484800812190000a21f00c0ed4300008f4200e01f440414190000bc1f0080ed4300008e4200801f44848018e9671033
+  File "./codec_play.py", line 102, in test_add_item_entity
+    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+

@@ -97,6 +97,35 @@ class PlayTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_add_item_entity(self):
+        assertion = EncodedDataInFile(self).is_(
+            RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.UPDATE_BLOCK)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.ADD_ITEM_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.UPDATE_ATTRIBUTES)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.SPACE_EVENT),
+                        GamePacket(GamePacketType.SPACE_EVENT),
+                        GamePacket(GamePacketType.SPACE_EVENT)
+                    )
+                ),
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest
