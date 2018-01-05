@@ -126,6 +126,49 @@ class PlayTestCase(CodecTestCase):
         )
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
+    def test_take_item_entity(self):
+        assertion = EncodedDataInFile(self).is_(
+            RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.TAKE_ITEM_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.INVENTORY_SLOT)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.TAKE_ITEM_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.INVENTORY_SLOT)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.REMOVE_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.REMOVE_ENTITY)
+                    )
+                ),
+                RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+                    Batch().that_has(
+                        GamePacket(GamePacketType.SOUND_EVENT),
+                        GamePacket(GamePacketType.MOVE_ENTITY)
+                    )
+                ),
+            )
+        )
+        assertion.is_correct_on(self, and_verified_with_encoded_data=True)
+
 
 if __name__ == '__main__':
     import unittest

@@ -253,7 +253,8 @@ _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA
 ))
 
-_ANGLE_DATA = ValueFilter(BYTE_DATA, read=lambda _data: _data * (360 / 256), write=lambda _value: _value // (360 / 256))
+_ANGLE_DATA = ValueFilter(
+    BYTE_DATA, read=lambda _data: _data * (360 / 256), write=lambda _value: int(_value / (360 / 256)))
 
 
 class _TransactionData(DataCodec[Optional[TransactionData]]):
@@ -628,6 +629,11 @@ _game_data_codecs = {
         _FLOAT_VECTOR3_DATA,
         _ENTITY_METADATA
     ],
+    GamePacketType.TAKE_ITEM_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_RUNTIME_ID,
+        _ENTITY_RUNTIME_ID
+    ]
 }
 
 

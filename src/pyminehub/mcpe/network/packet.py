@@ -485,6 +485,12 @@ _game_packet_specs = {
         ('motion', Vector3[float]),
         ('metadata', Tuple[EntityMetaData, ...])
     ],
+    GamePacketType.TAKE_ITEM_ENTITY: [
+        ('id', int),
+        ('extra', bytes),
+        ('target', EntityRuntimeID),
+        ('entity_runtime_id', EntityRuntimeID)
+    ]
 }
 
 
