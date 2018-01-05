@@ -154,12 +154,12 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
     }
 
     def read(self, data: bytearray, context: CompositeCodecContext) -> MetaDataValue:
-        meta_data_type = context['meta_data_type']
-        return self._DATA_CODEC_MAP[meta_data_type].read(data, context)
+        metadata_type = context['metadata_type']
+        return self._DATA_CODEC_MAP[metadata_type].read(data, context)
 
     def write(self, data: bytearray, value: MetaDataValue, context: CompositeCodecContext) -> None:
-        meta_data_type = context['meta_data_type']
-        self._DATA_CODEC_MAP[meta_data_type].write(data, value, context)
+        metadata_type = context['metadata_type']
+        self._DATA_CODEC_MAP[metadata_type].write(data, value, context)
 
 
 _UUID_DATA = ValueFilter(RawData(16), read=lambda _data: UUID(bytes=_data), write=lambda _value: _value.bytes)
@@ -237,7 +237,7 @@ _ENTITY_RUNTIME_ID = VAR_INT_DATA
 
 _ENTITY_METADATA = VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
     EnumData(VAR_INT_DATA, EntityMetaDataKey),
-    NamedData('meta_data_type', EnumData(VAR_INT_DATA, MetaDataType)),
+    NamedData('metadata_type', EnumData(VAR_INT_DATA, MetaDataType)),
     _MetaDataValue()
 )))
 

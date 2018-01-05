@@ -1,7 +1,7 @@
 from typing import Callable
 
 from pyminehub.mcpe.command import get_command_spec
-from pyminehub.mcpe.metadata import create_entity_meta_data
+from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.session import SessionManager
 from pyminehub.mcpe.player import Player
@@ -22,13 +22,13 @@ def login_sequence(
     player.set_identity(event.entity_unique_id, event.entity_runtime_id)
     player.position = event.position
     player.metadata = (
-        create_entity_meta_data(EntityMetaDataKey.FLAGS, event.metadata_flags.flags),
-        create_entity_meta_data(EntityMetaDataKey.AIR, 0),
-        create_entity_meta_data(EntityMetaDataKey.MAX_AIR, 400),
-        create_entity_meta_data(EntityMetaDataKey.NAMETAG, player.name),
-        create_entity_meta_data(EntityMetaDataKey.LEAD_HOLDER_EID, OWN_PLAYER_ENTITY_ID),
-        create_entity_meta_data(EntityMetaDataKey.SCALE, 1.0),
-        create_entity_meta_data(EntityMetaDataKey.BED_POSITION, event.bed_position)
+        create_entity_metadata(EntityMetaDataKey.FLAGS, event.metadata_flags.flags),
+        create_entity_metadata(EntityMetaDataKey.AIR, 0),
+        create_entity_metadata(EntityMetaDataKey.MAX_AIR, 400),
+        create_entity_metadata(EntityMetaDataKey.NAMETAG, player.name),
+        create_entity_metadata(EntityMetaDataKey.LEAD_HOLDER_EID, OWN_PLAYER_ENTITY_ID),
+        create_entity_metadata(EntityMetaDataKey.SCALE, 1.0),
+        create_entity_metadata(EntityMetaDataKey.BED_POSITION, event.bed_position)
     )
 
     res_packet = game_packet_factory.create(
@@ -87,7 +87,7 @@ def login_sequence(
         GamePacketType.SET_ENTITY_DATA,
         EXTRA_DATA,
         entity_runtime_id=player.entity_runtime_id,
-        meta_data=player.metadata
+        metadata=player.metadata
     )
     send(res_packet, addr)
 

@@ -269,7 +269,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', int),
-        ('meta_data', Tuple[EntityMetaData, ...])
+        ('metadata', Tuple[EntityMetaData, ...])
     ],
     GamePacketType.INVENTORY_CONTENT: [
         ('id', int),

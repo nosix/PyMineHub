@@ -3,7 +3,7 @@ from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import MetaDataValue, EntityMetaData, Slot
 
 
-_ENTITY_META_DATA_TYPE = {
+_ENTITY_METADATA_TYPE = {
     EntityMetaDataKey.FLAGS: MetaDataType.LONG,
     EntityMetaDataKey.HEALTH: MetaDataType.INT,
     EntityMetaDataKey.VARIANT: MetaDataType.INT,
@@ -78,7 +78,7 @@ _TYPE_CHECKER = {
 }
 
 
-def create_entity_meta_data(key: EntityMetaDataKey, value: MetaDataValue) -> EntityMetaData:
-    data_type = _ENTITY_META_DATA_TYPE[key]
+def create_entity_metadata(key: EntityMetaDataKey, value: MetaDataValue) -> EntityMetaData:
+    data_type = _ENTITY_METADATA_TYPE[key]
     assert _TYPE_CHECKER[data_type](value)
     return EntityMetaData(key, data_type, value)
