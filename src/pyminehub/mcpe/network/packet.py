@@ -446,7 +446,7 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
-        ('type', int),
+        ('type', EntityType),
         ('position', Vector3[float]),
         ('motion', Vector3[float]),
         ('pitch', float),
