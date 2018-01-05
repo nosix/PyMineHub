@@ -216,6 +216,9 @@ class MCPEHandler(GameDataHandler):
     def _process_animate(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         self._forward_packet_to_other_players(packet, addr, is_last)
 
+    def _process_space_event(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        self._forward_packet_to_other_players(packet, addr, is_last)
+
     def _process_interact(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         pass  # TODO implement
 
