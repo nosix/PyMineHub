@@ -248,7 +248,7 @@ InventoryAction = _NamedTuple('InventoryAction', [
 TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
     ('action_type', UseItemActionType),
     ('position', Vector3[int]),
-    ('face', int),
+    ('face', Face),
     ('hotbar_slot', int),
     ('item_in_hand', Slot),
     ('player_position', Vector3[float]),

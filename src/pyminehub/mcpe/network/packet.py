@@ -384,7 +384,7 @@ _game_packet_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('action_type', PlayerActionType),
         ('position', Vector3[int]),
-        ('face', int),
+        ('face', Face),
     ],
     GamePacketType.MOVE_ENTITY: [
         ('id', int),

@@ -1,4 +1,4 @@
-PlayerAction(id=36, extra=b'\x00\x00', entity_runtime_id=1, action_type=<PlayerActionType.STOP_GLIDE: 16>, position=Vector3(x=0, y=0, z=0), face=0)
+PlayerAction(id=36, extra=b'\x00\x00', entity_runtime_id=1, action_type=<PlayerActionType.STOP_GLIDE: 16>, position=Vector3(x=0, y=0, z=0), face=<Face.BOTTOM: 0>)
   -> 240000011000000000
   File "./codec_play.py", line 38, in test_player_action
     GamePacket(GamePacketType.PLAYER_ACTION),

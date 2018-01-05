@@ -1,5 +1,6 @@
 import math
 import operator as _op
+from enum import Enum
 from numbers import Number
 from typing import NamedTuple as _NamedTuple, Generic, Union, Iterator
 
@@ -90,6 +91,79 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
                 self.y * other.x - self.x * other.y)
         else:
             return self.x * other.z - self.z * other.x
+
+
+class Face(Enum):
+    BOTTOM = (0, Vector3(0, -1, 0))
+    UPPER = (1, Vector3(0, 1, 0))
+    NORTH = (2, Vector3(0, 0, -1))
+    SOUTH = (3, Vector3(0, 0, 1))
+    WEST = (4, Vector3(-1, 0, 0))
+    EAST = (5, Vector3(1, 0, 0))
+
+    def __new__(cls, value: int, direction: Vector3[int]) -> 'Face':
+        """
+        >>> Face.BOTTOM
+        <Face.BOTTOM: 0>
+        >>> Face(0)
+        <Face.BOTTOM: 0>
+        >>> Face['BOTTOM']
+        <Face.BOTTOM: 0>
+        """
+        obj = object.__new__(cls)
+        obj._value_ = value
+        obj._direction = direction
+        return obj
+
+    @property
+    def direction(self) -> Vector3[int]:
+        return self._direction
+
+    @classmethod
+    def by_yaw(cls, yaw: float) -> 'Face':
+        """Return the face the player is looking at.
+
+                   (0)
+                    3
+            (270) 5   4 (90)
+                    2
+                  (180)
+
+        >>> Face.by_yaw(0)
+        <Face.SOUTH: 3>
+        """
+        if 45 <= yaw <= 135:
+            return cls.WEST
+        if 225 <= yaw <= 315:
+            return cls.EAST
+        if 135 < yaw < 225:
+            return cls.NORTH
+        else:
+            return cls.SOUTH
+
+    @classmethod
+    def by_pitch(cls, pitch: float) -> 'Face':
+        """Return the face the player is looking at.
+
+        >>> Face.by_pitch(1)
+        <Face.BOTTOM: 0>
+        """
+        return cls.UPPER if pitch < 0 else cls.BOTTOM
+
+    @classmethod
+    def by_angle(cls, yaw: float, pitch: float) -> 'Face':
+        """Return the face the player is looking at.
+
+        >>> Face.by_angle(0, 60)
+        <Face.BOTTOM: 0>
+        >>> Face.by_angle(0, 30)
+        <Face.SOUTH: 3>
+        """
+        if pitch > 45:
+            return cls.BOTTOM
+        if pitch < -45:
+            return cls.UPPER
+        return cls.by_yaw(yaw)
 
 
 class ChunkGeometry:

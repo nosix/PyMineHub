@@ -263,7 +263,7 @@ class _TransactionData(DataCodec[Optional[TransactionData]]):
         InventoryTransactionType.USE_ITEM: CompositeData(TransactionToUseItem, (
             EnumData(VAR_INT_DATA, UseItemActionType),
             _BLOCK_POSITION_DATA,
-            VAR_SIGNED_INT_DATA,
+            EnumData(VAR_SIGNED_INT_DATA, Face),
             VAR_SIGNED_INT_DATA,
             _SLOT_DATA,
             _FLOAT_VECTOR3_DATA,
@@ -526,7 +526,7 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         EnumData(VAR_INT_DATA, PlayerActionType),
         _INT_VECTOR3_DATA,
-        VAR_INT_DATA
+        EnumData(VAR_INT_DATA, Face)
     ],
     GamePacketType.MOVE_ENTITY: [
         _HEADER_EXTRA_DATA,
