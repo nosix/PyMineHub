@@ -88,6 +88,20 @@ class AdventureSettingFlag2(Enum):
     TELEPORT = 7
 
 
+class AttributeType(Enum):
+    HEALTH = 'health'
+    FOLLOW_RANGE = 'follow_range'
+    KNOCKBACK_RESISTANCE = 'knockback_resistance'
+    MOVEMENT = 'movement'
+    ATTACK_DAMAGE = 'attack_damage'
+    ABSORPTION = 'absorption'
+    PLAYER_SATURATION = 'player.saturation'
+    PLAYER_EXHAUSTION = 'player.exhaustion'
+    PLAYER_HUNGER = 'player.hunger'
+    PLAYER_LEVEL = 'player.level'
+    PLAYER_EXPERIENCE = 'player.experience'
+
+
 class MetaDataType(Enum):
     BYTE = 0
     SHORT = 1

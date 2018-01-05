@@ -3,10 +3,12 @@ from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import Action, ActionType
+from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.inventory import create_inventory
 from pyminehub.mcpe.world.database import DataBase
+from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.proxy import WorldProxy
 from pyminehub.mcpe.world.space import Space
@@ -20,8 +22,8 @@ class _World(WorldProxy):
     def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
         self._loop = loop
         self._space = Space(generator, db)
+        self._entity = EntityPool()
         self._event_queue = asyncio.Queue()
-        self._next_entity_id = 2
         loop.call_soon(self._space.init_space)
 
     def perform(self, action: Action) -> None:
@@ -66,37 +68,35 @@ class _World(WorldProxy):
     # action handling methods
 
     def _process_login_player(self, action: Action) -> None:
-        position = Vector3(256.0, 57.625, 256.0)
-        height = self._space.get_height(position)
-        if position.y < height + 1:
-            position = position.copy(y=height + 1)
-        # TODO keep player
-        entity_id = self._next_entity_id
-        self._next_entity_id += 1
+        entity_runtime_id = self._entity.load_player(action.player_id)
+        entity = self._entity.get_player(entity_runtime_id)
+        height = self._space.get_height(entity.spawn_position)
+        entity.spawn(height)
+
         self._notify_event(event_factory.create(
             EventType.PLAYER_LOGGED_IN,
-            action.player_id,
-            entity_id,
-            entity_id,
+            entity.player_id,
+            entity.entity_unique_id,
+            entity_runtime_id,
             GameMode.SURVIVAL,
-            position,
-            0.0,
-            358.0,
-            Vector3(512, 56, 512),
+            entity.position,
+            entity.pitch,
+            entity.yaw,
+            entity.sapwn_position,
             Vector3(0, 0, 0),
             PlayerPermission.MEMBER,
             (
-                Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
-                Attribute(0.0, 2048.0, 16.0, 16.0, 'minecraft:follow_range'),
-                Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:knockback_resistance'),
-                Attribute(0.0, 3.4028234663852886e+38, 0.10000000149011612, 0.10000000149011612, 'minecraft:movement'),
-                Attribute(0.0, 3.4028234663852886e+38, 1.0, 1.0, 'minecraft:attack_damage'),
-                Attribute(0.0, 3.4028234663852886e+38, 0.0, 0.0, 'minecraft:absorption'),
-                Attribute(0.0, 20.0, 10.0, 20.0, 'minecraft:player.saturation'),
-                Attribute(0.0, 5.0, 0.8000399470329285, 0.0, 'minecraft:player.exhaustion'),
-                Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:player.hunger'),
-                Attribute(0.0, 24791.0, 0.0, 0.0, 'minecraft:player.level'),
-                Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:player.experience')
+                create_attribute(AttributeType.HEALTH, entity.health),
+                create_attribute(AttributeType.FOLLOW_RANGE, 16.0),
+                create_attribute(AttributeType.KNOCKBACK_RESISTANCE, 0.0),
+                create_attribute(AttributeType.MOVEMENT, 0.10000000149011612),
+                create_attribute(AttributeType.ATTACK_DAMAGE, 1.0),
+                create_attribute(AttributeType.ABSORPTION, 0.0),
+                create_attribute(AttributeType.PLAYER_SATURATION, 10.0),
+                create_attribute(AttributeType.PLAYER_EXHAUSTION, 0.8000399470329285),
+                create_attribute(AttributeType.PLAYER_HUNGER, entity.hunger),
+                create_attribute(AttributeType.PLAYER_LEVEL, 0.0),
+                create_attribute(AttributeType.PLAYER_EXPERIENCE, 0.0)
             ),
             EntityMetaDataFlagValue.create(
                 always_show_nametag=True,
@@ -108,7 +108,7 @@ class _World(WorldProxy):
         ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_LOADED,
-            action.player_id,
+            entity.player_id,
             (
                 create_inventory(WindowType.INVENTORY),
                 create_inventory(WindowType.ARMOR),
@@ -117,7 +117,7 @@ class _World(WorldProxy):
         ))
         self._notify_event(event_factory.create(
             EventType.SLOT_INITIALIZED,
-            action.player_id,
+            entity.player_id,
             Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
             0,
             0
