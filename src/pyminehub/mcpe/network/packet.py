@@ -334,7 +334,7 @@ _game_packet_specs = {
         ('yaw', float),
         ('head_yaw', float),
         ('item', Slot),
-        ('metadata', EntityMetaData),
+        ('metadata', Tuple[EntityMetaData, ...]),
         ('unknown1', int),
         ('unknown2', int),
         ('unknown3', int),
@@ -440,6 +440,20 @@ _game_packet_specs = {
         ('type', InventoryTransactionType),
         ('actions', Tuple[InventoryAction, ...]),
         ('data', Optional[TransactionData])
+    ],
+    GamePacketType.ADD_ENTITY: [
+        ('id', int),
+        ('extra', bytes),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('type', int),
+        ('position', Vector3[float]),
+        ('motion', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('attributes', Tuple[EntityAttribute, ...]),
+        ('metadata', Tuple[EntityMetaData, ...]),
+        ('links', Tuple[EntityLink, ...])
     ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         ('id', int),

@@ -184,6 +184,20 @@ class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
         return flags_to_dict(EntityMetaDataFlag, self.flags)
 
 
+EntityAttribute = _NamedTuple('EntityAttribute', [
+    ('name', str),
+    ('min', float),
+    ('current', float),
+    ('max', float)
+])
+
+EntityLink = _NamedTuple('EntityLink', [
+    ('from_entity_unique_id', EntityUniqueID),
+    ('to_entity_unique_id', EntityUniqueID),
+    ('type', int),
+    ('bool1', bool)
+])
+
 Inventory = _NamedTuple('Inventory', [
     ('window_type', WindowType),
     ('slots', Tuple[Slot, ...])
@@ -220,13 +234,6 @@ RecipeData = Union[RecipeForNormal, RecipeForFurnace, RecipeForMulti]
 Recipe = _NamedTuple('Recipe', [
     ('type', RecipeType),
     ('data', RecipeData)
-])
-
-EntityLink = _NamedTuple('EntityLink', [
-    ('from_entity_unique_id', EntityUniqueID),
-    ('to_entity_unique_id', EntityUniqueID),
-    ('type', int),
-    ('bool1', bool)
 ])
 
 InventoryAction = _NamedTuple('InventoryAction', [

@@ -241,6 +241,13 @@ _ENTITY_METADATA = VarListData(VAR_INT_DATA, CompositeData(EntityMetaData, (
     _MetaDataValue()
 )))
 
+_ENTITY_LINK = VarListData(VAR_INT_DATA, CompositeData(EntityLink, (
+    _ENTITY_UNIQUE_ID,
+    _ENTITY_UNIQUE_ID,
+    BYTE_DATA,
+    BOOL_DATA
+)))
+
 _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA,
     VAR_SIGNED_INT_DATA
@@ -477,12 +484,7 @@ _game_data_codecs = {
         VAR_INT_DATA,
         VAR_INT_DATA,
         L_LONG_DATA,
-        VarListData(VAR_INT_DATA, CompositeData(EntityLink, (
-            _ENTITY_UNIQUE_ID,
-            _ENTITY_UNIQUE_ID,
-            BYTE_DATA,
-            BOOL_DATA
-        )))
+        _ENTITY_LINK
     ],
     GamePacketType.REMOVE_ENTITY: [
         _HEADER_EXTRA_DATA,
@@ -581,6 +583,24 @@ _game_data_codecs = {
             _SLOT_DATA
         ))),
         _TransactionData()
+    ],
+    GamePacketType.ADD_ENTITY: [
+        _HEADER_EXTRA_DATA,
+        _ENTITY_UNIQUE_ID,
+        _ENTITY_RUNTIME_ID,
+        EnumData(VAR_INT_DATA, EntityType),
+        _FLOAT_VECTOR3_DATA,
+        _FLOAT_VECTOR3_DATA,
+        L_FLOAT_DATA,
+        L_FLOAT_DATA,
+        VarListData(VAR_INT_DATA, CompositeData(EntityAttribute, (
+            VAR_STRING_DATA,
+            L_FLOAT_DATA,
+            L_FLOAT_DATA,
+            L_FLOAT_DATA
+        ))),
+        _ENTITY_METADATA,
+        _ENTITY_LINK
     ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
