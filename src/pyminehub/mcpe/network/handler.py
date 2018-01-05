@@ -71,6 +71,9 @@ class MCPEHandler(GameDataHandler):
         else:
             self._queue.append(packet, addr)
 
+    def _send_waiting_game_packet(self) -> None:
+        self._queue.send()
+
     def _forward_packet_to_other_players(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         player = self._session_manager[addr]
         for addr, p in self._session_manager.excluding(player):
@@ -192,8 +195,8 @@ class MCPEHandler(GameDataHandler):
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._send_game_packet(res_packet, addr)
 
-    # noinspection PyUnusedLocal
     def _process_move_player(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert packet.entity_runtime_id == self._session_manager[addr].entity_runtime_id
         assert packet.mode != MoveMode.TELEPORT
         self._world.perform(action_factory.create(
             ActionType.MOVE_PLAYER,
@@ -206,6 +209,8 @@ class MCPEHandler(GameDataHandler):
             packet.on_ground,
             packet.riding_eid
         ))
+        if is_last:
+            self._send_waiting_game_packet()
 
     def _process_player_action(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         self._forward_packet_to_other_players(packet, addr, is_last)
@@ -223,7 +228,11 @@ class MCPEHandler(GameDataHandler):
         pass  # TODO implement
 
     def _process_inventory_transaction(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        pass  # TODO implement
+        player = self._session_manager[addr]
+        if packet.type == InventoryTransactionType.USE_ITEM:
+            self._world.perform(action_factory.create(ActionType.USE_ITEM, player.entity_runtime_id, packet.data))
+        if is_last:
+            self._send_waiting_game_packet()
 
     # event handling methods
 

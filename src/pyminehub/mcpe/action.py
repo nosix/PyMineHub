@@ -8,6 +8,7 @@ class ActionType(ValueType):
     LOGIN_PLAYER = 0
     REQUEST_CHUNK = 1
     MOVE_PLAYER = 2
+    USE_ITEM = 3
 
 
 _action_specs = {
@@ -29,6 +30,11 @@ _action_specs = {
         ('mode', MoveMode),
         ('on_ground', bool),
         ('riding_eid', EntityRuntimeID)
+    ],
+    ActionType.USE_ITEM: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('transaction', TransactionToUseItem)
     ]
 }
 

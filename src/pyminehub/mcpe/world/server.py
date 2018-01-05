@@ -142,6 +142,9 @@ class _World(WorldProxy):
             action.riding_eid
         ))
 
+    def _process_use_item(self, action: Action) -> None:
+        pass  # TODO implement
+
 
 def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:
     from pyminehub.mcpe.world.database import DataBase
