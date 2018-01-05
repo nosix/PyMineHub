@@ -6,7 +6,6 @@ from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.inventory import create_inventory
 from pyminehub.mcpe.world.database import DataBase
 from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
@@ -110,9 +109,9 @@ class _World(WorldProxy):
             EventType.INVENTORY_LOADED,
             entity.player_id,
             (
-                create_inventory(WindowType.INVENTORY),
-                create_inventory(WindowType.ARMOR),
-                create_inventory(WindowType.CREATIVE)
+                entity.get_inventory(WindowType.INVENTORY),
+                entity.get_inventory(WindowType.ARMOR),
+                entity.get_inventory(WindowType.CREATIVE)
             )
         ))
         self._notify_event(event_factory.create(

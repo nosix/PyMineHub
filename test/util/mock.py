@@ -7,7 +7,8 @@ from typing import List
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.inventory import create_inventory
+from pyminehub.mcpe.inventory import MutableInventory
+from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address
 
@@ -243,9 +244,9 @@ class MockWorldProxy(WorldProxy):
                     EventType.INVENTORY_LOADED,
                     action.player_id,
                     (
-                        create_inventory(WindowType.INVENTORY),
-                        create_inventory(WindowType.ARMOR),
-                        create_inventory(WindowType.CREATIVE)
+                        MutableInventory(WindowType.INVENTORY).to_value(),
+                        MutableInventory(WindowType.ARMOR).to_value(),
+                        Inventory(WindowType.CREATIVE, INVENTORY_CONTENT_ITEMS121)
                     )
                 ))
             self._waiting_queue.append(

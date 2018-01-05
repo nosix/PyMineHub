@@ -1,7 +1,10 @@
 from typing import NamedTuple as _NamedTuple, Dict, Tuple
 
+from pyminehub.mcpe.const import WindowType
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID
+from pyminehub.mcpe.inventory import MutableInventory
+from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
+from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Inventory
 
 
 class EntitySpec(_NamedTuple('EntitySpec', [
@@ -71,6 +74,8 @@ class PlayerEntity(Entity):
         self._player_id = player_id
         self._health = 20.0
         self._hunger = 20.0
+        self._inventory = MutableInventory(WindowType.INVENTORY)
+        self._armor = MutableInventory(WindowType.ARMOR)
 
     @property
     def player_id(self) -> PlayerID:
@@ -91,6 +96,15 @@ class PlayerEntity(Entity):
     @hunger.setter
     def hunger(self, value: float) -> None:
         self._hunger = value
+
+    def get_inventory(self, window_type: WindowType) -> Inventory:
+        if window_type == WindowType.CREATIVE:
+            return Inventory(window_type, INVENTORY_CONTENT_ITEMS121)
+        if window_type == WindowType.INVENTORY:
+            return self._inventory.to_value()
+        if window_type == WindowType.ARMOR:
+            return self._armor.to_value()
+        raise AssertionError(window_type)
 
 
 class EntityPool:
