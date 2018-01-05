@@ -616,7 +616,8 @@ class RawData(DataCodec[bytes]):
     def write(self, data: bytearray, value: bytes, context: DataCodecContext) -> None:
         length = len(value)
         if self.data_len is not None and length != self.data_len:
-            raise BytesOperationError('Invalid value data length. (actual:{}, expected:{})'.format(length, self.data_len))
+            raise BytesOperationError(
+                'Invalid value data length. (actual:{}, expected:{})'.format(length, self.data_len))
         data += value
         context.length += length
 
