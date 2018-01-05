@@ -42,7 +42,7 @@ class GamePacketType(ValueType):
     ADD_PAINTING = 0x16
     EXPLODE = 0x17
     SOUND_EVENT = 0x18
-    LEVEL_EVENT = 0x19
+    SPACE_EVENT = 0x19
     BLOCK_EVENT = 0x1a
     ENTITY_EVENT = 0x1b
     MOB_EFFECT = 0x1c
@@ -460,6 +460,13 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('slots', Tuple[Slot, ...])
+    ],
+    GamePacketType.SPACE_EVENT: [
+        ('id', int),
+        ('extra', bytes),
+        ('type', SpaceEventType),
+        ('position', Vector3[float]),
+        ('data', int)
     ],
     GamePacketType.UPDATE_BLOCK: [
         ('id', int),

@@ -1,0 +1,45 @@
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.BLOCK_START_BREAK: 3600>, position=Vector3(x=475.0, y=71.0, z=638.0), data=3640)
+  -> 190000a0380080ed4300008e4200801f44f038
+  File "./codec_play.py", line 86, in test_space_event
+    GamePacket(GamePacketType.SPACE_EVENT),
+
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.BLOCK_START_BREAK: 3600>, position=Vector3(x=475.0, y=71.0, z=638.0), data=3640)
+  -> 190000a0380080ed4300008e4200801f44f038
+  File "./codec_play.py", line 87, in test_space_event
+    GamePacket(GamePacketType.SPACE_EVENT),
+
+SpaceEvent(id=25, extra=b'\x00\x00', type=<SpaceEventType.PARTICLE_PUNCH_BLOCK: 2014>, position=Vector3(x=475.0, y=71.0, z=638.0), data=65538)
+  -> 190000bc1f0080ed4300008e4200801f44848008
+  File "./codec_play.py", line 88, in test_space_event
+    GamePacket(GamePacketType.SPACE_EVENT)
+
+Batch(id=254, payloads=([19 bytes], [19 bytes], [20 bytes]))
+  -> fe7801013d00c2ff13190000a0380080ed4300008e4200801f44f03813190000a0380080ed4300008e4200801f44f03814190000bc1f0080ed4300008e4200801f44848008f1e01096
+  File "./codec_play.py", line 85, in test_space_event
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=584, reliable_message_num=1113, message_ordering_index=1075, message_ordering_chanel=0, payload=[73 bytes])
+  -> 60024859040033040000fe7801013d00c2ff13190000a0380080ed4300008e4200801f44f03813190000a0380080ed4300008e4200801f44f03814190000bc1f0080ed4300008e4200801f44848008f1e01096
+  File "./codec_play.py", line 84, in test_space_event
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+SoundEvent(id=24, extra=b'\x00\x00', sound=<SoundType.HIT: 1>, position=Vector3(x=475.5, y=71.5, z=638.5), extra_data=4, pitch=2, unknown=False, disable_relative_volume=False)
+  -> 1800000100c0ed4300008f4200a01f4404020000
+  File "./codec_play.py", line 93, in test_space_event
+    GamePacket(GamePacketType.SOUND_EVENT)
+
+Batch(id=254, payloads=([20 bytes],))
+  -> fe7801011500eaff141800000100c0ed4300008f4200a01f44040200002db303f8
+  File "./codec_play.py", line 92, in test_space_event
+    Batch().that_has(
+
+ReliableOrdered(id=96, payload_length=264, reliable_message_num=1114, message_ordering_index=1076, message_ordering_chanel=0, payload=[33 bytes])
+  -> 6001085a040034040000fe7801011500eaff141800000100c0ed4300008f4200a01f44040200002db303f8
+  File "./codec_play.py", line 91, in test_space_event
+    RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
+
+FrameSet4(id=132, packet_sequence_num=855, payload=[126 bytes])
+  -> 8457030060024859040033040000fe7801013d00c2ff13190000a0380080ed4300008e4200801f44f03813190000a0380080ed4300008e4200801f44f03814190000bc1f0080ed4300008e4200801f44848008f1e010966001085a040034040000fe7801011500eaff141800000100c0ed4300008f4200a01f44040200002db303f8
+  File "./codec_play.py", line 83, in test_space_event
+    RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
+

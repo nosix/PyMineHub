@@ -607,6 +607,12 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         ListData(4, _SLOT_DATA)
     ],
+    GamePacketType.SPACE_EVENT: [
+        _HEADER_EXTRA_DATA,
+        EnumData(VAR_SIGNED_INT_DATA, SpaceEventType),
+        _FLOAT_VECTOR3_DATA,
+        VAR_SIGNED_INT_DATA
+    ],
     GamePacketType.UPDATE_BLOCK: [
         _HEADER_EXTRA_DATA,
         _BLOCK_POSITION_DATA,
