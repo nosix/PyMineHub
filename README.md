@@ -63,8 +63,9 @@ mcpe
   value -> binutil.[converter], .[const, geometry]
   resource
     - loader
+  attribute -> .[const, value]
   metadata -> .[const, geometry, value]
-  inventory -> mcpe.[resource], .[const, value]
+  inventory -> .[const, value]
   command -> .[const, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
   player -> .[value, world]
@@ -78,9 +79,11 @@ mcpe
   world -> value, .[const, player]
     - database -> config, mcpe.[geometry, chunk]
     - generator -> mcpe.[geometry, chunk, plugin], .[database]
-    - space -> mcpe.[geometry, chunk], .[database, generator]
+    - entity -> mcpe.[const, geometry, inventory, resource, value]
+    - space -> mcpe.[const, value, geometry, chunk], .[database, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
-    - server -> mcpe.[inventory, chunk], .[database, generator, space, proxy]
+    - server -> config, value, mcpe.[action, attribute, event, chunk],
+                .[database, entity, generator, space, proxy]
   network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, player, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]
