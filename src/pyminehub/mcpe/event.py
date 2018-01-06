@@ -11,6 +11,8 @@ class EventType(ValueType):
     SLOT_INITIALIZED = 2
     FULL_CHUNK_LOADED = 3
     PLAYER_MOVED = 4
+    BLOCK_BROKEN = 5
+    ITEM_SPAWNED = 6
 
 
 _event_specs = {
@@ -56,6 +58,21 @@ _event_specs = {
         ('mode', MoveMode),
         ('on_ground', bool),
         ('riding_eid', EntityRuntimeID)
+    ],
+    EventType.BLOCK_BROKEN: [
+        ('id', int),
+        ('position', Vector3[int]),
+        ('block_type', BlockType),
+        ('block_aux', BlockData)
+    ],
+    EventType.ITEM_SPAWNED: [
+        ('id', int),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('item', Slot),
+        ('position', Vector3[float]),
+        ('motion', Vector3[float]),
+        ('metadata', Tuple[EntityMetaData, ...])
     ]
 }
 

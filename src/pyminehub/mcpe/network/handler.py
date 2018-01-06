@@ -191,7 +191,9 @@ class MCPEHandler(GameDataHandler):
         assert is_last
         player = self._session_manager[addr]
         player.update_required_chunk(packet.radius)
-        self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))
+        required_chunk = player.next_required_chunk()
+        if len(required_chunk) > 0:
+            self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self._send_game_packet(res_packet, addr)
 
@@ -277,4 +279,31 @@ class MCPEHandler(GameDataHandler):
                 self._send_game_packet(res_packet, addr)
             else:
                 player.position = event.position
-                self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, player.next_required_chunk()))
+                required_chunk = player.next_required_chunk()
+                if len(required_chunk) > 0:
+                    self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
+
+    def _process_event_block_broken(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.UPDATE_BLOCK,
+            EXTRA_DATA,
+            event.position,
+            event.block_type,
+            event.block_aux
+        )
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)
+
+    def _process_event_item_spawned(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.ADD_ITEM_ENTITY,
+            EXTRA_DATA,
+            event.entity_unique_id,
+            event.entity_runtime_id,
+            event.item,
+            event.position,
+            event.motion,
+            event.metadata
+        )
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)

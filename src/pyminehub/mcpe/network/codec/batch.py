@@ -115,8 +115,8 @@ def _is_zero_first_value(context: CompositeCodecContext):
 
 
 _SLOT_DATA = CompositeData(Slot, (
-    NamedData('slot_id', VAR_INT_DATA),
-    OptionalData(VAR_INT_DATA, _is_zero_first_value),
+    NamedData('slot_id', VAR_SIGNED_INT_DATA),
+    OptionalData(VAR_SIGNED_INT_DATA, _is_zero_first_value),
     OptionalData(BytesData(len_codec=L_SHORT_DATA), _is_zero_first_value),
     OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value),
     OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value)
@@ -222,10 +222,10 @@ class _RecipeList(DataCodec[Tuple[Recipe, ...]]):
         _RecipeData()
     )))  # type: DataCodec[Tuple[Recipe, ...]]
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Recipe, ...]:
+    def read(self, data: bytearray, context: CompositeCodecContext) -> Tuple[Recipe, ...]:
         return self._CODEC.read(data, context)
 
-    def write(self, data: bytearray, value: Union[Tuple[Recipe, ...], bytes], context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: Union[Tuple[Recipe, ...], bytes], context: CompositeCodecContext) -> None:
         if isinstance(value, bytes):
             RAW_DATA.write(data, value, context)
         else:
@@ -526,7 +526,7 @@ _game_data_codecs = {
         _ENTITY_RUNTIME_ID,
         EnumData(VAR_INT_DATA, PlayerActionType),
         _INT_VECTOR3_DATA,
-        EnumData(VAR_INT_DATA, Face)
+        EnumData(VAR_SIGNED_INT_DATA, Face)
     ],
     GamePacketType.MOVE_ENTITY: [
         _HEADER_EXTRA_DATA,

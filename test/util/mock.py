@@ -253,7 +253,7 @@ class MockWorldProxy(WorldProxy):
                 event_factory.create(
                     EventType.SLOT_INITIALIZED,
                     action.player_id,
-                    Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
+                    Slot(0, None, None, None, None),
                     0,
                     0
                 ))

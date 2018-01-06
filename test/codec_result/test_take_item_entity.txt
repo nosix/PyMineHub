@@ -13,7 +13,7 @@ ReliableOrdered(id=96, payload_length=144, reliable_message_num=1278, message_or
   File "./codec_play.py", line 132, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-InventorySlot(id=50, extra=b'\x00\x00', window_id=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Slot(id=6, aux_value=2, nbt=b'', place_on=(), destroy=()))
+InventorySlot(id=50, extra=b'\x00\x00', window_id=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Slot(id=3, aux_value=1, nbt=b'', place_on=(), destroy=()))
   -> 3200000000060200000000
   File "./codec_play.py", line 139, in test_take_item_entity
     GamePacket(GamePacketType.INVENTORY_SLOT)
@@ -43,7 +43,7 @@ ReliableOrdered(id=96, payload_length=144, reliable_message_num=1280, message_or
   File "./codec_play.py", line 142, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-InventorySlot(id=50, extra=b'\x00\x00', window_id=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Slot(id=6, aux_value=4, nbt=b'', place_on=(), destroy=()))
+InventorySlot(id=50, extra=b'\x00\x00', window_id=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Slot(id=3, aux_value=2, nbt=b'', place_on=(), destroy=()))
   -> 3200000000060400000000
   File "./codec_play.py", line 149, in test_take_item_entity
     GamePacket(GamePacketType.INVENTORY_SLOT)

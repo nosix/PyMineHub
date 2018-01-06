@@ -4,16 +4,19 @@ from pyminehub.mcpe.const import WindowType
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
-from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Inventory
+from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Inventory, Slot
 
 
 class EntitySpec(_NamedTuple('EntitySpec', [
-    ('eye_height', float)
+    ('eye_height', float),
+    ('x_size', float),
+    ('z_size', float)
 ])):
     pass
 
 
-_PLAYER_ENTITY_SPEC = EntitySpec(1.625)
+_PLAYER_ENTITY_SPEC = EntitySpec(1.625, 1.0, 1.0)
+_ITEM_ENTITY_SPEC = EntitySpec(0.5, 1.0, 1.0)
 
 
 class Entity:
@@ -28,7 +31,11 @@ class Entity:
 
     def spawn(self, block_height: int) -> None:
         y = self._spawn_position.y if self._spawn_position.y > block_height else block_height
-        self._position = self._spawn_position.copy(y=y + self._spec.eye_height)
+        self._position = self._spawn_position.copy(
+            x=self._spawn_position.x + self._spec.x_size / 2,
+            y=y + self._spec.eye_height,
+            z=self._spawn_position.z + self._spec.z_size / 2
+        )
 
     @property
     def entity_unique_id(self) -> EntityUniqueID:
@@ -107,10 +114,22 @@ class PlayerEntity(Entity):
         raise AssertionError(window_type)
 
 
+class ItemEntity(Entity):
+
+    def __init__(self, item: Slot, entity_unique_id: EntityUniqueID) -> None:
+        super().__init__(_ITEM_ENTITY_SPEC, entity_unique_id)
+        self._item = item
+
+    @property
+    def item(self) -> Slot:
+        return self._item
+
+
 class EntityPool:
 
     def __init__(self) -> None:
         self._players = {}  # type: Dict[EntityRuntimeID, PlayerEntity]
+        self._items = {}  # type: Dict[EntityRuntimeID, ItemEntity]
         self._entities = {}  # type: Dict[EntityRuntimeID, Entity]
         self._last_entity_id = 1
 
@@ -134,3 +153,13 @@ class EntityPool:
 
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]
+
+    def create_item(self, item: Slot) -> EntityRuntimeID:
+        entity_unique_id, entity_runtime_id = self._next_entity_id()
+        entity = ItemEntity(item, entity_unique_id)
+        self._entities[entity_runtime_id] = entity
+        self._items[entity_runtime_id] = entity
+        return entity_runtime_id
+
+    def get_item(self, entity_runtime_id: EntityRuntimeID) -> ItemEntity:
+        return self._items[entity_runtime_id]

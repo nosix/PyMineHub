@@ -117,7 +117,7 @@ class _World(WorldProxy):
         self._notify_event(event_factory.create(
             EventType.SLOT_INITIALIZED,
             entity.player_id,
-            Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None),
+            Slot(0, None, None, None, None),
             0,
             0
         ))
@@ -142,7 +142,31 @@ class _World(WorldProxy):
         ))
 
     def _process_use_item(self, action: Action) -> None:
-        pass  # TODO implement
+        if action.transaction.action_type == UseItemActionType.BREAK_BLOCK:
+            items = self._space.break_block(action.transaction.position)
+            if items is None:
+                return
+            self._notify_event(event_factory.create(
+                EventType.BLOCK_BROKEN,
+                action.transaction.position,
+                BlockType.AIR,
+                BlockData.create(0, neighbors=True, network=True, priority=True)
+            ))
+            for item in items:
+                entity_runtime_id = self._entity.create_item(item)
+                entity = self._entity.get_item(entity_runtime_id)
+                entity.spawn_position = action.transaction.position
+                height = self._space.get_height(entity.spawn_position)
+                entity.spawn(height)
+                self._notify_event(event_factory.create(
+                    EventType.ITEM_SPAWNED,
+                    entity.entity_unique_id,
+                    entity_runtime_id,
+                    entity.item,
+                    entity.position,
+                    Vector3(0.0, 0.0, 0.0),
+                    tuple()
+                ))
 
 
 def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:

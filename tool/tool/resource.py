@@ -25,6 +25,8 @@ def _convert_to_jsonable(o):
         return tuple(_convert_to_jsonable(e) for e in o)
     if isinstance(o, bytes):
         return {'value': o.hex(), _KEY_CLASS_NAME: 'bytes'}
+    if isinstance(o, UUID):
+        return {'value': o.hex, _KEY_CLASS_NAME: 'UUID'}
     if isinstance(o, Enum):
         return {'value': o.value, _KEY_CLASS_NAME: type(o).__name__}
     return o
@@ -57,7 +59,7 @@ def load_recipe(file_name: str) -> Tuple[Recipe, ...]:
         'RecipeForFurnace': RecipeForFurnace,
         'RecipeForMulti': RecipeForMulti,
         'Slot': Slot,
-        'UUID': UUID,
+        'UUID': lambda value: UUID(hex=value),
         'bytes': lambda value: unhex(value)
     }
     with open(file_name, 'r') as file:
@@ -66,7 +68,7 @@ def load_recipe(file_name: str) -> Tuple[Recipe, ...]:
 
 
 def encode_recipe(recipe: Tuple[Recipe, ...], file_name: str) -> None:
-    """For example, pyminehub/mcpe/crafting-data-recipe.dat is encoded by this."""
+    """For example, pyminehub/mcpe/resource/crafting-data-recipe.dat is encoded by this."""
     data = bytearray()
     context = CompositeCodecContext()
     # noinspection PyProtectedMember
@@ -92,7 +94,7 @@ def load_inventory_content(file_name: str) -> Tuple[Slot, ...]:
 
 
 def encode_inventory_content(content: Tuple[Slot, ...], file_name: str) -> None:
-    """For example, pyminehub/mcpe/inventory-content-items121.dat is encoded by this."""
+    """For example, pyminehub/mcpe/resource/inventory-content-items121.dat is encoded by this."""
     data = bytearray()
     context = CompositeCodecContext()
     # noinspection PyProtectedMember

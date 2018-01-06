@@ -132,6 +132,11 @@ class Chunk:
         sub_chunk.set_block(position.x, y_in_sub, position.z, block_type)
         if block_data is not None:
             sub_chunk.set_block_data(position.x, y_in_sub, position.z, block_data)
+        height = self.get_height(position.x, position.z)
+        if position.y == height and block_type != BlockType.AIR:
+            self.set_height(position.x, position.z, height + 1)
+        if position.y == height - 1 and block_type == BlockType.AIR:
+            self.set_height(position.x, position.z, height - 1)
         self._is_updated = True
 
     def get_block_data(self, position: Vector3[int]) -> int:
