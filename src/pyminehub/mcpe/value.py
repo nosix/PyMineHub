@@ -274,6 +274,38 @@ TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
 TransactionData = Union[TransactionToUseItem, TransactionToUseItemOnEntity, TransactionToReleaseItem]
 
 
+class BlockData(_NamedTuple('BlockData', [
+    ('value', int)
+])):
+    def __str__(self) -> str:
+        return '{}(data={}, flags={})'.format(self.__class__.__name__, self.data, self.flags)
+
+    @staticmethod
+    def create(data: int, **kwargs: bool) -> 'BlockData':
+        """
+        >>> BlockData.create(1, neighbors=True, network=True, priority=True)
+        BlockData(value=177)
+        """
+        assert data <= 0xf
+        return BlockData(dict_to_flags(BlockFlag, **kwargs) << 4 | data)
+
+    @property
+    def data(self) -> int:
+        """
+        >>> BlockData(177).data
+        1
+        """
+        return self.value & 0xf
+
+    @property
+    def flags(self) -> Dict[str, bool]:
+        """
+        >>> sorted(BlockData(177).flags.items())
+        [('neighbors', True), ('network', True), ('priority', True)]
+        """
+        return flags_to_dict(BlockFlag, self.value >> 4)
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

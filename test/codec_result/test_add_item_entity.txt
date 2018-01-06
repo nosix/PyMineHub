@@ -1,4 +1,4 @@
-UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=475, y=71, z=639), block_id=0, aux=176)
+UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=475, y=71, z=639), block_id=<BlockType.AIR: 0>, aux=BlockData(value=176))
   -> 150000b60747fe0900b001
   File "./codec_play.py", line 105, in test_add_item_entity
     GamePacket(GamePacketType.UPDATE_BLOCK)

@@ -532,6 +532,13 @@ class BlockType(Enum):
     STRUCTURE_BLOCK = 255
 
 
+class BlockFlag(Enum):
+    NEIGHBORS = 0
+    NETWORK = 1
+    NO_GRAPHIC = 2
+    PRIORITY = 3
+
+    
 class BiomeType(Enum):
     """Biome IDs
 

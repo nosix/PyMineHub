@@ -617,8 +617,10 @@ _game_data_codecs = {
     GamePacketType.UPDATE_BLOCK: [
         _HEADER_EXTRA_DATA,
         _BLOCK_POSITION_DATA,
-        VAR_INT_DATA,
-        VAR_INT_DATA
+        EnumData(VAR_INT_DATA, BlockType),
+        CompositeData(BlockData, (
+            VAR_INT_DATA,
+        ))
     ],
     GamePacketType.ADD_ITEM_ENTITY: [
         _HEADER_EXTRA_DATA,
