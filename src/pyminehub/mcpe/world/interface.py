@@ -6,5 +6,5 @@ class WorldEditor:
     def remove_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
         raise NotImplementedError()
 
-    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> int:
+    def append_into_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> int:
         raise NotImplementedError()

@@ -71,7 +71,7 @@ class _World(WorldProxy, WorldEditor):
             entity_runtime_id
         ))
 
-    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
+    def append_into_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
         player = self._entity.get_player(entity_runtime_id)
         inventory_slot = player.append_item(item)
         slot = player.get_item(inventory_slot)

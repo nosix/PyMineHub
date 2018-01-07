@@ -20,7 +20,7 @@ class CollisionWithItem(Collision):
         self._item_entity = item_entity
 
     def update(self, editor: WorldEditor) -> None:
-        editor.append_to_player_inventory(self._player_entity.entity_runtime_id, self._item_entity.item)
+        editor.append_into_player_inventory(self._player_entity.entity_runtime_id, self._item_entity.item)
         editor.remove_entity(self._item_entity.entity_runtime_id)
 
     @property
