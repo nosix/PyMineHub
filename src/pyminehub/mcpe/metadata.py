@@ -1,6 +1,6 @@
 from pyminehub.mcpe.const import MetaDataType, EntityMetaDataKey
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import MetaDataValue, EntityMetaData, Slot
+from pyminehub.mcpe.value import MetaDataValue, EntityMetaData, Item
 
 
 _ENTITY_METADATA_TYPE = {
@@ -72,7 +72,7 @@ _TYPE_CHECKER = {
     MetaDataType.LONG: lambda value: isinstance(value, int),
     MetaDataType.FLOAT: lambda value: isinstance(value, float),
     MetaDataType.STRING: lambda value: isinstance(value, str),
-    MetaDataType.SLOT: lambda value: isinstance(value, Slot),
+    MetaDataType.ITEM: lambda value: isinstance(value, Item),
     MetaDataType.INT_VECTOR3: lambda value: isinstance(value, Vector3) and all(isinstance(v, int) for v in value),
     MetaDataType.FLOAT_VECTOR3: lambda value: isinstance(value, Vector3) and all(isinstance(v, float) for v in value)
 }

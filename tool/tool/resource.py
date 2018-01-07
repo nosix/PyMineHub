@@ -58,7 +58,8 @@ def load_recipe(file_name: str) -> Tuple[Recipe, ...]:
         'RecipeForNormal': RecipeForNormal,
         'RecipeForFurnace': RecipeForFurnace,
         'RecipeForMulti': RecipeForMulti,
-        'Slot': Slot,
+        'Item': Item,
+        'ItemType': ItemType,
         'UUID': lambda value: UUID(hex=value),
         'bytes': lambda value: unhex(value)
     }
@@ -77,15 +78,16 @@ def encode_recipe(recipe: Tuple[Recipe, ...], file_name: str) -> None:
         file.write(data)
 
 
-def dump_inventory_content(content: Tuple[Slot, ...], file_name: str, indent=None) -> None:
+def dump_inventory_content(content: Tuple[Item, ...], file_name: str, indent=None) -> None:
     """For example, inventory-content-items121.json is dumped by this."""
     with open(file_name, 'w') as file:
         json.dump(_convert_to_jsonable(content), file, indent=indent)
 
 
-def load_inventory_content(file_name: str) -> Tuple[Slot, ...]:
+def load_inventory_content(file_name: str) -> Tuple[Item, ...]:
     factory = {
-        'Slot': Slot,
+        'Item': Item,
+        'ItemType': ItemType,
         'bytes': lambda value: unhex(value)
     }
     with open(file_name, 'r') as file:
@@ -93,7 +95,7 @@ def load_inventory_content(file_name: str) -> Tuple[Slot, ...]:
         return _convert_to_namedtuple(d, factory)
 
 
-def encode_inventory_content(content: Tuple[Slot, ...], file_name: str) -> None:
+def encode_inventory_content(content: Tuple[Item, ...], file_name: str) -> None:
     """For example, pyminehub/mcpe/resource/inventory-content-items121.dat is encoded by this."""
     data = bytearray()
     context = CompositeCodecContext()

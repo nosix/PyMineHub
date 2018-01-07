@@ -2,7 +2,7 @@ from pyminehub.mcpe.const import WindowType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
-from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Slot
+from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item
 from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC
 
 
@@ -134,16 +134,16 @@ class PlayerEntity(Entity):
             return self._armor.to_value()
         raise AssertionError(window_type)
 
-    def append_to_inventory(self, item: Slot) -> int:
+    def append_to_inventory(self, item: Item) -> int:
         return self._inventory.append(item)
 
 
 class ItemEntity(Entity):
 
-    def __init__(self, item: Slot, entity_unique_id: EntityUniqueID, entity_runtime_id: EntityRuntimeID) -> None:
+    def __init__(self, item: Item, entity_unique_id: EntityUniqueID, entity_runtime_id: EntityRuntimeID) -> None:
         super().__init__(ITEM_ENTITY_SPEC, entity_unique_id, entity_runtime_id)
         self._item = item
 
     @property
-    def item(self) -> Slot:
+    def item(self) -> Item:
         return self._item

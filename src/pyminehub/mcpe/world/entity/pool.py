@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 
-from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Slot
+from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
 from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity
 
@@ -29,7 +29,7 @@ class EntityPool:
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]
 
-    def create_item(self, item: Slot) -> EntityRuntimeID:
+    def create_item(self, item: Item) -> EntityRuntimeID:
         entity_unique_id, entity_runtime_id = self._next_entity_id()
         entity = ItemEntity(item, entity_unique_id, entity_runtime_id)
         self._items[entity_runtime_id] = entity

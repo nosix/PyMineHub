@@ -67,7 +67,7 @@ class _World(WorldProxy, WorldEditor):
     def remove_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
         self._entity.remove(entity_runtime_id)
 
-    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Slot) -> int:
+    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> int:
         player = self._entity.get_player(entity_runtime_id)
         return player.append_to_inventory(item)
 
@@ -129,7 +129,7 @@ class _World(WorldProxy, WorldEditor):
         self._notify_event(event_factory.create(
             EventType.SLOT_INITIALIZED,
             entity.player_id,
-            Slot(0, None, None, None, None),
+            Item(ItemType.AIR, None, None, None, None),
             0,
             0
         ))

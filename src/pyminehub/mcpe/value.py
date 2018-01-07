@@ -148,15 +148,15 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
         return d
 
 
-Slot = _NamedTuple('Slot', [
-    ('id', int),
+Item = _NamedTuple('Item', [
+    ('type', ItemType),
     ('aux_value', Optional[int]),
     ('nbt', Optional[bytes]),
     ('place_on', Optional[str]),
     ('destroy', Optional[str])
 ])
 
-MetaDataValue = Union[int, float, str, Vector3, Slot]
+MetaDataValue = Union[int, float, str, Vector3, Item]
 
 EntityMetaData = _NamedTuple('EntityMetaData', [
     ('key', EntityMetaDataKey),
@@ -200,7 +200,7 @@ EntityLink = _NamedTuple('EntityLink', [
 
 Inventory = _NamedTuple('Inventory', [
     ('window_type', WindowType),
-    ('slots', Tuple[Slot, ...])
+    ('slots', Tuple[Item, ...])
 ])
 
 PlayerListEntry = _NamedTuple('PlayerListEntry', [
@@ -214,15 +214,15 @@ PlayerListEntry = _NamedTuple('PlayerListEntry', [
 RecipeForNormal = _NamedTuple('RecipeForNormal', [
     ('width', Optional[int]),
     ('height', Optional[int]),
-    ('input', Tuple[Slot, ...]),
-    ('output', Tuple[Slot, ...]),
+    ('input', Tuple[Item, ...]),
+    ('output', Tuple[Item, ...]),
     ('uuid', UUID)
 ])
 
 RecipeForFurnace = _NamedTuple('RecipeForFurnace', [
     ('input_id', int),
     ('input_damage', Optional[int]),
-    ('output', Slot)
+    ('output', Item)
 ])
 
 RecipeForMulti = _NamedTuple('RecipeForMulti', [
@@ -241,8 +241,8 @@ InventoryAction = _NamedTuple('InventoryAction', [
     ('window_type', Optional[WindowType]),
     ('unknown1', Optional[int]),
     ('inventory_slot', int),
-    ('old_item', Slot),
-    ('new_item', Slot)
+    ('old_item', Item),
+    ('new_item', Item)
 ])
 
 TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
@@ -250,7 +250,7 @@ TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
     ('position', Vector3[int]),
     ('face', Face),
     ('hotbar_slot', int),
-    ('item_in_hand', Slot),
+    ('item_in_hand', Item),
     ('player_position', Vector3[float]),
     ('click_position', Vector3[float])
 ])
@@ -259,7 +259,7 @@ TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
     ('entity_runtime_id', EntityRuntimeID),
     ('action_type', UseItemOnEntityActionType),
     ('hotbar_slot', int),
-    ('item_in_hand', Slot),
+    ('item_in_hand', Item),
     ('unknown1', float),
     ('unknown2', float)
 ])
@@ -267,7 +267,7 @@ TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
 TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
     ('action_type', ReleaseItemActionType),
     ('hotbar_slot', int),
-    ('item_in_hand', Slot),
+    ('item_in_hand', Item),
     ('head_position', Vector3[float])
 ])
 

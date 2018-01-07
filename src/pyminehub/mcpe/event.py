@@ -40,7 +40,7 @@ _event_specs = {
     EventType.SLOT_INITIALIZED: [
         ('id', int),
         ('player_id', PlayerID),
-        ('equipped_item', Slot),
+        ('equipped_item', Item),
         ('inventory_slot', int),
         ('hotbar_slot', int)
     ],
@@ -70,7 +70,7 @@ _event_specs = {
         ('id', int),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
-        ('item', Slot),
+        ('item', Item),
         ('position', Vector3[float]),
         ('motion', Vector3[float]),
         ('metadata', Tuple[EntityMetaData, ...])
@@ -80,7 +80,7 @@ _event_specs = {
         ('item_runtime_id', EntityRuntimeID),
         ('player_runtime_id', EntityRuntimeID),
         ('inventory_slot', int),
-        ('item', Slot)
+        ('item', Item)
     ]
 }
 

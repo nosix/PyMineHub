@@ -111,28 +111,28 @@ class _CommandEnumIndex(DataCodec[int]):
 
 
 def _is_zero_first_value(context: CompositeCodecContext):
-    return context['slot_id'] == 0
+    return context['item_type'] == ItemType.AIR
 
 
-_SLOT_DATA = CompositeData(Slot, (
-    NamedData('slot_id', VAR_SIGNED_INT_DATA),
+_ITEM_DATA = CompositeData(Item, (
+    NamedData('item_type', EnumData(VAR_SIGNED_INT_DATA, ItemType)),
     OptionalData(VAR_SIGNED_INT_DATA, _is_zero_first_value),
     OptionalData(BytesData(len_codec=L_SHORT_DATA), _is_zero_first_value),
     OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value),
     OptionalData(VarListData(VAR_INT_DATA, VAR_STRING_DATA), _is_zero_first_value)
 ))
 
-_SLOTS = VarListData(VAR_INT_DATA, _SLOT_DATA)  # type: DataCodec[Tuple[Slot, ...]]
+_ITEM_LIST = VarListData(VAR_INT_DATA, _ITEM_DATA)  # type: DataCodec[Tuple[Item, ...]]
 
 
-class _InventoryContentItems(DataCodec[Tuple[Slot, ...]]):
+class _InventoryContentItems(DataCodec[Tuple[Item, ...]]):
 
-    _CODEC = _SLOTS
+    _CODEC = _ITEM_LIST
 
-    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Slot, ...]:
+    def read(self, data: bytearray, context: DataCodecContext) -> Tuple[Item, ...]:
         return self._CODEC.read(data, context)
 
-    def write(self, data: bytearray, value: Union[Tuple[Slot, ...], bytes], context: DataCodecContext) -> None:
+    def write(self, data: bytearray, value: Union[Tuple[Item, ...], bytes], context: DataCodecContext) -> None:
         if isinstance(value, bytes):
             RAW_DATA.write(data, value, context)
         else:
@@ -147,7 +147,7 @@ class _MetaDataValue(DataCodec[MetaDataValue]):
         MetaDataType.INT: VAR_INT_DATA,
         MetaDataType.FLOAT: L_FLOAT_DATA,
         MetaDataType.STRING: VAR_STRING_DATA,
-        MetaDataType.SLOT: _SLOT_DATA,
+        MetaDataType.ITEM: _ITEM_DATA,
         MetaDataType.INT_VECTOR3: _INT_VECTOR3_DATA,
         MetaDataType.LONG: VAR_INT_DATA,
         MetaDataType.FLOAT_VECTOR3: _FLOAT_VECTOR3_DATA
@@ -178,16 +178,16 @@ class _RecipeData(DataCodec[RecipeData]):
             if recipe_type == RecipeType.SHAPED:
                 width = VAR_SIGNED_INT_DATA.read(data, context)
                 height = VAR_SIGNED_INT_DATA.read(data, context)
-                input_slots = tuple(_SLOT_DATA.read(data, context) for _ in range(width * height))
+                input_slots = tuple(_ITEM_DATA.read(data, context) for _ in range(width * height))
             else:
-                input_slots = _SLOTS.read(data, context)
-            output_slots = _SLOTS.read(data, context)
+                input_slots = _ITEM_LIST.read(data, context)
+            output_slots = _ITEM_LIST.read(data, context)
             uuid = _UUID_DATA.read(data, context)
             return RecipeForNormal(width, height, input_slots, output_slots, uuid)
         if recipe_type in (RecipeType.FURNACE, RecipeType.FURNACE_DATA):
             input_id = VAR_SIGNED_INT_DATA.read(data, context)
             input_damage = VAR_SIGNED_INT_DATA.read(data, context) if recipe_type == RecipeType.FURNACE_DATA else None
-            output_slot = _SLOT_DATA.read(data, context)
+            output_slot = _ITEM_DATA.read(data, context)
             return RecipeForFurnace(input_id, input_damage, output_slot)
         if recipe_type == RecipeType.MULTI:
             return RecipeForMulti(_UUID_DATA.read(data, context))
@@ -199,17 +199,17 @@ class _RecipeData(DataCodec[RecipeData]):
                 VAR_SIGNED_INT_DATA.write(data, value.width, context)
                 VAR_SIGNED_INT_DATA.write(data, value.height, context)
                 for slot in value.input:
-                    _SLOT_DATA.write(data, slot, context)
+                    _ITEM_DATA.write(data, slot, context)
             else:
-                _SLOTS.write(data, value.input, context)
-            _SLOTS.write(data, value.output, context)
+                _ITEM_LIST.write(data, value.input, context)
+            _ITEM_LIST.write(data, value.output, context)
             _UUID_DATA.write(data, value.uuid, context)
             return
         if recipe_type in (RecipeType.FURNACE, RecipeType.FURNACE_DATA):
             VAR_SIGNED_INT_DATA.write(data, value.input_id, context)
             if recipe_type == RecipeType.FURNACE_DATA:
                 VAR_SIGNED_INT_DATA.write(data, value.input_damage, context)
-            _SLOT_DATA.write(data, value.output, context)
+            _ITEM_DATA.write(data, value.output, context)
             return
         if recipe_type == RecipeType.MULTI:
             _UUID_DATA.write(data, value.uuid, context)
@@ -265,7 +265,7 @@ class _TransactionData(DataCodec[Optional[TransactionData]]):
             _BLOCK_POSITION_DATA,
             EnumData(VAR_SIGNED_INT_DATA, Face),
             VAR_SIGNED_INT_DATA,
-            _SLOT_DATA,
+            _ITEM_DATA,
             _FLOAT_VECTOR3_DATA,
             _FLOAT_VECTOR3_DATA
         )),
@@ -273,14 +273,14 @@ class _TransactionData(DataCodec[Optional[TransactionData]]):
             _ENTITY_RUNTIME_ID,
             EnumData(VAR_INT_DATA, UseItemOnEntityActionType),
             VAR_SIGNED_INT_DATA,
-            _SLOT_DATA,
+            _ITEM_DATA,
             _FLOAT_VECTOR3_DATA,
             _FLOAT_VECTOR3_DATA
         )),
         InventoryTransactionType.RELEASE_ITEM: CompositeData(TransactionToReleaseItem, (
             EnumData(VAR_INT_DATA, ReleaseItemActionType),
             VAR_SIGNED_INT_DATA,
-            _SLOT_DATA,
+            _ITEM_DATA,
             _FLOAT_VECTOR3_DATA
         ))
     }
@@ -420,7 +420,7 @@ _game_data_codecs = {
     GamePacketType.MOB_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
-        _SLOT_DATA,
+        _ITEM_DATA,
         BYTE_DATA,
         BYTE_DATA,
         EnumData(BYTE_DATA, WindowType)
@@ -429,7 +429,7 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         EnumData(VAR_INT_DATA, WindowType),
         VAR_INT_DATA,
-        _SLOT_DATA
+        _ITEM_DATA
     ],
     GamePacketType.CRAFTING_DATA: [
         _HEADER_EXTRA_DATA,
@@ -477,7 +477,7 @@ _game_data_codecs = {
         L_FLOAT_DATA,
         L_FLOAT_DATA,
         L_FLOAT_DATA,
-        _SLOT_DATA,
+        _ITEM_DATA,
         _ENTITY_METADATA,
         VAR_INT_DATA,
         VAR_INT_DATA,
@@ -580,8 +580,8 @@ _game_data_codecs = {
             OptionalData(VAR_INT_DATA,
                          lambda _context: _context['source_type'] != SourceType.WORLD),
             VAR_INT_DATA,
-            _SLOT_DATA,
-            _SLOT_DATA
+            _ITEM_DATA,
+            _ITEM_DATA
         ))),
         _TransactionData()
     ],
@@ -606,7 +606,7 @@ _game_data_codecs = {
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
-        ListData(4, _SLOT_DATA)
+        ListData(4, _ITEM_DATA)
     ],
     GamePacketType.SPACE_EVENT: [
         _HEADER_EXTRA_DATA,
@@ -626,7 +626,7 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_UNIQUE_ID,
         _ENTITY_RUNTIME_ID,
-        _SLOT_DATA,
+        _ITEM_DATA,
         _FLOAT_VECTOR3_DATA,
         _FLOAT_VECTOR3_DATA,
         _ENTITY_METADATA

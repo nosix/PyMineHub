@@ -275,13 +275,13 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('window_id', WindowType),
-        ('items', Union[Tuple[Slot, ...], bytes])  # bytes data is encoded items
+        ('items', Union[Tuple[Item, ...], bytes])  # bytes data is encoded items
     ],
     GamePacketType.MOB_EQUIPMENT: [
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
-        ('item', Slot),
+        ('item', Item),
         ('inventory_slot', int),
         ('hotbar_slot', int),
         ('window_id', WindowType)
@@ -291,7 +291,7 @@ _game_packet_specs = {
         ('extra', bytes),
         ('window_id', WindowType),
         ('inventory_slot', int),
-        ('item', Slot)
+        ('item', Item)
     ],
     GamePacketType.CRAFTING_DATA: [
         ('id', int),
@@ -333,7 +333,7 @@ _game_packet_specs = {
         ('pitch', float),
         ('yaw', float),
         ('head_yaw', float),
-        ('item', Slot),
+        ('item', Item),
         ('metadata', Tuple[EntityMetaData, ...]),
         ('unknown1', int),
         ('unknown2', int),
@@ -459,7 +459,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
-        ('slots', Tuple[Slot, ...])
+        ('slots', Tuple[Item, ...])
     ],
     GamePacketType.SPACE_EVENT: [
         ('id', int),
@@ -480,7 +480,7 @@ _game_packet_specs = {
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
-        ('item', Slot),
+        ('item', Item),
         ('position', Vector3[float]),
         ('motion', Vector3[float]),
         ('metadata', Tuple[EntityMetaData, ...])
