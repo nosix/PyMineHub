@@ -8,7 +8,7 @@ class ActionType(ValueType):
     LOGIN_PLAYER = 0
     REQUEST_CHUNK = 1
     MOVE_PLAYER = 2
-    USE_ITEM = 3
+    BREAK_BLOCK = 3
 
 
 _action_specs = {
@@ -31,10 +31,10 @@ _action_specs = {
         ('on_ground', bool),
         ('riding_eid', EntityRuntimeID)
     ],
-    ActionType.USE_ITEM: [
+    ActionType.BREAK_BLOCK: [
         ('id', int),
         ('entity_runtime_id', EntityRuntimeID),
-        ('transaction', TransactionToUseItem)
+        ('position', Vector3[int])
     ]
 }
 

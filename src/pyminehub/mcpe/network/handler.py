@@ -232,7 +232,12 @@ class MCPEHandler(GameDataHandler):
     def _process_inventory_transaction(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         player = self._session_manager[addr]
         if packet.type == InventoryTransactionType.USE_ITEM:
-            self._world.perform(action_factory.create(ActionType.USE_ITEM, player.entity_runtime_id, packet.data))
+            if packet.data.action_type == UseItemActionType.BREAK_BLOCK:
+                self._world.perform(action_factory.create(
+                    ActionType.BREAK_BLOCK,
+                    player.entity_runtime_id,
+                    packet.data.position
+                ))
         if is_last:
             self._send_waiting_game_packet()
 
