@@ -575,7 +575,7 @@ _game_data_codecs = {
         NamedData('transaction_type', EnumData(VAR_INT_DATA, InventoryTransactionType)),
         VarListData(VAR_INT_DATA, CompositeData(InventoryAction, (
             NamedData('source_type', EnumData(VAR_INT_DATA, SourceType)),
-            OptionalData(VAR_SIGNED_INT_DATA,
+            OptionalData(EnumData(VAR_SIGNED_INT_DATA, WindowType),
                          lambda _context: _context['source_type'] in (SourceType.WORLD, SourceType.CREATIVE)),
             OptionalData(VAR_INT_DATA,
                          lambda _context: _context['source_type'] != SourceType.WORLD),
