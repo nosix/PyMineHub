@@ -9,6 +9,7 @@ from pyminehub.mcpe.event import *
 from pyminehub.mcpe.world.database import DataBase
 from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
+from pyminehub.mcpe.world.interface import WorldEditor
 from pyminehub.mcpe.world.proxy import WorldProxy
 from pyminehub.mcpe.world.space import Space
 from pyminehub.value import LogString
@@ -16,7 +17,7 @@ from pyminehub.value import LogString
 _logger = getLogger(__name__)
 
 
-class _World(WorldProxy):
+class _World(WorldProxy, WorldEditor):
 
     def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
         self._loop = loop
@@ -24,6 +25,8 @@ class _World(WorldProxy):
         self._entity = EntityPool()
         self._event_queue = asyncio.Queue()
         loop.call_soon(self._space.init_space)
+
+    # WorldProxy methods
 
     def perform(self, action: Action) -> None:
         _logger.debug('>> %s', LogString(action))
@@ -58,6 +61,15 @@ class _World(WorldProxy):
 
     def get_adventure_settings(self) -> AdventureSettings:
         return AdventureSettings(32, 4294967295)
+
+    # WorldEditor methods
+
+    def remove_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
+        self._entity.remove(entity_runtime_id)
+
+    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Slot) -> int:
+        player = self._entity.get_player(entity_runtime_id)
+        return player.append_to_inventory(item)
 
     # local methods
 
@@ -129,6 +141,17 @@ class _World(WorldProxy):
                 EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
 
     def _process_move_player(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        player.position = action.position
+        player.pitch = action.pitch
+        player.yaw = action.yaw
+        player.head_yaw = action.head_yaw
+        player.on_ground = action.on_ground
+
+        collisions = self._entity.detect_collision(player.entity_runtime_id)
+        for collision in collisions:
+            collision.update(self)
+
         self._notify_event(event_factory.create(
             EventType.PLAYER_MOVED,
             action.entity_runtime_id,
@@ -140,6 +163,9 @@ class _World(WorldProxy):
             action.on_ground,
             action.riding_eid
         ))
+
+        for collision in collisions:
+            self._notify_event(collision.event)
 
     def _process_use_item(self, action: Action) -> None:
         if action.transaction.action_type == UseItemActionType.BREAK_BLOCK:

@@ -307,3 +307,29 @@ class MCPEHandler(GameDataHandler):
         )
         for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)
+
+    def _process_event_item_taken(self, event: Event) -> None:
+        take_item_packet = game_packet_factory.create(
+            GamePacketType.TAKE_ITEM_ENTITY,
+            EXTRA_DATA,
+            event.item_runtime_id,
+            event.player_runtime_id
+        )
+        inventory_slot_packet = game_packet_factory.create(
+            GamePacketType.INVENTORY_SLOT,
+            EXTRA_DATA,
+            WindowType.INVENTORY,
+            event.inventory_slot,
+            event.item
+        )
+        remove_entity_packet = game_packet_factory.create(
+            GamePacketType.REMOVE_ENTITY,
+            EXTRA_DATA,
+            event.item_runtime_id
+        )
+
+        for addr, player in self._session_manager:
+            self._send_game_packet(take_item_packet, addr, immediately=False)
+            if player.entity_runtime_id == event.player_runtime_id:
+                self._send_game_packet(inventory_slot_packet, addr, immediately=False)
+            self._send_game_packet(remove_entity_packet, addr)

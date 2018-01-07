@@ -1,4 +1,4 @@
-TakeItemEntity(id=17, extra=b'\x00\x00', target=2, entity_runtime_id=1)
+TakeItemEntity(id=17, extra=b'\x00\x00', item_runtime_id=2, player_runtime_id=1)
   -> 1100000201
   File "./codec_play.py", line 134, in test_take_item_entity
     GamePacket(GamePacketType.TAKE_ITEM_ENTITY)
@@ -28,7 +28,7 @@ ReliableOrdered(id=96, payload_length=192, reliable_message_num=1279, message_or
   File "./codec_play.py", line 137, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-TakeItemEntity(id=17, extra=b'\x00\x00', target=3, entity_runtime_id=1)
+TakeItemEntity(id=17, extra=b'\x00\x00', item_runtime_id=3, player_runtime_id=1)
   -> 1100000301
   File "./codec_play.py", line 144, in test_take_item_entity
     GamePacket(GamePacketType.TAKE_ITEM_ENTITY)

@@ -13,6 +13,7 @@ class EventType(ValueType):
     PLAYER_MOVED = 4
     BLOCK_BROKEN = 5
     ITEM_SPAWNED = 6
+    ITEM_TAKEN = 7
 
 
 _event_specs = {
@@ -73,6 +74,13 @@ _event_specs = {
         ('position', Vector3[float]),
         ('motion', Vector3[float]),
         ('metadata', Tuple[EntityMetaData, ...])
+    ],
+    EventType.ITEM_TAKEN: [
+        ('id', int),
+        ('item_runtime_id', EntityRuntimeID),
+        ('player_runtime_id', EntityRuntimeID),
+        ('inventory_slot', int),
+        ('item', Slot)
     ]
 }
 

@@ -488,8 +488,8 @@ _game_packet_specs = {
     GamePacketType.TAKE_ITEM_ENTITY: [
         ('id', int),
         ('extra', bytes),
-        ('target', EntityRuntimeID),
-        ('entity_runtime_id', EntityRuntimeID)
+        ('item_runtime_id', EntityRuntimeID),
+        ('player_runtime_id', EntityRuntimeID)
     ]
 }
 
