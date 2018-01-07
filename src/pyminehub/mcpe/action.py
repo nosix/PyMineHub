@@ -9,6 +9,7 @@ class ActionType(ValueType):
     REQUEST_CHUNK = 1
     MOVE_PLAYER = 2
     BREAK_BLOCK = 3
+    PUT_ITEM = 4
 
 
 _action_specs = {
@@ -35,6 +36,14 @@ _action_specs = {
         ('id', int),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int])
+    ],
+    ActionType.PUT_ITEM: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[int]),
+        ('face', Face),
+        ('hotbar_slot', int),
+        ('item', Item)
     ]
 }
 

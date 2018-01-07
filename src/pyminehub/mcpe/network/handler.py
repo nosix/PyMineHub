@@ -238,6 +238,14 @@ class MCPEHandler(GameDataHandler):
                     player.entity_runtime_id,
                     packet.data.position
                 ))
+            elif packet.data.action_type == UseItemActionType.CLICK_BLOCK:
+                self._world.perform(action_factory.create(
+                    player.entity_runtime_id,
+                    packet.data.position,
+                    packet.data.face,
+                    packet.data.hotbar_slot,
+                    packet.data.item_in_hand
+                ))
         if is_last:
             self._send_waiting_game_packet()
 
@@ -338,3 +346,37 @@ class MCPEHandler(GameDataHandler):
             if player.entity_runtime_id == event.player_runtime_id:
                 self._send_game_packet(inventory_slot_packet, addr, immediately=False)
             self._send_game_packet(remove_entity_packet, addr)
+
+    def _process_event_block_put(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.UPDATE_BLOCK,
+            EXTRA_DATA,
+            event.position,
+            event.block_type,
+            event.block_aux
+        )
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)
+
+    def _process_event_item_spent(self, event: Event) -> None:
+        inventory_packet = game_packet_factory.create(
+            GamePacketType.INVENTORY_SLOT,
+            EXTRA_DATA,
+            WindowType.INVENTORY,
+            event.inventory_slot,
+            evnet.item
+        )
+        equipment_packet = game_packet_factory.create(
+            GamePacketType.MOB_EQUIPMENT,
+            EXTRA_DATA,
+            event.entiti_runtime_id,
+            event.item,
+            HOTBAR_SIZE + event.inventory_slot,
+            event.hotbar_slot,
+            WindowType.INVENTORY
+        )
+
+        for addr, player in self._session_manager:
+            if player.entity_runtime_id == event.entiti_runtime_id:
+                self._send_game_packet(inventory_packet, addr, immediately=False)
+            self._send_game_packet(equipment_packet, addr)

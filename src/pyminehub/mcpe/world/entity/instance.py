@@ -1,4 +1,6 @@
-from pyminehub.mcpe.const import WindowType
+from typing import Tuple
+
+from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
@@ -104,6 +106,8 @@ class PlayerEntity(Entity):
         self._hunger = 20.0
         self._inventory = MutableInventory(WindowType.INVENTORY)
         self._armor = MutableInventory(WindowType.ARMOR)
+        self._hotbar_to_inventory = [0] * HOTBAR_SIZE
+        self._selected_hotbar_slot = 0
 
     @property
     def player_id(self) -> PlayerID:
@@ -125,6 +129,9 @@ class PlayerEntity(Entity):
     def hunger(self, value: float) -> None:
         self._hunger = value
 
+    def to_inventory_slot(self, hotbar_slot: int) -> int:
+        return self._hotbar_to_inventory[hotbar_slot]
+
     def get_inventory(self, window_type: WindowType) -> Inventory:
         if window_type == WindowType.CREATIVE:
             return Inventory(window_type, INVENTORY_CONTENT_ITEMS121)
@@ -134,8 +141,13 @@ class PlayerEntity(Entity):
             return self._armor.to_value()
         raise AssertionError(window_type)
 
-    def append_to_inventory(self, item: Item) -> int:
+    def append_item(self, item: Item) -> int:
         return self._inventory.append(item)
+
+    def spend_item(self, inventory_slot: int, item: Item) -> Tuple[Item, Item]:
+        old_slot = self._inventory[inventory_slot]
+        new_slot = self._inventory.spend(inventory_slot, item)
+        return old_slot, new_slot
 
 
 class ItemEntity(Entity):

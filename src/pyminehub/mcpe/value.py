@@ -148,13 +148,35 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
         return d
 
 
-Item = _NamedTuple('Item', [
+class Item(_NamedTuple('Item', [
     ('type', ItemType),
-    ('aux_value', Optional[int]),
-    ('nbt', Optional[bytes]),
-    ('place_on', Optional[str]),
-    ('destroy', Optional[str])
-])
+    ('aux_value', Optional[int]),  # None if ItemType.AIR
+    ('nbt', Optional[bytes]),  # None if ItemType.AIR
+    ('place_on', Optional[str]),  # None if ItemType.AIR
+    ('destroy', Optional[str])  # None if ItemType.AIR
+])):
+    __slots__ = ()
+
+    @classmethod
+    def create(
+            cls,
+            item_type: ItemType,
+            quantity: int,
+            item_data: int=0,
+            nbt: bytes=b'',
+            place_on: str='',
+            destroy: str=''
+    ) -> 'Item':
+        return Item(item_type, (item_data << 8) | quantity, nbt, place_on, destroy)
+
+    @property
+    def quantity(self) -> int:
+        return self.aux_value & 0xff
+
+    @property
+    def data(self) -> int:
+        return self.aux_value >> 8
+
 
 MetaDataValue = Union[int, float, str, Vector3, Item]
 

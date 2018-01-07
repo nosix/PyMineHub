@@ -69,7 +69,7 @@ class _World(WorldProxy, WorldEditor):
 
     def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> int:
         player = self._entity.get_player(entity_runtime_id)
-        return player.append_to_inventory(item)
+        return player.append_item(item)
 
     # local methods
 
@@ -192,6 +192,35 @@ class _World(WorldProxy, WorldEditor):
                 Vector3(0.0, 0.0, 0.0),
                 tuple()
             ))
+
+    def _process_put_item(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        inventory_slot = player.to_inventory_slot(action.hotbar_slot)
+        old_slot, new_slot = player.spend_item(inventory_slot, action.item)
+        position = action.position + action.face.direction
+        block_type = self._item_to_block(old_slot)
+        if block_type is not None:
+            self._space.put_block(position, old_slot)
+            self._notify_event(event_factory.create(
+                EventType.BLOCK_PUT,
+                position,
+                block_type,
+                BlockData.create(0, neighbors=True, network=True, priority=True)
+            ))
+        self._notify_event(event_factory.create(
+            EventType.ITEM_SPENT,
+            player.entity_runtime_id,
+            inventory_slot,
+            action.hotbar_slot,
+            new_slot
+        ))
+
+    @staticmethod
+    def _item_to_block(item: Item) -> Optional[BlockType]:
+        try:
+            return BlockType[item.type.name]
+        except KeyError:
+            return None
 
 
 def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:

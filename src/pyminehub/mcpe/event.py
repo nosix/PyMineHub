@@ -12,8 +12,10 @@ class EventType(ValueType):
     FULL_CHUNK_LOADED = 3
     PLAYER_MOVED = 4
     BLOCK_BROKEN = 5
-    ITEM_SPAWNED = 6
-    ITEM_TAKEN = 7
+    BLOCK_PUT = 6
+    ITEM_SPAWNED = 7
+    ITEM_TAKEN = 8
+    ITEM_SPENT = 9
 
 
 _event_specs = {
@@ -81,7 +83,20 @@ _event_specs = {
         ('player_runtime_id', EntityRuntimeID),
         ('inventory_slot', int),
         ('item', Item)
-    ]
+    ],
+    EventType.BLOCK_PUT: [
+        ('id', int),
+        ('position', Vector3[int]),
+        ('block_type', BlockType),
+        ('block_aux', BlockData)
+    ],
+    EventType.ITEM_SPENT: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('inventory_slot', int),
+        ('hotbar_slot', int),
+        ('item', Item)
+    ],
 }
 
 
