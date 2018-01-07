@@ -1,13 +1,19 @@
+import functools
 import math
 import operator as _op
 from enum import Enum
 from numbers import Number
-from typing import NamedTuple as _NamedTuple, Generic, Union, Iterator
+from typing import NamedTuple as _NamedTuple, Generic, Iterator
 
 from pyminehub.typevar import NT
 
 
 class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):
+    """
+    x : west - <=> + east
+    y : downward - <=> + upward
+    z : north - <=> + south
+    """
 
     def copy(self, x: NT=None, y: NT=None, z: NT=None) -> 'Vector3[NT]':
         """
@@ -70,36 +76,91 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
     def __rmul__(self, value) -> 'Vector3':
         return self._calc(_op.mul, value)
 
+    def astype(self, cls: type) -> 'Vector3':
+        """
+        >>> Vector3(1.1, 2.2, 3.3).astype(int)
+        Vector3(x=1, y=2, z=3)
+        """
+        return Vector3(cls(self.x), cls(self.y), cls(self.z))
+
     def distance(self, other: 'Vector3') -> Number:
+        """
+        >>> Vector3(4, 4, 4).distance(Vector3(2, 2, 2)) == math.sqrt(12)
+        True
+        """
         diff = self - other
         return math.sqrt(diff.x ** 2 + diff.z ** 2 + diff.y ** 2)
 
+    def distance_2d(self, other: 'Vector3') -> Number:
+        """
+        >>> Vector3(4, 4, 4).distance_2d(Vector3(2, 2, 2)) == math.sqrt(8)
+        True
+        """
+        diff = self - other
+        return math.sqrt(diff.x ** 2 + diff.z ** 2)
+
     def norm(self) -> 'Vector3':
+        """
+        >>> Vector3(2, 2, 2).norm() == Vector3(2 / math.sqrt(12), 2 / math.sqrt(12), 2 / math.sqrt(12))
+        True
+        """
         return self / self.distance(Vector3(0, 0, 0))
 
-    def dot(self, other: 'Vector3', is_3d=True) -> Number:
-        if is_3d:
-            return self.x * other.x + self.z * other.z + self.y * other.y
-        else:
-            return self.x * other.x + self.z * other.z
+    def norm_2d(self) -> 'Vector3':
+        """
+        >>> Vector3(2, 2, 2).norm_2d() == Vector3(2 / math.sqrt(8), 0, 2 / math.sqrt(8))
+        True
+        """
+        return self.copy(y=0) / self.distance_2d(Vector3(0, 0, 0))
 
-    def cross(self, other: 'Vector3', is_3d=True) -> Union['Vector3', Number]:
-        if is_3d:
-            return Vector3(
-                self.z * other.y - self.y * other.z,
-                self.x * other.z - self.z * other.x,
-                self.y * other.x - self.x * other.y)
-        else:
-            return self.x * other.z - self.z * other.x
+    def dot(self, other: 'Vector3') -> Number:
+        return self.x * other.x + self.z * other.z + self.y * other.y
+
+    def dot_2d(self, other: 'Vector3') -> Number:
+        return self.x * other.x + self.z * other.z
+
+    def cross(self, other: 'Vector3') -> 'Vector3':
+        return Vector3(
+            self.z * other.y - self.y * other.z,
+            self.x * other.z - self.z * other.x,
+            self.y * other.x - self.x * other.y)
+
+    def cross_2d(self, other: 'Vector3') -> Number:
+        return self.x * other.z - self.z * other.x
+
+    def rotate(self, yaw: float) -> 'Vector3':
+        """
+               (180)
+                z-
+        (90) x-    x+ (270)
+                z+
+               (0)
+
+        >>> Vector3(1, 0, 0).rotate(90).astype(int)
+        Vector3(x=0, y=0, z=1)
+        >>> Vector3(0, 0, 1).rotate(90).astype(int)
+        Vector3(x=-1, y=0, z=0)
+        >>> Vector3(1, 0, 0).rotate(-90).astype(int)
+        Vector3(x=0, y=0, z=-1)
+        >>> Vector3(0, 0, -1).rotate(-90).astype(int)
+        Vector3(x=-1, y=0, z=0)
+
+        :param yaw: angle of rotation
+        :return: rotated vector
+        """
+        rad = math.radians(yaw)
+        x = - self.z * math.sin(rad) + self.x * math.cos(rad)
+        z = self.z * math.cos(rad) + self.x * math.sin(rad)
+        return Vector3(x, self.y, z)
 
 
 class Face(Enum):
     BOTTOM = (0, Vector3(0, -1, 0))
-    UPPER = (1, Vector3(0, 1, 0))
-    NORTH = (2, Vector3(0, 0, -1))
-    SOUTH = (3, Vector3(0, 0, 1))
-    WEST = (4, Vector3(-1, 0, 0))
-    EAST = (5, Vector3(1, 0, 0))
+    TOP = (1, Vector3(0, 1, 0))
+    SOUTH = (2, Vector3(0, 0, -1))
+    NORTH = (3, Vector3(0, 0, 1))
+    EAST = (4, Vector3(-1, 0, 0))
+    WEST = (5, Vector3(1, 0, 0))
 
     def __new__(cls, value: int, direction: Vector3[int]) -> 'Face':
         """
@@ -123,23 +184,23 @@ class Face(Enum):
     def by_yaw(cls, yaw: float) -> 'Face':
         """Return the face the player is looking at.
 
-                   (0)
-                    3
-            (270) 5   4 (90)
-                    2
-                  (180)
+               (0)
+                3
+        (270) 5   4 (90)
+                2
+              (180)
 
         >>> Face.by_yaw(0)
-        <Face.SOUTH: 3>
+        <Face.NORTH: 3>
         """
         if 45 <= yaw <= 135:
-            return cls.WEST
-        if 225 <= yaw <= 315:
             return cls.EAST
+        if 225 <= yaw <= 315:
+            return cls.WEST
         if 135 < yaw < 225:
-            return cls.NORTH
-        else:
             return cls.SOUTH
+        else:
+            return cls.NORTH
 
     @classmethod
     def by_pitch(cls, pitch: float) -> 'Face':
@@ -148,7 +209,7 @@ class Face(Enum):
         >>> Face.by_pitch(1)
         <Face.BOTTOM: 0>
         """
-        return cls.UPPER if pitch < 0 else cls.BOTTOM
+        return cls.TOP if pitch < 0 else cls.BOTTOM
 
     @classmethod
     def by_angle(cls, yaw: float, pitch: float) -> 'Face':
@@ -157,13 +218,51 @@ class Face(Enum):
         >>> Face.by_angle(0, 60)
         <Face.BOTTOM: 0>
         >>> Face.by_angle(0, 30)
-        <Face.SOUTH: 3>
+        <Face.NORTH: 3>
         """
         if pitch > 45:
             return cls.BOTTOM
         if pitch < -45:
-            return cls.UPPER
+            return cls.TOP
         return cls.by_yaw(yaw)
+
+
+class OrientedBoundingBox(_NamedTuple('OrientedBoundingBox', [
+    ('origin', Vector3[float]),
+    ('forward', Vector3[float]),
+    ('right', Vector3[float]),
+    ('upward', Vector3[float])
+])):
+
+    @classmethod
+    def create(cls, center_bottom: Vector3[float], size: Vector3[float], yaw: float) -> 'OrientedBoundingBox':
+        half = size / 2.0
+        origin = center_bottom + Vector3(0.0, half.y, 0.0)
+        forward = Vector3(0.0, 0.0, half.z).rotate(yaw)
+        right = Vector3(-half.x, 0.0, 0.0).rotate(yaw)
+        upward = Vector3(0.0, half.y, 0.0)
+        return OrientedBoundingBox(origin, forward, right, upward)
+
+    @staticmethod
+    def _has_collision_xz(origin, vec_a1, vec_a2, vec_b1, vec_b2) -> bool:
+        vec_l = vec_a1.norm_2d()
+        rb = abs(vec_l.dot_2d(vec_b1)) + abs(vec_l.dot_2d(vec_b2))
+        ra = vec_a1.distance_2d(Vector3(0, 0, 0))
+        interval = abs(vec_l.dot_2d(origin))
+        return interval <= ra + rb
+
+    @staticmethod
+    def _has_collision_y(origin, vec_a, vec_b) -> bool:
+        return not abs(origin.y) > vec_a.y + vec_b.y
+
+    def has_collision(self, other: 'OrientedBoundingBox') -> bool:
+        origin = self.origin - other.origin
+        has_collision_xz = functools.partial(self._has_collision_xz, origin)
+        return (has_collision_xz(self.forward, self.right, other.forward, other.right) and
+                has_collision_xz(self.right, self.forward, other.right, other.forward) and
+                has_collision_xz(other.forward, other.right, self.forward, self.right) and
+                has_collision_xz(other.right, other.forward, self.right, self.forward) and
+                self._has_collision_y(origin, self.upward, other.upward))
 
 
 class ChunkGeometry:

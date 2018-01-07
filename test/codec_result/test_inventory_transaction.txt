@@ -3,7 +3,7 @@ Animate(id=44, extra=b'\x00\x00', action_type=2, entity_runtime_id=2, unknown=No
   File "./codec_play.py", line 73, in test_inventory_transaction
     GamePacket(GamePacketType.ANIMATE),
 
-InventoryTransaction(id=30, extra=b'\x00\x00', type=<InventoryTransactionType.USE_ITEM: 2>, actions=(), data=TransactionToUseItem(action_type=<UseItemActionType.CLICK_BLOCK: 0>, position=Vector3(x=257, y=62, z=255), face=<Face.UPPER: 1>, hotbar_slot=0, item_in_hand=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), player_position=Vector3(x=255.97122192382812, y=64.62001037597656, z=257.63433837890625), click_position=Vector3(x=0.824493408203125, y=1.0, z=0.8886566162109375)))
+InventoryTransaction(id=30, extra=b'\x00\x00', type=<InventoryTransactionType.USE_ITEM: 2>, actions=(), data=TransactionToUseItem(action_type=<UseItemActionType.CLICK_BLOCK: 0>, position=Vector3(x=257, y=62, z=255), face=<Face.TOP: 1>, hotbar_slot=0, item_in_hand=Slot(id=0, aux_value=None, nbt=None, place_on=None, destroy=None), player_position=Vector3(x=255.97122192382812, y=64.62001037597656, z=257.63433837890625), click_position=Vector3(x=0.824493408203125, y=1.0, z=0.8886566162109375)))
   -> 1e000002000082043efe03020000a2f87f43723d814232d180430012533f0000803f007f633f
   File "./codec_play.py", line 74, in test_inventory_transaction
     GamePacket(GamePacketType.INVENTORY_TRANSACTION)
