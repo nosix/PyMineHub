@@ -35,17 +35,17 @@ class SessionManager:
             return key in self._players
 
     def __getitem__(self, key: Union[PlayerID, Address]) -> Player:
-        if isinstance(key, PlayerID):
-            if key not in self._address:
-                raise SessionNotFound()
-            addr = self._address[key]
-        else:
-            addr = key
+        addr = self.get_address(key) if isinstance(key, PlayerID) else key
         if addr not in self._players:
             if isinstance(key, PlayerID):
                 del self._address[key]
             raise SessionNotFound(addr)
         return self._players[addr]
+
+    def get_address(self, key: PlayerID) -> Address:
+        if key not in self._address:
+            raise SessionNotFound()
+        return self._address[key]
 
     def __delitem__(self, key: Address) -> None:
         if key in self._players:

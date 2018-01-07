@@ -240,6 +240,7 @@ class MCPEHandler(GameDataHandler):
                 ))
             elif packet.data.action_type == UseItemActionType.CLICK_BLOCK:
                 self._world.perform(action_factory.create(
+                    ActionType.PUT_ITEM,
                     player.entity_runtime_id,
                     packet.data.position,
                     packet.data.face,
@@ -322,30 +323,34 @@ class MCPEHandler(GameDataHandler):
             self._send_game_packet(res_packet, addr)
 
     def _process_event_item_taken(self, event: Event) -> None:
-        take_item_packet = game_packet_factory.create(
+        res_packet = game_packet_factory.create(
             GamePacketType.TAKE_ITEM_ENTITY,
             EXTRA_DATA,
             event.item_runtime_id,
             event.player_runtime_id
         )
-        inventory_slot_packet = game_packet_factory.create(
+        for addr, player in self._session_manager:
+            self._send_game_packet(res_packet, addr, immediately=False)
+
+    def _process_event_inventory_updated(self, event: Event) -> None:
+        addr = self._session_manager.get_address(event.player_id)
+        res_packet = game_packet_factory.create(
             GamePacketType.INVENTORY_SLOT,
             EXTRA_DATA,
             WindowType.INVENTORY,
             event.inventory_slot,
-            event.item
+            event.slot
         )
-        remove_entity_packet = game_packet_factory.create(
+        self._send_game_packet(res_packet, addr)
+
+    def _process_event_entity_removed(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
             GamePacketType.REMOVE_ENTITY,
             EXTRA_DATA,
-            event.item_runtime_id
+            event.entity_runtime_id
         )
-
-        for addr, player in self._session_manager:
-            self._send_game_packet(take_item_packet, addr, immediately=False)
-            if player.entity_runtime_id == event.player_runtime_id:
-                self._send_game_packet(inventory_slot_packet, addr, immediately=False)
-            self._send_game_packet(remove_entity_packet, addr)
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)
 
     def _process_event_block_put(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -364,19 +369,19 @@ class MCPEHandler(GameDataHandler):
             EXTRA_DATA,
             WindowType.INVENTORY,
             event.inventory_slot,
-            evnet.item
+            event.slot
         )
         equipment_packet = game_packet_factory.create(
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,
-            event.entiti_runtime_id,
-            event.item,
+            event.entity_runtime_id,
+            event.slot,
             HOTBAR_SIZE + event.inventory_slot,
             event.hotbar_slot,
             WindowType.INVENTORY
         )
 
         for addr, player in self._session_manager:
-            if player.entity_runtime_id == event.entiti_runtime_id:
+            if player.entity_runtime_id == event.entity_runtime_id:
                 self._send_game_packet(inventory_packet, addr, immediately=False)
             self._send_game_packet(equipment_packet, addr)

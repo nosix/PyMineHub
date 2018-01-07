@@ -62,8 +62,9 @@ class MutableSlot:
             return True
 
     def spend(self, item: Item) -> None:
-        assert self._type == item.type and self._quantity == item.quantity, item
-        assert self._quantity > 0
+        assert self._type == item.type, '{} == {}'.format(self._type, item.type)
+        assert self._quantity == item.quantity, '{} == {}'.format(self._quantity, item.quantity)
+        assert self._quantity > 0, self._quantity
         self._quantity -= 1
         if self._quantity == 0:
             self._clear()

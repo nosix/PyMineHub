@@ -16,6 +16,8 @@ class EventType(ValueType):
     ITEM_SPAWNED = 7
     ITEM_TAKEN = 8
     ITEM_SPENT = 9
+    INVENTORY_UPDATED = 10
+    ENTITY_REMOVED = 11
 
 
 _event_specs = {
@@ -80,9 +82,17 @@ _event_specs = {
     EventType.ITEM_TAKEN: [
         ('id', int),
         ('item_runtime_id', EntityRuntimeID),
-        ('player_runtime_id', EntityRuntimeID),
+        ('player_runtime_id', EntityRuntimeID)
+    ],
+    EventType.INVENTORY_UPDATED: [
+        ('id', int),
+        ('player_id', PlayerID),
         ('inventory_slot', int),
-        ('item', Item)
+        ('slot', Item)
+    ],
+    EventType.ENTITY_REMOVED: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID)
     ],
     EventType.BLOCK_PUT: [
         ('id', int),
@@ -95,7 +105,7 @@ _event_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('inventory_slot', int),
         ('hotbar_slot', int),
-        ('item', Item)
+        ('slot', Item)
     ],
 }
 

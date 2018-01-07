@@ -141,6 +141,9 @@ class PlayerEntity(Entity):
             return self._armor.to_value()
         raise AssertionError(window_type)
 
+    def get_item(self, inventory_slot) -> Item:
+        return self._inventory[inventory_slot]
+
     def append_item(self, item: Item) -> int:
         return self._inventory.append(item)
 

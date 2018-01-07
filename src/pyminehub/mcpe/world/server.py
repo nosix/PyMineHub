@@ -66,10 +66,21 @@ class _World(WorldProxy, WorldEditor):
 
     def remove_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
         self._entity.remove(entity_runtime_id)
+        self._notify_event(event_factory.create(
+            EventType.ENTITY_REMOVED,
+            entity_runtime_id
+        ))
 
-    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> int:
+    def append_to_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
         player = self._entity.get_player(entity_runtime_id)
-        return player.append_item(item)
+        inventory_slot = player.append_item(item)
+        slot = player.get_item(inventory_slot)
+        self._notify_event(event_factory.create(
+            EventType.INVENTORY_UPDATED,
+            player.player_id,
+            inventory_slot,
+            slot
+        ))
 
     # local methods
 
@@ -200,7 +211,7 @@ class _World(WorldProxy, WorldEditor):
         position = action.position + action.face.direction
         block_type = self._item_to_block(old_slot)
         if block_type is not None:
-            self._space.put_block(position, old_slot)
+            self._space.put_block(position, block_type)
             self._notify_event(event_factory.create(
                 EventType.BLOCK_PUT,
                 position,
