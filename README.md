@@ -37,6 +37,7 @@ Modules depend only on parents or siblings. Siblings depend only on the above si
 
 ```
 typevar
+enum
 queue
 config -> typevar
 value -> config
@@ -58,7 +59,7 @@ raknet -> value, config, network
   - session -> value, .[channel, codec, fragment, frame, packet, sending]
   - server -> config, value, network.[address, codec], .[handler, codec, packet, frame, session]
 mcpe
-  const
+  const -> enum
   geometry -> typevar
   value -> binutil.[converter], .[const, geometry]
   resource
