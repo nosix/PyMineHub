@@ -155,6 +155,7 @@ class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic
 
 
 class Face(Enum):
+    NONE = (-1, Vector3(0, 0, 0))
     BOTTOM = (0, Vector3(0, -1, 0))
     TOP = (1, Vector3(0, 1, 0))
     SOUTH = (2, Vector3(0, 0, -1))
