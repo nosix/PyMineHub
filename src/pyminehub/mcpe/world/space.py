@@ -48,7 +48,7 @@ class Space:
             return None
         chunk.set_block(position_in_chunk, BlockType.AIR, 0)
         # TODO save chunk
-        return [Item(ItemType.DIRT, 1, b'', '', '')]  # TODO change
+        return [Item.create(ItemType.DIRT, 1)]  # TODO change
 
     def put_block(self, position: Vector3[int], block_type: BlockType) -> None:
         chunk, position_in_chunk = self._to_local(position)

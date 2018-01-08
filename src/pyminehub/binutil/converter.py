@@ -526,17 +526,20 @@ class StringData(DataCodec[str]):
     >>> context = DataCodecContext()
     >>> c.write(data, 'Hello', context)
     >>> c.write(data, 'マイクラ', context)
+    >>> c.write(data, '', context)
     >>> context.length
-    21
+    23
     >>> hexlify(data)
-    b'000548656c6c6f000ce3839ee382a4e382afe383a9'
+    b'000548656c6c6f000ce3839ee382a4e382afe383a90000'
     >>> context.clear()
     >>> c.read(data, context)
     'Hello'
     >>> c.read(data, context)
     'マイクラ'
+    >>> c.read(data, context)
+    ''
     >>> context.length
-    21
+    23
     >>> hexlify(data)
     b''
     """

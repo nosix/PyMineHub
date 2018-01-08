@@ -152,8 +152,8 @@ class Item(_NamedTuple('Item', [
     ('type', ItemType),
     ('aux_value', Optional[int]),  # None if ItemType.AIR
     ('nbt', Optional[bytes]),  # None if ItemType.AIR
-    ('place_on', Optional[str]),  # None if ItemType.AIR
-    ('destroy', Optional[str])  # None if ItemType.AIR
+    ('place_on', Optional[Tuple[str, ...]]),  # None if ItemType.AIR
+    ('destroy', Optional[Tuple[str, ...]])  # None if ItemType.AIR
 ])):
     __slots__ = ()
 
@@ -164,8 +164,8 @@ class Item(_NamedTuple('Item', [
             quantity: int,
             item_data: int=0,
             nbt: bytes=b'',
-            place_on: str='',
-            destroy: str=''
+            place_on: Tuple[str, ...]=(),
+            destroy: Tuple[str, ...]=()
     ) -> 'Item':
         return Item(item_type, (item_data << 8) | quantity, nbt, place_on, destroy)
 
