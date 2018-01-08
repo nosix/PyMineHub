@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import json
 from binascii import unhexlify as unhex
@@ -31,14 +32,50 @@ def print_data(data: ReceivedData, addr: Address) -> None:
     print('\n'.join(p.hex() for p in data[addr]))
 
 
+class _ProtocolMockEventLoop(MockEventLoop):
+
+    def __init__(self):
+        self._loop_to_update_coro = None
+        self._loop_to_send_coro = []
+
+    def next_moment(self):
+        self._loop_to_update_coro.send(None)
+
+    def send_waiting_packets(self):
+        for coro in self._loop_to_send_coro:
+            coro.send(None)
+
+    def create_task(self, coro):
+        if coro.__name__ == 'loop_to_update':
+            self._loop_to_update_coro = coro
+        if coro.__name__ == 'loop_to_send':
+            self._loop_to_send_coro.append(coro)
+        return asyncio.Task(coro)
+
+
+class _ProtocolMockTransport(MockTransport):
+
+    def __init__(self, queue: List[Tuple[Address, bytes]]):
+        super().__init__()
+        self._queue = queue
+
+    def sendto(self, data: bytes, addr: Address=None) -> None:
+        self._queue.append((addr, data))
+
+
 class _ProtocolProxy:
 
     def __init__(self) -> None:
         self._queue = []  # type: List[Tuple[Address, bytes]]
-        self._loop = MockEventLoop()
+        self._loop = _ProtocolMockEventLoop()
         self._proxy = MockWorldProxy()
         self._protocol = _RakNetProtocolImpl(self._loop, MCPEHandler(self._proxy))
-        self._protocol.connection_made(MockTransport(self._queue))
+        self._protocol.connection_made(_ProtocolMockTransport(self._queue))
+
+    @staticmethod
+    def close() -> None:
+        for task in asyncio.Task.all_tasks():
+            task.cancel()
 
     def receive(self):
         self._loop.send_waiting_packets()
@@ -337,6 +374,7 @@ class ProtocolTestCase(TestCase):
 
     def tearDown(self) -> None:
         self._result_output.close()
+        self.proxy.close()
         self.proxy = None
         self.data = None
         self.context = None

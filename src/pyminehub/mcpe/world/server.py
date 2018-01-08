@@ -237,6 +237,7 @@ class _World(WorldProxy, WorldEditor):
 def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:
     from pyminehub.mcpe.world.database import DataBase
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
+    from pyminehub.mcpe.plugin import get_generator
     db = DataBase()
-    world = _World(loop, BatchSpaceGenerator(), db)
+    world = _World(loop, BatchSpaceGenerator(get_generator()), db)
     return world

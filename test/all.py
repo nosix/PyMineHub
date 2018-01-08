@@ -5,6 +5,7 @@ import doctestsuite
 import geometry
 import protocol_login_logout
 import protocol_unconnected
+import world
 
 
 # noinspection PyUnusedLocal
@@ -16,7 +17,8 @@ def load_tests(loader, tests, pattern):
         codec_login_logout,
         codec_play,
         protocol_unconnected,
-        protocol_login_logout
+        protocol_login_logout,
+        world,
     )
     suite = unittest.TestSuite()
     for m in modules:

@@ -3,7 +3,6 @@ import socket
 from asyncio import subprocess
 from collections import deque
 from pkgutil import get_data
-from typing import List
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.event import *
@@ -14,17 +13,6 @@ from pyminehub.network.address import Address
 
 
 class MockEventLoop(asyncio.events.AbstractEventLoop):
-
-    def __init__(self):
-        self._loop_to_update_coro = None
-        self._loop_to_send_coro = []
-
-    def next_moment(self):
-        self._loop_to_update_coro.send(None)
-
-    def send_waiting_packets(self):
-        for coro in self._loop_to_send_coro:
-            coro.send(None)
 
     def run_forever(self):
         pass
@@ -63,11 +51,7 @@ class MockEventLoop(asyncio.events.AbstractEventLoop):
         pass
 
     def create_task(self, coro):
-        if coro.__name__ == 'loop_to_update':
-            self._loop_to_update_coro = coro
-        if coro.__name__ == 'loop_to_send':
-            self._loop_to_send_coro.append(coro)
-        return asyncio.Task(coro)
+        pass
 
     def call_soon_threadsafe(self, callback, *args):
         pass
@@ -173,12 +157,8 @@ class MockEventLoop(asyncio.events.AbstractEventLoop):
 
 class MockTransport(asyncio.transports.DatagramTransport):
 
-    def __init__(self, queue: List[Tuple[Address, bytes]]):
-        super().__init__()
-        self._queue = queue
-
     def sendto(self, data: bytes, addr: Address=None) -> None:
-        self._queue.append((addr, data))
+        pass
 
     def abort(self):
         pass
