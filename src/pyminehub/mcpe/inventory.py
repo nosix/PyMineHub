@@ -8,7 +8,7 @@ _INVENTORY_SIZE = {
 }
 
 
-_AIR = Item(ItemType.AIR, None, None, None, None)
+ITEM_AIR = Item(ItemType.AIR, None, None, None, None)
 
 
 class MutableSlot:
@@ -18,7 +18,7 @@ class MutableSlot:
 
     def to_value(self) -> Item:
         if self._type == ItemType.AIR:
-            return _AIR
+            return ITEM_AIR
         else:
             return Item.create(self._type, self._quantity, self._data, self._nbt, self._place_on, self._destroy)
 

@@ -251,11 +251,30 @@ class WorldTestCase(TestCase):
         )
         self.assertEqual(expected_event, actual_event)
 
+        self._perform_action(
+            ActionType.EQUIP,
+            entity_runtime_id=2,
+            inventory_slot=0,
+            hotbar_slot=0,
+            item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+        )
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.EQUIPMENT_UPDATED,
+            entity_runtime_id=2,
+            inventory_slot=0,
+            hotbar_slot=0,
+            slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+        )
+        self.assertEqual(expected_event, actual_event)
+
     def test_equip(self):
         self.test_item_taken()
         self._perform_action(
             ActionType.EQUIP,
             entity_runtime_id=2,
+            inventory_slot=0,
             hotbar_slot=0,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
@@ -273,6 +292,7 @@ class WorldTestCase(TestCase):
         self._perform_action(
             ActionType.EQUIP,
             entity_runtime_id=2,
+            inventory_slot=None,
             hotbar_slot=1,
             item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
         )
@@ -297,6 +317,13 @@ class WorldTestCase(TestCase):
             hotbar_slot=0,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
+        self._perform_action(
+            ActionType.EQUIP,
+            entity_runtime_id=2,
+            inventory_slot=None,
+            hotbar_slot=0,
+            item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
+        )
 
         actual_event = self._next_event()
         expected_event = event_factory.create(
@@ -320,7 +347,7 @@ class WorldTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
             entity_runtime_id=2,
-            inventory_slot=0,
+            inventory_slot=None,
             hotbar_slot=0,
             slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
         )

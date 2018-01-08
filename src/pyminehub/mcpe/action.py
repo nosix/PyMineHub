@@ -10,6 +10,7 @@ class ActionType(ValueType):
     MOVE_PLAYER = 2
     BREAK_BLOCK = 3
     PUT_ITEM = 4
+    EQUIP = 5
 
 
 _action_specs = {
@@ -42,6 +43,13 @@ _action_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int]),
         ('face', Face),
+        ('hotbar_slot', int),
+        ('item', Item)
+    ],
+    ActionType.EQUIP: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('item', Item)
     ]

@@ -20,6 +20,9 @@ from pyminehub.value import LogString
 _logger = getLogger(__name__)
 
 
+_NONE_INVENTORY_SLOT = 255
+
+
 class MCPEHandler(GameDataHandler):
 
     _INTERNAL_ADDRESSES = tuple(to_packet_format((get_unspecified_address(), 0)) for _ in range(20))
@@ -52,7 +55,7 @@ class MCPEHandler(GameDataHandler):
     # local methods
 
     def _get_current_time(self) -> int:
-        """Get millisec time since starting handler."""
+        """Get millisecond time since starting handler."""
         return int(1000 * (time.time() - self._start_time))
 
     def _send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
@@ -239,14 +242,28 @@ class MCPEHandler(GameDataHandler):
                     packet.data.position
                 ))
             elif packet.data.action_type == UseItemActionType.CLICK_BLOCK:
-                self._world.perform(action_factory.create(
-                    ActionType.PUT_ITEM,
-                    player.entity_runtime_id,
-                    packet.data.position,
-                    packet.data.face,
-                    packet.data.hotbar_slot,
-                    packet.data.item_in_hand
-                ))
+                if packet.data.item_in_hand.type != ItemType.AIR:
+                    self._world.perform(action_factory.create(
+                        ActionType.PUT_ITEM,
+                        player.entity_runtime_id,
+                        packet.data.position,
+                        packet.data.face,
+                        packet.data.hotbar_slot,
+                        packet.data.item_in_hand
+                    ))
+        if is_last:
+            self._send_waiting_game_packet()
+
+    def _process_mob_equipment(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert packet.entity_runtime_id == self._session_manager[addr].entity_runtime_id
+        if packet.window_type == WindowType.INVENTORY:
+            self._world.perform(action_factory.create(
+                ActionType.EQUIP,
+                packet.entity_runtime_id,
+                packet.inventory_slot - HOTBAR_SIZE if packet.inventory_slot != _NONE_INVENTORY_SLOT else None,
+                packet.hotbar_slot,
+                packet.item
+            ))
         if is_last:
             self._send_waiting_game_packet()
 
@@ -363,25 +380,15 @@ class MCPEHandler(GameDataHandler):
         for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)
 
-    def _process_event_item_spent(self, event: Event) -> None:
-        inventory_packet = game_packet_factory.create(
-            GamePacketType.INVENTORY_SLOT,
-            EXTRA_DATA,
-            WindowType.INVENTORY,
-            event.inventory_slot,
-            event.slot
-        )
-        equipment_packet = game_packet_factory.create(
+    def _process_event_equipment_updated(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,
             event.entity_runtime_id,
             event.slot,
-            HOTBAR_SIZE + event.inventory_slot,
+            event.inventory_slot + HOTBAR_SIZE if event.inventory_slot is not None else _NONE_INVENTORY_SLOT,
             event.hotbar_slot,
             WindowType.INVENTORY
         )
-
-        for addr, player in self._session_manager:
-            if player.entity_runtime_id == event.entity_runtime_id:
-                self._send_game_packet(inventory_packet, addr, immediately=False)
-            self._send_game_packet(equipment_packet, addr)
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)

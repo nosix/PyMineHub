@@ -1,8 +1,8 @@
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
-from pyminehub.mcpe.inventory import MutableInventory
+from pyminehub.mcpe.inventory import ITEM_AIR, MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item
 from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC
@@ -99,14 +99,19 @@ class Entity:
 
 class PlayerEntity(Entity):
 
-    def __init__(self, player_id: PlayerID, entity_unique_id: EntityUniqueID, entity_runtime_id: EntityRuntimeID) -> None:
+    def __init__(
+            self,
+            player_id: PlayerID,
+            entity_unique_id: EntityUniqueID,
+            entity_runtime_id: EntityRuntimeID
+    ) -> None:
         super().__init__(PLAYER_ENTITY_SPEC, entity_unique_id, entity_runtime_id)
         self._player_id = player_id
         self._health = 20.0
         self._hunger = 20.0
         self._inventory = MutableInventory(WindowType.INVENTORY)
         self._armor = MutableInventory(WindowType.ARMOR)
-        self._hotbar_to_inventory = [0] * HOTBAR_SIZE
+        self._hotbar_to_inventory = [None] * HOTBAR_SIZE  # type: List[Optional[int]]
         self._selected_hotbar_slot = 0
 
     @property
@@ -129,7 +134,10 @@ class PlayerEntity(Entity):
     def hunger(self, value: float) -> None:
         self._hunger = value
 
-    def to_inventory_slot(self, hotbar_slot: int) -> int:
+    def get_hotbar_slot(self) -> int:
+        return self._selected_hotbar_slot
+
+    def get_inventory_slot(self, hotbar_slot: int) -> Optional[int]:
         return self._hotbar_to_inventory[hotbar_slot]
 
     def get_inventory(self, window_type: WindowType) -> Inventory:
@@ -144,6 +152,10 @@ class PlayerEntity(Entity):
     def get_item(self, inventory_slot) -> Item:
         return self._inventory[inventory_slot]
 
+    def get_equipped_item(self) -> Item:
+        inventory_slot = self.get_inventory_slot(self._selected_hotbar_slot)
+        return self._inventory[inventory_slot] if inventory_slot is not None else ITEM_AIR
+
     def append_item(self, item: Item) -> int:
         return self._inventory.append(item)
 
@@ -151,6 +163,10 @@ class PlayerEntity(Entity):
         old_slot = self._inventory[inventory_slot]
         new_slot = self._inventory.spend(inventory_slot, item)
         return old_slot, new_slot
+
+    def equip(self, hotbar_slot: int, inventory_slot: Optional[int]) -> None:
+        self._hotbar_to_inventory[hotbar_slot] = inventory_slot
+        self._selected_hotbar_slot = hotbar_slot
 
 
 class ItemEntity(Entity):

@@ -73,14 +73,23 @@ class _World(WorldProxy, WorldEditor):
 
     def append_into_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
         player = self._entity.get_player(entity_runtime_id)
+        old_slot = player.get_equipped_item()
         inventory_slot = player.append_item(item)
-        slot = player.get_item(inventory_slot)
+        new_slot = player.get_item(inventory_slot)
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,
             player.player_id,
             inventory_slot,
-            slot
+            new_slot
         ))
+        if old_slot != new_slot:
+            self._notify_event(event_factory.create(
+                EventType.EQUIPMENT_UPDATED,
+                entity_runtime_id,
+                inventory_slot,
+                player.get_hotbar_slot(),
+                new_slot
+            ))
 
     # local methods
 
@@ -206,7 +215,8 @@ class _World(WorldProxy, WorldEditor):
 
     def _process_put_item(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
-        inventory_slot = player.to_inventory_slot(action.hotbar_slot)
+        inventory_slot = player.get_inventory_slot(action.hotbar_slot)
+        assert inventory_slot is not None
         old_slot, new_slot = player.spend_item(inventory_slot, action.item)
         position = action.position + action.face.direction
         block_type = self._item_to_block(old_slot)
@@ -219,11 +229,23 @@ class _World(WorldProxy, WorldEditor):
                 BlockData.create(0, neighbors=True, network=True, priority=True)
             ))
         self._notify_event(event_factory.create(
-            EventType.ITEM_SPENT,
-            player.entity_runtime_id,
+            EventType.INVENTORY_UPDATED,
+            player.player_id,
             inventory_slot,
-            action.hotbar_slot,
             new_slot
+        ))
+
+    def _process_equip(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        print(action.hotbar_slot, action.item)
+        player.equip(action.hotbar_slot, action.inventory_slot)
+        assert action.item == player.get_equipped_item(), '{}, {}'.format(action.item, player.get_equipped_item())
+        self._notify_event(event_factory.create(
+            EventType.EQUIPMENT_UPDATED,
+            player.entity_runtime_id,
+            player.get_inventory_slot(player.get_hotbar_slot()),
+            action.hotbar_slot,
+            action.item
         ))
 
     @staticmethod

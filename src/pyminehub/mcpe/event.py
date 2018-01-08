@@ -15,9 +15,9 @@ class EventType(ValueType):
     BLOCK_PUT = 6
     ITEM_SPAWNED = 7
     ITEM_TAKEN = 8
-    ITEM_SPENT = 9
     INVENTORY_UPDATED = 10
     ENTITY_REMOVED = 11
+    EQUIPMENT_UPDATED = 12
 
 
 _event_specs = {
@@ -100,13 +100,13 @@ _event_specs = {
         ('block_type', BlockType),
         ('block_aux', BlockData)
     ],
-    EventType.ITEM_SPENT: [
+    EventType.EQUIPMENT_UPDATED: [
         ('id', int),
         ('entity_runtime_id', EntityRuntimeID),
-        ('inventory_slot', int),
+        ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('slot', Item)
-    ],
+    ]
 }
 
 
