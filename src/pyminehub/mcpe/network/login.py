@@ -124,7 +124,7 @@ def login_sequence(
         res_packet = game_packet_factory.create(
             GamePacketType.INVENTORY_CONTENT,
             EXTRA_DATA,
-            window_id=inventory.window_type,
+            window_type=inventory.window_type,
             items=inventory.slots
         )
         send(res_packet, addr)
@@ -139,14 +139,14 @@ def login_sequence(
         item=event.equipped_item,
         inventory_slot=event.inventory_slot,
         hotbar_slot=event.hotbar_slot,
-        window_id=WindowType.INVENTORY
+        window_type=WindowType.INVENTORY
     )
     send(res_packet, addr)
 
     res_packet = game_packet_factory.create(
         GamePacketType.INVENTORY_SLOT,
         EXTRA_DATA,
-        window_id=WindowType.INVENTORY,
+        window_type=WindowType.INVENTORY,
         inventory_slot=event.inventory_slot,
         item=event.equipped_item
     )

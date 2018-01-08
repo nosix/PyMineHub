@@ -274,7 +274,7 @@ _game_packet_specs = {
     GamePacketType.INVENTORY_CONTENT: [
         ('id', int),
         ('extra', bytes),
-        ('window_id', WindowType),
+        ('window_type', WindowType),
         ('items', Union[Tuple[Item, ...], bytes])  # bytes data is encoded items
     ],
     GamePacketType.MOB_EQUIPMENT: [
@@ -284,12 +284,12 @@ _game_packet_specs = {
         ('item', Item),
         ('inventory_slot', int),
         ('hotbar_slot', int),
-        ('window_id', WindowType)
+        ('window_type', WindowType)
     ],
     GamePacketType.INVENTORY_SLOT: [
         ('id', int),
         ('extra', bytes),
-        ('window_id', WindowType),
+        ('window_type', WindowType),
         ('inventory_slot', int),
         ('item', Item)
     ],
