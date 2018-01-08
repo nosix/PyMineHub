@@ -314,7 +314,7 @@ class MCPEHandler(GameDataHandler):
                 if len(required_chunk) > 0:
                     self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
 
-    def _process_event_block_broken(self, event: Event) -> None:
+    def _process_event_block_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
             GamePacketType.UPDATE_BLOCK,
             EXTRA_DATA,
@@ -365,17 +365,6 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.REMOVE_ENTITY,
             EXTRA_DATA,
             event.entity_runtime_id
-        )
-        for addr in self._session_manager.addresses:
-            self._send_game_packet(res_packet, addr)
-
-    def _process_event_block_put(self, event: Event) -> None:
-        res_packet = game_packet_factory.create(
-            GamePacketType.UPDATE_BLOCK,
-            EXTRA_DATA,
-            event.position,
-            event.block_type,
-            event.block_aux
         )
         for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)

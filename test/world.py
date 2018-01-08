@@ -170,7 +170,7 @@ class WorldTestCase(TestCase):
 
         actual_event = self._next_event()
         expected_event = event_factory.create(
-            EventType.BLOCK_BROKEN,
+            EventType.BLOCK_UPDATED,
             position=Vector3(x=256, y=62, z=257),
             block_type=BlockType.AIR,
             block_aux=BlockData(value=176)
@@ -327,7 +327,7 @@ class WorldTestCase(TestCase):
 
         actual_event = self._next_event()
         expected_event = event_factory.create(
-            EventType.BLOCK_PUT,
+            EventType.BLOCK_UPDATED,
             position=Vector3(x=256, y=62, z=257),
             block_type=BlockType.DIRT,
             block_aux=BlockData(value=176)

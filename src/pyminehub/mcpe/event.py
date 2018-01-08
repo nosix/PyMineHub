@@ -11,8 +11,7 @@ class EventType(ValueType):
     SLOT_INITIALIZED = 2
     FULL_CHUNK_LOADED = 3
     PLAYER_MOVED = 4
-    BLOCK_BROKEN = 5
-    BLOCK_PUT = 6
+    BLOCK_UPDATED = 5
     ITEM_SPAWNED = 7
     ITEM_TAKEN = 8
     INVENTORY_UPDATED = 10
@@ -64,7 +63,7 @@ _event_specs = {
         ('on_ground', bool),
         ('riding_eid', EntityRuntimeID)
     ],
-    EventType.BLOCK_BROKEN: [
+    EventType.BLOCK_UPDATED: [
         ('id', int),
         ('position', Vector3[int]),
         ('block_type', BlockType),
@@ -93,12 +92,6 @@ _event_specs = {
     EventType.ENTITY_REMOVED: [
         ('id', int),
         ('entity_runtime_id', EntityRuntimeID)
-    ],
-    EventType.BLOCK_PUT: [
-        ('id', int),
-        ('position', Vector3[int]),
-        ('block_type', BlockType),
-        ('block_aux', BlockData)
     ],
     EventType.EQUIPMENT_UPDATED: [
         ('id', int),

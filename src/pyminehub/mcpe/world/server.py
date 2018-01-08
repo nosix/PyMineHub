@@ -192,7 +192,7 @@ class _World(WorldProxy, WorldEditor):
         if items is None:
             return
         self._notify_event(event_factory.create(
-            EventType.BLOCK_BROKEN,
+            EventType.BLOCK_UPDATED,
             action.position,
             BlockType.AIR,
             BlockData.create(0, neighbors=True, network=True, priority=True)
@@ -223,7 +223,7 @@ class _World(WorldProxy, WorldEditor):
         if block_type is not None:
             self._space.put_block(position, block_type)
             self._notify_event(event_factory.create(
-                EventType.BLOCK_PUT,
+                EventType.BLOCK_UPDATED,
                 position,
                 block_type,
                 BlockData.create(0, neighbors=True, network=True, priority=True)
@@ -237,7 +237,6 @@ class _World(WorldProxy, WorldEditor):
 
     def _process_equip(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
-        print(action.hotbar_slot, action.item)
         player.equip(action.hotbar_slot, action.inventory_slot)
         assert action.item == player.get_equipped_item(), '{}, {}'.format(action.item, player.get_equipped_item())
         self._notify_event(event_factory.create(
