@@ -183,26 +183,40 @@ class MockDataBase(DataBase):
     def __init__(self) -> None:
         self._chunk = {}
         self._player = {}
+        self._inventory = {}
 
     def delete_all(self) -> None:
         self.__init__()
 
+    @staticmethod
+    def _save(key, value, dictionary: dict, insert_only: bool) -> None:
+        if not insert_only or key not in dictionary:
+            dictionary[key] = value
+
+    @staticmethod
+    def _load(key, dictionary: dict):
+        return dictionary.get(key, None)
+
     def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False) -> None:
-        if not insert_only or position not in self._chunk:
-            self._chunk[position] = chunk
+        self._save(position, chunk, self._chunk, insert_only)
 
     def load_chunk(self, position: ChunkPosition) -> Optional[Chunk]:
-        return self._chunk.get(position, None)
+        return self._load(position, self._chunk)
 
     def count_chunk(self) -> int:
         return len(self._chunk)
 
-    def save_player(self, player: Player, insert_only=False) -> None:
-        if not insert_only or player.player_id not in self._player:
-            self._player[player.player_id] = player
+    def save_player(self, player_id: str, player: Player, insert_only=False) -> None:
+        self._save(player_id, player, self._player, insert_only)
 
     def load_player(self, player_id: str) -> Optional[Player]:
-        return self._player.get(player_id, None)
+        return self._load(player_id, self._player)
+
+    def save_inventory(self, player_id: str, window_id: int, inventory: Inventory, insert_only=False) -> None:
+        self._save((player_id, window_id), inventory, self._inventory, insert_only)
+
+    def load_inventory(self, player_id: str, window_id: int) -> Optional[Inventory]:
+        return self._load((player_id, window_id), self._inventory)
 
 
 class MockWorldProxy(WorldProxy):

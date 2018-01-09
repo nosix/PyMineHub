@@ -1,6 +1,6 @@
 from enum import Enum
+from itertools import chain
 
-from pyminehub.enum import define_enum
 
 HOTBAR_SIZE = 9
 PLAYER_EYE_HEIGHT = 1.625
@@ -838,7 +838,8 @@ class _ItemType(Enum):
     RECORD_WAIT = 511
 
 
-ItemType = define_enum('ItemType', BlockType, _ItemType)
+# noinspection PyArgumentList
+ItemType = Enum('ItemType', [(m.name, m.value) for m in chain(BlockType, _ItemType)])
 
 
 class MoveMode(Enum):

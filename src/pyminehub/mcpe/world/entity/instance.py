@@ -163,6 +163,14 @@ class PlayerEntity(Entity):
             return self._armor.to_value()
         raise AssertionError(window_type)
 
+    def set_inventory(self, window_type: WindowType, inventory: Inventory) -> None:
+        if window_type == WindowType.INVENTORY:
+            self._inventory.set(inventory)
+        elif window_type == WindowType.ARMOR:
+            self._armor.set(inventory)
+        else:
+            raise AssertionError(window_type)
+
     def get_item(self, inventory_slot) -> Item:
         return self._inventory[inventory_slot]
 

@@ -1,5 +1,6 @@
 from typing import Dict, List, Tuple
 
+from pyminehub.mcpe.const import WindowType
 from pyminehub.mcpe.database import DataBase, Player
 from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
@@ -32,20 +33,31 @@ class EntityPool:
             entity.health = player.health
             entity.hunger = player.hunger
             entity.air = player.air
+            self._load_inventory(entity, WindowType.INVENTORY)
+            self._load_inventory(entity, WindowType.ARMOR)
         self._players[entity_runtime_id] = entity
         return entity_runtime_id
 
+    def _load_inventory(self, player: PlayerEntity, window_type: WindowType) -> None:
+        inventory = self._db.load_inventory(str(player.player_id), window_type.value)
+        assert inventory is not None
+        player.set_inventory(window_type, inventory)
+
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
-        self._db.save_player(Player(
+        self._db.save_player(
             str(player.player_id),
-            player.spawn_position,
-            player.position,
-            player.yaw,
-            player.health,
-            player.hunger,
-            player.air
-        ))
+            Player(player.spawn_position, player.position, player.yaw, player.health, player.hunger, player.air)
+        )
+        self._save_inventory(player, WindowType.INVENTORY)
+        self._save_inventory(player, WindowType.ARMOR)
+
+    def _save_inventory(self, player: PlayerEntity, window_type: WindowType) -> None:
+        self._db.save_inventory(
+            str(player.player_id),
+            window_type.value,
+            player.get_inventory(window_type)
+        )
 
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]

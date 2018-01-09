@@ -14,7 +14,12 @@ ITEM_AIR = Item(ItemType.AIR, None, None, None, None)
 class MutableSlot:
 
     def __init__(self) -> None:
-        self._clear()
+        self._type = ItemType.AIR
+        self._quantity = 0
+        self._data = None
+        self._nbt = None
+        self._place_on = None
+        self._destroy = None
 
     def to_value(self) -> Item:
         if self._type == ItemType.AIR:
@@ -30,21 +35,16 @@ class MutableSlot:
     def is_full(self) -> bool:
         return False  # TODO check quantity
 
-    def _clear(self) -> None:
-        self._type = ItemType.AIR
-        self._quantity = 0
-        self._data = None
-        self._nbt = None
-        self._place_on = None
-        self._destroy = None
-
-    def _set(self, item: Item) -> None:
-        self._type = item.type
-        self._quantity = item.quantity
-        self._data = item.data
-        self._nbt = item.nbt
-        self._place_on = item.place_on
-        self._destroy = item.destroy
+    def set(self, item: Item) -> None:
+        if item.type != ItemType.AIR:
+            self._type = item.type
+            self._quantity = item.quantity
+            self._data = item.data
+            self._nbt = item.nbt
+            self._place_on = item.place_on
+            self._destroy = item.destroy
+        else:
+            self.__init__()
 
     def _append(self, item: Item) -> None:
         self._quantity += item.quantity
@@ -53,7 +53,7 @@ class MutableSlot:
         if self.is_full:
             return False
         if self.is_empty:
-            self._set(item)
+            self.set(item)
             return True
         else:
             if self._type != item.type:
@@ -67,7 +67,7 @@ class MutableSlot:
         assert self._quantity > 0, self._quantity
         self._quantity -= 1
         if self._quantity == 0:
-            self._clear()
+            self.__init__()
 
 
 class MutableInventory:
@@ -81,6 +81,12 @@ class MutableInventory:
 
     def __getitem__(self, slot_index: int) -> Item:
         return self._slots[slot_index].to_value()
+
+    def set(self, value: Inventory) -> None:
+        assert value.window_type == self._window_type, '{}, {}'.format(value.window_type, self._window_type)
+        assert len(value.slots) == len(self._slots), '{}, {}'.format(len(value.slots), len(self._slots))
+        for slot, value in zip(self._slots, value.slots):
+            slot.set(value)
 
     def append(self, item: Item) -> int:
         """Append item into inventory.
