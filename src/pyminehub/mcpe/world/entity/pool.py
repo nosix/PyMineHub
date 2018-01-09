@@ -10,7 +10,7 @@ class EntityPool:
     def __init__(self) -> None:
         self._players = {}  # type: Dict[EntityRuntimeID, PlayerEntity]
         self._items = {}  # type: Dict[EntityRuntimeID, ItemEntity]
-        self._last_entity_id = 1
+        self._last_entity_id = 0
 
     def _next_entity_id(self) -> Tuple[EntityUniqueID, EntityRuntimeID]:
         self._last_entity_id += 1

@@ -2,7 +2,6 @@ from enum import Enum
 
 from pyminehub.enum import define_enum
 
-OWN_PLAYER_ENTITY_ID = 1
 HOTBAR_SIZE = 9
 
 

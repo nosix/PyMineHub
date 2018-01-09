@@ -26,7 +26,7 @@ def login_sequence(
         create_entity_metadata(EntityMetaDataKey.AIR, 0),
         create_entity_metadata(EntityMetaDataKey.MAX_AIR, 400),
         create_entity_metadata(EntityMetaDataKey.NAMETAG, player.name),
-        create_entity_metadata(EntityMetaDataKey.LEAD_HOLDER_EID, OWN_PLAYER_ENTITY_ID),
+        create_entity_metadata(EntityMetaDataKey.LEAD_HOLDER_EID, 1),  # TODO check that it is always 1
         create_entity_metadata(EntityMetaDataKey.SCALE, 1.0),
         create_entity_metadata(EntityMetaDataKey.BED_POSITION, event.bed_position)
     )

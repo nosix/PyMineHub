@@ -52,8 +52,8 @@ class WorldTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.PLAYER_LOGGED_IN,
             player_id=self._get_player_id(0),
-            entity_unique_id=2,
-            entity_runtime_id=2,
+            entity_unique_id=1,
+            entity_runtime_id=1,
             game_mode=GameMode.SURVIVAL,
             position=Vector3(x=256.5, y=64.625, z=256.5),
             pitch=0.0,
@@ -136,7 +136,7 @@ class WorldTestCase(TestCase):
         self.test_login()
         self._perform_action(
             ActionType.MOVE_PLAYER,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256.5, y=64.625, z=256.5),
             pitch=0.0,
             yaw=0.0,
@@ -149,7 +149,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.PLAYER_MOVED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256.5, y=64.625, z=256.5),
             pitch=0.0,
             yaw=0.0,
@@ -164,7 +164,7 @@ class WorldTestCase(TestCase):
         self.test_login()
         self._perform_action(
             ActionType.BREAK_BLOCK,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256, y=62, z=257)
         )
 
@@ -180,8 +180,8 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.ITEM_SPAWNED,
-            entity_unique_id=3,
-            entity_runtime_id=3,
+            entity_unique_id=2,
+            entity_runtime_id=2,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=()),
             position=Vector3(x=256.5, y=62.25, z=257.5),
             motion=Vector3(x=0.0, y=0.0, z=0.0),
@@ -193,7 +193,7 @@ class WorldTestCase(TestCase):
         self.test_break_block()
         self._perform_action(
             ActionType.MOVE_PLAYER,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256.54833984375, y=63.85153579711914, z=257.70001220703125),
             pitch=54.88166809082031,
             yaw=-1.9647674560546875,
@@ -215,7 +215,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
             slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
@@ -225,14 +225,14 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.ENTITY_REMOVED,
-            entity_runtime_id=3
+            entity_runtime_id=2
         )
         self.assertEqual(expected_event, actual_event)
 
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.PLAYER_MOVED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256.54833984375, y=63.85153579711914, z=257.70001220703125),
             pitch=54.88166809082031,
             yaw=-1.9647674560546875,
@@ -246,14 +246,14 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.ITEM_TAKEN,
-            item_runtime_id=3,
-            player_runtime_id=2
+            item_runtime_id=2,
+            player_runtime_id=1
         )
         self.assertEqual(expected_event, actual_event)
 
         self._perform_action(
             ActionType.EQUIP,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
@@ -262,7 +262,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
             slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
@@ -273,7 +273,7 @@ class WorldTestCase(TestCase):
         self.test_item_taken()
         self._perform_action(
             ActionType.EQUIP,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
@@ -282,7 +282,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
             slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
@@ -291,7 +291,7 @@ class WorldTestCase(TestCase):
 
         self._perform_action(
             ActionType.EQUIP,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=1,
             item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
@@ -300,7 +300,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=1,
             slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
@@ -311,7 +311,7 @@ class WorldTestCase(TestCase):
         self.test_item_taken()
         self._perform_action(
             ActionType.PUT_ITEM,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             position=Vector3(x=256, y=61, z=257),
             face=Face.TOP,
             hotbar_slot=0,
@@ -319,7 +319,7 @@ class WorldTestCase(TestCase):
         )
         self._perform_action(
             ActionType.EQUIP,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=0,
             item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
@@ -346,7 +346,7 @@ class WorldTestCase(TestCase):
         actual_event = self._next_event()
         expected_event = event_factory.create(
             EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=2,
+            entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=0,
             slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
