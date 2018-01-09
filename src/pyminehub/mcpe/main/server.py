@@ -1,4 +1,13 @@
-def configure_log(enable_packet_debug=False, enable_world_debug=False, enable_generator_debug=False) -> None:
+import asyncio
+import logging
+
+
+def configure_log(
+        enable_packet_debug=False,
+        enable_world_debug=False,
+        enable_generator_debug=False,
+        disable_chunk_debug=False
+) -> None:
     log_file_name = 'server.log'
     backup_count = 10
     max_bytes = 1  # MB
@@ -15,7 +24,6 @@ def configure_log(enable_packet_debug=False, enable_world_debug=False, enable_ge
     for i in range(backup_count):
         remove_file('{}.{}'.format(log_file_name, i+1))
 
-    import logging
     from logging.handlers import RotatingFileHandler
     stream = logging.StreamHandler()
     stream.setLevel(logging.INFO)
@@ -42,9 +50,16 @@ def configure_log(enable_packet_debug=False, enable_world_debug=False, enable_ge
         for name, level in levels.items():
             logging.getLogger(name).setLevel(level)
 
+    if disable_chunk_debug:
+
+        def log_filter(record) -> bool:
+            packet_str = str(record.args[0])
+            return not packet_str.startswith('FullChunkLoaded') and not packet_str.startswith('RequestChunk')
+
+        logging.getLogger('pyminehub.mcpe.world.server').addFilter(log_filter)
+
 
 def run() -> None:
-    import asyncio
     from pyminehub.mcpe.network import MCPEHandler
     from pyminehub.mcpe.world import run as run_world
     from pyminehub.raknet import run as run_raknet
