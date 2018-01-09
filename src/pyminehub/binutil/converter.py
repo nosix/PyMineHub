@@ -42,6 +42,59 @@ def flags_to_dict(enum_cls: Type[Enum], flags: int) -> Dict[str, bool]:
     return dict((enum_value.name.lower(), True) for enum_value in enum_cls if flags & (1 << enum_value.value))
 
 
+def unsign_to_sign(value: int, bits=32) -> int:
+    """
+    >>> unsign_to_sign(-1)
+    Traceback (most recent call last):
+      ...
+    AssertionError
+    >>> unsign_to_sign(0)
+    0
+    >>> unsign_to_sign(2147483647)
+    2147483647
+    >>> unsign_to_sign(2147483648)
+    -2147483648
+    >>> unsign_to_sign(4294967295)
+    -1
+    >>> unsign_to_sign(4294967296)
+    Traceback (most recent call last):
+      ...
+    AssertionError
+    """
+    assert 0 <= value < (1 << bits)
+    sign_mask = 1 << (bits - 1)
+    if value & sign_mask:
+        mask = sign_mask - 1
+        value &= mask
+        return - ((value ^ mask) + 1)
+    else:
+        return value
+
+
+def sign_to_unsign(value: int, bits=32) -> int:
+    """
+    >>> sign_to_unsign(0)
+    0
+    >>> sign_to_unsign(2147483647)
+    2147483647
+    >>> sign_to_unsign(2147483648)
+    Traceback (most recent call last):
+      ...
+    AssertionError
+    >>> sign_to_unsign(-1)
+    4294967295
+    >>> sign_to_unsign(-2147483648)
+    2147483648
+    >>> sign_to_unsign(-2147483649)
+    Traceback (most recent call last):
+      ...
+    AssertionError
+    """
+    assert - (1 << (bits - 1)) <= value <= (1 << (bits - 1)) - 1
+    mask = (1 << bits) - 1
+    return value & mask
+
+
 def to_bytes(hex_str: str) -> bytes:
     """ Convert hex string to bytes.
 

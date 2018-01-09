@@ -43,7 +43,7 @@ class _ConnectionRequest(DataCodec[ConnectionRequest]):
         local_context = DataCodecContext()
         chain_data_raw = pop_first(d, L_INT_DATA.read(d, local_context))
         chain_data = json.loads(chain_data_raw.decode())
-        chain_list = tuple(map(lambda chain: self._read_jwt(chain.encode('ascii')), chain_data['chain']))
+        chain_list = tuple(map(lambda _chain: self._read_jwt(_chain.encode('ascii')), chain_data['chain']))
         client_data_jwt = pop_first(d, L_INT_DATA.read(d, local_context))
         client_data = self._read_jwt(client_data_jwt)
         return ConnectionRequest(chain_list, client_data)
@@ -635,6 +635,16 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         _ENTITY_RUNTIME_ID
+    ],
+    GamePacketType.PLAYER_HOTBAR: [
+        _HEADER_EXTRA_DATA,
+        VAR_INT_DATA,
+        EnumData(BYTE_DATA, WindowType),
+        VarListData(VAR_INT_DATA, ValueFilter(
+            VAR_INT_DATA,
+            read=lambda _data: unsign_to_sign(_data),
+            write=lambda _value: sign_to_unsign(_value))),
+        BOOL_DATA
     ]
 }
 

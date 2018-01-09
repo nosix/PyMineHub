@@ -490,6 +490,14 @@ _game_packet_specs = {
         ('extra', bytes),
         ('item_runtime_id', EntityRuntimeID),
         ('player_runtime_id', EntityRuntimeID)
+    ],
+    GamePacketType.PLAYER_HOTBAR: [
+        ('id', int),
+        ('extra', bytes),
+        ('selected_hotbar_slot', int),
+        ('window_type', WindowType),
+        ('slots', Tuple[int, ...]),
+        ('does_select', bool)
     ]
 }
 
