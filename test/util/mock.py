@@ -212,6 +212,9 @@ class MockWorldProxy(WorldProxy):
         self._event_queue = asyncio.Queue()
         self._chunk_data = get_data(__package__, 'chunk_data.dat')
 
+    def terminate(self) -> None:
+        pass
+
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
             self._waiting_queue.append(

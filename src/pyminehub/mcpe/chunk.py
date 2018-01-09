@@ -82,7 +82,7 @@ class Chunk:
             extra_data: Sequence[bytes]
     ) -> None:
         """Initialize from chunk data in packet."""
-        self._is_updated = True
+        self._is_updated = False
         self._sub_chunk = list(sub_chunk)  # type: List[_SubChunk]
         self._height_map = bytearray(height_map)
         self._biome_id = bytearray(biome_id)
@@ -104,6 +104,10 @@ class Chunk:
     @property
     def is_updated(self) -> bool:
         return self._is_updated
+
+    @is_updated.setter
+    def is_updated(self, value: bool) -> None:
+        self._is_updated = value
 
     def get_block(self, position: Vector3[int], with_data=False) -> Union[BlockType, Tuple[BlockType, int]]:
         sub_chunk_index = position.y // self._Y_UNIT

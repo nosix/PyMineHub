@@ -101,7 +101,7 @@ mcpe
     - handler -> typevar, value, raknet, network.[address],
                  mcpe.[const, world], .[codec, packet, session, queue, login]
   main
-    server -> raknet, mcpe.[network, world]
+    server -> raknet, mcpe.[network, database, world]
 
 - : Hidden from outside modules
 ```

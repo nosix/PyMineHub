@@ -16,8 +16,14 @@ class Space:
         self._size = Vector3(32, 32, 32)
         self._cache = {}  # type: Dict[ChunkPosition, Chunk]
 
-    def init_space(self):
-        self._generator.generate_space(self._db, self._size.x, self._size.z)
+    def init_space(self) -> None:
+        self._generator.generate_space(self._size.x, self._size.z)
+
+    def save(self) -> None:
+        for position, chunk in self._cache.items():
+            if chunk.is_updated:
+                self._db.save_chunk(position, chunk)
+                chunk.is_updated = False
 
     def get_chunk(self, request: ChunkPositionWithDistance) -> Chunk:
         if request.position in self._cache:

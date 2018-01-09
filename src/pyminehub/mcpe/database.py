@@ -76,7 +76,7 @@ class _DataBaseImpl(DataBase):
 
     def count_chunk(self) -> int:
         row = self._connection.execute('SELECT count(*) FROM chunk').fetchone()
-        return row if row else 0
+        return row[0] if row else 0
 
     def save_player(self, player: Player, insert_only=False) -> None:
         param = (pickle.dumps(player, protocol=_PICKLE_PROTOCOL), player.player_id)

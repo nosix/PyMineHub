@@ -13,6 +13,9 @@ class WorldProxy:
     def get_recipe() -> bytes:
         return CRAFGING_DATA_RECIPE
 
+    def terminate(self) -> None:
+        raise NotImplementedError()
+
     def perform(self, action: Action) -> None:
         raise NotImplementedError()
 

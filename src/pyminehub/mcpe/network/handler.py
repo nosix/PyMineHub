@@ -51,6 +51,7 @@ class MCPEHandler(GameDataHandler):
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
         for addr in self._session_manager.addresses:
             self._send_connection_packet(res_packet, addr, DEFAULT_CHANEL)
+        self._world.terminate()
 
     # local methods
 

@@ -28,6 +28,9 @@ class _World(WorldProxy, WorldEditor):
 
     # WorldProxy methods
 
+    def terminate(self) -> None:
+        self._space.save()
+
     def perform(self, action: Action) -> None:
         _logger.debug('>> %s', LogString(action))
         self._loop.call_soon(
@@ -262,5 +265,5 @@ class _World(WorldProxy, WorldEditor):
 def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
     from pyminehub.mcpe.plugin import get_generator
-    world = _World(loop, BatchSpaceGenerator(get_generator()), db)
+    world = _World(loop, BatchSpaceGenerator(get_generator(), db), db)
     return world
