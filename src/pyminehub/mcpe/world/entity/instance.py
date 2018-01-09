@@ -15,19 +15,24 @@ class Entity:
         self._entity_unique_id = entity_unique_id
         self._entity_runtime_id = entity_runtime_id
         self._spawn_position = Vector3(256, 56, 256)
-        self._position = Vector3(0.0, 0.0, 0.0)
+        self._position = None
         self._pitch = 0.0
         self._yaw = 0.0
         self._head_yaw = 0.0
         self._on_ground = True
 
     def spawn(self, block_height: int) -> None:
+        assert self._position is None
         y = self._spawn_position.y if self._spawn_position.y > block_height else block_height
         self.position = self._spawn_position.copy(
             x=self._spawn_position.x + 0.5,
             y=y + self._spec.eye_height,
             z=self._spawn_position.z + 0.5
         )
+
+    @property
+    def is_living(self) -> bool:
+        return self._position is not None
 
     @property
     def entity_unique_id(self) -> EntityUniqueID:
@@ -38,10 +43,10 @@ class Entity:
         return self._entity_runtime_id
 
     @property
-    def sapwn_position(self) -> Vector3[int]:
+    def spawn_position(self) -> Vector3[int]:
         return self._spawn_position
 
-    @sapwn_position.setter
+    @spawn_position.setter
     def spawn_position(self, value: Vector3[int]) -> None:
         self._spawn_position = value
 
@@ -109,6 +114,7 @@ class PlayerEntity(Entity):
         self._player_id = player_id
         self._health = 20.0
         self._hunger = 20.0
+        self._air = 0.0
         self._inventory = MutableInventory(WindowType.INVENTORY)
         self._armor = MutableInventory(WindowType.ARMOR)
         self._hotbar_to_inventory = [None] * HOTBAR_SIZE  # type: List[Optional[int]]
@@ -133,6 +139,14 @@ class PlayerEntity(Entity):
     @hunger.setter
     def hunger(self, value: float) -> None:
         self._hunger = value
+
+    @property
+    def air(self) -> float:
+        return self._air
+
+    @air.setter
+    def air(self, value: float) -> None:
+        self._air = value
 
     def get_hotbar_slot(self) -> int:
         return self._selected_hotbar_slot

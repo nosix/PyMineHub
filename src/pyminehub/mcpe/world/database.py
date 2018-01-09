@@ -1,8 +1,23 @@
+import pickle
 import sqlite3
+from typing import NamedTuple as _NamedTuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.chunk import Chunk, encode_chunk, decode_chunk
-from pyminehub.mcpe.geometry import ChunkPosition
+from pyminehub.mcpe.value import *
+
+_PICKLE_PROTOCOL = 4
+
+
+Player = _NamedTuple('Player', [
+    ('player_id', str),
+    ('spawn_position', Vector3[int]),
+    ('position', Vector3[float]),
+    ('yaw', float),
+    ('health', float),
+    ('hunger', float),
+    ('air', float)
+])
 
 
 class DataBase:
@@ -19,8 +34,15 @@ class DataBase:
         with self._connection:
             self._connection.execute(
                 'CREATE TABLE IF NOT EXISTS chunk(x INTEGER, z INTEGER, data BLOB, PRIMARY KEY(x, z))')
+            self._connection.execute(
+                'CREATE TABLE IF NOT EXISTS player(player_id TEXT, json_data TEXT, PRIMARY KEY(player_id))')
 
-    def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False):
+    def delete_all(self) -> None:
+        with self._connection:
+            self._connection.execute('DELETE FROM chunk')
+            self._connection.execute('DELETE FROM player')
+
+    def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False) -> None:
         encoded_chunk = encode_chunk(chunk)
         param = (encoded_chunk, position.x, position.z)
         with self._connection:
@@ -30,12 +52,25 @@ class DataBase:
             self._connection.execute(
                 'INSERT OR IGNORE INTO chunk(data,x,z) VALUES(?,?,?)', param)
 
-    def load_chunk(self, position: ChunkPosition) -> Chunk:
+    def load_chunk(self, position: ChunkPosition) -> Optional[Chunk]:
         param = (position.x, position.z)
         row = self._connection.execute('SELECT data FROM chunk WHERE x=? AND z=?', param).fetchone()
-        chunk = decode_chunk(row[0]) if row else None
-        return chunk
+        return decode_chunk(row[0]) if row else None
 
     def count_chunk(self) -> int:
         row = self._connection.execute('SELECT count(*) FROM chunk').fetchone()
         return row if row else 0
+
+    def save_player(self, player: Player, insert_only=False) -> None:
+        param = (pickle.dumps(player, protocol=_PICKLE_PROTOCOL), player.player_id)
+        with self._connection:
+            if not insert_only:
+                self._connection.execute(
+                    'UPDATE player SET json_data=? WHERE player_id=?', param)
+            self._connection.execute(
+                'INSERT OR IGNORE INTO player(json_data,player_id) VALUES(?,?)', param)
+
+    def load_player(self, player_id: str) -> Optional[Player]:
+        param = (player_id, )
+        row = self._connection.execute('SELECT json_data FROM player WHERE player_id=?', param).fetchone()
+        return pickle.loads(row[0]) if row else None

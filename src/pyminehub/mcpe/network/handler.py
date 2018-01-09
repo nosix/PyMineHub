@@ -122,6 +122,10 @@ class MCPEHandler(GameDataHandler):
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
         player = self._session_manager[addr]
+        self._world.perform(action_factory.create(
+            ActionType.LOGOUT_PLAYER,
+            player.entity_runtime_id
+        ))
         del self._session_manager[addr]
         self._send_connection_packet(packet, addr, DEFAULT_CHANEL)
         text_packet = game_packet_factory.create(

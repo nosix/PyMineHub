@@ -117,6 +117,8 @@ def login_sequence(
     )
     send(res_packet, addr)
 
+    yaw = event.yaw
+
     event = yield
     assert type(event).__name__ == 'InventoryLoaded'
 
@@ -180,7 +182,7 @@ def login_sequence(
         event = yield
         assert type(event).__name__ == 'FullChunkLoaded'
 
-    _spawn_player(player, addr, session, send)
+    _spawn_player(player, addr, yaw, session, send)
 
 
 def _notify_new_player(
@@ -209,6 +211,7 @@ def _notify_new_player(
 
 def _spawn_player(
         player: Player, addr: Address,
+        yaw: float,
         session: SessionManager,
         send: Callable[[GamePacket, Address], None]
 ) -> None:
@@ -239,7 +242,7 @@ def _spawn_player(
         player.entity_runtime_id,
         player.bottom_position,
         Vector3(0.0, 0.0, 0.0),
-        0.0, 0.0, 0.0,
+        0.0, yaw, 0.0,
         Item(ItemType.AIR, None, None, None, None),
         player.metadata,
         0, 0, 0, 0, 0,
@@ -259,7 +262,7 @@ def _spawn_player(
             p.entity_runtime_id,
             p.bottom_position,
             Vector3(0.0, 0.0, 0.0),
-            0.0, 0.0, 0.0,
+            0.0, yaw, 0.0,
             Item(ItemType.AIR, None, None, None, None),
             p.metadata,
             0, 0, 0, 0, 0,

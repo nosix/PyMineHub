@@ -11,6 +11,7 @@ class ActionType(ValueType):
     BREAK_BLOCK = 3
     PUT_ITEM = 4
     EQUIP = 5
+    LOGOUT_PLAYER = 6
 
 
 _action_specs = {
@@ -52,7 +53,11 @@ _action_specs = {
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('item', Item)
-    ]
+    ],
+    ActionType.LOGOUT_PLAYER: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID)
+    ],
 }
 
 

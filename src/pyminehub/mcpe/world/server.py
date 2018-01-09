@@ -22,7 +22,7 @@ class _World(WorldProxy, WorldEditor):
     def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
         self._loop = loop
         self._space = Space(generator, db)
-        self._entity = EntityPool()
+        self._entity = EntityPool(db)
         self._event_queue = asyncio.Queue()
         loop.call_soon(self._space.init_space)
 
@@ -102,7 +102,8 @@ class _World(WorldProxy, WorldEditor):
         entity_runtime_id = self._entity.load_player(action.player_id)
         entity = self._entity.get_player(entity_runtime_id)
         height = self._space.get_height(entity.spawn_position)
-        entity.spawn(height)
+        if not entity.is_living:
+            entity.spawn(height)
 
         self._notify_event(event_factory.create(
             EventType.PLAYER_LOGGED_IN,
@@ -113,7 +114,7 @@ class _World(WorldProxy, WorldEditor):
             entity.position,
             entity.pitch,
             entity.yaw,
-            entity.sapwn_position,
+            entity.spawn_position,
             Vector3(0, 0, 0),
             PlayerPermission.MEMBER,
             (
@@ -153,6 +154,9 @@ class _World(WorldProxy, WorldEditor):
             0,
             0
         ))
+
+    def _process_logout_player(self, action: Action) -> None:
+        self._entity.remove(action.entity_runtime_id)
 
     def _process_request_chunk(self, action: Action) -> None:
         for request in action.positions:
