@@ -6,6 +6,7 @@ from pyminehub.mcpe.action import action_factory, ActionType
 from pyminehub.mcpe.event import event_factory, EventType, Event
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import run
+from util.mock import MockDataBase
 
 
 class WorldTestCase(TestCase):
@@ -24,7 +25,7 @@ class WorldTestCase(TestCase):
 
     def setUp(self) -> None:
         self._loop = asyncio.get_event_loop()
-        self._world = run(self._loop)
+        self._world = run(self._loop, MockDataBase())
         self._players = []
 
     @classmethod

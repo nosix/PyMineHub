@@ -2,9 +2,9 @@ from typing import Dict, List, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType, ItemType
+from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item
-from pyminehub.mcpe.world.database import DataBase
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 

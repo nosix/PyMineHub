@@ -72,6 +72,7 @@ mcpe
   player -> .[value, world]
   action -> value, .[player]
   event -> value, .[player]
+  database -> config, mcpe.[geometry, chunk]
   plugin
     generator -> mcpe.[geometry, chunk]
     default
@@ -79,17 +80,16 @@ mcpe
     loader -> .[generator, default]
   world -> value, .[const, player]
     - interface -> mcpe.[value]
-    - database -> config, mcpe.[geometry, chunk]
-    - generator -> mcpe.[geometry, chunk, plugin], .[database]
+    - generator -> mcpe.[geometry, chunk, database, plugin]
     - entity -> mcpe.[const, geometry, inventory, resource, value]
       - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, inventory, resource, value], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[value], mcpe.world.[database], .[collision, instance]
-    - space -> mcpe.[const, value, geometry, chunk], .[database, generator]
+      - pool -> mcpe.[value, database], .[collision, instance]
+    - space -> mcpe.[const, value, geometry, chunk, database], .[generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
-    - server -> config, value, mcpe.[action, attribute, event, chunk],
-                .[interface, database, entity, generator, space, proxy]
+    - server -> config, value, mcpe.[action, attribute, event, chunk, database],
+                .[interface, entity, generator, space, proxy]
   network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, player, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]

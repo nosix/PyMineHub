@@ -5,6 +5,8 @@ from collections import deque
 from pkgutil import get_data
 
 from pyminehub.mcpe.action import Action, ActionType
+from pyminehub.mcpe.chunk import Chunk
+from pyminehub.mcpe.database import DataBase, Player
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
@@ -176,6 +178,33 @@ class MockTransport(asyncio.transports.DatagramTransport):
         pass
 
 
+class MockDataBase(DataBase):
+
+    def __init__(self) -> None:
+        self._chunk = {}
+        self._player = {}
+
+    def delete_all(self) -> None:
+        self.__init__()
+
+    def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False) -> None:
+        if not insert_only or position not in self._chunk:
+            self._chunk[position] = chunk
+
+    def load_chunk(self, position: ChunkPosition) -> Optional[Chunk]:
+        return self._chunk.get(position, None)
+
+    def count_chunk(self) -> int:
+        return len(self._chunk)
+
+    def save_player(self, player: Player, insert_only=False) -> None:
+        if not insert_only or player.player_id not in self._player:
+            self._player[player.player_id] = player
+
+    def load_player(self, player_id: str) -> Optional[Player]:
+        return self._player.get(player_id, None)
+
+
 class MockWorldProxy(WorldProxy):
 
     def __init__(self) -> None:
@@ -202,7 +231,9 @@ class MockWorldProxy(WorldProxy):
                         Attribute(0.0, 20.0, 20.0, 20.0, 'minecraft:health'),
                         Attribute(0.0, 2048.0, 16.0, 16.0, 'minecraft:follow_range'),
                         Attribute(0.0, 1.0, 0.0, 0.0, 'minecraft:knockback_resistance'),
-                        Attribute(0.0, 3.4028234663852886e+38, 0.10000000149011612, 0.10000000149011612, 'minecraft:movement'),
+                        Attribute(
+                            0.0, 3.4028234663852886e+38, 0.10000000149011612, 0.10000000149011612, 'minecraft:movement'
+                        ),
                         Attribute(0.0, 3.4028234663852886e+38, 1.0, 1.0, 'minecraft:attack_damage'),
                         Attribute(0.0, 3.4028234663852886e+38, 0.0, 0.0, 'minecraft:absorption'),
                         Attribute(0.0, 20.0, 10.0, 20.0, 'minecraft:player.saturation'),

@@ -22,12 +22,29 @@ Player = _NamedTuple('Player', [
 
 class DataBase:
 
-    def __init__(self) -> None:
-        world_name = get_value(ConfigKey.WORLD_NAME)
-        name = world_name.replace(' ', '_')
-        seed = get_value(ConfigKey.SEED)
-        suffix = ('p' if seed >= 0 else 'n') + str(seed)
-        self._connection = sqlite3.connect('{}-{}.db'.format(name, suffix))
+    def delete_all(self) -> None:
+        raise NotImplementedError()
+
+    def save_chunk(self, position: ChunkPosition, chunk: Chunk, insert_only=False) -> None:
+        raise NotImplementedError()
+
+    def load_chunk(self, position: ChunkPosition) -> Optional[Chunk]:
+        raise NotImplementedError()
+
+    def count_chunk(self) -> int:
+        raise NotImplementedError()
+
+    def save_player(self, player: Player, insert_only=False) -> None:
+        raise NotImplementedError()
+
+    def load_player(self, player_id: str) -> Optional[Player]:
+        raise NotImplementedError()
+
+
+class _DataBaseImpl(DataBase):
+
+    def __init__(self, name: str) -> None:
+        self._connection = sqlite3.connect(name + '.db')
         self._create_table()
 
     def _create_table(self) -> None:
@@ -74,3 +91,12 @@ class DataBase:
         param = (player_id, )
         row = self._connection.execute('SELECT json_data FROM player WHERE player_id=?', param).fetchone()
         return pickle.loads(row[0]) if row else None
+
+
+def create_database() -> DataBase:
+    world_name = get_value(ConfigKey.WORLD_NAME)
+    name = world_name.replace(' ', '_')
+    seed = get_value(ConfigKey.SEED)
+    suffix = ('p' if seed >= 0 else 'n') + str(seed)
+    db_name = '{}-{}'.format(name, suffix)
+    return _DataBaseImpl(db_name)

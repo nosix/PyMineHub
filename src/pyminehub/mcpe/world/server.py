@@ -5,8 +5,8 @@ from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
+from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.world.database import DataBase
 from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
@@ -259,10 +259,8 @@ class _World(WorldProxy, WorldEditor):
             return None
 
 
-def run(loop: asyncio.AbstractEventLoop) -> WorldProxy:
-    from pyminehub.mcpe.world.database import DataBase
+def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
     from pyminehub.mcpe.plugin import get_generator
-    db = DataBase()
     world = _World(loop, BatchSpaceGenerator(get_generator()), db)
     return world

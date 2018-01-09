@@ -1,9 +1,9 @@
 from typing import Iterator, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
+from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.geometry import ChunkPosition, ChunkPositionWithDistance
 from pyminehub.mcpe.plugin import Generator
-from pyminehub.mcpe.world.database import DataBase
 
 
 class SpaceGenerator:

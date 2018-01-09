@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
+from pyminehub.mcpe.database import DataBase, Player
 from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item
-from pyminehub.mcpe.world.database import DataBase, Player
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
 from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity
 
