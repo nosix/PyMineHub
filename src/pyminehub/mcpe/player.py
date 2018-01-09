@@ -68,6 +68,10 @@ class Player:
         return self._entity_runtime_id
 
     @property
+    def bottom_position(self) -> Vector3[float]:
+        return self._position - Vector3(0.0, PLAYER_EYE_HEIGHT, 0.0)
+
+    @property
     def position(self) -> Vector3[float]:
         return self._position
 

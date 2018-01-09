@@ -3,6 +3,7 @@ from enum import Enum
 from pyminehub.enum import define_enum
 
 HOTBAR_SIZE = 9
+PLAYER_EYE_HEIGHT = 1.625
 
 
 class PlayStatus(Enum):

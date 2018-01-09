@@ -82,7 +82,7 @@ mcpe
     - database -> config, mcpe.[geometry, chunk]
     - generator -> mcpe.[geometry, chunk, plugin], .[database]
     - entity -> mcpe.[const, geometry, inventory, resource, value]
-      - spec -> mcpe.[geometry]
+      - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, inventory, resource, value], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
       - pool -> mcpe.[value], .[collision, instance]
