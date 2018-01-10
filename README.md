@@ -85,10 +85,11 @@ mcpe
       - instance -> mcpe.[const, geometry, resource, value], .[spec, inventory]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
       - pool -> mcpe.[value, database], .[collision, instance]
-    - space -> mcpe.[const, value, geometry, chunk, database], .[generator]
+    - exchange -> mcpe.[const, value]
+    - space -> mcpe.[const, value, geometry, chunk, database], .[exchange, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
     - server -> config, value, mcpe.[action, attribute, event, chunk, database],
-                .[interface, entity, generator, space, proxy]
+                .[interface, entity, generator, exchange, space, proxy]
   network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]

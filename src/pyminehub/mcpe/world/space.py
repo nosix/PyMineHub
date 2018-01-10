@@ -1,10 +1,11 @@
 from typing import Dict, List, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
-from pyminehub.mcpe.const import BlockType, ItemType
+from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item
+from pyminehub.mcpe.world.exchange import block_to_item
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 
@@ -53,8 +54,7 @@ class Space:
         if block_type in (BlockType.AIR, BlockType.BEDROCK):
             return None
         chunk.set_block(position_in_chunk, BlockType.AIR, 0)
-        # TODO save chunk
-        return [Item.create(ItemType.DIRT, 1)]  # TODO change
+        return block_to_item(block_type)
 
     def put_block(self, position: Vector3[int], block_type: BlockType) -> None:
         chunk, position_in_chunk = self._to_local(position)

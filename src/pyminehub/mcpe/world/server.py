@@ -8,6 +8,7 @@ from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.world.entity import EntityPool
+from pyminehub.mcpe.world.exchange import item_to_block
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
 from pyminehub.mcpe.world.proxy import WorldProxy
@@ -226,7 +227,7 @@ class _World(WorldProxy, WorldEditor):
         assert inventory_slot is not None
         old_slot, new_slot = player.spend_item(inventory_slot, action.item)
         position = action.position + action.face.direction
-        block_type = self._item_to_block(old_slot)
+        block_type = item_to_block(old_slot)
         if block_type is not None:
             self._space.put_block(position, block_type)
             self._notify_event(event_factory.create(
@@ -253,13 +254,6 @@ class _World(WorldProxy, WorldEditor):
             action.hotbar_slot,
             action.item
         ))
-
-    @staticmethod
-    def _item_to_block(item: Item) -> Optional[BlockType]:
-        try:
-            return BlockType[item.type.name]
-        except KeyError:
-            return None
 
 
 def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:
