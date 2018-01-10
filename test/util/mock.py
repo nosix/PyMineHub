@@ -6,7 +6,7 @@ from pkgutil import get_data
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import Chunk
-from pyminehub.mcpe.database import DataBase, Player
+from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
@@ -207,10 +207,10 @@ class MockDataBase(DataBase):
     def count_chunk(self) -> int:
         return len(self._chunk)
 
-    def save_player(self, player_id: str, player: Player, insert_only=False) -> None:
+    def save_player(self, player_id: str, player: PlayerState, insert_only=False) -> None:
         self._save(player_id, player, self._player, insert_only)
 
-    def load_player(self, player_id: str) -> Optional[Player]:
+    def load_player(self, player_id: str) -> Optional[PlayerState]:
         return self._load(player_id, self._player)
 
     def save_hotbar(self, player_id: str, hotbar: Hotbar, insert_only=False) -> None:

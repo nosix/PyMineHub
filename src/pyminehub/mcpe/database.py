@@ -1,22 +1,11 @@
 import pickle
 import sqlite3
-from typing import NamedTuple as _NamedTuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.chunk import Chunk, encode_chunk, decode_chunk
 from pyminehub.mcpe.value import *
 
 _PICKLE_PROTOCOL = 4
-
-
-Player = _NamedTuple('Player', [
-    ('spawn_position', Vector3[int]),
-    ('position', Vector3[float]),
-    ('yaw', float),
-    ('health', float),
-    ('hunger', float),
-    ('air', float)
-])
 
 
 class DataBase:
@@ -33,10 +22,10 @@ class DataBase:
     def count_chunk(self) -> int:
         raise NotImplementedError()
 
-    def save_player(self, player_id: str, player: Player, insert_only=False) -> None:
+    def save_player(self, player_id: str, player: PlayerState, insert_only=False) -> None:
         raise NotImplementedError()
 
-    def load_player(self, player_id: str) -> Optional[Player]:
+    def load_player(self, player_id: str) -> Optional[PlayerState]:
         raise NotImplementedError()
 
     def save_hotbar(self, player_id: str, hotbar: Hotbar, insert_only=False) -> None:
@@ -98,7 +87,7 @@ class _DataBaseImpl(DataBase):
         row = self._connection.execute('SELECT count(*) FROM chunk').fetchone()
         return row[0] if row else 0
 
-    def save_player(self, player_id: str, player: Player, insert_only=False) -> None:
+    def save_player(self, player_id: str, player: PlayerState, insert_only=False) -> None:
         param = (pickle.dumps(player, protocol=_PICKLE_PROTOCOL), player_id)
         with self._connection:
             if not insert_only:
@@ -107,7 +96,7 @@ class _DataBaseImpl(DataBase):
             self._connection.execute(
                 'INSERT OR IGNORE INTO player(data,player_id) VALUES(?,?)', param)
 
-    def load_player(self, player_id: str) -> Optional[Player]:
+    def load_player(self, player_id: str) -> Optional[PlayerState]:
         param = (player_id, )
         row = self._connection.execute('SELECT data FROM player WHERE player_id=?', param).fetchone()
         return pickle.loads(row[0]) if row else None

@@ -1,8 +1,8 @@
 from typing import Dict, List, Tuple
 
 from pyminehub.mcpe.const import WindowType
-from pyminehub.mcpe.database import DataBase, Player
-from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item
+from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item, PlayerState
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
 from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity
 
@@ -53,7 +53,7 @@ class EntityPool:
         player = self._players[entity_runtime_id]
         self._db.save_player(
             str(player.player_id),
-            Player(player.spawn_position, player.position, player.yaw, player.health, player.hunger, player.air)
+            PlayerState(player.spawn_position, player.position, player.yaw, player.health, player.hunger, player.air)
         )
         self._save_inventory(player, WindowType.INVENTORY)
         self._save_inventory(player, WindowType.ARMOR)
