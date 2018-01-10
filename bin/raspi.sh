@@ -24,6 +24,7 @@ fi
 
 if [ $1 = "run" ]; then
   # run remote PyMineHub server
+  unset LC_CTYPE  # to avoid UnicodeEncodeError
   ssh pi@raspberrypi.local ${REMOTE_HOME}/bin/run.sh &
 
   # run local PyMineHub proxy server
@@ -37,6 +38,7 @@ if [ $1 = "run" ]; then
 fi
 
 if [ $1 = "test" ]; then
+  unset LC_CTYPE  # to avoid UnicodeEncodeError
   ssh pi@raspberrypi.local ${REMOTE_HOME}/bin/test.sh
   exit 0
 fi
