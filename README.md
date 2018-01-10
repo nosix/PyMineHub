@@ -66,7 +66,6 @@ mcpe
     - loader
   attribute -> .[const, value]
   metadata -> .[const, geometry, value]
-  inventory -> .[const, value]
   command -> .[const, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
   action -> value, mcpe.[value]
@@ -80,9 +79,10 @@ mcpe
   world
     - interface -> mcpe.[value]
     - generator -> mcpe.[geometry, chunk, database, plugin]
+    - inventory -> .[const, value]
     - entity -> mcpe.[const, geometry, inventory, resource, value]
       - spec -> mcpe.[const, geometry]
-      - instance -> mcpe.[const, geometry, inventory, resource, value], .[spec]
+      - instance -> mcpe.[const, geometry, resource, value], .[spec, inventory]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
       - pool -> mcpe.[value, database], .[collision, instance]
     - space -> mcpe.[const, value, geometry, chunk, database], .[generator]

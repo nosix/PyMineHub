@@ -8,9 +8,9 @@ from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.inventory import MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.world import WorldProxy
+from pyminehub.mcpe.world.inventory import MutableInventory
 from pyminehub.network.address import Address
 
 

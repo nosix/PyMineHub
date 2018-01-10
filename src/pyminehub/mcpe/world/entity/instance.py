@@ -2,10 +2,10 @@ from typing import List, Optional, Tuple
 
 from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
-from pyminehub.mcpe.inventory import ITEM_AIR, MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item, Hotbar
 from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC
+from pyminehub.mcpe.world.inventory import ITEM_AIR, MutableInventory
 
 
 class Entity:
