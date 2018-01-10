@@ -11,6 +11,8 @@ to_array ()
   echo "$2" | tr -s '.' ' '
 }
 
+echo "In your environment, ${use_version} is used."
+
 min_version_array=( $( to_array ${min_version} ) )
 use_version_array=( $( to_array ${use_version} ) )
 
