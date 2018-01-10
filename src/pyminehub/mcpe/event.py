@@ -43,9 +43,9 @@ _event_specs = {
     EventType.SLOT_INITIALIZED: [
         ('id', int),
         ('player_id', PlayerID),
-        ('equipped_item', Item),
-        ('inventory_slot', int),
-        ('hotbar_slot', int)
+        ('inventory_slot', Optional[int]),
+        ('hotbar_slot', int),
+        ('equipped_item', Item)
     ],
     EventType.FULL_CHUNK_LOADED: [
         ('id', int),
@@ -98,7 +98,7 @@ _event_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
-        ('slot', Item)
+        ('equipped_item', Item)
     ]
 }
 

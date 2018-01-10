@@ -153,9 +153,9 @@ class _World(WorldProxy, WorldEditor):
         self._notify_event(event_factory.create(
             EventType.SLOT_INITIALIZED,
             entity.player_id,
-            Item(ItemType.AIR, None, None, None, None),
-            0,
-            0
+            entity.get_inventory_slot(entity.get_hotbar_slot()),
+            entity.get_hotbar_slot(),
+            entity.get_equipped_item()
         ))
 
     def _process_logout_player(self, action: Action) -> None:

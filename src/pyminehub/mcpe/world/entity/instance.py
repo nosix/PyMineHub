@@ -4,7 +4,7 @@ from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.inventory import ITEM_AIR, MutableInventory
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
-from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item
+from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item, Hotbar
 from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC
 
 
@@ -153,6 +153,14 @@ class PlayerEntity(Entity):
 
     def get_inventory_slot(self, hotbar_slot: int) -> Optional[int]:
         return self._hotbar_to_inventory[hotbar_slot]
+
+    def get_hotbar(self) -> Hotbar:
+        return tuple(self._hotbar_to_inventory)
+
+    def set_hotbar(self, hotbar: Hotbar):
+        assert len(hotbar) == len(self._hotbar_to_inventory)
+        for i, slot in enumerate(hotbar):
+            self._hotbar_to_inventory[i] = slot
 
     def get_inventory(self, window_type: WindowType) -> Inventory:
         if window_type == WindowType.CREATIVE:

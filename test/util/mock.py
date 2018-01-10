@@ -183,6 +183,7 @@ class MockDataBase(DataBase):
     def __init__(self) -> None:
         self._chunk = {}
         self._player = {}
+        self._hotbar = {}
         self._inventory = {}
 
     def delete_all(self) -> None:
@@ -211,6 +212,12 @@ class MockDataBase(DataBase):
 
     def load_player(self, player_id: str) -> Optional[Player]:
         return self._load(player_id, self._player)
+
+    def save_hotbar(self, player_id: str, hotbar: Hotbar, insert_only=False) -> None:
+        self._save(player_id, hotbar, self._hotbar, insert_only)
+
+    def load_hotbar(self, player_id: str) -> Optional[Hotbar]:
+        return self._load(player_id, self._hotbar)
 
     def save_inventory(self, player_id: str, window_id: int, inventory: Inventory, insert_only=False) -> None:
         self._save((player_id, window_id), inventory, self._inventory, insert_only)
@@ -281,9 +288,9 @@ class MockWorldProxy(WorldProxy):
                 event_factory.create(
                     EventType.SLOT_INITIALIZED,
                     action.player_id,
-                    Item(ItemType.AIR, None, None, None, None),
                     0,
-                    0
+                    0,
+                    Item(ItemType.AIR, None, None, None, None)
                 ))
             return
         if ActionType(action.id) == ActionType.REQUEST_CHUNK:

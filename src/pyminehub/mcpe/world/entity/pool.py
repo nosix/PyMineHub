@@ -35,6 +35,7 @@ class EntityPool:
             entity.air = player.air
             self._load_inventory(entity, WindowType.INVENTORY)
             self._load_inventory(entity, WindowType.ARMOR)
+            self._load_hotbar(entity)
         self._players[entity_runtime_id] = entity
         return entity_runtime_id
 
@@ -42,6 +43,11 @@ class EntityPool:
         inventory = self._db.load_inventory(str(player.player_id), window_type.value)
         assert inventory is not None
         player.set_inventory(window_type, inventory)
+
+    def _load_hotbar(self, player: PlayerEntity) -> None:
+        hotbar = self._db.load_hotbar(str(player.player_id))
+        assert hotbar is not None
+        player.set_hotbar(hotbar)
 
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
@@ -51,6 +57,7 @@ class EntityPool:
         )
         self._save_inventory(player, WindowType.INVENTORY)
         self._save_inventory(player, WindowType.ARMOR)
+        self._save_hotbar(player)
 
     def _save_inventory(self, player: PlayerEntity, window_type: WindowType) -> None:
         self._db.save_inventory(
@@ -58,6 +65,9 @@ class EntityPool:
             window_type.value,
             player.get_inventory(window_type)
         )
+
+    def _save_hotbar(self, player: PlayerEntity) -> None:
+        self._db.save_hotbar(str(player.player_id), player.get_hotbar())
 
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]

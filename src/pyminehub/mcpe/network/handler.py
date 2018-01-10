@@ -315,6 +315,7 @@ class MCPEHandler(GameDataHandler):
                 self._send_game_packet(res_packet, addr)
             else:
                 player.position = event.position
+                player.yaw = event.yaw
                 required_chunk = player.next_required_chunk()
                 if len(required_chunk) > 0:
                     self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
@@ -379,10 +380,12 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.MOB_EQUIPMENT,
             EXTRA_DATA,
             event.entity_runtime_id,
-            event.slot,
+            event.equipped_item,
             event.inventory_slot + HOTBAR_SIZE if event.inventory_slot is not None else _NONE_INVENTORY_SLOT,
             event.hotbar_slot,
             WindowType.INVENTORY
         )
-        for addr in self._session_manager.addresses:
+        for addr, player in self._session_manager:
+            if player.entity_runtime_id == event.entity_runtime_id:
+                player.equipped_item = event.equipped_item
             self._send_game_packet(res_packet, addr)

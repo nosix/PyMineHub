@@ -220,6 +220,8 @@ EntityLink = _NamedTuple('EntityLink', [
     ('bool1', bool)
 ])
 
+Hotbar = Tuple[Optional[int], ...]
+
 Inventory = _NamedTuple('Inventory', [
     ('window_type', WindowType),
     ('slots', Tuple[Item, ...])

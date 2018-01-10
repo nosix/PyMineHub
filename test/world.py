@@ -128,7 +128,7 @@ class WorldTestCase(TestCase):
             EventType.SLOT_INITIALIZED,
             player_id=self._get_player_id(0),
             equipped_item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None),
-            inventory_slot=0,
+            inventory_slot=None,
             hotbar_slot=0
         )
         self.assertEqual(expected_event, actual_event)
@@ -219,7 +219,7 @@ class WorldTestCase(TestCase):
             entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
-            slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+            equipped_item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -266,7 +266,7 @@ class WorldTestCase(TestCase):
             entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
-            slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+            equipped_item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -286,7 +286,7 @@ class WorldTestCase(TestCase):
             entity_runtime_id=1,
             inventory_slot=0,
             hotbar_slot=0,
-            slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+            equipped_item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -304,7 +304,7 @@ class WorldTestCase(TestCase):
             entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=1,
-            slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
+            equipped_item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -350,7 +350,7 @@ class WorldTestCase(TestCase):
             entity_runtime_id=1,
             inventory_slot=None,
             hotbar_slot=0,
-            slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
+            equipped_item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -439,7 +439,7 @@ class WorldTestCase(TestCase):
             EventType.SLOT_INITIALIZED,
             player_id=self._get_player_id(0),
             equipped_item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None),
-            inventory_slot=0,
+            inventory_slot=None,
             hotbar_slot=0
         )
         self.assertEqual(expected_event, actual_event)

@@ -14,7 +14,9 @@ class Player:
         self._client_data = None
         self._entity_unique_id = 0
         self._entity_runtime_id = 0
-        self._position = Vector3(256.0, 57.625, 256.0)
+        self._position = Vector3(0.0, 0.0, 0.0)
+        self._yaw = 0.0
+        self._equipped_item = Item(ItemType.AIR, None, None, None, None)
         self._metadata = None
         self._chunk_radius = 0
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
@@ -78,6 +80,22 @@ class Player:
     @position.setter
     def position(self, value: Vector3[float]) -> None:
         self._position = value
+
+    @property
+    def yaw(self) -> float:
+        return self._yaw
+
+    @yaw.setter
+    def yaw(self, value: float) -> None:
+        self._yaw = value
+
+    @property
+    def equipped_item(self) -> Item:
+        return self._equipped_item
+
+    @equipped_item.setter
+    def equipped_item(self, value: Item) -> None:
+        self._equipped_item = value
 
     @property
     def metadata(self) -> Tuple[EntityMetaData, ...]:

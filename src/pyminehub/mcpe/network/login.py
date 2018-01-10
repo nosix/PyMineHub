@@ -21,6 +21,8 @@ def login_sequence(
 
     player.set_identity(event.entity_unique_id, event.entity_runtime_id)
     player.position = event.position
+    player.yaw = event.yaw
+
     player.metadata = (
         create_entity_metadata(EntityMetaDataKey.FLAGS, event.metadata_flags.flags),
         create_entity_metadata(EntityMetaDataKey.AIR, 0),
@@ -117,8 +119,6 @@ def login_sequence(
     )
     send(res_packet, addr)
 
-    yaw = event.yaw
-
     event = yield
     assert type(event).__name__ == 'InventoryLoaded'
 
@@ -134,12 +134,15 @@ def login_sequence(
     event = yield
     assert type(event).__name__ == 'SlotInitialized'
 
+    player.equipped_item = event.equipped_item
+    inventory_slot = event.inventory_slot if event.inventory_slot is not None else 0
+
     res_packet = game_packet_factory.create(
         GamePacketType.MOB_EQUIPMENT,
         EXTRA_DATA,
         entity_runtime_id=player.entity_runtime_id,
         item=event.equipped_item,
-        inventory_slot=event.inventory_slot,
+        inventory_slot=inventory_slot,
         hotbar_slot=event.hotbar_slot,
         window_type=WindowType.INVENTORY
     )
@@ -149,7 +152,7 @@ def login_sequence(
         GamePacketType.INVENTORY_SLOT,
         EXTRA_DATA,
         window_type=WindowType.INVENTORY,
-        inventory_slot=event.inventory_slot,
+        inventory_slot=inventory_slot,
         item=event.equipped_item
     )
     send(res_packet, addr)
@@ -182,7 +185,7 @@ def login_sequence(
         event = yield
         assert type(event).__name__ == 'FullChunkLoaded'
 
-    _spawn_player(player, addr, yaw, session, send)
+    _spawn_player(player, addr, session, send)
 
 
 def _notify_new_player(
@@ -210,8 +213,8 @@ def _notify_new_player(
 
 
 def _spawn_player(
-        player: Player, addr: Address,
-        yaw: float,
+        player: Player,
+        addr: Address,
         session: SessionManager,
         send: Callable[[GamePacket, Address], None]
 ) -> None:
@@ -242,8 +245,8 @@ def _spawn_player(
         player.entity_runtime_id,
         player.bottom_position,
         Vector3(0.0, 0.0, 0.0),
-        0.0, yaw, 0.0,
-        Item(ItemType.AIR, None, None, None, None),
+        0.0, player.yaw, 0.0,
+        player.equipped_item,
         player.metadata,
         0, 0, 0, 0, 0,
         0,
@@ -262,8 +265,8 @@ def _spawn_player(
             p.entity_runtime_id,
             p.bottom_position,
             Vector3(0.0, 0.0, 0.0),
-            0.0, yaw, 0.0,
-            Item(ItemType.AIR, None, None, None, None),
+            0.0, p.yaw, 0.0,
+            p.equipped_item,
             p.metadata,
             0, 0, 0, 0, 0,
             0,

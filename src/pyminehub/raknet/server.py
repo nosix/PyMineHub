@@ -121,6 +121,9 @@ class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
     def _process_frame_set_4(self, packet: RakNetPacket, addr: Address) -> None:
         self._process_frame_set(packet, addr)
 
+    def _process_frame_set_8(self, packet: RakNetPacket, addr: Address) -> None:
+        self._process_frame_set(packet, addr)
+
     def _process_frame_set_c(self, packet: RakNetPacket, addr: Address) -> None:
         self._process_frame_set(packet, addr)
 
