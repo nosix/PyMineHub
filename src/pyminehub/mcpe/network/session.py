@@ -1,6 +1,6 @@
 from typing import Dict, Iterator, Tuple, Union
 
-from pyminehub.mcpe.player import Player
+from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.value import PlayerID
 from pyminehub.network.address import Address
 from pyminehub.raknet import SessionNotFound

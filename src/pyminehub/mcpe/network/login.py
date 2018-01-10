@@ -3,8 +3,8 @@ from typing import Callable
 from pyminehub.mcpe.command import get_command_spec
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.packet import *
+from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.network.session import SessionManager
-from pyminehub.mcpe.player import Player
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address
 

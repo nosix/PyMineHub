@@ -69,16 +69,15 @@ mcpe
   inventory -> .[const, value]
   command -> .[const, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
-  player -> .[value, world]
-  action -> value, .[player]
-  event -> value, .[player]
+  action -> value, mcpe.[value]
+  event -> value, mcpe.[value]
   database -> config, mcpe.[geometry, chunk]
   plugin
     generator -> mcpe.[geometry, chunk]
     default
       - generator -> mcpe.[chunk], mcpe.plugin.[generator]
     loader -> .[generator, default]
-  world -> value, .[const, player]
+  world
     - interface -> mcpe.[value]
     - generator -> mcpe.[geometry, chunk, database, plugin]
     - entity -> mcpe.[const, geometry, inventory, resource, value]
@@ -90,14 +89,15 @@ mcpe
     - proxy -> mcpe.[const, value, resource], .[action, event]
     - server -> config, value, mcpe.[action, attribute, event, chunk, database],
                 .[interface, entity, generator, space, proxy]
-  network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, player, world]
+  network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]
       - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
-    - session -> raknet, networkd.[address], mcpe.[value, player]
+    - player -> .[value, event]
+    - session -> raknet, networkd.[address], mcpe.[value] .[player]
     - queue -> value, raknet, network.[address], .[packet, codec]
-    - login -> network.[address], mcpe.[command, metadata, player, world], .[packet, session]
+    - login -> network.[address], mcpe.[command, metadata, world], .[packet, player, session]
     - handler -> typevar, value, raknet, network.[address],
                  mcpe.[const, world], .[codec, packet, session, queue, login]
   main
