@@ -309,13 +309,6 @@ class ChunkPosition(_NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
 ChunkPositionWithDistance = _NamedTuple('ChunkPositionWithDistance', [('distance', int), ('position', ChunkPosition)])
 
 
-# TODO remove this
-# radius = 8 : (16, 16), (15, 16), (16, 15), (15, 15), (17, 16), (14, 16), (17, 15), (14, 15), (16, 17)
-#   (15, 17), (16, 14), (15, 14), (17, 17), (14, 17), (17, 14), (14, 14), (18, 16), (13, 16), (18, 15)
-#   (13, 15), (16, 18), (15, 18), (16, 13), (15, 13), (18, 17), (13, 17), (18, 14), (13, 14), (17, 18)
-#   (14, 18), (17, 13), (14, 13), (18, 18), (13, 18), (18, 13), (13, 13), (19, 16), (12, 16), (19, 15)
-#   (12, 15), (16, 19), (15, 19), (16, 12), (15, 12), (19, 17), (12, 17), (19, 14), (12, 14), (17, 19)
-#   (14, 19), (17, 12), (14, 12), (19, 18), ..., (19, 23), (12, 23), (19, 8), (12, 8)
 def to_chunk_area(center: Vector3, radius: int) -> Iterator[ChunkPositionWithDistance]:
     """
     >>> len(list(to_chunk_area(Vector3(256.0, 57.625, 256.0), 8)))

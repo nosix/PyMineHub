@@ -1,50 +1,50 @@
 Text(id=9, extra=b'\x00\x00', type=<TextType.TRANSLATION: 2>, needs_translation=False, source=None, message='§e%multiplayer.player.left', parameters=('CantingAtol3766',), xbox_user_id='')
   -> 09000002001bc2a765256d756c7469706c617965722e706c617965722e6c656674010f43616e74696e6741746f6c3337363600
-  File "./codec_login_logout.py", line 273, in test_logout
+  File "./codec_login_logout.py", line 272, in test_logout
     GamePacket(GamePacketType.TEXT)
 
 Batch(id=254, payloads=([51 bytes],))
   -> fe7801013400cbff3309000002001bc2a765256d756c7469706c617965722e706c617965722e6c656674010f43616e74696e6741746f6c3337363600b3a210d3
-  File "./codec_login_logout.py", line 272, in test_logout
+  File "./codec_login_logout.py", line 271, in test_logout
     Batch().that_has(
 
 ReliableOrdered(id=96, payload_length=512, reliable_message_num=215, message_ordering_index=187, message_ordering_chanel=0, payload=[64 bytes])
   -> 600200d70000bb000000fe7801013400cbff3309000002001bc2a765256d756c7469706c617965722e706c617965722e6c656674010f43616e74696e6741746f6c3337363600b3a210d3
-  File "./codec_login_logout.py", line 271, in test_logout
+  File "./codec_login_logout.py", line 270, in test_logout
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
 RemoveEntity(id=14, extra=b'\x00\x00', entity_unique_id=3)
   -> 0e000006
-  File "./codec_login_logout.py", line 278, in test_logout
+  File "./codec_login_logout.py", line 277, in test_logout
     GamePacket(GamePacketType.REMOVE_ENTITY)
 
 Batch(id=254, payloads=(b'\x0e\x00\x00\x06',))
   -> fe7801010500faff040e00000600570019
-  File "./codec_login_logout.py", line 277, in test_logout
+  File "./codec_login_logout.py", line 276, in test_logout
     Batch().that_has(
 
 ReliableOrdered(id=96, payload_length=136, reliable_message_num=216, message_ordering_index=188, message_ordering_chanel=0, payload=[17 bytes])
   -> 600088d80000bc000000fe7801010500faff040e00000600570019
-  File "./codec_login_logout.py", line 276, in test_logout
+  File "./codec_login_logout.py", line 275, in test_logout
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
 PlayerList(id=63, extra=b'\x00\x00', type=<PlayerListType.REMOVE: 1>, entries=(PlayerListEntry(uuid=UUID('3f3eac4c-66a6-02a3-fef8-06955f68b8a6'), entity_unique_id=None, user_name=None, skin=None, xbox_user_id=None),))
   -> 3f000001013f3eac4c66a602a3fef806955f68b8a6
-  File "./codec_login_logout.py", line 283, in test_logout
+  File "./codec_login_logout.py", line 282, in test_logout
     GamePacket(GamePacketType.PLAYER_LIST)
 
 Batch(id=254, payloads=([21 bytes],))
   -> fe7801011600e9ff153f000001013f3eac4c66a602a3fef806955f68b8a644500833
-  File "./codec_login_logout.py", line 282, in test_logout
+  File "./codec_login_logout.py", line 281, in test_logout
     Batch().that_has(
 
 ReliableOrdered(id=96, payload_length=272, reliable_message_num=217, message_ordering_index=189, message_ordering_chanel=0, payload=[34 bytes])
   -> 600110d90000bd000000fe7801011600e9ff153f000001013f3eac4c66a602a3fef806955f68b8a644500833
-  File "./codec_login_logout.py", line 281, in test_logout
+  File "./codec_login_logout.py", line 280, in test_logout
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
 FrameSet4(id=132, packet_sequence_num=265, payload=[145 bytes])
   -> 84090100600200d70000bb000000fe7801013400cbff3309000002001bc2a765256d756c7469706c617965722e706c617965722e6c656674010f43616e74696e6741746f6c3337363600b3a210d3600088d80000bc000000fe7801010500faff040e00000600570019600110d90000bd000000fe7801011600e9ff153f000001013f3eac4c66a602a3fef806955f68b8a644500833
-  File "./codec_login_logout.py", line 270, in test_logout
+  File "./codec_login_logout.py", line 269, in test_logout
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
 

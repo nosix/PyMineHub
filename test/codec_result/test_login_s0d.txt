@@ -1,35 +1,35 @@
 MobEquipment(id=31, extra=b'\x00\x00', entity_runtime_id=1, item=Item(type=<ItemType.AIR: 0>, aux_value=None, nbt=None, place_on=None, destroy=None), inventory_slot=0, hotbar_slot=0, window_type=<WindowType.INVENTORY: 0>)
   -> 1f00000100000000
-  File "./codec_login_logout.py", line 173, in test_login_s0d
+  File "./codec_login_logout.py", line 172, in test_login_s0d
     GamePacket(GamePacketType.MOB_EQUIPMENT)
 
 Batch(id=254, payloads=(b'\x1f\x00\x00\x01\x00\x00\x00\x00',))
   -> fe7801010900f6ff081f00000100000000014e0029
-  File "./codec_login_logout.py", line 172, in test_login_s0d
+  File "./codec_login_logout.py", line 171, in test_login_s0d
     Batch().that_has(
 
 ReliableOrdered(id=96, payload_length=168, reliable_message_num=13, message_ordering_index=12, message_ordering_chanel=0, payload=[21 bytes])
   -> 6000a80d00000c000000fe7801010900f6ff081f00000100000000014e0029
-  File "./codec_login_logout.py", line 171, in test_login_s0d
+  File "./codec_login_logout.py", line 170, in test_login_s0d
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
 InventorySlot(id=50, extra=b'\x00\x00', window_type=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Item(type=<ItemType.AIR: 0>, aux_value=None, nbt=None, place_on=None, destroy=None))
   -> 320000000000
-  File "./codec_login_logout.py", line 178, in test_login_s0d
+  File "./codec_login_logout.py", line 177, in test_login_s0d
     GamePacket(GamePacketType.INVENTORY_SLOT)
 
 Batch(id=254, payloads=(b'2\x00\x00\x00\x00\x00',))
   -> fe7801010700f8ff06320000000000015d0039
-  File "./codec_login_logout.py", line 177, in test_login_s0d
+  File "./codec_login_logout.py", line 176, in test_login_s0d
     Batch().that_has(
 
 ReliableOrdered(id=96, payload_length=152, reliable_message_num=14, message_ordering_index=13, message_ordering_chanel=0, payload=[19 bytes])
   -> 6000980e00000d000000fe7801010700f8ff06320000000000015d0039
-  File "./codec_login_logout.py", line 176, in test_login_s0d
+  File "./codec_login_logout.py", line 175, in test_login_s0d
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
 FrameSet4(id=132, packet_sequence_num=13, payload=[60 bytes])
   -> 840d00006000a80d00000c000000fe7801010900f6ff081f00000100000000014e00296000980e00000d000000fe7801010700f8ff06320000000000015d0039
-  File "./codec_login_logout.py", line 170, in test_login_s0d
+  File "./codec_login_logout.py", line 169, in test_login_s0d
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
 

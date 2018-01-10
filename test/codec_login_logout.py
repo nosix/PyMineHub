@@ -71,7 +71,6 @@ class LoginLogoutTestCase(CodecTestCase):
         assertion.is_correct_on(self, and_verified_with_encoded_data=True)
 
     def test_login_c0d(self):
-        config.set_config(batch_compress_threshold=0)  # TODO
         assertion = EncodedData(
             '840d00006000800b000002000000fe78da63e360606066600000006a0012'
         ).is_(
