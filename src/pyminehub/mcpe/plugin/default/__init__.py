@@ -1,4 +1,4 @@
-from .generator import DefaultGenerator
+from .generator import DefaultChunkGenerator
 
 
-__all__ = [DefaultGenerator]
+__all__ = [DefaultChunkGenerator]

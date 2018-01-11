@@ -1,6 +1,6 @@
-from pyminehub.mcpe.plugin.default import DefaultGenerator
-from pyminehub.mcpe.plugin.generator import Generator
+from pyminehub.mcpe.plugin.default import DefaultChunkGenerator
+from pyminehub.mcpe.plugin.generator import ChunkGenerator
 
 
-def get_generator() -> Generator:
-    return DefaultGenerator()
+def get_generator() -> ChunkGenerator:
+    return DefaultChunkGenerator()

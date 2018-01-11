@@ -6,7 +6,7 @@ from pyminehub.mcpe.plugin.generator import *
 _logger = getLogger(__name__)
 
 
-class DefaultGenerator(Generator):
+class DefaultChunkGenerator(ChunkGenerator):
 
     def __init__(self) -> None:
         def set_data(x: int, z: int) -> None:
