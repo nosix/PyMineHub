@@ -12,6 +12,7 @@ class ActionType(ValueType):
     PUT_ITEM = 4
     EQUIP = 5
     LOGOUT_PLAYER = 6
+    SET_HOTBAR = 7
 
 
 _action_specs = {
@@ -58,6 +59,12 @@ _action_specs = {
         ('id', int),
         ('entity_runtime_id', EntityRuntimeID)
     ],
+    ActionType.SET_HOTBAR: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('hotbar_slot', int),
+        ('hotbar', Hotbar)
+    ]
 }
 
 

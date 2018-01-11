@@ -47,7 +47,7 @@ class EntityPool:
     def _load_hotbar(self, player: PlayerEntity) -> None:
         hotbar = self._db.load_hotbar(str(player.player_id))
         assert hotbar is not None
-        player.set_hotbar(hotbar)
+        player.hotbar = hotbar
 
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
@@ -67,7 +67,7 @@ class EntityPool:
         )
 
     def _save_hotbar(self, player: PlayerEntity) -> None:
-        self._db.save_hotbar(str(player.player_id), player.get_hotbar())
+        self._db.save_hotbar(str(player.player_id), player.hotbar)
 
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]

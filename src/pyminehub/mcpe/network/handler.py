@@ -83,6 +83,10 @@ class MCPEHandler(GameDataHandler):
         for addr, p in self._session_manager.excluding(player):
             self._send_game_packet(packet, addr, is_last)
 
+    @staticmethod
+    def _to_internal_format_hotbar(inventory_slot: int) -> Optional[int]:
+        return inventory_slot - HOTBAR_SIZE if inventory_slot != -1 else None
+
     # packet handling methods
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
@@ -269,6 +273,20 @@ class MCPEHandler(GameDataHandler):
                 packet.hotbar_slot,
                 packet.item
             ))
+        if is_last:
+            self._send_waiting_game_packet()
+
+    def _process_player_hotbar(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        player = self._session_manager[addr]
+        if packet.window_type == WindowType.INVENTORY:
+            self._world.perform(action_factory.create(
+                ActionType.SET_HOTBAR,
+                player.entity_runtime_id,
+                packet.selected_hotbar_slot,
+                tuple(self._to_internal_format_hotbar(slot) for slot in packet.slots)
+            ))
+        else:
+            raise NotImplementedError()
         if is_last:
             self._send_waiting_game_packet()
 

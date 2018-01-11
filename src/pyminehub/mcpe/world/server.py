@@ -145,9 +145,9 @@ class _World(WorldProxy, WorldEditor):
         self._notify_event(event_factory.create(
             EventType.SLOT_INITIALIZED,
             entity.player_id,
-            entity.get_inventory_slot(entity.get_hotbar_slot()),
-            entity.get_hotbar_slot(),
-            entity.get_equipped_item()
+            entity.get_inventory_slot(entity.hotbar_slot),
+            entity.hotbar_slot,
+            entity.equipped_item
         ))
 
     def _process_logout_player(self, action: Action) -> None:
@@ -237,14 +237,19 @@ class _World(WorldProxy, WorldEditor):
     def _process_equip(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
         player.equip(action.hotbar_slot, action.inventory_slot)
-        assert action.item == player.get_equipped_item(), '{}, {}'.format(action.item, player.get_equipped_item())
+        assert action.item == player.equipped_item, '{}, {}'.format(action.item, player.equipped_item)
         self._notify_event(event_factory.create(
             EventType.EQUIPMENT_UPDATED,
             player.entity_runtime_id,
-            player.get_inventory_slot(player.get_hotbar_slot()),
+            player.get_inventory_slot(player.hotbar_slot),
             action.hotbar_slot,
             action.item
         ))
+
+    def _process_set_hotbar(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        player.hotbar = action.hotbar
+        player.hotbar_slot = action.hotbar_slot
 
 
 def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:

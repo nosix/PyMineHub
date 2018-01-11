@@ -148,19 +148,35 @@ class PlayerEntity(Entity):
     def air(self, value: float) -> None:
         self._air = value
 
-    def get_hotbar_slot(self) -> int:
+    @property
+    def hotbar_slot(self) -> int:
         return self._selected_hotbar_slot
 
-    def get_inventory_slot(self, hotbar_slot: int) -> Optional[int]:
-        return self._hotbar_to_inventory[hotbar_slot]
+    @hotbar_slot.setter
+    def hotbar_slot(self, value: int) -> None:
+        self._selected_hotbar_slot = value
 
-    def get_hotbar(self) -> Hotbar:
+    @property
+    def hotbar(self) -> Hotbar:
         return tuple(self._hotbar_to_inventory)
 
-    def set_hotbar(self, hotbar: Hotbar):
+    @hotbar.setter
+    def hotbar(self, hotbar: Hotbar) -> None:
         assert len(hotbar) == len(self._hotbar_to_inventory)
         for i, slot in enumerate(hotbar):
             self._hotbar_to_inventory[i] = slot
+
+    @property
+    def equipped_item(self) -> Item:
+        inventory_slot = self.get_inventory_slot(self._selected_hotbar_slot)
+        return self._inventory[inventory_slot] if inventory_slot is not None else ITEM_AIR
+
+    def equip(self, hotbar_slot: int, inventory_slot: Optional[int]) -> None:
+        self._hotbar_to_inventory[hotbar_slot] = inventory_slot
+        self._selected_hotbar_slot = hotbar_slot
+
+    def get_inventory_slot(self, hotbar_slot: int) -> Optional[int]:
+        return self._hotbar_to_inventory[hotbar_slot]
 
     def get_inventory(self, window_type: WindowType) -> Inventory:
         if window_type == WindowType.CREATIVE:
@@ -182,10 +198,6 @@ class PlayerEntity(Entity):
     def get_item(self, inventory_slot) -> Item:
         return self._inventory[inventory_slot]
 
-    def get_equipped_item(self) -> Item:
-        inventory_slot = self.get_inventory_slot(self._selected_hotbar_slot)
-        return self._inventory[inventory_slot] if inventory_slot is not None else ITEM_AIR
-
     def append_item(self, item: Item) -> int:
         return self._inventory.append(item)
 
@@ -193,10 +205,6 @@ class PlayerEntity(Entity):
         old_slot = self._inventory[inventory_slot]
         new_slot = self._inventory.spend(inventory_slot, item)
         return old_slot, new_slot
-
-    def equip(self, hotbar_slot: int, inventory_slot: Optional[int]) -> None:
-        self._hotbar_to_inventory[hotbar_slot] = inventory_slot
-        self._selected_hotbar_slot = hotbar_slot
 
 
 class ItemEntity(Entity):
