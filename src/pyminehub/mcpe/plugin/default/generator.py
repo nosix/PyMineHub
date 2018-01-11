@@ -1,7 +1,8 @@
 from logging import getLogger
 
 from pyminehub.mcpe.chunk import *
-from pyminehub.mcpe.plugin.generator import *
+from pyminehub.mcpe.geometry import ChunkPosition
+from pyminehub.mcpe.plugin.generator import ChunkGenerator
 
 _logger = getLogger(__name__)
 

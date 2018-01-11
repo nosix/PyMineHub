@@ -3,11 +3,10 @@ from logging import getLogger
 
 from pyminehub.mcpe.action import ActionType, action_factory
 from pyminehub.mcpe.event import EventType, Event
+from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.login import login_sequence
-from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
-from pyminehub.mcpe.network.packet import EXTRA_DATA
-from pyminehub.mcpe.network.packet import GamePacketType, GamePacket, game_packet_factory
+from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.session import SessionManager
@@ -406,4 +405,25 @@ class MCPEHandler(GameDataHandler):
         for addr, player in self._session_manager:
             if player.entity_runtime_id == event.entity_runtime_id:
                 player.equipped_item = event.equipped_item
+            self._send_game_packet(res_packet, addr)
+
+    def _process_event_mob_spawned(self, event: Event) -> None:
+        metadata = tuple() if event.name is None else (
+            create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name),
+        )
+        res_packet = game_packet_factory.create(
+            GamePacketType.ADD_ENTITY,
+            EXTRA_DATA,
+            event.entity_unique_id,
+            event.entity_runtime_id,
+            event.type,
+            event.position,
+            Vector3(0.0, 0.0, 0.0),
+            event.pitch,
+            event.yaw,
+            tuple(),
+            metadata,
+            tuple()
+        )
+        for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)

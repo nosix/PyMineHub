@@ -73,9 +73,11 @@ mcpe
   database -> config, mcpe.[geometry, chunk]
   plugin
     generator -> mcpe.[geometry, chunk]
+    mob -> mcpe.[const, geometry, chunk]
     default
-      - generator -> mcpe.[chunk], mcpe.plugin.[generator]
-    loader -> .[generator, default]
+      - generator -> mcpe.[geometry, chunk], mcpe.plugin.[generator]
+      - mob -> mcpe.plugin.[mob]
+    loader -> .[default, generator, mob]
   world
     - interface -> mcpe.[value]
     - item -> mcpe.[const]
@@ -83,14 +85,14 @@ mcpe
     - inventory -> .[const, value, item]
     - entity -> mcpe.[const, geometry, inventory, resource, value]
       - spec -> mcpe.[const, geometry]
-      - instance -> mcpe.[const, geometry, resource, value], .[spec, inventory]
+      - instance -> mcpe.[const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[value, database], .[collision, instance]
-    - generator -> mcpe.[geometry, chunk, database, plugin]
+      - pool -> mcpe.[const, value, database], mcpe.plugin.[mob], .[collision, instance]
+    - generator -> mcpe.[geometry, chunk, database], mcpe.plugin.[generator]
     - space -> mcpe.[const, value, geometry, chunk, database], .[block, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
-    - server -> config, value, mcpe.[action, attribute, event, chunk, database],
-                .[interface, item, entity, generator, space, proxy]
+    - server -> config, value, mcpe.[action, attribute, chunk, database, event],
+                mcpe.plugin.[mob], .[entity, generator, interface, item, proxy, space]
   network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, world]
     - packet -> value, mcpe.[value], network.[address]
     - codec -> typevar, config, network, .[packet]
@@ -100,8 +102,8 @@ mcpe
     - session -> raknet, networkd.[address], mcpe.[value] .[player]
     - queue -> value, raknet, network.[address], .[packet, codec]
     - login -> network.[address], mcpe.[command, metadata, world], .[packet, player, session]
-    - handler -> typevar, value, raknet, network.[address],
-                 mcpe.[const, world], .[codec, packet, session, queue, login]
+    - handler -> value, raknet, network.[address],
+                 mcpe.[action, event, metadata, value, world], .[codec, login, packet, queue, reliability, session]
   main
     server -> raknet, mcpe.[network, database, world]
 

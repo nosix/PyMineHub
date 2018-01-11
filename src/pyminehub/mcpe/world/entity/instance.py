@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple
 
-from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType
+from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType, EntityType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inventory, Item, Hotbar
-from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC
+from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC, get_spec
 from pyminehub.mcpe.world.inventory import ITEM_AIR, MutableInventory
 
 
@@ -209,10 +209,40 @@ class PlayerEntity(Entity):
 
 class ItemEntity(Entity):
 
-    def __init__(self, item: Item, entity_unique_id: EntityUniqueID, entity_runtime_id: EntityRuntimeID) -> None:
+    def __init__(
+            self,
+            item: Item,
+            entity_unique_id: EntityUniqueID,
+            entity_runtime_id: EntityRuntimeID
+    ) -> None:
         super().__init__(ITEM_ENTITY_SPEC, entity_unique_id, entity_runtime_id)
         self._item = item
 
     @property
     def item(self) -> Item:
         return self._item
+
+
+class MobEntity(Entity):
+
+    def __init__(
+            self,
+            entity_type: EntityType,
+            entity_unique_id: EntityUniqueID,
+            entity_runtime_id: EntityRuntimeID
+    ) -> None:
+        super().__init__(get_spec(entity_type), entity_unique_id, entity_runtime_id)
+        self._type = entity_type
+        self._name = None
+
+    @property
+    def type(self) -> EntityType:
+        return self._type
+
+    @property
+    def name(self) -> Optional[str]:
+        return self._name
+
+    @name.setter
+    def name(self, value: Optional[str]) -> None:
+        self._name = value

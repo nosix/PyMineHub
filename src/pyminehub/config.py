@@ -28,6 +28,7 @@ class ConfigKey(Enum):
     DIFFICULTY = 302
     RAIN_LEVEL = 303
     LIGHTNING_LEVEL = 304
+    TICK_TIME = 305
     # raknet and mcpe.world
     WORLD_NAME = 401
     GAME_MODE = 402
@@ -46,6 +47,7 @@ __default_config = (
     (ConfigKey.DIFFICULTY, 'NORMAL'),  # see mcpe.const.Difficulty
     (ConfigKey.RAIN_LEVEL, 0.0),
     (ConfigKey.LIGHTNING_LEVEL, 0.0),
+    (ConfigKey.TICK_TIME, 0.5),  # seconds
     (ConfigKey.WORLD_NAME, 'PyMineHub'),
     (ConfigKey.GAME_MODE, 'SURVIVAL'),  # see mcpe.const.GameMode
 )

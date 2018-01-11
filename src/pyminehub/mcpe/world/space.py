@@ -59,3 +59,7 @@ class Space:
     def put_block(self, position: Vector3[int], block_type: BlockType) -> None:
         chunk, position_in_chunk = self._to_local(position)
         chunk.set_block(position_in_chunk, block_type)
+
+    def revise_position(self, position: Vector3[float]) -> Vector3[float]:
+        height = self.get_height(position)
+        return position.copy(y=height)

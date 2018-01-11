@@ -1,4 +1,5 @@
 import asyncio
+import time
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
@@ -7,6 +8,7 @@ from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
+from pyminehub.mcpe.plugin.mob import MobProcessor, MobSpawn, MobMove
 from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
@@ -18,18 +20,37 @@ from pyminehub.value import LogString
 _logger = getLogger(__name__)
 
 
+def _camel_to_snake(s: str) -> str:
+    return re.sub(r'([A-Z])', r'_\1', s).lower().lstrip('_')
+
+
 class _World(WorldProxy, WorldEditor):
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, generator: SpaceGenerator, db: DataBase) -> None:
+    def __init__(
+            self,
+            loop: asyncio.AbstractEventLoop,
+            generator: SpaceGenerator,
+            db: DataBase,
+            mob_processor: MobProcessor
+    ) -> None:
         self._loop = loop
         self._space = Space(generator, db)
         self._entity = EntityPool(db)
+        self._mob_processor = mob_processor
         self._event_queue = asyncio.Queue()
         loop.call_soon(self._space.init_space)
+        self._update_task = self._start_loop_to_update(loop)
+
+    def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+        async def loop_to_update():
+            while True:
+                await self._next_moment()
+        return asyncio.ensure_future(loop_to_update(), loop=loop)
 
     # WorldProxy methods
 
     def terminate(self) -> None:
+        self._update_task.cancel()
         self._space.save()
 
     def perform(self, action: Action) -> None:
@@ -90,6 +111,19 @@ class _World(WorldProxy, WorldEditor):
 
     def _notify_event(self, event: Event) -> None:
         self._event_queue.put_nowait(event)
+
+    async def _next_moment(self) -> None:
+        start_time = time.time()
+        self._update()
+        run_time = time.time() - start_time
+        tick_time = get_value(ConfigKey.TICK_TIME)
+        if run_time < tick_time:
+            await asyncio.sleep(tick_time - run_time)
+
+    def _update(self) -> None:
+        actions = self._mob_processor.update(self._entity.player_info, tuple())  # TODO pass chunk info
+        for action in actions:
+            getattr(self, '_process_' + _camel_to_snake(action.__class__.__name__))(action)
 
     # action handling methods
 
@@ -251,9 +285,33 @@ class _World(WorldProxy, WorldEditor):
         player.hotbar = action.hotbar
         player.hotbar_slot = action.hotbar_slot
 
+    # mob action handle methods
+
+    def _process_mob_spawn(self, action: MobSpawn) -> None:
+        entity_runtime_id = self._entity.create_mob(action.type)
+        mob = self._entity.get_mob(entity_runtime_id)
+        mob.name = action.name
+        mob.position = self._space.revise_position(action.position)
+        mob.pitch = action.pitch
+        mob.yaw = action.yaw
+        # TODO set monitor_nearby_chunks
+        self._notify_event(event_factory.create(
+            EventType.MOB_SPAWNED,
+            mob.entity_unique_id,
+            mob.entity_runtime_id,
+            mob.type,
+            mob.position,
+            mob.pitch,
+            mob.yaw,
+            mob.name
+        ))
+
+    def _process_mob_move(self, action: MobMove) -> None:
+        pass
+
 
 def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
-    from pyminehub.mcpe.plugin import get_generator
-    world = _World(loop, BatchSpaceGenerator(get_generator(), db), db)
+    from pyminehub.mcpe.plugin.loader import get_generator, get_mob_processor
+    world = _World(loop, BatchSpaceGenerator(get_generator(), db), db, get_mob_processor())
     return world

@@ -17,6 +17,7 @@ class EventType(ValueType):
     INVENTORY_UPDATED = 10
     ENTITY_REMOVED = 11
     EQUIPMENT_UPDATED = 12
+    MOB_SPAWNED = 13
 
 
 _event_specs = {
@@ -99,6 +100,16 @@ _event_specs = {
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('equipped_item', Item)
+    ],
+    EventType.MOB_SPAWNED: [
+        ('id', int),
+        ('entity_unique_id', EntityUniqueID),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('type', EntityType),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('name', Optional[str])
     ]
 }
 
