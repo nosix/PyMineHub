@@ -5,7 +5,7 @@ from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item
-from pyminehub.mcpe.world.exchange import block_to_item
+from pyminehub.mcpe.world.block import get_block_spec
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 
@@ -54,7 +54,7 @@ class Space:
         if block_type in (BlockType.AIR, BlockType.BEDROCK):
             return None
         chunk.set_block(position_in_chunk, BlockType.AIR, 0)
-        return block_to_item(block_type)
+        return get_block_spec(block_type).to_item()
 
     def put_block(self, position: Vector3[int], block_type: BlockType) -> None:
         chunk, position_in_chunk = self._to_local(position)

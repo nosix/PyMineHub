@@ -1,6 +1,6 @@
 from pyminehub.mcpe.const import WindowType, ItemType
 from pyminehub.mcpe.value import Item, Inventory
-
+from pyminehub.mcpe.world.item import get_item_spec
 
 _INVENTORY_SIZE = {
     WindowType.INVENTORY: 36,
@@ -33,7 +33,9 @@ class MutableSlot:
 
     @property
     def is_full(self) -> bool:
-        return False  # TODO check quantity
+        max_quantity = get_item_spec(self._type).max_quantity
+        assert 0 <= self._quantity <= max_quantity
+        return self._quantity == max_quantity
 
     def set(self, item: Item) -> None:
         if item.type != ItemType.AIR:
@@ -50,7 +52,7 @@ class MutableSlot:
         self._quantity += item.quantity
 
     def append(self, item: Item) -> bool:
-        if self.is_full:
+        if self._type != ItemType.AIR and self.is_full:
             return False
         if self.is_empty:
             self.set(item)

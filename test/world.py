@@ -444,6 +444,238 @@ class WorldTestCase(TestCase):
         )
         self.assertEqual(expected_event, actual_event)
 
+    def test_put_item_max_quantity(self):
+        self.test_login()
+
+        x = 257
+        entity_id = 1
+        quantity = 0
+
+        for _ in range(64):
+            x += 1
+            entity_id += 1
+            quantity += 1
+
+            # break block
+            self._perform_action(
+                ActionType.BREAK_BLOCK,
+                entity_runtime_id=1,
+                position=Vector3(x=x, y=62, z=257)
+            )
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.BLOCK_UPDATED,
+                position=Vector3(x=x, y=62, z=257),
+                block_type=BlockType.AIR,
+                block_aux=BlockData(value=176)
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.ITEM_SPAWNED,
+                entity_unique_id=entity_id,
+                entity_runtime_id=entity_id,
+                item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=()),
+                position=Vector3(x=x + 0.5, y=62.25, z=257.5),
+                motion=Vector3(x=0.0, y=0.0, z=0.0),
+                metadata=()
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            # take item
+            self._perform_action(
+                ActionType.MOVE_PLAYER,
+                entity_runtime_id=1,
+                position=Vector3(x=x + 0.5, y=63.625, z=257),
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
+                mode=MoveMode.NORMAL,
+                on_ground=True,
+                riding_eid=0
+            )
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.INVENTORY_UPDATED,
+                player_id=self._get_player_id(0),
+                inventory_slot=0,
+                slot=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.EQUIPMENT_UPDATED,
+                entity_runtime_id=1,
+                inventory_slot=0,
+                hotbar_slot=0,
+                equipped_item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.ENTITY_REMOVED,
+                entity_runtime_id=entity_id
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.PLAYER_MOVED,
+                entity_runtime_id=1,
+                position=Vector3(x=x + 0.5, y=63.625, z=257),
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
+                mode=MoveMode.NORMAL,
+                on_ground=True,
+                riding_eid=0
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.ITEM_TAKEN,
+                item_runtime_id=entity_id,
+                player_runtime_id=1
+            )
+            self.assertEqual(expected_event, actual_event)
+
+            # equip
+            self._perform_action(
+                ActionType.EQUIP,
+                entity_runtime_id=1,
+                inventory_slot=0,
+                hotbar_slot=0,
+                item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+            )
+
+            actual_event = self._next_event()
+            expected_event = event_factory.create(
+                EventType.EQUIPMENT_UPDATED,
+                entity_runtime_id=1,
+                inventory_slot=0,
+                hotbar_slot=0,
+                equipped_item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+            )
+            self.assertEqual(expected_event, actual_event)
+
+        x += 1
+        entity_id += 1
+        quantity = 1  # next inventory slot
+
+        # break block
+        self._perform_action(
+            ActionType.BREAK_BLOCK,
+            entity_runtime_id=1,
+            position=Vector3(x=x, y=62, z=257)
+        )
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.BLOCK_UPDATED,
+            position=Vector3(x=x, y=62, z=257),
+            block_type=BlockType.AIR,
+            block_aux=BlockData(value=176)
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.ITEM_SPAWNED,
+            entity_unique_id=entity_id,
+            entity_runtime_id=entity_id,
+            item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=()),
+            position=Vector3(x=x + 0.5, y=62.25, z=257.5),
+            motion=Vector3(x=0.0, y=0.0, z=0.0),
+            metadata=()
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        # take item
+        self._perform_action(
+            ActionType.MOVE_PLAYER,
+            entity_runtime_id=1,
+            position=Vector3(x=x + 0.5, y=63.625, z=257),
+            pitch=0.0,
+            yaw=0.0,
+            head_yaw=0.0,
+            mode=MoveMode.NORMAL,
+            on_ground=True,
+            riding_eid=0
+        )
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.INVENTORY_UPDATED,
+            player_id=self._get_player_id(0),
+            inventory_slot=1,  # next inventory slot
+            slot=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.EQUIPMENT_UPDATED,
+            entity_runtime_id=1,
+            inventory_slot=0,
+            hotbar_slot=0,
+            equipped_item=Item(type=ItemType.DIRT, aux_value=64, nbt=b'', place_on=(), destroy=())
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.ENTITY_REMOVED,
+            entity_runtime_id=entity_id
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.PLAYER_MOVED,
+            entity_runtime_id=1,
+            position=Vector3(x=x + 0.5, y=63.625, z=257),
+            pitch=0.0,
+            yaw=0.0,
+            head_yaw=0.0,
+            mode=MoveMode.NORMAL,
+            on_ground=True,
+            riding_eid=0
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.ITEM_TAKEN,
+            item_runtime_id=entity_id,
+            player_runtime_id=1
+        )
+        self.assertEqual(expected_event, actual_event)
+
+        # equip
+        self._perform_action(
+            ActionType.EQUIP,
+            entity_runtime_id=1,
+            inventory_slot=0,
+            hotbar_slot=0,
+            item=Item(type=ItemType.DIRT, aux_value=64, nbt=b'', place_on=(), destroy=())
+        )
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.EQUIPMENT_UPDATED,
+            entity_runtime_id=1,
+            inventory_slot=0,
+            hotbar_slot=0,
+            equipped_item=Item(type=ItemType.DIRT, aux_value=64, nbt=b'', place_on=(), destroy=())
+        )
+        self.assertEqual(expected_event, actual_event)
+
 
 if __name__ == '__main__':
     import unittest
