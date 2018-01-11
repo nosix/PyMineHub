@@ -66,7 +66,7 @@ class SendQueue:
         self._split_packet_id = 0  # next split_packet_id
 
     @staticmethod
-    def _get_current_time() -> int:
+    def _get_current_time() -> float:
         return time.time()
 
     @staticmethod
