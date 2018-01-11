@@ -41,14 +41,14 @@ enum
 queue
 config -> typevar
 value -> config
-binutil -> typevar
+binutil
   converter -> typevar
   instance -> .[converter]
   composite -> typevar, .[converter]
-network -> binutil
+network
   address
   codec -> value, binutil.[composite, instance], .[address]
-raknet -> value, config, network
+raknet
   - fragment -> value
   - packet -> value, network.[address]
   - frame -> .[packet]
@@ -83,7 +83,7 @@ mcpe
     - item -> mcpe.[const]
     - block -> mcpe.[const, value]
     - inventory -> .[const, value, item]
-    - entity -> mcpe.[const, geometry, inventory, resource, value]
+    - entity
       - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
@@ -93,9 +93,9 @@ mcpe
     - proxy -> mcpe.[const, value, resource], .[action, event]
     - server -> config, value, mcpe.[action, attribute, chunk, database, event],
                 mcpe.plugin.[mob], .[entity, generator, interface, item, proxy, space]
-  network -> typevar, value, config, network, raknet, mcpe.[const, value, metadata, world]
+  network
     - packet -> value, mcpe.[value], network.[address]
-    - codec -> typevar, config, network, .[packet]
+    - codec
       - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
     - player -> .[value, event]
