@@ -77,7 +77,6 @@ class _World(WorldProxy, WorldEditor):
 
     def append_into_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
         player = self._entity.get_player(entity_runtime_id)
-        old_slot = player.get_equipped_item()
         inventory_slot = player.append_item(item)
         new_slot = player.get_item(inventory_slot)
         self._notify_event(event_factory.create(
@@ -86,14 +85,6 @@ class _World(WorldProxy, WorldEditor):
             inventory_slot,
             new_slot
         ))
-        if old_slot != new_slot:
-            self._notify_event(event_factory.create(
-                EventType.EQUIPMENT_UPDATED,
-                entity_runtime_id,
-                inventory_slot,
-                player.get_hotbar_slot(),
-                new_slot
-            ))
 
     # local methods
 

@@ -215,16 +215,6 @@ class WorldTestCase(TestCase):
 
         actual_event = self._next_event()
         expected_event = event_factory.create(
-            EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=1,
-            inventory_slot=0,
-            hotbar_slot=0,
-            equipped_item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
-        )
-        self.assertEqual(expected_event, actual_event)
-
-        actual_event = self._next_event()
-        expected_event = event_factory.create(
             EventType.ENTITY_REMOVED,
             entity_runtime_id=2
         )
@@ -508,16 +498,6 @@ class WorldTestCase(TestCase):
 
             actual_event = self._next_event()
             expected_event = event_factory.create(
-                EventType.EQUIPMENT_UPDATED,
-                entity_runtime_id=1,
-                inventory_slot=0,
-                hotbar_slot=0,
-                equipped_item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
-            )
-            self.assertEqual(expected_event, actual_event)
-
-            actual_event = self._next_event()
-            expected_event = event_factory.create(
                 EventType.ENTITY_REMOVED,
                 entity_runtime_id=entity_id
             )
@@ -615,16 +595,6 @@ class WorldTestCase(TestCase):
             player_id=self._get_player_id(0),
             inventory_slot=1,  # next inventory slot
             slot=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
-        )
-        self.assertEqual(expected_event, actual_event)
-
-        actual_event = self._next_event()
-        expected_event = event_factory.create(
-            EventType.EQUIPMENT_UPDATED,
-            entity_runtime_id=1,
-            inventory_slot=0,
-            hotbar_slot=0,
-            equipped_item=Item(type=ItemType.DIRT, aux_value=64, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 
