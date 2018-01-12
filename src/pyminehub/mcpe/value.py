@@ -220,20 +220,23 @@ EntityLink = _NamedTuple('EntityLink', [
     ('bool1', bool)
 ])
 
+Hotbar = Tuple[Optional[int], ...]
+
+Inventory = _NamedTuple('Inventory', [
+    ('window_type', WindowType),
+    ('slots', Tuple[Item, ...])
+])
+
 PlayerState = _NamedTuple('PlayerState', [
     ('spawn_position', Vector3[int]),
     ('position', Vector3[float]),
     ('yaw', float),
     ('health', float),
     ('hunger', float),
-    ('air', float)
-])
-
-Hotbar = Tuple[Optional[int], ...]
-
-Inventory = _NamedTuple('Inventory', [
-    ('window_type', WindowType),
-    ('slots', Tuple[Item, ...])
+    ('air', float),
+    ('inventory', Inventory),
+    ('armor', Inventory),
+    ('hotbar', Hotbar)
 ])
 
 PlayerListEntry = _NamedTuple('PlayerListEntry', [

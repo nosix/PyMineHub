@@ -43,41 +43,28 @@ class EntityPool:
             entity.health = player.health
             entity.hunger = player.hunger
             entity.air = player.air
-            self._load_inventory(entity, WindowType.INVENTORY)
-            self._load_inventory(entity, WindowType.ARMOR)
-            self._load_hotbar(entity)
+            entity.set_inventory(WindowType.INVENTORY, player.inventory)
+            entity.set_inventory(WindowType.ARMOR, player.armor)
+            entity.hotbar = player.hotbar
         self._players[entity_runtime_id] = entity
         return entity_runtime_id
-
-    def _load_inventory(self, player: PlayerEntity, window_type: WindowType) -> None:
-        inventory = self._db.load_inventory(str(player.player_id), window_type.value)
-        assert inventory is not None
-        player.set_inventory(window_type, inventory)
-
-    def _load_hotbar(self, player: PlayerEntity) -> None:
-        hotbar = self._db.load_hotbar(str(player.player_id))
-        assert hotbar is not None
-        player.hotbar = hotbar
 
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
         self._db.save_player(
             str(player.player_id),
-            PlayerState(player.spawn_position, player.position, player.yaw, player.health, player.hunger, player.air)
+            PlayerState(
+                player.spawn_position,
+                player.position,
+                player.yaw,
+                player.health,
+                player.hunger,
+                player.air,
+                player.get_inventory(WindowType.INVENTORY),
+                player.get_inventory(WindowType.ARMOR),
+                player.hotbar
+            )
         )
-        self._save_inventory(player, WindowType.INVENTORY)
-        self._save_inventory(player, WindowType.ARMOR)
-        self._save_hotbar(player)
-
-    def _save_inventory(self, player: PlayerEntity, window_type: WindowType) -> None:
-        self._db.save_inventory(
-            str(player.player_id),
-            window_type.value,
-            player.get_inventory(window_type)
-        )
-
-    def _save_hotbar(self, player: PlayerEntity) -> None:
-        self._db.save_hotbar(str(player.player_id), player.hotbar)
 
     def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
         return self._players[entity_runtime_id]
