@@ -649,6 +649,31 @@ class WorldTestCase(TestCase):
         )
         self.assertEqual(expected_event, actual_event)
 
+    def test_request_entity(self):
+        self.test_break_block()
+        self._perform_action(
+            ActionType.REQUEST_ENTITY,
+            player_runtime_id=1
+        )
+
+        actual_event = self._next_event()
+        expected_event = event_factory.create(
+            EventType.ENTITY_LOADED,
+            player_id=self._get_player_id(0),
+            spawn_events=(
+                event_factory.create(
+                    EventType.ITEM_SPAWNED,
+                    entity_unique_id=2,
+                    entity_runtime_id=2,
+                    item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=()),
+                    position=Vector3(x=256.5, y=62.25, z=257.5),
+                    motion=Vector3(x=0.0, y=0.0, z=0.0),
+                    metadata=()
+                ),
+            )
+        )
+        self.assertEqual(expected_event, actual_event)
+
 
 if __name__ == '__main__':
     import unittest

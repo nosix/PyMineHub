@@ -214,6 +214,34 @@ class _World(WorldProxy, WorldEditor):
             self._notify_event(event_factory.create(
                 EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
 
+    def _process_request_entity(self, action: Action) -> None:
+        player = self._entity.get_player(action.player_runtime_id)
+        events = []
+        events.extend(event_factory.create(
+            EventType.ITEM_SPAWNED,
+            item.entity_unique_id,
+            item.entity_runtime_id,
+            item.item,
+            item.position,
+            Vector3(0.0, 0.0, 0.0),
+            tuple()
+        ) for item in self._entity.items)
+        events.extend(event_factory.create(
+            EventType.MOB_SPAWNED,
+            mob.entity_unique_id,
+            mob.entity_runtime_id,
+            mob.type,
+            mob.position,
+            mob.pitch,
+            mob.yaw,
+            mob.name
+        ) for mob in self._entity.mobs)
+        self._notify_event(event_factory.create(
+            EventType.ENTITY_LOADED,
+            player.player_id,
+            tuple(events)
+        ))
+
     def _process_move_player(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
         player.position = action.position

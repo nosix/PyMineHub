@@ -86,6 +86,18 @@ class MCPEHandler(GameDataHandler):
     def _to_internal_format_hotbar(inventory_slot: int) -> Optional[int]:
         return inventory_slot - HOTBAR_SIZE if inventory_slot != -1 else None
 
+    @staticmethod
+    def _mob_spawned_event_to_metadata(event: Event) -> Tuple[EntityMetaData, ...]:
+        if event.name is None:
+            return tuple()
+        else:
+            return (
+                create_entity_metadata(EntityMetaDataKey.FLAGS, EntityMetaDataFlagValue.create(
+                    always_show_nametag=True
+                ).flags),
+                create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name),
+            )
+
     # packet handling methods
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
@@ -310,7 +322,45 @@ class MCPEHandler(GameDataHandler):
             if player.did_request_chunk(event.position):
                 self._send_game_packet(res_packet, addr)
                 player.discard_chunk_request(event.position)
-                player.next_login_sequence(event)
+                if player.next_login_sequence(event):
+                    self._world.perform(action_factory.create(
+                        ActionType.REQUEST_ENTITY,
+                        player.entity_runtime_id
+                    ))
+
+    def _process_event_entity_loaded(self, event: Event) -> None:
+        addr = self._session_manager.get_address(event.player_id)
+        for e in event.spawn_events:
+            event_type = EventType(e.id)
+            if event_type == EventType.ITEM_SPAWNED:
+                res_packet = game_packet_factory.create(
+                    GamePacketType.ADD_ITEM_ENTITY,
+                    EXTRA_DATA,
+                    e.entity_unique_id,
+                    e.entity_runtime_id,
+                    e.item,
+                    e.position,
+                    e.motion,
+                    e.metadata
+                )
+                self._send_game_packet(res_packet, addr, immediately=False)
+            if event_type == EventType.MOB_SPAWNED:
+                res_packet = game_packet_factory.create(
+                    GamePacketType.ADD_ENTITY,
+                    EXTRA_DATA,
+                    e.entity_unique_id,
+                    e.entity_runtime_id,
+                    e.type,
+                    e.position,
+                    Vector3(0.0, 0.0, 0.0),
+                    e.pitch,
+                    e.yaw,
+                    tuple(),
+                    self._mob_spawned_event_to_metadata(e),
+                    tuple()
+                )
+                self._send_game_packet(res_packet, addr, immediately=False)
+        self._send_waiting_game_packet()
 
     def _process_event_player_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -408,12 +458,6 @@ class MCPEHandler(GameDataHandler):
             self._send_game_packet(res_packet, addr)
 
     def _process_event_mob_spawned(self, event: Event) -> None:
-        metadata = tuple() if event.name is None else (
-            create_entity_metadata(EntityMetaDataKey.FLAGS, EntityMetaDataFlagValue.create(
-                always_show_nametag=True
-            ).flags),
-            create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name),
-        )
         res_packet = game_packet_factory.create(
             GamePacketType.ADD_ENTITY,
             EXTRA_DATA,
@@ -425,7 +469,7 @@ class MCPEHandler(GameDataHandler):
             event.pitch,
             event.yaw,
             tuple(),
-            metadata,
+            self._mob_spawned_event_to_metadata(event),
             tuple()
         )
         for addr in self._session_manager.addresses:

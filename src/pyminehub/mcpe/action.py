@@ -13,6 +13,7 @@ class ActionType(ValueType):
     EQUIP = 5
     LOGOUT_PLAYER = 6
     SET_HOTBAR = 7
+    REQUEST_ENTITY = 8
 
 
 _action_specs = {
@@ -23,6 +24,10 @@ _action_specs = {
     ActionType.REQUEST_CHUNK: [
         ('id', int),
         ('positions', Tuple[ChunkPositionWithDistance, ...])
+    ],
+    ActionType.REQUEST_ENTITY: [
+        ('id', int),
+        ('player_runtime_id', EntityRuntimeID)
     ],
     ActionType.MOVE_PLAYER: [
         ('id', int),

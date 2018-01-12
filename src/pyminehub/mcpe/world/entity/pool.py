@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, Iterable, List, Tuple
 
 from pyminehub.mcpe.const import WindowType, EntityType
 from pyminehub.mcpe.datastore import DataStore
@@ -17,8 +17,16 @@ class EntityPool:
         self._last_entity_id = 0
 
     @property
-    def players(self) -> List[PlayerEntity]:
-        return list(self._players.values())
+    def players(self) -> Iterable[PlayerEntity]:
+        return self._players.values()
+
+    @property
+    def items(self) -> Iterable[ItemEntity]:
+        return self._items.values()
+
+    @property
+    def mobs(self) -> Iterable[MobEntity]:
+        return self._mobs.values()
 
     def _next_entity_id(self) -> Tuple[EntityUniqueID, EntityRuntimeID]:
         self._last_entity_id += 1

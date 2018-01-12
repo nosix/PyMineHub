@@ -19,6 +19,7 @@ class EventType(ValueType):
     EQUIPMENT_UPDATED = 12
     MOB_SPAWNED = 13
     MOB_MOVED = 14
+    ENTITY_LOADED = 15
 
 
 _event_specs = {
@@ -53,6 +54,11 @@ _event_specs = {
         ('id', int),
         ('position', ChunkPosition),
         ('data', bytes)
+    ],
+    EventType.ENTITY_LOADED: [
+        ('id', int),
+        ('player_id', PlayerID),
+        ('spawn_events', Tuple[Event, ...])
     ],
     EventType.PLAYER_MOVED: [
         ('id', int),

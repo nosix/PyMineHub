@@ -135,11 +135,17 @@ class Player:
     def is_living(self) -> bool:
         return self._is_living
 
-    def next_login_sequence(self, event: Event) -> None:
+    def next_login_sequence(self, event: Event) -> bool:
+        """
+        :param event: event passed to login sequence
+        :return: True when login sequence is finished
+        """
         if self._login_sequence is None:
-            return
+            return False
         try:
             self._login_sequence.send(event)
+            return False
         except StopIteration:
             self._is_living = True
             self._login_sequence = None
+            return True
