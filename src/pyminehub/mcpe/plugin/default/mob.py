@@ -9,7 +9,7 @@ class DefaultMobProcessor(MobProcessor):
         self._player_spawn_position = None
         self._mob_position = None
 
-    def update(self, player_info: Tuple[PlayerInfo, ...], chunk_info: Tuple[ChunkInfo, ...]) -> Tuple[MobAction, ...]:
+    def update(self, player_info: Tuple[PlayerInfo, ...], mob_info: Tuple[MobInfo, ...]) -> Tuple[MobAction, ...]:
         # TODO move to another module
         if self._player_spawn_position is None:
             if len(player_info) > 0:

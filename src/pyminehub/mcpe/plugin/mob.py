@@ -32,9 +32,10 @@ PlayerInfo = _NamedTuple('PlayerInfo', [
     ('head_yaw', float)
 ])
 
-ChunkInfo = _NamedTuple('ChunkInfo', [
+MobInfo = _NamedTuple('MobInfo', [
     ('mob_id', MobID),
-    ('chunks', Tuple[Chunk, ...]),
+    ('position', Vector3[float]),
+    ('nearby_chunks', Tuple[Chunk, ...])
 ])
 
 MobAction = Union[MobSpawn, MobMove]
@@ -42,5 +43,5 @@ MobAction = Union[MobSpawn, MobMove]
 
 class MobProcessor:
 
-    def update(self, player_info: Tuple[PlayerInfo, ...], chunk_info: Tuple[ChunkInfo, ...]) -> Tuple[MobAction, ...]:
+    def update(self, player_info: Tuple[PlayerInfo, ...], mob_info: Tuple[MobInfo, ...]) -> Tuple[MobAction, ...]:
         raise NotImplementedError()

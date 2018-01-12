@@ -8,8 +8,8 @@ from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.plugin.mob import MobProcessor, MobSpawn, MobMove, MobID
-from pyminehub.mcpe.world.entity import EntityPool
+from pyminehub.mcpe.plugin.mob import *
+from pyminehub.mcpe.world.entity import EntityPool, PlayerEntity
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
 from pyminehub.mcpe.world.item import get_item_spec
@@ -123,9 +123,24 @@ class _World(WorldProxy, WorldEditor):
             await asyncio.sleep(tick_time - run_time)
 
     def _update_mob(self) -> None:
-        actions = self._mob_processor.update(self._entity.player_info, tuple())  # TODO pass chunk info
+        actions = self._mob_processor.update(
+            self._get_player_info(),
+            self._get_mob_info()
+        )
         for action in actions:
             getattr(self, '_process_' + _camel_to_snake(action.__class__.__name__))(action)
+
+    def _get_player_info(self) -> Tuple[PlayerInfo, ...]:
+        def to_plugin_id(player: PlayerEntity):
+            return player.entity_runtime_id  # TODO change other ID
+        return tuple(
+            PlayerInfo(to_plugin_id(p), p.position, p.pitch, p.yaw, p.head_yaw)
+            for p in self._entity.players)
+
+    def _get_mob_info(self) -> Tuple[MobInfo, ...]:
+        return tuple(
+            MobInfo(mob_id, self._entity.get_mob(entity_runtime_id).position)
+            for mob_id, entity_runtime_id in self._mob_id_to_entity_id.items())
 
     # action handling methods
 

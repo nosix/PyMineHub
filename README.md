@@ -87,7 +87,7 @@ mcpe
       - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[const, value, datastore], mcpe.plugin.[mob], .[collision, instance]
+      - pool -> mcpe.[const, value, datastore], .[collision, instance]
     - generator -> mcpe.[geometry, chunk, datastore], mcpe.plugin.[generator]
     - space -> mcpe.[const, value, geometry, chunk, datastore], .[block, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]

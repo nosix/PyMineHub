@@ -2,7 +2,6 @@ from typing import Dict, List, Tuple
 
 from pyminehub.mcpe.const import WindowType, EntityType
 from pyminehub.mcpe.datastore import DataStore
-from pyminehub.mcpe.plugin.mob import PlayerInfo
 from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item, PlayerState
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
 from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity, MobEntity
@@ -18,12 +17,8 @@ class EntityPool:
         self._last_entity_id = 0
 
     @property
-    def player_info(self) -> Tuple[PlayerInfo, ...]:
-        def to_plugin_id(player: PlayerEntity):
-            return player.entity_runtime_id  # TODO change other ID
-        return tuple(
-            PlayerInfo(to_plugin_id(p), p.position, p.pitch, p.yaw, p.head_yaw)
-            for p in self._players.values())
+    def players(self) -> List[PlayerEntity]:
+        return list(self._players.values())
 
     def _next_entity_id(self) -> Tuple[EntityUniqueID, EntityRuntimeID]:
         self._last_entity_id += 1
