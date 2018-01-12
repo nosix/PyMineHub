@@ -37,7 +37,6 @@ Modules depend only on parents or siblings. Siblings depend only on the above si
 
 ```
 typevar
-enum
 queue
 config -> typevar
 value -> config
