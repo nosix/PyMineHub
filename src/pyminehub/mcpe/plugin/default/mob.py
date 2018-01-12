@@ -2,6 +2,9 @@ import random
 
 from pyminehub.mcpe.plugin.mob import *
 
+_SPAWN_RATIO = 0.1
+_SPAWN_MAX = 10
+
 
 class DefaultMobProcessor(MobProcessor):
 
@@ -10,19 +13,21 @@ class DefaultMobProcessor(MobProcessor):
         self._mob_position = None
 
     def update(self, player_info: Tuple[PlayerInfo, ...], mob_info: Tuple[MobInfo, ...]) -> Tuple[MobAction, ...]:
-        # TODO move to another module
-        if self._player_spawn_position is None:
-            if len(player_info) > 0:
-                self._player_spawn_position = player_info[0].position
-                return tuple()
-        if self._mob_position is None:
-            if len(player_info) > 0 and player_info[0].position.distance(self._player_spawn_position) > 5:
-                self._mob_position = self._player_spawn_position
-                return MobSpawn(0, EntityType.CHICKEN, 'PiyoPiyo', self._player_spawn_position, 0.0, 0.0, False),
-            else:
-                return tuple()
-        self._mob_position = self._mob_position.copy(
-            x=self._mob_position.x + random.random() - 0.5,
-            z=self._mob_position.z + random.random() - 0.5
-        )
-        return MobMove(0, self._mob_position, random.randint(0, 90), random.randint(0, 360)),
+        actions = []
+        if len(mob_info) < _SPAWN_MAX and len(player_info) > 0 and random.random() < _SPAWN_RATIO:
+            entity_type = EntityType.CHICKEN
+            player = random.choice(player_info)
+            position = player.position.copy(
+                x=player.position.x + (random.random() - 0.5) * 10,
+                z=player.position.z + (random.random() - 0.5) * 10,
+            )
+            actions.append(MobSpawn(len(mob_info), entity_type, entity_type.name, position, 0.0, 0.0, False))
+
+        for mob in mob_info:
+            position = mob.position.copy(
+                x=mob.position.x + random.random() - 0.5,
+                z=mob.position.z + random.random() - 0.5
+            )
+            actions.append(MobMove(mob.mob_id, position, random.randint(0, 90), random.randint(0, 360)))
+
+        return tuple(actions)

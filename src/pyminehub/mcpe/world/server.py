@@ -139,7 +139,7 @@ class _World(WorldProxy, WorldEditor):
 
     def _get_mob_info(self) -> Tuple[MobInfo, ...]:
         return tuple(
-            MobInfo(mob_id, self._entity.get_mob(entity_runtime_id).position)
+            MobInfo(mob_id, self._entity.get_mob(entity_runtime_id).position, tuple())  # TODO pass chunk data
             for mob_id, entity_runtime_id in self._mob_id_to_entity_id.items())
 
     # action handling methods
