@@ -61,13 +61,14 @@ def configure_log(
 
 def run() -> None:
     from pyminehub.mcpe.network import MCPEHandler
-    from pyminehub.mcpe.database import create_database
+    from pyminehub.mcpe.datastore import create_data_store
+    from pyminehub.mcpe.plugin.loader import get_plugin_loader
     from pyminehub.mcpe.world import run as run_world
     from pyminehub.raknet import run as run_raknet
 
     loop = asyncio.get_event_loop()
-    db = create_database()
-    proxy = run_world(loop, db)
+    store = create_data_store()
+    proxy = run_world(loop, store, get_plugin_loader())
     transport = run_raknet(loop, MCPEHandler(proxy))
     transport.close()
     loop.close()

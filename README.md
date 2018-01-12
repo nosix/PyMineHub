@@ -73,10 +73,12 @@ mcpe
   plugin
     generator -> mcpe.[geometry, chunk]
     mob -> mcpe.[const, geometry, chunk]
+    player -> mcpe.[const, value]
     default
       - generator -> mcpe.[geometry, chunk], mcpe.plugin.[generator]
       - mob -> mcpe.plugin.[mob]
-    loader -> .[default, generator, mob]
+      - player -> mcpe.plugin.[player]
+    loader -> .[default, generator, mob, player]
   world
     - interface -> mcpe.[value]
     - item -> mcpe.[const]
@@ -90,8 +92,10 @@ mcpe
     - generator -> mcpe.[geometry, chunk, datastore], mcpe.plugin.[generator]
     - space -> mcpe.[const, value, geometry, chunk, datastore], .[block, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
-    - server -> config, value, mcpe.[action, attribute, chunk, datastore, event],
-                mcpe.plugin.[mob], .[entity, generator, interface, item, proxy, space]
+    - server -> config, value,
+                mcpe.[action, attribute, chunk, datastore, event],
+                mcpe.plugin.[loader, mob, player],
+                .[entity, generator, interface, item, proxy, space]
   network
     - packet -> value, mcpe.[value], network.[address]
     - codec
@@ -104,7 +108,7 @@ mcpe
     - handler -> value, raknet, network.[address],
                  mcpe.[action, event, metadata, value, world], .[codec, login, packet, queue, reliability, session]
   main
-    server -> raknet, mcpe.[network, datastore, world]
+    server -> raknet, mcpe.[network, datastore, world], mcpe.plugin.[loader]
 
 - : Hidden from outside modules
 ```

@@ -8,7 +8,9 @@ from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
+from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.plugin.mob import *
+from pyminehub.mcpe.plugin.player import *
 from pyminehub.mcpe.world.entity import EntityPool, PlayerEntity
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
@@ -31,12 +33,14 @@ class _World(WorldProxy, WorldEditor):
             loop: asyncio.AbstractEventLoop,
             generator: SpaceGenerator,
             store: DataStore,
-            mob_processor: MobProcessor
+            mob_processor: MobProcessor,
+            player_config: PlayerConfig
     ) -> None:
         self._loop = loop
         self._space = Space(generator, store)
         self._entity = EntityPool(store)
         self._mob_processor = mob_processor
+        self._player_config = player_config
         self._event_queue = asyncio.Queue()
         self._mob_id_to_entity_id = {}  # type: Dict[MobID, EntityRuntimeID]
         loop.call_soon(self._space.init_space)
@@ -156,7 +160,7 @@ class _World(WorldProxy, WorldEditor):
             entity.player_id,
             entity.entity_unique_id,
             entity_runtime_id,
-            GameMode.SURVIVAL,
+            self._player_config.get_game_mode(self.get_game_mode(), entity.player_id),
             entity.position,
             entity.pitch,
             entity.yaw,
@@ -340,8 +344,13 @@ class _World(WorldProxy, WorldEditor):
         ))
 
 
-def run(loop: asyncio.AbstractEventLoop, store: DataStore) -> WorldProxy:
+def run(loop: asyncio.AbstractEventLoop, store: DataStore, plugin: PluginLoader) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
-    from pyminehub.mcpe.plugin.loader import get_generator, get_mob_processor
-    world = _World(loop, BatchSpaceGenerator(get_generator(), store), store, get_mob_processor())
+    world = _World(
+        loop,
+        BatchSpaceGenerator(plugin.get_generator(), store),
+        store,
+        plugin.get_mob_processor(),
+        plugin.get_player_config()
+    )
     return world
