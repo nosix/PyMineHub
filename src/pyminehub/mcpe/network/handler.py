@@ -409,6 +409,9 @@ class MCPEHandler(GameDataHandler):
 
     def _process_event_mob_spawned(self, event: Event) -> None:
         metadata = tuple() if event.name is None else (
+            create_entity_metadata(EntityMetaDataKey.FLAGS, EntityMetaDataFlagValue.create(
+                always_show_nametag=True
+            ).flags),
             create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name),
         )
         res_packet = game_packet_factory.create(
