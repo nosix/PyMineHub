@@ -1,7 +1,7 @@
 from typing import Dict, List, Tuple
 
 from pyminehub.mcpe.const import WindowType, EntityType
-from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.plugin.mob import PlayerInfo
 from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item, PlayerState
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
@@ -10,8 +10,8 @@ from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity, MobEn
 
 class EntityPool:
 
-    def __init__(self, db: DataBase) -> None:
-        self._db = db
+    def __init__(self, store: DataStore) -> None:
+        self._store = store
         self._players = {}  # type: Dict[EntityRuntimeID, PlayerEntity]
         self._items = {}  # type: Dict[EntityRuntimeID, ItemEntity]
         self._mobs = {}  # type: Dict[EntityRuntimeID, MobEntity]
@@ -35,7 +35,7 @@ class EntityPool:
                 return entity_runtime_id
         entity_unique_id, entity_runtime_id = self._next_entity_id()
         entity = PlayerEntity(player_id, entity_unique_id, entity_runtime_id)
-        player = self._db.load_player(str(player_id))
+        player = self._store.load_player(str(player_id))
         if player is not None:
             entity.spawn_position = player.spawn_position
             entity.position = player.position
@@ -51,7 +51,7 @@ class EntityPool:
 
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
-        self._db.save_player(
+        self._store.save_player(
             str(player.player_id),
             PlayerState(
                 player.spawn_position,

@@ -6,7 +6,7 @@ from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
-from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.plugin.mob import MobProcessor, MobSpawn, MobMove, MobID
 from pyminehub.mcpe.world.entity import EntityPool
@@ -30,12 +30,12 @@ class _World(WorldProxy, WorldEditor):
             self,
             loop: asyncio.AbstractEventLoop,
             generator: SpaceGenerator,
-            db: DataBase,
+            store: DataStore,
             mob_processor: MobProcessor
     ) -> None:
         self._loop = loop
-        self._space = Space(generator, db)
-        self._entity = EntityPool(db)
+        self._space = Space(generator, store)
+        self._entity = EntityPool(store)
         self._mob_processor = mob_processor
         self._event_queue = asyncio.Queue()
         self._mob_id_to_entity_id = {}  # type: Dict[MobID, EntityRuntimeID]
@@ -325,8 +325,8 @@ class _World(WorldProxy, WorldEditor):
         ))
 
 
-def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:
+def run(loop: asyncio.AbstractEventLoop, store: DataStore) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
     from pyminehub.mcpe.plugin.loader import get_generator, get_mob_processor
-    world = _World(loop, BatchSpaceGenerator(get_generator(), db), db, get_mob_processor())
+    world = _World(loop, BatchSpaceGenerator(get_generator(), store), store, get_mob_processor())
     return world

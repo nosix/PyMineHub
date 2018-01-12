@@ -1,7 +1,7 @@
 from typing import Iterator, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
-from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import ChunkPosition, ChunkPositionWithDistance
 from pyminehub.mcpe.plugin.generator import ChunkGenerator
 
@@ -17,8 +17,8 @@ class SpaceGenerator:
 
 class BatchSpaceGenerator(SpaceGenerator):
 
-    def __init__(self, generator_plugin: ChunkGenerator, db: DataBase) -> None:
-        self._db = db
+    def __init__(self, generator_plugin: ChunkGenerator, store: DataStore) -> None:
+        self._store = store
         self._x_length = 0
         self._z_length = 0
         self._generator_plugin = generator_plugin
@@ -26,9 +26,9 @@ class BatchSpaceGenerator(SpaceGenerator):
     def generate_space(self, x_length: int, z_length: int) -> None:
         self._x_length = x_length
         self._z_length = z_length
-        if self._db.count_chunk() != x_length * z_length:
+        if self._store.count_chunk() != x_length * z_length:
             for position, chunk in self._create_chunks(x_length, z_length):
-                self._db.save_chunk(position, chunk, insert_only=True)
+                self._store.save_chunk(position, chunk, insert_only=True)
 
     def _create_chunks(self, x_length: int, z_length: int) -> Iterator[Tuple[ChunkPosition, Chunk]]:
         for x in range(x_length):
@@ -38,4 +38,4 @@ class BatchSpaceGenerator(SpaceGenerator):
 
     def generate_chunk(self, request: ChunkPositionWithDistance) -> Chunk:
         position = request.position % (self._x_length, self._z_length)
-        return self._db.load_chunk(position)
+        return self._store.load_chunk(position)

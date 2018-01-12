@@ -8,7 +8,7 @@ from pyminehub.mcpe.value import *
 _PICKLE_PROTOCOL = 4
 
 
-class DataBase:
+class DataStore:
 
     def delete_all(self) -> None:
         raise NotImplementedError()
@@ -29,7 +29,7 @@ class DataBase:
         raise NotImplementedError()
 
 
-class _DataBaseImpl(DataBase):
+class _DataBase(DataStore):
 
     def __init__(self, name: str) -> None:
         self._connection = sqlite3.connect(name + '.db')
@@ -81,10 +81,10 @@ class _DataBaseImpl(DataBase):
         return pickle.loads(row[0]) if row else None
 
 
-def create_database() -> DataBase:
+def create_data_store() -> DataStore:
     world_name = get_value(ConfigKey.WORLD_NAME)
     name = world_name.replace(' ', '_')
     seed = get_value(ConfigKey.SEED)
     suffix = ('p' if seed >= 0 else 'n') + str(seed)
     db_name = '{}-{}'.format(name, suffix)
-    return _DataBaseImpl(db_name)
+    return _DataBase(db_name)

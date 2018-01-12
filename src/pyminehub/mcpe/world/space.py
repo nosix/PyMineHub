@@ -2,7 +2,7 @@ from typing import Dict, List, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
-from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item
 from pyminehub.mcpe.world.block import get_block_spec
@@ -11,8 +11,8 @@ from pyminehub.mcpe.world.generator import SpaceGenerator
 
 class Space:
 
-    def __init__(self, generator: SpaceGenerator, db: DataBase) -> None:
-        self._db = db
+    def __init__(self, generator: SpaceGenerator, store: DataStore) -> None:
+        self._store = store
         self._generator = generator
         self._size = Vector3(32, 32, 32)
         self._cache = {}  # type: Dict[ChunkPosition, Chunk]
@@ -23,7 +23,7 @@ class Space:
     def save(self) -> None:
         for position, chunk in self._cache.items():
             if chunk.is_updated:
-                self._db.save_chunk(position, chunk)
+                self._store.save_chunk(position, chunk)
                 chunk.is_updated = False
 
     def get_chunk(self, request: ChunkPositionWithDistance) -> Chunk:

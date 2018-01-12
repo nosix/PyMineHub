@@ -70,7 +70,7 @@ mcpe
   chunk -> binutil.[composite, instance], mcpe.[const, geometry]
   action -> value, mcpe.[value]
   event -> value, mcpe.[value]
-  database -> config, mcpe.[geometry, chunk]
+  datastore -> config, mcpe.[geometry, chunk]
   plugin
     generator -> mcpe.[geometry, chunk]
     mob -> mcpe.[const, geometry, chunk]
@@ -87,11 +87,11 @@ mcpe
       - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[const, value, database], mcpe.plugin.[mob], .[collision, instance]
-    - generator -> mcpe.[geometry, chunk, database], mcpe.plugin.[generator]
-    - space -> mcpe.[const, value, geometry, chunk, database], .[block, generator]
+      - pool -> mcpe.[const, value, datastore], mcpe.plugin.[mob], .[collision, instance]
+    - generator -> mcpe.[geometry, chunk, datastore], mcpe.plugin.[generator]
+    - space -> mcpe.[const, value, geometry, chunk, datastore], .[block, generator]
     - proxy -> mcpe.[const, value, resource], .[action, event]
-    - server -> config, value, mcpe.[action, attribute, chunk, database, event],
+    - server -> config, value, mcpe.[action, attribute, chunk, datastore, event],
                 mcpe.plugin.[mob], .[entity, generator, interface, item, proxy, space]
   network
     - packet -> value, mcpe.[value], network.[address]
@@ -105,7 +105,7 @@ mcpe
     - handler -> value, raknet, network.[address],
                  mcpe.[action, event, metadata, value, world], .[codec, login, packet, queue, reliability, session]
   main
-    server -> raknet, mcpe.[network, database, world]
+    server -> raknet, mcpe.[network, datastore, world]
 
 - : Hidden from outside modules
 ```

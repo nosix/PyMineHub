@@ -6,7 +6,7 @@ from pkgutil import get_data
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import Chunk
-from pyminehub.mcpe.database import DataBase
+from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.world import WorldProxy
@@ -178,7 +178,7 @@ class MockTransport(asyncio.transports.DatagramTransport):
         pass
 
 
-class MockDataBase(DataBase):
+class MockDataStore(DataStore):
 
     def __init__(self) -> None:
         self._chunk = {}
