@@ -115,13 +115,14 @@ class _World(WorldProxy, WorldEditor):
 
     async def _next_moment(self) -> None:
         start_time = time.time()
-        self._update()
+        if get_value(ConfigKey.SPAWN_MOB):
+            self._update_mob()
         run_time = time.time() - start_time
         tick_time = get_value(ConfigKey.TICK_TIME)
         if run_time < tick_time:
             await asyncio.sleep(tick_time - run_time)
 
-    def _update(self) -> None:
+    def _update_mob(self) -> None:
         actions = self._mob_processor.update(self._entity.player_info, tuple())  # TODO pass chunk info
         for action in actions:
             getattr(self, '_process_' + _camel_to_snake(action.__class__.__name__))(action)

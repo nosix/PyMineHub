@@ -2,6 +2,7 @@ import asyncio
 import uuid
 from unittest import TestCase
 
+from pyminehub.config import set_config
 from pyminehub.mcpe.action import action_factory, ActionType
 from pyminehub.mcpe.event import event_factory, EventType, Event
 from pyminehub.mcpe.value import *
@@ -24,6 +25,7 @@ class WorldTestCase(TestCase):
         loop.set_exception_handler(cancel_all)
 
     def setUp(self) -> None:
+        set_config(spawn_mob=False)
         self._loop = asyncio.get_event_loop()
         self._world = run(self._loop, MockDataBase())
         self._players = []

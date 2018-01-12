@@ -29,6 +29,7 @@ class ConfigKey(Enum):
     RAIN_LEVEL = 303
     LIGHTNING_LEVEL = 304
     TICK_TIME = 305
+    SPAWN_MOB = 306
     # raknet and mcpe.world
     WORLD_NAME = 401
     GAME_MODE = 402
@@ -48,6 +49,7 @@ __default_config = (
     (ConfigKey.RAIN_LEVEL, 0.0),
     (ConfigKey.LIGHTNING_LEVEL, 0.0),
     (ConfigKey.TICK_TIME, 0.5),  # seconds
+    (ConfigKey.SPAWN_MOB, True),
     (ConfigKey.WORLD_NAME, 'PyMineHub'),
     (ConfigKey.GAME_MODE, 'SURVIVAL'),  # see mcpe.const.GameMode
 )
