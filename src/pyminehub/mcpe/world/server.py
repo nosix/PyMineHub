@@ -8,7 +8,7 @@ from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.database import DataBase
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.plugin.mob import MobProcessor, MobSpawn, MobMove
+from pyminehub.mcpe.plugin.mob import MobProcessor, MobSpawn, MobMove, MobID
 from pyminehub.mcpe.world.entity import EntityPool
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
@@ -38,6 +38,7 @@ class _World(WorldProxy, WorldEditor):
         self._entity = EntityPool(db)
         self._mob_processor = mob_processor
         self._event_queue = asyncio.Queue()
+        self._mob_id_to_entity_id = {}  # type: Dict[MobID, EntityRuntimeID]
         loop.call_soon(self._space.init_space)
         self._update_task = self._start_loop_to_update(loop)
 
@@ -289,11 +290,12 @@ class _World(WorldProxy, WorldEditor):
 
     def _process_mob_spawn(self, action: MobSpawn) -> None:
         entity_runtime_id = self._entity.create_mob(action.type)
+        self._mob_id_to_entity_id[action.mob_id] = entity_runtime_id
         mob = self._entity.get_mob(entity_runtime_id)
         mob.name = action.name
         mob.position = self._space.revise_position(action.position)
-        mob.pitch = action.pitch
-        mob.yaw = action.yaw
+        mob.pitch = revise_pitch(action.pitch)
+        mob.yaw = revise_yaw(action.yaw)
         # TODO set monitor_nearby_chunks
         self._notify_event(event_factory.create(
             EventType.MOB_SPAWNED,
@@ -307,7 +309,19 @@ class _World(WorldProxy, WorldEditor):
         ))
 
     def _process_mob_move(self, action: MobMove) -> None:
-        pass
+        entity_runtime_id = self._mob_id_to_entity_id[action.mob_id]
+        mob = self._entity.get_mob(entity_runtime_id)
+        mob.position = self._space.revise_position(action.position)
+        mob.pitch = revise_pitch(action.pitch)
+        mob.yaw = revise_yaw(action.yaw)
+        self._notify_event(event_factory.create(
+            EventType.MOB_MOVED,
+            mob.entity_runtime_id,
+            mob.position,
+            mob.pitch,
+            mob.yaw,
+            mob.on_ground
+        ))
 
 
 def run(loop: asyncio.AbstractEventLoop, db: DataBase) -> WorldProxy:

@@ -338,6 +338,34 @@ def to_local_position(position: Vector3) -> Vector3[int]:
         int(position.z % ChunkGeometry.SHAPE.z))
 
 
+def revise_pitch(value: float) -> float:
+    """
+    >>> revise_pitch(0)
+    0
+    >>> revise_pitch(135)
+    45
+    >>> revise_pitch(-45)
+    45
+    >>> revise_pitch(-135)
+    45
+    """
+    return value % 90
+
+
+def revise_yaw(value: float) -> float:
+    """
+    >>> revise_yaw(0)
+    0
+    >>> revise_yaw(540)
+    180
+    >>> revise_yaw(-180)
+    180
+    >>> revise_yaw(-540)
+    180
+    """
+    return value % 360
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

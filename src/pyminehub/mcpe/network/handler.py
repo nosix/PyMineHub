@@ -427,3 +427,18 @@ class MCPEHandler(GameDataHandler):
         )
         for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)
+
+    def _process_event_mob_moved(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.MOVE_ENTITY,
+            EXTRA_DATA,
+            event.entity_runtime_id,
+            event.position,
+            event.pitch,
+            0.0,
+            event.yaw,
+            event.on_ground,
+            False
+        )
+        for addr in self._session_manager.addresses:
+            self._send_game_packet(res_packet, addr)

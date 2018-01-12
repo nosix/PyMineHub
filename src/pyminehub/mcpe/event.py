@@ -18,6 +18,7 @@ class EventType(ValueType):
     ENTITY_REMOVED = 11
     EQUIPMENT_UPDATED = 12
     MOB_SPAWNED = 13
+    MOB_MOVED = 14
 
 
 _event_specs = {
@@ -110,6 +111,14 @@ _event_specs = {
         ('pitch', float),
         ('yaw', float),
         ('name', Optional[str])
+    ],
+    EventType.MOB_MOVED: [
+        ('id', int),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float),
+        ('on_ground', bool)
     ]
 }
 
