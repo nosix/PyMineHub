@@ -288,8 +288,8 @@ class _PacketCollector(AnalyzingVisitor):
         """Collect packets whose attributes is replaced with kwargs."""
         replace_pattern = self._remove_replace_pattern(kwargs)
         tmp_packet = self._replace_dynamic_values(packet, kwargs)
-        tmp_packet = self._replace_payload(tmp_packet)
         tmp_packet = self.replace_values(tmp_packet, kwargs)
+        tmp_packet = self._replace_payload(tmp_packet)
         tmp_packet_str = self._replace_pattern(tmp_packet, replace_pattern)
         self._packets.append(_DecodingInfo(tmp_packet_str, data, called, '  ' + packet_str))
         return packet

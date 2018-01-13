@@ -97,7 +97,7 @@ class AddressData(DataCodec[AddressInPacket]):
     b'0480fffffe84d006dffef247fffffffffff7f7ffdff3be8584d0'
     >>> context.clear()
     >>> c.read(data, context)
-    Address(ip_version=4, address=b'\\x7f\\x00\\x00\\x01', port=34000)
+    AddressInPacket(ip_version=4, address=b'\\x7f\\x00\\x00\\x01', port=34000)
     >>> context.length
     7
     >>> addr = c.read(data, context)

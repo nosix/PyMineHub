@@ -5,7 +5,7 @@ from pyminehub.config import ConfigKey, get_value
 
 Address = tuple
 
-AddressInPacket = NamedTuple('Address', [('ip_version', int), ('address', bytes), ('port', int)])
+AddressInPacket = NamedTuple('AddressInPacket', [('ip_version', int), ('address', bytes), ('port', int)])
 
 _UNSPECIFIED_ADDRESSES = {
     4: '0.0.0.0',
