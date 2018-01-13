@@ -218,12 +218,14 @@ class MockWorldProxy(WorldProxy):
         self._waiting_queue = deque()
         self._event_queue = asyncio.Queue()
         self._chunk_data = get_data(__package__, 'chunk_data.dat')
+        self._player_id = None
 
     def terminate(self) -> None:
         pass
 
     def perform(self, action: Action) -> None:
         if ActionType(action.id) == ActionType.LOGIN_PLAYER:
+            self._player_id = action.player_id
             self._waiting_queue.append(
                 event_factory.create(
                     EventType.PLAYER_LOGGED_IN,
@@ -284,6 +286,88 @@ class MockWorldProxy(WorldProxy):
                 self._waiting_queue.append(event_factory.create(
                     EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
             return
+        if ActionType(action.id) == ActionType.REQUEST_ENTITY:
+            self._waiting_queue.append(event_factory.create(
+                EventType.ENTITY_LOADED,
+                self._player_id,
+                tuple()
+            ))
+            return
+        if ActionType(action.id) == ActionType.MOVE_PLAYER:
+            self._waiting_queue.append(event_factory.create(
+                EventType.PLAYER_MOVED,
+                action.entity_runtime_id,
+                action.position,
+                action.pitch,
+                action.yaw,
+                action.head_yaw,
+                action.mode,
+                action.on_ground,
+                action.riding_eid
+            ))
+            if action.position == Vector3(x=256.5497741699219, y=63.62001037597656, z=258.473876953125):
+                self._waiting_queue.append(event_factory.create(
+                    EventType.INVENTORY_UPDATED,
+                    self._player_id,
+                    0,
+                    Item.create(ItemType.DIRT, 1)
+                ))
+                self._waiting_queue.append(event_factory.create(
+                    EventType.ENTITY_REMOVED,
+                    3
+                ))
+                self._waiting_queue.append(event_factory.create(
+                    EventType.ITEM_TAKEN,
+                    3,
+                    2
+                ))
+            return
+        if ActionType(action.id) == ActionType.BREAK_BLOCK:
+            self._waiting_queue.append(event_factory.create(
+                EventType.BLOCK_UPDATED,
+                action.position,
+                BlockType.AIR,
+                BlockData.create(0, neighbors=True, network=True, priority=True)
+            ))
+            self._waiting_queue.append(event_factory.create(
+                EventType.ITEM_SPAWNED,
+                3,
+                3,
+                Item.create(ItemType.DIRT, 1),
+                action.position,
+                Vector3(0.0, 0.0, 0.0),
+                tuple()
+            ))
+            return
+        if ActionType(action.id) == ActionType.PUT_ITEM:
+            self._waiting_queue.append(event_factory.create(
+                EventType.BLOCK_UPDATED,
+                Vector3(x=256, y=62, z=258),
+                BlockType.DIRT,
+                BlockData.create(0, neighbors=True, network=True, priority=True)
+            ))
+            self._waiting_queue.append(event_factory.create(
+                EventType.INVENTORY_UPDATED,
+                self._player_id,
+                0,
+                Item.create(ItemType.AIR, 0)
+            ))
+            return
+        if ActionType(action.id) == ActionType.EQUIP:
+            self._waiting_queue.append(event_factory.create(
+                EventType.EQUIPMENT_UPDATED,
+                2,
+                0,
+                0,
+                action.item
+            ))
+            return
+        if ActionType(action.id) == ActionType.LOGOUT_PLAYER:
+            # TODO
+            raise NotImplementedError()
+        if ActionType(action.id) == ActionType.SET_HOTBAR:
+            # TODO
+            raise NotImplementedError()
 
     def put_next_event(self) -> None:
         if len(self._waiting_queue) > 0:

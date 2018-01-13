@@ -4,6 +4,7 @@ import codec_play
 import doctestsuite
 import geometry
 import protocol_login_logout
+import protocol_play
 import protocol_unconnected
 import world
 
@@ -18,6 +19,7 @@ def load_tests(loader, tests, pattern):
         codec_play,
         protocol_unconnected,
         protocol_login_logout,
+        protocol_play,
         world,
     )
     suite = unittest.TestSuite()

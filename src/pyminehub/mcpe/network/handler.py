@@ -420,7 +420,7 @@ class MCPEHandler(GameDataHandler):
             event.player_runtime_id
         )
         for addr, player in self._session_manager:
-            self._send_game_packet(res_packet, addr, immediately=False)
+            self._send_game_packet(res_packet, addr)
 
     def _process_event_inventory_updated(self, event: Event) -> None:
         addr = self._session_manager.get_address(event.player_id)

@@ -43,7 +43,11 @@ class _ProtocolMockEventLoop(MockEventLoop):
 
     def send_waiting_packets(self):
         for coro in self._loop_to_send_coro:
-            coro.send(None)
+            try:
+                coro.send(None)
+            except AssertionError as exc:
+                if exc.args[0].startswith('yield from'):
+                    raise AssertionError('no more received data') from None
 
     def create_task(self, coro):
         if coro.__name__ == 'loop_to_update':
@@ -353,17 +357,19 @@ class ProtocolTestCase(TestCase):
     def _import_json(self, test_name_list: List[str]) -> Dict:
         data_json = {}
         for test_name in test_name_list:
-            with open(self._get_file_name('protocol_data', test_name), 'r') as file:
-                data_json.update(json.load(file))
+            data_json.update(self._load_json(test_name))
         return data_json
 
-    def _load_data(self) -> _TestData:
-        with open(self._get_file_name('protocol_data', self._testMethodName), 'r') as file:
+    def _load_json(self, test_name: str) -> Dict:
+        with open(self._get_file_name('protocol_data', test_name), 'r') as file:
             data_json = json.load(file)
             if self._JSON_IMPORT_KEY in data_json:
                 data_json.update(self._import_json(data_json[self._JSON_IMPORT_KEY]))
                 del data_json[self._JSON_IMPORT_KEY]
-            return _TestData(self.context, data_json)
+            return data_json
+
+    def _load_data(self) -> _TestData:
+        return _TestData(self.context, self._load_json(self._testMethodName))
 
     def setUp(self) -> None:
         if self._testMethodName not in type(self).__dict__:
