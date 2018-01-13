@@ -35,40 +35,40 @@ class RakNetPacketType(ValueType):
 
 _raknet_packet_specs = {
     RakNetPacketType.UNCONNECTED_PING: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('time_since_start', int),
         ('valid_message_data_id', bool),
         ('client_guid', bytes)
     ],
     RakNetPacketType.UNCONNECTED_PONG: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('time_since_start', int),
         ('server_guid', bytes),
         ('valid_message_data_id', bool),
         ('server_id', str)
     ],
     RakNetPacketType.OPEN_CONNECTION_REQUEST1: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('valid_message_data_id', bool),
         ('raknet_protocol_version', int),
         ('mtu_size', int)
     ],
     RakNetPacketType.OPEN_CONNECTION_REPLY1: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('valid_message_data_id', bool),
         ('server_guid', int),
         ('use_encryption', bool),
         ('mtu_size', int)
     ],
     RakNetPacketType.OPEN_CONNECTION_REQUEST2: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('valid_message_data_id', bool),
         ('server_address', AddressInPacket),
         ('mtu_size', int),
         ('client_guid', int)
     ],
     RakNetPacketType.OPEN_CONNECTION_REPLY2: [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('valid_message_data_id', bool),
         ('server_guid', int),
         ('client_address', AddressInPacket),
@@ -80,15 +80,15 @@ _raknet_packet_specs = {
 
 for n in range(16):
     _raknet_packet_specs[RakNetPacketType['FRAME_SET_{:X}'.format(n)]] = [
-        ('id', int),
+        ('type', RakNetPacketType),
         ('packet_sequence_num', int),
         ('payload', bytes)
     ]
 
 
-for packet_id in (RakNetPacketType.NCK, RakNetPacketType.ACK):
-    _raknet_packet_specs[packet_id] = [
-        ('id', int),
+for packet_type in (RakNetPacketType.NCK, RakNetPacketType.ACK):
+    _raknet_packet_specs[packet_type] = [
+        ('type', RakNetPacketType),
         ('record_count', int),
         ('range_max_equals_to_min', bool),
         ('packet_sequence_number_min', int),

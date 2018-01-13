@@ -1,19 +1,19 @@
-UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=251, y=55, z=241), block=Block(type=<BlockType.DIRT: 3>, aux_value=48))
+UpdateBlock(type=<GamePacketType.UPDATE_BLOCK: 21>, extra=b'\x00\x00', position=Vector3(x=251, y=55, z=241), block=Block(type=<BlockType.DIRT: 3>, aux_value=48))
   -> 150000f60337e2030330
   File "./codec_login_logout.py", line 236, in test_login_s22
     GamePacket(GamePacketType.UPDATE_BLOCK)
 
-Batch(id=254, payloads=(b'\x15\x00\x00\xf6\x037\xe2\x03\x030',))
+Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x15\x00\x00\xf6\x037\xe2\x03\x030',))
   -> fe7801010b00f4ff0a150000f60337e20303300cf10268
   File "./codec_login_logout.py", line 235, in test_login_s22
     Batch().that_has(
 
-ReliableOrdered(id=96, payload_length=184, reliable_message_num=35, message_ordering_index=17, message_ordering_chanel=0, payload=[23 bytes])
+ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=184, reliable_message_num=35, message_ordering_index=17, message_ordering_chanel=0, payload=[23 bytes])
   -> 6000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
   File "./codec_login_logout.py", line 234, in test_login_s22
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-FrameSet4(id=132, packet_sequence_num=34, payload=[33 bytes])
+FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=34, payload=[33 bytes])
   -> 842200006000b823000011000000fe7801010b00f4ff0a150000f60337e20303300cf10268
   File "./codec_login_logout.py", line 233, in test_login_s22
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

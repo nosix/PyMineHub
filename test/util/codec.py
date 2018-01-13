@@ -121,10 +121,9 @@ _PAT = TypeVar('PAT', bound='PacketAnalyzer')
 
 class PacketAnalyzer:
 
-    def __init__(self, packet_id: ValueType, codec: PacketCodec, stack_depth=3) -> None:
+    def __init__(self, packet_type: ValueType, codec: PacketCodec, stack_depth=3) -> None:
         self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
-        self._packet_type = self.__class__.__name__
-        self._packet_id = packet_id
+        self._packet_type = packet_type
         self._label = None
         self._codec = codec
         self._data = None
@@ -195,13 +194,13 @@ class PacketAnalyzer:
         packet = self._codec.decode(data, context)
         packet_str = get_packet_str(packet, visitor.get_context().get_bytes_mask_threshold())
         visitor.assert_equal_for_decoding(
-            self._packet_id, type(self._packet_id)(packet.id), str(packet))
+            self._packet_type, packet.type, str(packet))
         if self.does_assert_data_length():
             visitor.assert_equal_for_decoding(len(data), context.length)
         if hasattr(packet, 'payloads'):
             visitor.assert_equal_for_decoding(len(list(self.get_child_targets(visitor))), len(packet.payloads))
         packet = visitor.visit_after_decoding(
-            data, self._packet_id, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
+            data, self._packet_type, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
         self._record_decoded(data[:context.length], packet)
         for payload, child in self.get_child_targets(visitor, packet):
             # noinspection PyTypeChecker
@@ -248,7 +247,7 @@ class PacketAnalyzer:
         assert self.has_record()
         # noinspection PyUnresolvedReferences
         child = method.__self__
-        packet_info = '  {} {}'.format(self._packet_type, self._packet)
+        packet_info = '  {} {}'.format(self._packet_type.name, self._packet)
         return try_action(lambda: method(visitor, *args), child.get_called_line(), packet_info)
 
     def _log(self, log: Callable[..., None], label: _Label, packet_str: str) -> None:
@@ -264,8 +263,8 @@ class PacketAnalyzer:
 
 class GamePacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: GamePacketType, *args, **kwargs) -> None:
-        super().__init__(packet_id, game_packet_codec)
+    def __init__(self, packet_type: GamePacketType, *args, **kwargs) -> None:
+        super().__init__(packet_type, game_packet_codec)
         self._args = args
         self._kwargs = kwargs
 
@@ -278,8 +277,8 @@ class GamePacket(PacketAnalyzer):
 
 class ConnectionPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: ConnectionPacketType, *args, **kwargs) -> None:
-        super().__init__(packet_id, connection_packet_codec)
+    def __init__(self, packet_type: ConnectionPacketType, *args, **kwargs) -> None:
+        super().__init__(packet_type, connection_packet_codec)
         self._args = args
         self._kwargs = kwargs
 
@@ -325,8 +324,8 @@ class Batch(PacketAnalyzer):
 
 class RakNetFrame(PacketAnalyzer):
 
-    def __init__(self, packet_id: RakNetFrameType, *args, **kwargs) -> None:
-        super().__init__(packet_id, raknet_frame_codec)
+    def __init__(self, packet_type: RakNetFrameType, *args, **kwargs) -> None:
+        super().__init__(packet_type, raknet_frame_codec)
         self._args = args
         self._kwargs = kwargs
         self._child = None
@@ -350,7 +349,7 @@ class RakNetFrame(PacketAnalyzer):
         if packet is None:
             return iter([(b'', self._child)])
         payload = packet.payload
-        if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
+        if packet.type == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
             payload = visitor.append_fragment(packet)
         return iter([]) if self._child is None else \
             iter([(b'', self._child)]) if payload is None else \
@@ -369,8 +368,8 @@ class RakNetFrame(PacketAnalyzer):
 
 class RakNetPacket(PacketAnalyzer):
 
-    def __init__(self, packet_id: RakNetPacketType, *args, **kwargs) -> None:
-        super().__init__(packet_id, raknet_packet_codec)
+    def __init__(self, packet_type: RakNetPacketType, *args, **kwargs) -> None:
+        super().__init__(packet_type, raknet_packet_codec)
         self._args = args
         self._kwargs = kwargs
         self._children = []

@@ -1,19 +1,19 @@
-MovePlayer(id=19, extra=b'\x00\x00', entity_runtime_id=10, position=Vector3(x=256.0, y=57.62099838256836, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
+MovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=10, position=Vector3(x=256.0, y=57.62099838256836, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
   -> 1300000a00008043e77b66420000804300000000000000c0000000c0000100
   File "./codec_play.py", line 13, in test_move_player
     GamePacket(GamePacketType.MOVE_PLAYER)
 
-WARNING:Batch(id=254, payloads=([31 bytes],))
+WARNING:Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=([31 bytes],))
   -> fe7801012000dfff1f1300000a00008043e77b66420000804300000000000000c0000000c00001005cb8054e
   File "./codec_play.py", line 12, in test_move_player
     Batch().that_has(
 
-WARNING:ReliableOrdered(id=96, payload_length=352, reliable_message_num=15, message_ordering_index=5, message_ordering_chanel=0, payload=[44 bytes])
+WARNING:ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=352, reliable_message_num=15, message_ordering_index=5, message_ordering_chanel=0, payload=[44 bytes])
   -> 6001600f000005000000fe7801012000dfff1f1300000a00008043e77b66420000804300000000000000c0000000c00001005cb8054e
   File "./codec_play.py", line 11, in test_move_player
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(id=132, packet_sequence_num=23, payload=[54 bytes])
+WARNING:FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=23, payload=[54 bytes])
   -> 841700006001600f000005000000fe7801012000dfff1f1300000a00008043e77b66420000804300000000000000c0000000c00001005cb8054e
   File "./codec_play.py", line 10, in test_move_player
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

@@ -40,11 +40,11 @@ class MCPEHandler(GameDataHandler):
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
-        getattr(self, '_process_' + ConnectionPacketType(packet.id).name.lower())(packet, addr)
+        getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
 
     async def update(self) -> None:
         event = await self._world.next_event()
-        getattr(self, '_process_event_' + EventType(event.id).name.lower())(event)
+        getattr(self, '_process_event_' + event.type.name.lower())(event)
 
     def terminate(self) -> None:
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
@@ -177,7 +177,7 @@ class MCPEHandler(GameDataHandler):
             try:
                 packet = game_packet_codec.decode(data)
                 _logger.debug('> %s', LogString(packet))
-                getattr(self, '_process_' + GamePacketType(packet.id).name.lower())(packet, addr, i == last_index)
+                getattr(self, '_process_' + packet.type.name.lower())(packet, addr, i == last_index)
             except AttributeError as exc:
                 _logger.warning('%s', exc)
             except KeyError as exc:
@@ -254,7 +254,7 @@ class MCPEHandler(GameDataHandler):
 
     def _process_inventory_transaction(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         player = self._session_manager[addr]
-        if packet.type == InventoryTransactionType.USE_ITEM:
+        if packet.transaction_type == InventoryTransactionType.USE_ITEM:
             if packet.data.action_type == UseItemActionType.BREAK_BLOCK:
                 self._world.perform(action_factory.create(
                     ActionType.BREAK_BLOCK,

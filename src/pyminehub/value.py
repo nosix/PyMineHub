@@ -45,10 +45,10 @@ class ValueObjectFactory:
     def create(self, value_type: ValueType, *args, **kwargs) -> ValueObject:
         """Create value object.
 
-        >>> factory.create(PacketType.unconnected_pong, 8721, 5065, True, 'MCPE;')
-        UnconnectedPong(id=28, time_since_start=8721, server_guid=5065, valid_message_data_id=True, server_id='MCPE;')
+        >>> factory.create(PacketType.pong, 8721, 5065, True, 'MCPE;')
+        Pong(type=<PacketType.pong: 28>, time=8721, guid=5065, is_valid=True, server_id='MCPE;')
         """
-        return self._factory[value_type](value_type.value, *args, **kwargs)
+        return self._factory[value_type](value_type, *args, **kwargs)
 
 
 class LogString:
@@ -64,14 +64,14 @@ class LogString:
 
 if __name__ == '__main__':
     class PacketType(ValueType):
-        unconnected_pong = 0x1c
+        pong = 0x1c
 
     _packet_specs = {
-        PacketType.unconnected_pong: [
-            ('id', int),
-            ('time_since_start', int),
-            ('server_guid', bytes),
-            ('valid_message_data_id', bool),
+        PacketType.pong: [
+            ('type', PacketType),
+            ('time', int),
+            ('guid', bytes),
+            ('is_valid', bool),
             ('server_id', str)
         ]
     }

@@ -1,24 +1,24 @@
-Animate(id=44, extra=b'\x00\x00', action_type=2, entity_runtime_id=2, unknown=None)
+Animate(type=<GamePacketType.ANIMATE: 44>, extra=b'\x00\x00', action_type=2, entity_runtime_id=2, unknown=None)
   -> 2c00000202
   File "./codec_play.py", line 73, in test_inventory_transaction
     GamePacket(GamePacketType.ANIMATE),
 
-InventoryTransaction(id=30, extra=b'\x00\x00', type=<InventoryTransactionType.USE_ITEM: 2>, actions=(), data=TransactionToUseItem(action_type=<UseItemActionType.CLICK_BLOCK: 0>, position=Vector3(x=257, y=62, z=255), face=<Face.TOP: 1>, hotbar_slot=0, item_in_hand=Item(type=<ItemType.AIR: 0>, aux_value=None, nbt=None, place_on=None, destroy=None), player_position=Vector3(x=255.97122192382812, y=64.62001037597656, z=257.63433837890625), click_position=Vector3(x=0.824493408203125, y=1.0, z=0.8886566162109375)))
+InventoryTransaction(type=<GamePacketType.INVENTORY_TRANSACTION: 30>, extra=b'\x00\x00', transaction_type=<InventoryTransactionType.USE_ITEM: 2>, actions=(), data=TransactionToUseItem(action_type=<UseItemActionType.CLICK_BLOCK: 0>, position=Vector3(x=257, y=62, z=255), face=<Face.TOP: 1>, hotbar_slot=0, item_in_hand=Item(type=<ItemType.AIR: 0>, aux_value=None, nbt=None, place_on=None, destroy=None), player_position=Vector3(x=255.97122192382812, y=64.62001037597656, z=257.63433837890625), click_position=Vector3(x=0.824493408203125, y=1.0, z=0.8886566162109375)))
   -> 1e000002000082043efe03020000a2f87f43723d814232d180430012533f0000803f007f633f
   File "./codec_play.py", line 74, in test_inventory_transaction
     GamePacket(GamePacketType.INVENTORY_TRANSACTION)
 
-WARNING:Batch(id=254, payloads=(b',\x00\x00\x02\x02', [38 bytes]))
+WARNING:Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b',\x00\x00\x02\x02', [38 bytes]))
   -> fe7801012d00d2ff052c00000202261e000002000082043efe03020000a2f87f43723d814232d180430012533f0000803f007f633fc0960a5b
   File "./codec_play.py", line 72, in test_inventory_transaction
     Batch().that_has(
 
-WARNING:ReliableOrdered(id=96, payload_length=456, reliable_message_num=359, message_ordering_index=297, message_ordering_chanel=0, payload=[57 bytes])
+WARNING:ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=456, reliable_message_num=359, message_ordering_index=297, message_ordering_chanel=0, payload=[57 bytes])
   -> 6001c867010029010000fe7801012d00d2ff052c00000202261e000002000082043efe03020000a2f87f43723d814232d180430012533f0000803f007f633fc0960a5b
   File "./codec_play.py", line 71, in test_inventory_transaction
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(id=132, packet_sequence_num=427, payload=[67 bytes])
+WARNING:FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=427, payload=[67 bytes])
   -> 84ab01006001c867010029010000fe7801012d00d2ff052c00000202261e000002000082043efe03020000a2f87f43723d814232d180430012533f0000803f007f633fc0960a5b
   File "./codec_play.py", line 70, in test_inventory_transaction
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

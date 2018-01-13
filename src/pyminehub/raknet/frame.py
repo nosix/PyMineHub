@@ -23,18 +23,18 @@ class RakNetFrameType(ValueType):
 
 _raknet_frame_specs = {
     RakNetFrameType.UNRELIABLE: [
-        ('id', int),
+        ('type', RakNetFrameType),
         ('payload_length', int),
         ('payload', bytes)
     ],
     RakNetFrameType.RELIABLE: [
-        ('id', int),
+        ('type', RakNetFrameType),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('payload', bytes)
     ],
     RakNetFrameType.RELIABLE_ORDERED: [
-        ('id', int),
+        ('type', RakNetFrameType),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('message_ordering_index', int),
@@ -42,7 +42,7 @@ _raknet_frame_specs = {
         ('payload', bytes)
     ],
     RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT: [
-        ('id', int),
+        ('type', RakNetFrameType),
         ('payload_length', int),
         ('reliable_message_num', int),
         ('message_ordering_index', int),

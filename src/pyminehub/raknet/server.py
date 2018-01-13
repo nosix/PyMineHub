@@ -49,7 +49,7 @@ class _RakNetProtocolImpl(asyncio.DatagramProtocol, RakNetProtocol):
         packet = raknet_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
         try:
-            getattr(self, '_process_' + RakNetPacketType(packet.id).name.lower())(packet, addr)
+            getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
         except SessionNotFound:
             _logger.info('%s session is not found.', addr)
             self._remove_session(addr)

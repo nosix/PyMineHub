@@ -1,19 +1,19 @@
-ChunkRadiusUpdated(id=70, extra=b'\x00\x00', radius=8)
+ChunkRadiusUpdated(type=<GamePacketType.CHUNK_RADIUS_UPDATED: 70>, extra=b'\x00\x00', radius=8)
   -> 46000010
   File "./codec_login_logout.py", line 221, in test_login_s21
     GamePacket(GamePacketType.CHUNK_RADIUS_UPDATED)
 
-Batch(id=254, payloads=(b'F\x00\x00\x10',))
+Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'F\x00\x00\x10',))
   -> fe7801010500faff04460000100141005b
   File "./codec_login_logout.py", line 220, in test_login_s21
     Batch().that_has(
 
-ReliableOrdered(id=96, payload_length=136, reliable_message_num=34, message_ordering_index=16, message_ordering_chanel=0, payload=[17 bytes])
+ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=136, reliable_message_num=34, message_ordering_index=16, message_ordering_chanel=0, payload=[17 bytes])
   -> 60008822000010000000fe7801010500faff04460000100141005b
   File "./codec_login_logout.py", line 219, in test_login_s21
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-FrameSet4(id=132, packet_sequence_num=33, payload=[27 bytes])
+FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=33, payload=[27 bytes])
   -> 8421000060008822000010000000fe7801010500faff04460000100141005b
   File "./codec_login_logout.py", line 218, in test_login_s21
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

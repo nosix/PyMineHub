@@ -49,7 +49,7 @@ def _get_bit_length(payload: bytes) -> int:
 
 
 def _is_reliable(frame: RakNetFrame) -> bool:
-    return RakNetFrameType(frame.id) != RakNetFrameType.UNRELIABLE
+    return frame.type != RakNetFrameType.UNRELIABLE
 
 
 class SendQueue:
@@ -98,11 +98,10 @@ class SendQueue:
                 self._queue.put(send_time, frame)
                 break
 
-            frame_type = RakNetFrameType(frame.id)
-            if frame_type != RakNetFrameType.UNRELIABLE:
+            if _is_reliable(frame):
                 self._queue.put(self._get_resend_time_in_future(), frame)
 
-            frame_size = _get_encoded_size(frame.payload, frame_type)
+            frame_size = _get_encoded_size(frame.payload, frame.type)
             assert frame_size <= self._max_payload_size
             if len(buffer) + frame_size > self._max_payload_size:
                 self._send_frames(bytes(buffer), tuple(reliable_message_num_in_buffer))
@@ -110,7 +109,7 @@ class SendQueue:
                 reliable_message_num_in_buffer = []
 
             buffer.extend(raknet_frame_codec.encode(frame))
-            if frame_type != RakNetFrameType.UNRELIABLE:
+            if _is_reliable(frame):
                 reliable_message_num_in_buffer.append(frame.reliable_message_num)
 
         if len(buffer) > 0:

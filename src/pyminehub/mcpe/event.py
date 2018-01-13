@@ -24,7 +24,7 @@ class EventType(ValueType):
 
 _event_specs = {
     EventType.PLAYER_LOGGED_IN: [
-        ('id', int),
+        ('type', EventType),
         ('player_id', PlayerID),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
@@ -39,29 +39,29 @@ _event_specs = {
         ('metadata_flags', EntityMetaDataFlagValue)
     ],
     EventType.INVENTORY_LOADED: [
-        ('id', int),
+        ('type', EventType),
         ('player_id', PlayerID),
         ('inventory', Tuple[Inventory, ...])
     ],
     EventType.SLOT_INITIALIZED: [
-        ('id', int),
+        ('type', EventType),
         ('player_id', PlayerID),
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('equipped_item', Item)
     ],
     EventType.FULL_CHUNK_LOADED: [
-        ('id', int),
+        ('type', EventType),
         ('position', ChunkPosition),
         ('data', bytes)
     ],
     EventType.ENTITY_LOADED: [
-        ('id', int),
+        ('type', EventType),
         ('player_id', PlayerID),
         ('spawn_events', Tuple[Event, ...])
     ],
     EventType.PLAYER_MOVED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
         ('pitch', float),
@@ -72,12 +72,12 @@ _event_specs = {
         ('riding_eid', EntityRuntimeID)
     ],
     EventType.BLOCK_UPDATED: [
-        ('id', int),
+        ('type', EventType),
         ('position', Vector3[int]),
         ('block', Block)
     ],
     EventType.ITEM_SPAWNED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
         ('item', Item),
@@ -86,39 +86,39 @@ _event_specs = {
         ('metadata', Tuple[EntityMetaData, ...])
     ],
     EventType.ITEM_TAKEN: [
-        ('id', int),
+        ('type', EventType),
         ('item_runtime_id', EntityRuntimeID),
         ('player_runtime_id', EntityRuntimeID)
     ],
     EventType.INVENTORY_UPDATED: [
-        ('id', int),
+        ('type', EventType),
         ('player_id', PlayerID),
         ('inventory_slot', int),
         ('slot_item', Item)
     ],
     EventType.ENTITY_REMOVED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_runtime_id', EntityRuntimeID)
     ],
     EventType.EQUIPMENT_UPDATED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_runtime_id', EntityRuntimeID),
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('equipped_item', Item)
     ],
     EventType.MOB_SPAWNED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
-        ('type', EntityType),
+        ('entity_type', EntityType),
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
         ('name', Optional[str])
     ],
     EventType.MOB_MOVED: [
-        ('id', int),
+        ('type', EventType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
         ('pitch', float),

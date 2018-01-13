@@ -7,7 +7,7 @@ from pyminehub.network.codec import PACKET_HEADER_SIZE, RAKNET_WEIRD
 from pyminehub.raknet.channel import Channel
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
-from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame
+from pyminehub.raknet.frame import Reliability, RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.sending import SendQueue
 from pyminehub.value import LogString
@@ -71,7 +71,7 @@ class Session:
     def _process_frames(self, frames: List[RakNetFrame]) -> None:
         for frame in frames:
             _logger.debug('> %s', LogString(frame))
-            getattr(self, '_process_' + RakNetFrameType(frame.id).name.lower())(frame)
+            getattr(self, '_process_' + frame.type.name.lower())(frame)
 
     def _process_unreliable(self, frame: RakNetFrame) -> None:
         self._send_to_game_handler(frame.payload)

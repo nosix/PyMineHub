@@ -1,24 +1,24 @@
-SoundEvent(id=24, extra=b'\x00\x00', sound=<SoundType.LAND: 35>, position=Vector3(x=256.0, y=62.146358489990234, z=256.0), extra_data=2, pitch=638, unknown=False, disable_relative_volume=False)
+SoundEvent(type=<GamePacketType.SOUND_EVENT: 24>, extra=b'\x00\x00', sound=<SoundType.LAND: 35>, position=Vector3(x=256.0, y=62.146358489990234, z=256.0), extra_data=2, pitch=638, unknown=False, disable_relative_volume=False)
   -> 1800002300008043df9578420000804302fe040000
   File "./codec_play.py", line 25, in test_sound_event
     GamePacket(GamePacketType.SOUND_EVENT),
 
-MovePlayer(id=19, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.0, y=63.62001037597656, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
+MovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.0, y=63.62001037597656, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
   -> 1300000100008043e47a7e420000804300000000000000c0000000c0000100
   File "./codec_play.py", line 26, in test_sound_event
     GamePacket(GamePacketType.MOVE_PLAYER)
 
-WARNING:Batch(id=254, payloads=([21 bytes], [31 bytes]))
+WARNING:Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=([21 bytes], [31 bytes]))
   -> fe7801013600c9ff151800002300008043df9578420000804302fe0400001f1300000100008043e47a7e420000804300000000000000c0000000c0000100330f0a61
   File "./codec_play.py", line 24, in test_sound_event
     Batch().that_has(
 
-WARNING:ReliableOrdered(id=96, payload_length=528, reliable_message_num=17, message_ordering_index=7, message_ordering_chanel=0, payload=[66 bytes])
+WARNING:ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=528, reliable_message_num=17, message_ordering_index=7, message_ordering_chanel=0, payload=[66 bytes])
   -> 60021011000007000000fe7801013600c9ff151800002300008043df9578420000804302fe0400001f1300000100008043e47a7e420000804300000000000000c0000000c0000100330f0a61
   File "./codec_play.py", line 23, in test_sound_event
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(id=132, packet_sequence_num=19, payload=[76 bytes])
+WARNING:FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=19, payload=[76 bytes])
   -> 8413000060021011000007000000fe7801013600c9ff151800002300008043df9578420000804302fe0400001f1300000100008043e47a7e420000804300000000000000c0000000c0000100330f0a61
   File "./codec_play.py", line 22, in test_sound_event
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

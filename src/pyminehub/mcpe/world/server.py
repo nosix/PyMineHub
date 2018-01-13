@@ -3,7 +3,7 @@ import time
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
-from pyminehub.mcpe.action import Action, ActionType
+from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.datastore import DataStore
@@ -61,7 +61,7 @@ class _World(WorldProxy, WorldEditor):
     def perform(self, action: Action) -> None:
         _logger.debug('>> %s', LogString(action))
         self._loop.call_soon(
-            getattr(self, '_process_' + ActionType(action.id).name.lower()), action)
+            getattr(self, '_process_' + action.type.name.lower()), action)
 
     async def next_event(self) -> Optional[Event]:
         event = await self._event_queue.get()

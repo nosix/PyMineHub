@@ -168,7 +168,7 @@ def login_sequence(
     res_packet = game_packet_factory.create(
         GamePacketType.PLAYER_LIST,
         EXTRA_DATA,
-        type=PlayerListType.ADD,
+        list_type=PlayerListType.ADD,
         entries=tuple(
             PlayerListEntry(
                 uuid=p.id,
@@ -198,7 +198,7 @@ def _notify_new_player(
     res_packet = game_packet_factory.create(
         GamePacketType.PLAYER_LIST,
         EXTRA_DATA,
-        type=PlayerListType.ADD,
+        list_type=PlayerListType.ADD,
         entries=(
             PlayerListEntry(
                 uuid=player.id,

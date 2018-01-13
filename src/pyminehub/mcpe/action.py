@@ -18,19 +18,19 @@ class ActionType(ValueType):
 
 _action_specs = {
     ActionType.LOGIN_PLAYER: [
-        ('id', int),
+        ('type', ActionType),
         ('player_id', PlayerID)
     ],
     ActionType.REQUEST_CHUNK: [
-        ('id', int),
+        ('type', ActionType),
         ('positions', Tuple[ChunkPositionWithDistance, ...])
     ],
     ActionType.REQUEST_ENTITY: [
-        ('id', int),
+        ('type', ActionType),
         ('player_runtime_id', EntityRuntimeID)
     ],
     ActionType.MOVE_PLAYER: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
         ('pitch', float),
@@ -41,12 +41,12 @@ _action_specs = {
         ('riding_eid', EntityRuntimeID)
     ],
     ActionType.BREAK_BLOCK: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int])
     ],
     ActionType.PUT_ITEM: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int]),
         ('face', Face),
@@ -54,18 +54,18 @@ _action_specs = {
         ('item', Item)
     ],
     ActionType.EQUIP: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('inventory_slot', Optional[int]),
         ('hotbar_slot', int),
         ('item', Item)
     ],
     ActionType.LOGOUT_PLAYER: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID)
     ],
     ActionType.SET_HOTBAR: [
-        ('id', int),
+        ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('hotbar_slot', int),
         ('hotbar', Hotbar)

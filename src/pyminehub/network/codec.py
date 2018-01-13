@@ -21,14 +21,14 @@ class PacketCodec:
             self, packet: ValueObject, context: CompositeCodecContext=None, id_encoder: DataCodec[int]=None) -> bytes:
         """ Encode packet to bytes.
 
-        >>> p = _packet_factory.create(PacketType.unconnected_pong, 8721, 12985, 'MCPE;')
+        >>> p = _packet_factory.create(PacketType.pong, 8721, 12985, 'MCPE;')
         >>> context = CompositeCodecContext()
         >>> hexlify(_packet_codec.encode(p, context, BYTE_DATA))
         b'1c000000000000221100000000000032b900054d4350453b'
         >>> context.length
         24
         >>> context.get_values()
-        (<PacketType.unconnected_pong: 28>, 8721, 12985, 'MCPE;')
+        (<PacketType.pong: 28>, 8721, 12985, 'MCPE;')
 
         :param packet: encoding target
         :param context: if context is None then create a DataCodecContext
@@ -54,11 +54,11 @@ class PacketCodec:
         >>> data = unhexlify(b'1c000000000000221100000000000032b900054d4350453b')
         >>> context = CompositeCodecContext()
         >>> _packet_codec.decode(data, context, BYTE_DATA)
-        UnconnectedPong(id=28, time_since_start=8721, server_guid=12985, server_id='MCPE;')
+        Pong(type=<PacketType.pong: 28>, time_since_start=8721, server_guid=12985, server_id='MCPE;')
         >>> context.length
         24
         >>> context.get_values()
-        (<PacketType.unconnected_pong: 28>, 8721, 12985, 'MCPE;')
+        (<PacketType.pong: 28>, 8721, 12985, 'MCPE;')
 
         :param data: decoding target
         :param context: if context is None then create a DataCodecContext
@@ -138,11 +138,11 @@ if __name__ == '__main__':
     from pyminehub.value import ValueType, ValueObjectFactory
 
     class PacketType(ValueType):
-        unconnected_pong = 0x1c
+        pong = 0x1c
 
     _packet_specs = {
-        PacketType.unconnected_pong: [
-            ('id', int),
+        PacketType.pong: [
+            ('type', PacketType),
             ('time_since_start', int),
             ('server_guid', bytes),
             ('server_id', str)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     }
 
     _data_codecs = {
-        PacketType.unconnected_pong: [
+        PacketType.pong: [
             B_LONG_DATA,
             B_LONG_DATA,
             STRING_DATA

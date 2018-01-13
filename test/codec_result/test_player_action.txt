@@ -1,24 +1,24 @@
-PlayerAction(id=36, extra=b'\x00\x00', entity_runtime_id=1, action_type=<PlayerActionType.STOP_GLIDE: 16>, position=Vector3(x=0, y=0, z=0), face=<Face.BOTTOM: 0>)
+PlayerAction(type=<GamePacketType.PLAYER_ACTION: 36>, extra=b'\x00\x00', entity_runtime_id=1, action_type=<PlayerActionType.STOP_GLIDE: 16>, position=Vector3(x=0, y=0, z=0), face=<Face.BOTTOM: 0>)
   -> 240000011000000000
   File "./codec_play.py", line 38, in test_player_action
     GamePacket(GamePacketType.PLAYER_ACTION),
 
-MovePlayer(id=19, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.30340576171875, y=64.04000854492188, z=255.70001220703125), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=False, riding_eid=0, int1=None, int2=None)
+MovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.30340576171875, y=64.04000854492188, z=255.70001220703125), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=False, riding_eid=0, int1=None, int2=None)
   -> 13000001d62680437c14804234b37f4300000000000000c0000000c0000000
   File "./codec_play.py", line 39, in test_player_action
     GamePacket(GamePacketType.MOVE_PLAYER)
 
-WARNING:Batch(id=254, payloads=(b'$\x00\x00\x01\x10\x00\x00\x00\x00', [31 bytes]))
+WARNING:Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'$\x00\x00\x01\x10\x00\x00\x00\x00', [31 bytes]))
   -> fe7801012a00d5ff092400000110000000001f13000001d62680437c14804234b37f4300000000000000c0000000c00000007ff206ac
   File "./codec_play.py", line 37, in test_player_action
     Batch().that_has(
 
-WARNING:ReliableOrdered(id=96, payload_length=432, reliable_message_num=17, message_ordering_index=8, message_ordering_chanel=0, payload=[54 bytes])
+WARNING:ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=432, reliable_message_num=17, message_ordering_index=8, message_ordering_chanel=0, payload=[54 bytes])
   -> 6001b011000008000000fe7801012a00d5ff092400000110000000001f13000001d62680437c14804234b37f4300000000000000c0000000c00000007ff206ac
   File "./codec_play.py", line 36, in test_player_action
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(id=132, packet_sequence_num=19, payload=[64 bytes])
+WARNING:FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=19, payload=[64 bytes])
   -> 841300006001b011000008000000fe7801012a00d5ff092400000110000000001f13000001d62680437c14804234b37f4300000000000000c0000000c00000007ff206ac
   File "./codec_play.py", line 35, in test_player_action
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

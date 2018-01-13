@@ -127,22 +127,22 @@ class GamePacketType(ValueType):
 
 _connection_packet_specs = {
     ConnectionPacketType.CONNECTED_PING: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('ping_time_since_start', int)
     ],
     ConnectionPacketType.CONNECTED_PONG: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('ping_time_since_start', int),
         ('pong_time_since_start', int)
     ],
     ConnectionPacketType.CONNECTION_REQUEST: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('client_guid', int),
         ('client_time_since_start', int),
         ('use_encryption', bool)
     ],
     ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('client_address', AddressInPacket),
         ('system_index', int),
         ('internal_address', Tuple[AddressInPacket, ...]),
@@ -150,17 +150,17 @@ _connection_packet_specs = {
         ('server_time_since_start', int)
     ],
     ConnectionPacketType.NEW_INCOMING_CONNECTION: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('server_address', AddressInPacket),
         ('internal_address', Tuple[AddressInPacket, ...]),
         ('server_time_since_start', int),
         ('client_time_since_start', int)
     ],
     ConnectionPacketType.DISCONNECTION_NOTIFICATION: [
-        ('id', int)
+        ('type', ConnectionPacketType)
     ],
     ConnectionPacketType.BATCH: [
-        ('id', int),
+        ('type', ConnectionPacketType),
         ('payloads', Tuple[bytes, ...])
     ]
 }
@@ -168,38 +168,38 @@ _connection_packet_specs = {
 
 _game_packet_specs = {
     GamePacketType.LOGIN: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('protocol', int),
         ('connection_request', ConnectionRequest)
     ],
     GamePacketType.PLAY_STATUS: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('status', PlayStatus)
     ],
     GamePacketType.RESOURCE_PACKS_INFO: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_entries', Tuple[PackEntry, ...]),
         ('resource_pack_entries', Tuple[PackEntry, ...])
     ],
     GamePacketType.RESOURCE_PACK_STACK: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('must_accept', bool),
         ('behavior_pack_stack', Tuple[PackStack, ...]),
         ('resource_pack_stack', Tuple[PackStack, ...])
     ],
     GamePacketType.RESOURCE_PACK_CLIENT_RESPONSE: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('status', ResourcePackStatus),
         ('pack_ids', Tuple[str, ...])
     ],
     GamePacketType.START_GAME: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
@@ -237,18 +237,18 @@ _game_packet_specs = {
         ('enchantment_seed', int)
     ],
     GamePacketType.SET_TIME: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('time', int)
     ],
     GamePacketType.UPDATE_ATTRIBUTES: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('entries', Tuple[Attribute, ...])
     ],
     GamePacketType.AVAILABLE_COMMANDS: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('enum_values', Tuple[str, ...]),
         ('postfixes', Tuple[str, ...]),
@@ -256,7 +256,7 @@ _game_packet_specs = {
         ('command_data', Tuple[CommandData, ...])
     ],
     GamePacketType.ADVENTURE_SETTINGS: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('flags', int),
         ('command_permission', CommandPermission),
@@ -266,19 +266,19 @@ _game_packet_specs = {
         ('entity_unique_id', EntityUniqueID)
     ],
     GamePacketType.SET_ENTITY_DATA: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', int),
         ('metadata', Tuple[EntityMetaData, ...])
     ],
     GamePacketType.INVENTORY_CONTENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('window_type', WindowType),
         ('items', Union[Tuple[Item, ...], bytes])  # bytes data is encoded items
     ],
     GamePacketType.MOB_EQUIPMENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('item', Item),
@@ -287,42 +287,42 @@ _game_packet_specs = {
         ('window_type', WindowType)
     ],
     GamePacketType.INVENTORY_SLOT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('window_type', WindowType),
         ('inventory_slot', int),
         ('item', Item)
     ],
     GamePacketType.CRAFTING_DATA: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('recipe', Union[Tuple[Recipe, ...], bytes]),  # bytes data is encoded recipes
         ('clean_recipes', bool)
     ],
     GamePacketType.REQUEST_CHUNK_RADIUS: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('radius', int)
     ],
     GamePacketType.CHUNK_RADIUS_UPDATED: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('radius', int)
     ],
     GamePacketType.FULL_CHUNK_DATA: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('position', ChunkPosition),
         ('data', bytes)
     ],
     GamePacketType.PLAYER_LIST: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
-        ('type', PlayerListType),
+        ('list_type', PlayerListType),
         ('entries', Tuple[PlayerListEntry, ...])
     ],
     GamePacketType.ADD_PLAYER: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('uuid', UUID),
         ('user_name', str),
@@ -344,20 +344,20 @@ _game_packet_specs = {
         ('links', Tuple[EntityLink, ...])
     ],
     GamePacketType.REMOVE_ENTITY: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID)
     ],
     GamePacketType.DISCONNECT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('hide_disconnection_screen', bool),
         ('message', Optional[str])
     ],
     GamePacketType.TEXT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
-        ('type', TextType),
+        ('text_type', TextType),
         ('needs_translation', bool),
         ('source', Optional[str]),
         ('message', str),
@@ -365,7 +365,7 @@ _game_packet_specs = {
         ('xbox_user_id', str)
     ],
     GamePacketType.MOVE_PLAYER: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
@@ -379,7 +379,7 @@ _game_packet_specs = {
         ('int2', Optional[int])
     ],
     GamePacketType.PLAYER_ACTION: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('action_type', PlayerActionType),
@@ -387,7 +387,7 @@ _game_packet_specs = {
         ('face', Face),
     ],
     GamePacketType.MOVE_ENTITY: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
@@ -398,20 +398,20 @@ _game_packet_specs = {
         ('teleported', bool)
     ],
     GamePacketType.ENTITY_EVENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('event_type', EntityEventType),
         ('data', int)
     ],
     GamePacketType.SET_ENTITY_MOTION: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('motion', Vector3[float])
     ],
     GamePacketType.SOUND_EVENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('sound', SoundType),
         ('position', Vector3[float]),
@@ -421,32 +421,32 @@ _game_packet_specs = {
         ('disable_relative_volume', bool)
     ],
     GamePacketType.INTERACT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('action_type', int),
         ('target', EntityRuntimeID),
         ('position', Vector3[float])
     ],
     GamePacketType.ANIMATE: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('action_type', int),
         ('entity_runtime_id', EntityRuntimeID),
         ('unknown', Optional[float])
     ],
     GamePacketType.INVENTORY_TRANSACTION: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
-        ('type', InventoryTransactionType),
+        ('transaction_type', InventoryTransactionType),
         ('actions', Tuple[InventoryAction, ...]),
         ('data', Optional[TransactionData])
     ],
     GamePacketType.ADD_ENTITY: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
-        ('type', EntityType),
+        ('entity_type', EntityType),
         ('position', Vector3[float]),
         ('motion', Vector3[float]),
         ('pitch', float),
@@ -456,26 +456,26 @@ _game_packet_specs = {
         ('links', Tuple[EntityLink, ...])
     ],
     GamePacketType.MOB_ARMOR_EQUIPMENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_runtime_id', EntityRuntimeID),
         ('slots', Tuple[Item, ...])
     ],
     GamePacketType.SPACE_EVENT: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
-        ('type', SpaceEventType),
+        ('event_type', SpaceEventType),
         ('position', Vector3[float]),
         ('data', int)
     ],
     GamePacketType.UPDATE_BLOCK: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('position', Vector3[int]),
         ('block', Block)
     ],
     GamePacketType.ADD_ITEM_ENTITY: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('entity_unique_id', EntityUniqueID),
         ('entity_runtime_id', EntityRuntimeID),
@@ -485,13 +485,13 @@ _game_packet_specs = {
         ('metadata', Tuple[EntityMetaData, ...])
     ],
     GamePacketType.TAKE_ITEM_ENTITY: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('item_runtime_id', EntityRuntimeID),
         ('player_runtime_id', EntityRuntimeID)
     ],
     GamePacketType.PLAYER_HOTBAR: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('selected_hotbar_slot', int),
         ('window_type', WindowType),
@@ -499,7 +499,7 @@ _game_packet_specs = {
         ('does_select', bool)
     ],
     GamePacketType.COMMAND_REQUEST: [
-        ('id', int),
+        ('type', GamePacketType),
         ('extra', bytes),
         ('command', str),
         ('origin_data', CommandOriginData),

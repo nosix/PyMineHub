@@ -224,7 +224,7 @@ class MockWorldProxy(WorldProxy):
         pass
 
     def perform(self, action: Action) -> None:
-        if ActionType(action.id) == ActionType.LOGIN_PLAYER:
+        if action.type == ActionType.LOGIN_PLAYER:
             self._player_id = action.player_id
             self._waiting_queue.append(
                 event_factory.create(
@@ -281,19 +281,19 @@ class MockWorldProxy(WorldProxy):
                     Item(ItemType.AIR, None, None, None, None)
                 ))
             return
-        if ActionType(action.id) == ActionType.REQUEST_CHUNK:
+        if action.type == ActionType.REQUEST_CHUNK:
             for position in action.positions:
                 self._waiting_queue.append(event_factory.create(
                     EventType.FULL_CHUNK_LOADED, position.position, self._chunk_data))
             return
-        if ActionType(action.id) == ActionType.REQUEST_ENTITY:
+        if action.type == ActionType.REQUEST_ENTITY:
             self._waiting_queue.append(event_factory.create(
                 EventType.ENTITY_LOADED,
                 self._player_id,
                 tuple()
             ))
             return
-        if ActionType(action.id) == ActionType.MOVE_PLAYER:
+        if action.type == ActionType.MOVE_PLAYER:
             self._waiting_queue.append(event_factory.create(
                 EventType.PLAYER_MOVED,
                 action.entity_runtime_id,
@@ -322,7 +322,7 @@ class MockWorldProxy(WorldProxy):
                     2
                 ))
             return
-        if ActionType(action.id) == ActionType.BREAK_BLOCK:
+        if action.type == ActionType.BREAK_BLOCK:
             self._waiting_queue.append(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 action.position,
@@ -338,7 +338,7 @@ class MockWorldProxy(WorldProxy):
                 tuple()
             ))
             return
-        if ActionType(action.id) == ActionType.PUT_ITEM:
+        if action.type == ActionType.PUT_ITEM:
             self._waiting_queue.append(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 Vector3(x=256, y=62, z=258),
@@ -351,7 +351,7 @@ class MockWorldProxy(WorldProxy):
                 Item.create(ItemType.AIR, 0)
             ))
             return
-        if ActionType(action.id) == ActionType.EQUIP:
+        if action.type == ActionType.EQUIP:
             self._waiting_queue.append(event_factory.create(
                 EventType.EQUIPMENT_UPDATED,
                 2,
@@ -360,10 +360,10 @@ class MockWorldProxy(WorldProxy):
                 action.item
             ))
             return
-        if ActionType(action.id) == ActionType.LOGOUT_PLAYER:
+        if action.type == ActionType.LOGOUT_PLAYER:
             # TODO
             raise NotImplementedError()
-        if ActionType(action.id) == ActionType.SET_HOTBAR:
+        if action.type == ActionType.SET_HOTBAR:
             # TODO
             raise NotImplementedError()
 

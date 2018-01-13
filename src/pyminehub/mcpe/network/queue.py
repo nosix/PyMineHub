@@ -4,7 +4,7 @@ from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacketType, ConnectionPacket, connection_packet_factory
-from pyminehub.mcpe.network.packet import GamePacketType, GamePacket
+from pyminehub.mcpe.network.packet import GamePacket
 from pyminehub.mcpe.network.reliability import RELIABILITY_DICT
 from pyminehub.network.address import Address
 from pyminehub.raknet import Reliability
@@ -24,7 +24,7 @@ class _BatchQueue:
         :param packet: game packet
         """
         _logger.debug('< %s', LogString(packet))
-        self._packets.append((RELIABILITY_DICT[GamePacketType(packet.id)], packet))
+        self._packets.append((RELIABILITY_DICT[packet.type], packet))
 
     def send(self, sendto: Callable[[ConnectionPacket, Reliability], None]) -> None:
         if len(self._packets) == 0:
