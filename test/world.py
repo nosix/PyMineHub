@@ -176,8 +176,7 @@ class WorldTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
             position=Vector3(x=256, y=62, z=257),
-            block_type=BlockType.AIR,
-            block_aux=BlockData(value=176)
+            block=Block(type=BlockType.AIR, aux_value=176)
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -323,8 +322,7 @@ class WorldTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
             position=Vector3(x=256, y=62, z=257),
-            block_type=BlockType.DIRT,
-            block_aux=BlockData(value=176)
+            block=Block(type=BlockType.DIRT, aux_value=176)
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -460,8 +458,7 @@ class WorldTestCase(TestCase):
             expected_event = event_factory.create(
                 EventType.BLOCK_UPDATED,
                 position=Vector3(x=x, y=62, z=257),
-                block_type=BlockType.AIR,
-                block_aux=BlockData(value=176)
+                block=Block(type=BlockType.AIR, aux_value=176)
             )
             self.assertEqual(expected_event, actual_event)
 
@@ -562,8 +559,7 @@ class WorldTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
             position=Vector3(x=x, y=62, z=257),
-            block_type=BlockType.AIR,
-            block_aux=BlockData(value=176)
+            block=Block(type=BlockType.AIR, aux_value=176)
         )
         self.assertEqual(expected_event, actual_event)
 

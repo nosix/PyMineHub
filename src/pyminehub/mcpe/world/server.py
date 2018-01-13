@@ -276,8 +276,7 @@ class _World(WorldProxy, WorldEditor):
         self._notify_event(event_factory.create(
             EventType.BLOCK_UPDATED,
             action.position,
-            BlockType.AIR,
-            BlockData.create(0, neighbors=True, network=True, priority=True)
+            Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)
         ))
         for item in items:
             entity_runtime_id = self._entity.create_item(item)
@@ -307,8 +306,7 @@ class _World(WorldProxy, WorldEditor):
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 position,
-                block_type,
-                BlockData.create(0, neighbors=True, network=True, priority=True)
+                Block.create(block_type, 0, neighbors=True, network=True, priority=True)
             ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,

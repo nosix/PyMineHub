@@ -74,8 +74,7 @@ _event_specs = {
     EventType.BLOCK_UPDATED: [
         ('id', int),
         ('position', Vector3[int]),
-        ('block_type', BlockType),
-        ('block_aux', BlockData)
+        ('block', Block)
     ],
     EventType.ITEM_SPAWNED: [
         ('id', int),

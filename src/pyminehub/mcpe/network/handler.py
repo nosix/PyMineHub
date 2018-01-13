@@ -392,8 +392,7 @@ class MCPEHandler(GameDataHandler):
             GamePacketType.UPDATE_BLOCK,
             EXTRA_DATA,
             event.position,
-            event.block_type,
-            event.block_aux
+            event.block
         )
         for addr in self._session_manager.addresses:
             self._send_game_packet(res_packet, addr)

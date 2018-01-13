@@ -326,8 +326,7 @@ class MockWorldProxy(WorldProxy):
             self._waiting_queue.append(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 action.position,
-                BlockType.AIR,
-                BlockData.create(0, neighbors=True, network=True, priority=True)
+                Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)
             ))
             self._waiting_queue.append(event_factory.create(
                 EventType.ITEM_SPAWNED,
@@ -343,8 +342,7 @@ class MockWorldProxy(WorldProxy):
             self._waiting_queue.append(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 Vector3(x=256, y=62, z=258),
-                BlockType.DIRT,
-                BlockData.create(0, neighbors=True, network=True, priority=True)
+                Block.create(BlockType.DIRT, 0, neighbors=True, network=True, priority=True)
             ))
             self._waiting_queue.append(event_factory.create(
                 EventType.INVENTORY_UPDATED,

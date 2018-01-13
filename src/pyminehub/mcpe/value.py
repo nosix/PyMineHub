@@ -310,36 +310,37 @@ TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
 TransactionData = Union[TransactionToUseItem, TransactionToUseItemOnEntity, TransactionToReleaseItem]
 
 
-class BlockData(_NamedTuple('BlockData', [
-    ('value', int)
+class Block(_NamedTuple('Block', [
+    ('type', BlockType),
+    ('aux_value', int)
 ])):
     def __str__(self) -> str:
-        return '{}(data={}, flags={})'.format(self.__class__.__name__, self.data, self.flags)
+        return '{}(type={}, data={}, flags={})'.format(self.__class__.__name__, self.type, self.data, self.flags)
 
     @staticmethod
-    def create(data: int, **kwargs: bool) -> 'BlockData':
+    def create(block_type: BlockType, data: int, **kwargs: bool) -> 'Block':
         """
-        >>> BlockData.create(1, neighbors=True, network=True, priority=True)
-        BlockData(value=177)
+        >>> Block.create(BlockType.DIRT, 1, neighbors=True, network=True, priority=True)
+        Block(type=<BlockType.DIRT: 3>, aux_value=177)
         """
         assert data <= 0xf
-        return BlockData(dict_to_flags(BlockFlag, **kwargs) << 4 | data)
+        return Block(block_type, dict_to_flags(BlockFlag, **kwargs) << 4 | data)
 
     @property
     def data(self) -> int:
         """
-        >>> BlockData(177).data
+        >>> Block(BlockType.DIRT, 177).data
         1
         """
-        return self.value & 0xf
+        return self.aux_value & 0xf
 
     @property
     def flags(self) -> Dict[str, bool]:
         """
-        >>> sorted(BlockData(177).flags.items())
+        >>> sorted(Block(BlockType.DIRT, 177).flags.items())
         [('neighbors', True), ('network', True), ('priority', True)]
         """
-        return flags_to_dict(BlockFlag, self.value >> 4)
+        return flags_to_dict(BlockFlag, self.aux_value >> 4)
 
 
 CommandOriginData = _NamedTuple('CommandOriginData', [

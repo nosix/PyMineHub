@@ -472,8 +472,7 @@ _game_packet_specs = {
         ('id', int),
         ('extra', bytes),
         ('position', Vector3[int]),
-        ('block_id', BlockType),
-        ('aux', BlockData)
+        ('block', Block)
     ],
     GamePacketType.ADD_ITEM_ENTITY: [
         ('id', int),

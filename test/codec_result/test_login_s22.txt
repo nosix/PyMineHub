@@ -1,4 +1,4 @@
-UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=251, y=55, z=241), block_id=<BlockType.DIRT: 3>, aux=BlockData(value=48))
+UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=251, y=55, z=241), block=Block(type=<BlockType.DIRT: 3>, aux_value=48))
   -> 150000f60337e2030330
   File "./codec_login_logout.py", line 236, in test_login_s22
     GamePacket(GamePacketType.UPDATE_BLOCK)

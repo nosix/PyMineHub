@@ -413,7 +413,7 @@ Ack(id=192, record_count=1, range_max_equals_to_min=False, packet_sequence_numbe
 AddItemEntity(id=15, extra=b'\x00\x00', entity_unique_id=3, entity_runtime_id=3, item=Item(type=<ItemType.DIRT: 3>, aux_value=1, nbt=b'', place_on=(), destroy=()), position=Vector3(x=256.0, y=62.0, z=258.0), motion=Vector3(x=0.0, y=0.0, z=0.0), metadata=())
 Batch(id=254, payloads='[mask]')
 ReliableOrdered(id=96, payload_length='[mask]', reliable_message_num=111, message_ordering_index=94, message_ordering_chanel=0, payload='[mask]')
-UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=256, y=62, z=258), block_id=<BlockType.AIR: 0>, aux=BlockData(value=176))
+UpdateBlock(id=21, extra=b'\x00\x00', position=Vector3(x=256, y=62, z=258), block=Block(type=<BlockType.AIR: 0>, aux_value=176))
 Batch(id=254, payloads='[mask]')
 ReliableOrdered(id=96, payload_length='[mask]', reliable_message_num=110, message_ordering_index=93, message_ordering_chanel=0, payload='[mask]')
 FrameSet4(id=132, packet_sequence_num=101, payload='[mask]')
