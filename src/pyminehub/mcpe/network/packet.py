@@ -498,6 +498,13 @@ _game_packet_specs = {
         ('window_type', WindowType),
         ('slots', Tuple[int, ...]),
         ('does_select', bool)
+    ],
+    GamePacketType.COMMAND_REQUEST: [
+        ('id', int),
+        ('extra', bytes),
+        ('command', str),
+        ('origin_data', CommandOriginData),
+        ('is_internal', bool)
     ]
 }
 

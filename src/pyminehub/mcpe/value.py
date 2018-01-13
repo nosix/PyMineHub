@@ -342,6 +342,14 @@ class BlockData(_NamedTuple('BlockData', [
         return flags_to_dict(BlockFlag, self.value >> 4)
 
 
+CommandOriginData = _NamedTuple('CommandOriginData', [
+    ('type', CommandOriginDataType),
+    ('uuid', UUID),
+    ('request_id', str),
+    ('long1', Optional[int])
+])
+
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

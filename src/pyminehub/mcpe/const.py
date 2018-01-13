@@ -1364,6 +1364,21 @@ class SpaceEventType(Enum):
     PLAYERS_SLEEPING = 9800
     
 
+class CommandOriginDataType(Enum):
+    PLAYER = 0
+    BLOCK = 1
+    MINECART_BLOCK = 2
+    DEV_CONSOLE = 3
+    TEST = 4
+    AUTOMATION_PLAYER = 5
+    CLIENT_AUTOMATION = 6
+    DEDICATED_SERVER = 7
+    ENTITY = 8
+    VIRTUAL = 9
+    GAME_ARGUMENT = 10
+    ENTITY_SERVER = 11
+    
+    
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

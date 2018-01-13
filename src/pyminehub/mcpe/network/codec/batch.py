@@ -645,6 +645,20 @@ _game_data_codecs = {
             read=lambda _data: unsign_to_sign(_data),
             write=lambda _value: sign_to_unsign(_value))),
         BOOL_DATA
+    ],
+    GamePacketType.COMMAND_REQUEST: [
+        _HEADER_EXTRA_DATA,
+        VAR_STRING_DATA,
+        CompositeData(CommandOriginData, (
+            NamedData('origin_type', EnumData(VAR_INT_DATA, CommandOriginDataType)),
+            _UUID_DATA,
+            VAR_STRING_DATA,
+            OptionalData(VAR_SIGNED_INT_DATA,
+                         lambda _context: _context['origin_type'] not in (
+                             CommandOriginDataType.DEV_CONSOLE, CommandOriginDataType.TEST
+                         ))
+        )),
+        BOOL_DATA
     ]
 }
 
