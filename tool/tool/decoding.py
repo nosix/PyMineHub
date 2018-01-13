@@ -194,7 +194,7 @@ def load_packets(raknet_raw_file_name: str) -> DecodeAgent:
             try:
                 port_raw, data_raw = line.split()
                 port, = struct.unpack('!H', unhex(port_raw))  # Don't remove comma, to get first one
-                _agent.decode(data_raw, tag=str(port))
+                _agent.decode(data_raw, tag='L{}:{}'.format(i+1, port))
             except Exception as exc:
                 exc.args = ('{}, line {}, in {}'.format(exc.args[0], i + 1, raknet_raw_file_name), )
                 import traceback
