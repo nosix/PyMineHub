@@ -212,7 +212,7 @@ class WorldTestCase(TestCase):
             EventType.INVENTORY_UPDATED,
             player_id=self._get_player_id(0),
             inventory_slot=0,
-            slot=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
+            slot_item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -333,7 +333,7 @@ class WorldTestCase(TestCase):
             EventType.INVENTORY_UPDATED,
             player_id=self._get_player_id(0),
             inventory_slot=0,
-            slot=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
+            slot_item=Item(type=ItemType.AIR, aux_value=None, nbt=None, place_on=None, destroy=None)
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -495,7 +495,7 @@ class WorldTestCase(TestCase):
                 EventType.INVENTORY_UPDATED,
                 player_id=self._get_player_id(0),
                 inventory_slot=0,
-                slot=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+                slot_item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
             )
             self.assertEqual(expected_event, actual_event)
 
@@ -597,7 +597,7 @@ class WorldTestCase(TestCase):
             EventType.INVENTORY_UPDATED,
             player_id=self._get_player_id(0),
             inventory_slot=1,  # next inventory slot
-            slot=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
+            slot_item=Item(type=ItemType.DIRT, aux_value=quantity, nbt=b'', place_on=(), destroy=())
         )
         self.assertEqual(expected_event, actual_event)
 

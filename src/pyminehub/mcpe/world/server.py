@@ -104,12 +104,12 @@ class _World(WorldProxy, WorldEditor):
     def append_into_player_inventory(self, entity_runtime_id: EntityRuntimeID, item: Item) -> None:
         player = self._entity.get_player(entity_runtime_id)
         inventory_slot = player.append_item(item)
-        new_slot = player.get_item(inventory_slot)
+        slot_item = player.get_item(inventory_slot)
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,
             player.player_id,
             inventory_slot,
-            new_slot
+            slot_item
         ))
 
     # local methods

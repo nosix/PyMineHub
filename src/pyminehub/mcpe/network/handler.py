@@ -429,7 +429,7 @@ class MCPEHandler(GameDataHandler):
             EXTRA_DATA,
             WindowType.INVENTORY,
             event.inventory_slot,
-            event.slot
+            event.slot_item
         )
         self._send_game_packet(res_packet, addr)
 

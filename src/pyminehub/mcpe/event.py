@@ -95,7 +95,7 @@ _event_specs = {
         ('id', int),
         ('player_id', PlayerID),
         ('inventory_slot', int),
-        ('slot', Item)
+        ('slot_item', Item)
     ],
     EventType.ENTITY_REMOVED: [
         ('id', int),
