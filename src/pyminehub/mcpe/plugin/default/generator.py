@@ -12,15 +12,15 @@ class DefaultChunkGenerator(ChunkGenerator):
     def __init__(self) -> None:
         def set_data(x: int, z: int) -> None:
             y = 0
-            chunk.set_block(Vector3(x, y, z), BlockType.BEDROCK, 0)
+            chunk.set_block(Vector3(x, y, z), Block.create(BlockType.BEDROCK, 0))
             y += 1
             while y < height - 6:
-                chunk.set_block(Vector3(x, y, z), BlockType.STONE, 0)
+                chunk.set_block(Vector3(x, y, z), Block.create(BlockType.STONE, 0))
                 y += 1
             while y < height - 1:
-                chunk.set_block(Vector3(x, y, z), BlockType.STONE, 0)
+                chunk.set_block(Vector3(x, y, z), Block.create(BlockType.STONE, 0))
                 y += 1
-            chunk.set_block(Vector3(x, y, z), BlockType.GRASS, 0)
+            chunk.set_block(Vector3(x, y, z), Block.create(BlockType.GRASS, 0))
             y += 1
             assert y == height
             chunk.set_height(x, z, height)

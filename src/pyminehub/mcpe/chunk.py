@@ -1,9 +1,10 @@
-from typing import List, Union
+from typing import List
 
 from pyminehub.binutil.composite import *
 from pyminehub.binutil.instance import *
 from pyminehub.mcpe.const import BlockType, BiomeType
 from pyminehub.mcpe.geometry import ChunkGeometry, Vector3
+from pyminehub.mcpe.value import Block
 
 _layout = {
     'sub_chunk_header': 1,
@@ -40,10 +41,10 @@ class _SubChunk:
     def _to_block_id_index(cls, x: int, y: int, z: int) -> int:
         return (x * ChunkGeometry.SHAPE.x + z) * ChunkGeometry.SHAPE.z + y
 
-    def get_block(self, x: int, y: int, z: int) -> BlockType:
+    def get_block_type(self, x: int, y: int, z: int) -> BlockType:
         return BlockType(self._block_id[self._to_block_id_index(x, y, z)])
 
-    def set_block(self, x: int, y: int, z: int, block_type: BlockType) -> None:
+    def set_block_type(self, x: int, y: int, z: int, block_type: BlockType) -> None:
         self._block_id[self._to_block_id_index(x, y, z)] = block_type.value
 
     @classmethod
@@ -109,55 +110,32 @@ class Chunk:
     def is_updated(self, value: bool) -> None:
         self._is_updated = value
 
-    def get_block(self, position: Vector3[int], with_data=False) -> Union[BlockType, Tuple[BlockType, int]]:
+    def get_block(self, position: Vector3[int]) -> Block:
         sub_chunk_index = position.y // self._Y_UNIT
         if sub_chunk_index >= len(self._sub_chunk):
             block_type = BlockType.AIR
-            if not with_data:
-                return block_type
-            else:
-                return block_type, 0
+            return Block.create(block_type, 0)  # TODO check data or aux_value
         else:
             sub_chunk = self._sub_chunk[sub_chunk_index]
             y_in_sub = position.y % self._Y_UNIT
-            block_type = sub_chunk.get_block(position.x, y_in_sub, position.z)
-            if not with_data:
-                return block_type
-            else:
-                return block_type, sub_chunk.get_block_data(position.x, y_in_sub, position.z)
+            block_type = sub_chunk.get_block_type(position.x, y_in_sub, position.z)
+            block_data = sub_chunk.get_block_data(position.x, y_in_sub, position.z)
+            return Block.create(block_type, block_data)
 
-    def set_block(self, position: Vector3[int], block_type: BlockType, block_data=None) -> None:
+    def set_block(self, position: Vector3[int], block: Block) -> None:
         sub_chunk_index = position.y // self._Y_UNIT
         if sub_chunk_index >= len(self._sub_chunk):
             for _ in range(sub_chunk_index - len(self._sub_chunk) + 1):
                 self._sub_chunk.append(_create_empty_sub_chunk())
         sub_chunk = self._sub_chunk[sub_chunk_index]
         y_in_sub = position.y % self._Y_UNIT
-        sub_chunk.set_block(position.x, y_in_sub, position.z, block_type)
-        if block_data is not None:
-            sub_chunk.set_block_data(position.x, y_in_sub, position.z, block_data)
+        sub_chunk.set_block_type(position.x, y_in_sub, position.z, block.type)
+        sub_chunk.set_block_data(position.x, y_in_sub, position.z, block.data)  # TODO check data or aux_value
         height = self.get_height(position.x, position.z)
-        if position.y == height and block_type != BlockType.AIR:
+        if position.y == height and block.type != BlockType.AIR:
             self.set_height(position.x, position.z, height + 1)
-        if position.y == height - 1 and block_type == BlockType.AIR:
+        if position.y == height - 1 and block.type == BlockType.AIR:
             self.set_height(position.x, position.z, height - 1)
-        self._is_updated = True
-
-    def get_block_data(self, position: Vector3[int]) -> int:
-        sub_chunk_index = position.y // self._Y_UNIT
-        if sub_chunk_index >= len(self._sub_chunk):
-            return 0
-        else:
-            y_in_sub = position.y % self._Y_UNIT
-            return self._sub_chunk[sub_chunk_index].get_block_data(position.x, y_in_sub, position.z)
-
-    def set_block_data(self, position: Vector3[int], block_data: int) -> None:
-        sub_chunk_index = position.y // self._Y_UNIT
-        if sub_chunk_index >= len(self._sub_chunk):
-            for _ in range(sub_chunk_index - len(self._sub_chunk) + 1):
-                self._sub_chunk.append(_create_empty_sub_chunk())
-        y_in_sub = position.y % self._Y_UNIT
-        self._sub_chunk[sub_chunk_index].set_block_data(position.x, y_in_sub, position.z, block_data)
         self._is_updated = True
 
     def get_height(self, x: int, z: int) -> int:

@@ -4,9 +4,11 @@ from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
-from pyminehub.mcpe.value import Item
+from pyminehub.mcpe.value import Item, Block
 from pyminehub.mcpe.world.block import get_block_spec
 from pyminehub.mcpe.world.generator import SpaceGenerator
+
+BLOCK_AIR = Block(BlockType.AIR, 0)
 
 
 class Space:
@@ -50,15 +52,15 @@ class Space:
         :return: None if it can't be broken, or spawned item list if can be broken
         """
         chunk, position_in_chunk = self._to_local(position)
-        block_type, block_data = chunk.get_block(position_in_chunk, with_data=True)
-        if block_type in (BlockType.AIR, BlockType.BEDROCK):
+        block = chunk.get_block(position_in_chunk)
+        if block.type in (BlockType.AIR, BlockType.BEDROCK):
             return None
-        chunk.set_block(position_in_chunk, BlockType.AIR, 0)
-        return get_block_spec(block_type).to_item()
+        chunk.set_block(position_in_chunk, BLOCK_AIR)
+        return get_block_spec(block.type).to_item()
 
-    def put_block(self, position: Vector3[int], block_type: BlockType) -> None:
+    def put_block(self, position: Vector3[int], block: Block) -> None:
         chunk, position_in_chunk = self._to_local(position)
-        chunk.set_block(position_in_chunk, block_type)
+        chunk.set_block(position_in_chunk, block)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)

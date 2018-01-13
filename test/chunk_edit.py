@@ -12,27 +12,27 @@ class ChunkEditTestCase(ChunkTestCase):
 
         height = chunk.get_height(base.x, base.z)
         for y in range(height):
-            self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)))
+            self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)).type)
         for y in range(height, 127):
-            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)))
+            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)).type)
 
-        chunk.set_block(base.copy(y=height - 1), BlockType.AIR)
+        chunk.set_block(base.copy(y=height - 1), Block.create(BlockType.AIR, 0))
         expected_height = height - 1
 
         height = chunk.get_height(base.x, base.z)
         self.assertEqual(expected_height, height)
-        self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=height - 1)))
+        self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=height - 1)).type)
         for y in range(height, 127):
-            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)))
+            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)).type)
 
-        chunk.set_block(base.copy(y=height - 2), BlockType.AIR)
+        chunk.set_block(base.copy(y=height - 2), Block.create(BlockType.AIR, 0))
         expected_height = height
 
         height = chunk.get_height(base.x, base.z)
         self.assertEqual(expected_height, height)
-        self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=height - 1)))
+        self.assertNotEqual(BlockType.AIR, chunk.get_block(base.copy(y=height - 1)).type)
         for y in range(height, 127):
-            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)))
+            self.assertEqual(BlockType.AIR, chunk.get_block(base.copy(y=y)).type)
 
 
 if __name__ == '__main__':

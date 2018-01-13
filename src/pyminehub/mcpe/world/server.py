@@ -302,11 +302,12 @@ class _World(WorldProxy, WorldEditor):
         position = action.position + action.face.direction
         block_type = get_item_spec(old_slot.type).to_block()
         if block_type is not None:
-            self._space.put_block(position, block_type)
+            block = Block.create(block_type, 0, neighbors=True, network=True, priority=True)  # TODO set block data
+            self._space.put_block(position, block)
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 position,
-                Block.create(block_type, 0, neighbors=True, network=True, priority=True)
+                block
             ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,
