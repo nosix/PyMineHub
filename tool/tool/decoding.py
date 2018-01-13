@@ -18,10 +18,12 @@ from typing import NamedTuple as _NamedTuple, Iterator, List, Optional, Union, S
 from pyminehub.binutil.composite import CompositeCodecContext
 from pyminehub.mcpe.chunk import Chunk, decode_chunk
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
+from pyminehub.mcpe.network.packet import ConnectionPacketType, GamePacketType
 from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
 from pyminehub.raknet.fragment import Fragment
 from pyminehub.raknet.frame import RakNetFrameType
-from pyminehub.value import ValueObject
+from pyminehub.raknet.packet import RakNetPacketType
+from pyminehub.value import ValueObject, ValueType
 
 _ASCII_CHARS = set(c for c in range(0x20, 0x7f))
 _ASCII_CHARS_FOR_DOUBLE_QUOTE = _ASCII_CHARS - {0x22, 0x5c, 0x5d}  # " - \
@@ -95,6 +97,11 @@ class DecodeAgent:
         self.__init__(verbose=self._verbose)
         return self
 
+    def drop(self, drop_type: ValueType) -> 'DecodeAgent':
+        self._items = list(item for item in self._items
+                           if not isinstance(item, ValueObject) or item.type not in drop_type)
+        return self
+
     def _decode_raknet_packet(self, data: bytearray) -> None:
         context = CompositeCodecContext()
         packet = raknet_packet_codec.decode(data, context)
@@ -111,7 +118,7 @@ class DecodeAgent:
         self._items.append(packet)
         del data[:context.length]
 
-        if RakNetFrameType(packet.id) == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
+        if packet.type == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
             self._fragment.append(
                 packet.split_packet_id, packet.split_packet_count, packet.split_packet_index, packet.payload)
             payload = self._fragment.pop(packet.split_packet_id)
@@ -153,11 +160,27 @@ agent = DecodeAgent()
 
 
 def decode(data: str, depth: int=0) -> DecodeAgent:
+    """Decode data.
+
+    :param data: decoded data corresponding to depth
+    :param depth: 0 - RakNetPacket, 1 - RakNetFrame, 2 - ConnectionPacket, 3 - GamePacket
+    """
     return agent.decode(data, depth)
 
 
 def clear() -> DecodeAgent:
     return agent.clear()
+
+
+def drop(*depth: int) -> DecodeAgent:
+    """Drop decoded result at the specified depth.
+
+    :param depth: 0 - RakNetPacket, 1 - RakNetFrame, 2 - ConnectionPacket, 3 - GamePacket
+    """
+    drop_type = [RakNetPacketType, RakNetFrameType, ConnectionPacketType, GamePacketType]
+    for d in depth:
+        agent.drop(drop_type[d])
+    return agent
 
 
 def load_raknet_raw(pcap_file_name: str) -> List[str]:
@@ -220,8 +243,8 @@ _FILTER_PREFIX = (
     'UnconnectedPong',
     'ConnectedPing',
     'ConnectedPong',
-    'UpdateBlock',
-    'FullChunk'
+    'FullChunk',
+    'SetTime',
 )
 
 
