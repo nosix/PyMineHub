@@ -13,14 +13,24 @@ class ProtocolUnconnectedTestCase(ProtocolTestCase):
         super().setUp()
 
     def test_unconnected_ping_pong(self):
-        self.proxy.send(self.data.that_is('unconnected_ping'), from_=self._CLIENT_ADDRESS[0])
+        self.proxy.send(EncodedData(self.data.created).is_(
+            RakNetPacket(
+                RakNetPacketType.UNCONNECTED_PING,
+                time_since_start=1831975,
+                valid_message_data_id=True,
+                client_guid=13737444287267880442
+            )
+        ), from_=self._CLIENT_ADDRESS[0])
 
         received_data = self.proxy.receive()
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
-                EncodedData(self.data.that_is_response_of('unconnected_ping')).is_(
+                EncodedData(self.data.created).is_(
                     RakNetPacket(
                         RakNetPacketType.UNCONNECTED_PONG,
+                        time_since_start=1831975,
+                        server_guid=1326711636852997873,
+                        valid_message_data_id=True,
                         server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;1326711636852997873;PyMineHub;Survival;'
                     )
                 )

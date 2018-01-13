@@ -7,17 +7,17 @@ from typing import *
 
 from pyminehub.mcpe.network.codec import connection_packet_codec
 from pyminehub.mcpe.network.codec import game_packet_codec
-from pyminehub.mcpe.network.packet import ConnectionPacketType
-from pyminehub.mcpe.network.packet import GamePacketType
+from pyminehub.mcpe.network.packet import ConnectionPacketType, connection_packet_factory
+from pyminehub.mcpe.network.packet import GamePacketType, game_packet_factory
 from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.network.codec import PacketCodec
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
-from pyminehub.raknet.frame import RakNetFrameType, RakNetFrame as _RakNetFrame
-from pyminehub.raknet.packet import RakNetPacketType
+from pyminehub.raknet.frame import RakNetFrameType, raknet_frame_factory, RakNetFrame as _RakNetFrame
+from pyminehub.raknet.packet import RakNetPacketType, raknet_packet_factory
 from pyminehub.typevar import T
-from pyminehub.value import ValueObject, ValueType
+from pyminehub.value import ValueObject, ValueType, ValueObjectFactory
 from tool.decoding import get_packet_str
 from util.exception import try_action
 
@@ -121,13 +121,18 @@ _PAT = TypeVar('PAT', bound='PacketAnalyzer')
 
 class PacketAnalyzer:
 
-    def __init__(self, packet_type: ValueType, codec: PacketCodec, stack_depth=3) -> None:
+    def __init__(self, packet_type: ValueType, codec: PacketCodec, factory: ValueObjectFactory, stack_depth=3) -> None:
         self._called_line = self._mask_path(traceback.format_stack()[-stack_depth])
         self._packet_type = packet_type
         self._label = None
         self._codec = codec
+        self._factory = factory
         self._data = None
         self._packet = None
+
+    @property
+    def packet_type(self) -> ValueType:
+        return self._packet_type
 
     @staticmethod
     def _mask_path(called_line: str) -> str:
@@ -161,7 +166,7 @@ class PacketAnalyzer:
         """
         return iter([])
 
-    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, Any]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]=None) -> Dict[str, Any]:
         """Return pair of attribute name and attribute value.
 
         :param payloads: used in attribute value
@@ -188,6 +193,17 @@ class PacketAnalyzer:
     def has_record(self) -> bool:
         """Has the decoded result."""
         return not (self._data is None or self._packet is None)
+
+    def create(self, visitor: AnalyzingVisitor) -> None:
+        kwargs = self.get_extra_kwargs()
+        kwargs.update(self.get_payload_attr())
+        packet = self._factory.create(self._packet_type, **kwargs)
+        packet_str = get_packet_str(packet, visitor.get_context().get_bytes_mask_threshold())
+        packet = visitor.visit_after_decoding(
+            b'', self._packet_type, packet, packet_str, self.get_called_line(), **self.get_extra_kwargs())
+        self._record_decoded(b'', packet)
+        for child in self.get_child_analyzers():
+            self.try_on_child(child.create, visitor)
 
     def decode_on(self, visitor: AnalyzingVisitor, data: bytes) -> int:
         context = CompositeCodecContext()
@@ -264,7 +280,7 @@ class PacketAnalyzer:
 class GamePacket(PacketAnalyzer):
 
     def __init__(self, packet_type: GamePacketType, *args, **kwargs) -> None:
-        super().__init__(packet_type, game_packet_codec)
+        super().__init__(packet_type, game_packet_codec, game_packet_factory)
         self._args = args
         self._kwargs = kwargs
 
@@ -278,7 +294,7 @@ class GamePacket(PacketAnalyzer):
 class ConnectionPacket(PacketAnalyzer):
 
     def __init__(self, packet_type: ConnectionPacketType, *args, **kwargs) -> None:
-        super().__init__(packet_type, connection_packet_codec)
+        super().__init__(packet_type, connection_packet_codec, connection_packet_factory)
         self._args = args
         self._kwargs = kwargs
 
@@ -292,7 +308,7 @@ class ConnectionPacket(PacketAnalyzer):
 class Batch(PacketAnalyzer):
 
     def __init__(self) -> None:
-        super().__init__(ConnectionPacketType.BATCH, connection_packet_codec)
+        super().__init__(ConnectionPacketType.BATCH, connection_packet_codec, connection_packet_factory)
         self._children = []
 
     def that_has(self, *game_packet: GamePacket):
@@ -310,7 +326,9 @@ class Batch(PacketAnalyzer):
         else:
             return iter((b'', child) for child in self._children)
 
-    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, Tuple[bytes, ...]]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]=None) -> Dict[str, Tuple[bytes, ...]]:
+        if payloads is None:
+            payloads = tuple()
         return {'payloads': payloads}
 
     def does_retry_encoding(self) -> bool:
@@ -325,7 +343,7 @@ class Batch(PacketAnalyzer):
 class RakNetFrame(PacketAnalyzer):
 
     def __init__(self, packet_type: RakNetFrameType, *args, **kwargs) -> None:
-        super().__init__(packet_type, raknet_frame_codec)
+        super().__init__(packet_type, raknet_frame_codec, raknet_frame_factory)
         self._args = args
         self._kwargs = kwargs
         self._child = None
@@ -355,7 +373,9 @@ class RakNetFrame(PacketAnalyzer):
             iter([(b'', self._child)]) if payload is None else \
             iter([(payload, self._child)])
 
-    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]=None) -> Dict[str, bytes]:
+        if payloads is None:
+            payloads = (b'', )
         assert len(payloads) == 1
         return {'payload': payloads[0], 'payload_length': len(payloads[0] * 8)}  # unit of payload_length is bits
 
@@ -369,7 +389,7 @@ class RakNetFrame(PacketAnalyzer):
 class RakNetPacket(PacketAnalyzer):
 
     def __init__(self, packet_type: RakNetPacketType, *args, **kwargs) -> None:
-        super().__init__(packet_type, raknet_packet_codec)
+        super().__init__(packet_type, raknet_packet_codec, raknet_packet_factory)
         self._args = args
         self._kwargs = kwargs
         self._children = []
@@ -416,8 +436,10 @@ class RakNetPacket(PacketAnalyzer):
                 self._decode_raknet_frame(visitor)
         try_action(action, self.get_called_line())
 
-    def get_payload_attr(self, payloads: Tuple[bytes, ...]) -> Dict[str, bytes]:
-        return {'payload': b''.join(payloads)}
+    def get_payload_attr(self, payloads: Tuple[bytes, ...]=None) -> Dict[str, bytes]:
+        if payloads is None:
+            payloads = tuple()
+        return {'payload': b''.join(payloads)} if self.packet_type.name.startswith('FRAME_SET') else {}
 
     def does_retry_encoding(self) -> bool:
         return True

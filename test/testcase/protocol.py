@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import json
+import os
 from binascii import unhexlify as unhex
 from os.path import dirname
 from typing import NamedTuple as _NamedTuple
@@ -128,6 +129,10 @@ class _TestData:
     def __init__(self, context: _ProtocolTestContext, json_dict: Dict) -> None:
         self._context = context
         self._json_dict = json_dict
+
+    @property
+    def created(self) -> _TestDataProducer:
+        return _TestDataProducer(self._context, lambda addr: '')
 
     def that_is(self, name: str) -> _TestDataProducer:
         def producer(addr: Address) -> str:
@@ -326,7 +331,11 @@ class EncodedData:
     def __call__(self, addr: Address) -> str:
         def replace_packet_attributes():
             # noinspection PyArgumentList
-            self._analyzer.decode_on(visitor, unhex(self._data_producer(addr)))
+            data = self._data_producer(addr)
+            if data:
+                self._analyzer.decode_on(visitor, unhex(data))
+            else:
+                self._analyzer.create(visitor)
             self._analyzer.encode_on(visitor)
         visitor = _PacketReplacer(self._data_producer.get_context())
         try_action(replace_packet_attributes, exception_factory=self._data_producer.get_context().failure_exception)
@@ -337,7 +346,11 @@ class EncodedData:
         collector_for_expected = _ExpectedPacketCollector(context)
         collector_for_actual = _ActualPacketCollector(context)
         # noinspection PyArgumentList
-        self._analyzer.decode_on(collector_for_expected, unhex(self._data_producer(addr)))
+        data = self._data_producer(addr)
+        if data:
+            self._analyzer.decode_on(collector_for_expected, unhex(data))
+        else:
+            self._analyzer.create(collector_for_expected)
         self._analyzer.decode_on(collector_for_actual, actual_data)
         return list(collector_for_expected.get_packets()), list(collector_for_actual.get_packets())
 
@@ -357,11 +370,12 @@ class ProtocolTestCase(TestCase):
     def _import_json(self, test_name_list: List[str]) -> Dict:
         data_json = {}
         for test_name in test_name_list:
-            data_json.update(self._load_json(test_name))
+            file_name = self._get_file_name('protocol_data', test_name)
+            data_json.update(self._load_json(file_name))
         return data_json
 
-    def _load_json(self, test_name: str) -> Dict:
-        with open(self._get_file_name('protocol_data', test_name), 'r') as file:
+    def _load_json(self, file_name: str) -> Dict:
+        with open(file_name, 'r') as file:
             data_json = json.load(file)
             if self._JSON_IMPORT_KEY in data_json:
                 data_json.update(self._import_json(data_json[self._JSON_IMPORT_KEY]))
@@ -369,7 +383,9 @@ class ProtocolTestCase(TestCase):
             return data_json
 
     def _load_data(self) -> _TestData:
-        return _TestData(self.context, self._load_json(self._testMethodName))
+        file_name = self._get_file_name('protocol_data', self._testMethodName)
+        json_data = self._load_json(file_name) if os.path.exists(file_name) else {}
+        return _TestData(self.context, json_data)
 
     def setUp(self) -> None:
         if self._testMethodName not in type(self).__dict__:
