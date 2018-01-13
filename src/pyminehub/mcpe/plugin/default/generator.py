@@ -27,7 +27,7 @@ class DefaultChunkGenerator(ChunkGenerator):
             chunk.set_biome_id(x, z, BiomeType.PLAINS)
 
         height = 63
-        chunk = Chunk(tuple(), EMPTY_HEIGHT_MAP, EMPTY_BIOME_ID, tuple(), tuple())
+        chunk = create_empty_chunk()
         foreach_xz(set_data)
         self._default_chunk = chunk
 

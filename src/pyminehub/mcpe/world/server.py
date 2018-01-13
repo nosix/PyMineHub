@@ -376,9 +376,9 @@ def run(loop: asyncio.AbstractEventLoop, store: DataStore, plugin: PluginLoader)
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
     world = _World(
         loop,
-        BatchSpaceGenerator(plugin.get_generator(), store),
+        BatchSpaceGenerator(plugin.generator, store),
         store,
-        plugin.get_mob_processor(),
-        plugin.get_player_config()
+        plugin.mob_processor,
+        plugin.player_config
     )
     return world

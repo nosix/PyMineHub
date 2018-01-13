@@ -199,6 +199,10 @@ _chunk_codec_spec = (
 _chunk_codec = CompositeCodec(_chunk_codec_spec)
 
 
+def create_empty_chunk() -> Chunk:
+    return Chunk(tuple(), EMPTY_HEIGHT_MAP, EMPTY_BIOME_ID, tuple(), tuple())
+
+
 def encode_chunk(chunk: Chunk) -> bytes:
     return _chunk_codec.encode(*chunk)
 

@@ -19,6 +19,7 @@ class DocTestCase(unittest.TestCase):
             'pyminehub/mcpe/const',
             'pyminehub/mcpe/geometry',
             'pyminehub/mcpe/value',
+            'pyminehub/mcpe/plugin/loader',
             'pyminehub/mcpe/network/codec/connection',
         ]
         for path in module_path:

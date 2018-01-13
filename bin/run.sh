@@ -3,16 +3,18 @@
 usage ()
 {
   CMD_NAME=`basename $0`
-  echo "Usage: $CMD_NAME [-p]"
+  echo "Usage: $CMD_NAME [-p] [-d]"
   exit 1
 }
 
 PROFILER=
 
-while getopts ph OPT
+while getopts dhp OPT
 do
     case ${OPT} in
         p)  PROFILER="-m cProfile -o run.pstat"
+            ;;
+        d)  export PMH_PLUGIN_ROOT=""
             ;;
         h)  usage
             ;;
