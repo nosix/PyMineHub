@@ -1,7 +1,7 @@
 from testcase.codec import *
 
 
-class LoginLogoutTestCase(CodecTestCase):
+class CodecLoginLogoutTestCase(CodecTestCase):
 
     def test_login_c00(self):
         assertion = EncodedData(

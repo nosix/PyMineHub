@@ -1,9 +1,9 @@
-from protocol_unconnected import UnconnectedTestCase
+from protocol_unconnected import ProtocolUnconnectedTestCase
 from pyminehub.mcpe.geometry import Vector3, to_chunk_area
 from testcase.protocol import *
 
 
-class LoginLogoutTestCase(UnconnectedTestCase):
+class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
 
     _CLIENT_ADDRESS = [
         ('192.168.179.2', 34089)

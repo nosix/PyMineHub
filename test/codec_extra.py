@@ -1,7 +1,7 @@
 from testcase.codec import *
 
 
-class ExtraTestCase(CodecTestCase):
+class CodecExtraTestCase(CodecTestCase):
 
     def test_command_request(self):
         assertion = EncodedData(

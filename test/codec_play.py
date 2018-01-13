@@ -1,7 +1,7 @@
 from testcase.codec import *
 
 
-class PlayTestCase(CodecTestCase):
+class CodecPlayTestCase(CodecTestCase):
 
     def test_move_player(self):
         assertion = EncodedData(

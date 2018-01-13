@@ -2,7 +2,7 @@ from pyminehub.config import set_config
 from testcase.protocol import *
 
 
-class UnconnectedTestCase(ProtocolTestCase):
+class ProtocolUnconnectedTestCase(ProtocolTestCase):
 
     _CLIENT_ADDRESS = [
         ('192.168.179.2', 34089)
