@@ -112,8 +112,7 @@ class ProtocolUnconnectedTestCase(ProtocolTestCase):
                     RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=0).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=0,
-                            message_ordering_index=0, message_ordering_chanel=0
+                            reliable_message_num=0, message_ordering_index=0, message_ordering_chanel=0
                         ).that_has(
                             ConnectionPacket(
                                 ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED,
@@ -134,8 +133,7 @@ class ProtocolUnconnectedTestCase(ProtocolTestCase):
                 RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=1).that_has(
                     RakNetFrame(
                         RakNetFrameType.RELIABLE_ORDERED,
-                        reliable_message_num=1,
-                        message_ordering_index=0, message_ordering_chanel=0
+                        reliable_message_num=1, message_ordering_index=0, message_ordering_chanel=0
                     ).that_has(
                         ConnectionPacket(
                             ConnectionPacketType.NEW_INCOMING_CONNECTION,

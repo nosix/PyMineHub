@@ -75,11 +75,11 @@ class AnalyzingVisitor:
         self.get_context().assert_equal(expected, actual, message)
 
     def visit_after_decoding(
-            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
+            self, decoded_data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
         """It is called after each packet is decoded.
 
-        :param data: decoded data
+        :param decoded_data: decoded data
         :param packet_id: packet ID specified by PacketAnalyzer constructor argument
         :param packet: decoding result packet
         :param packet_str: information of the packet
@@ -94,11 +94,11 @@ class AnalyzingVisitor:
         """
         return packet
 
-    def visit_after_encoding(self, packet: ValueObject, data: bytes, packet_str: str, called: str) -> None:
+    def visit_after_encoding(self, packet: ValueObject, encoded_data: bytes, packet_str: str, called: str) -> None:
         """It is called after each packet is encoded.
 
         :param packet: encoded packet
-        :param data: data that is encoded from the packet
+        :param encoded_data: data that is encoded from the packet
         :param packet_str: information of the packet
             Example:
                 File "./codec_login_logout.py", line 12, in test_login_logout_c00
@@ -279,13 +279,10 @@ class PacketAnalyzer:
 
 class GamePacket(PacketAnalyzer):
 
-    def __init__(self, packet_type: GamePacketType, *args, **kwargs) -> None:
+    def __init__(self, packet_type: GamePacketType, **kwargs) -> None:
         super().__init__(packet_type, game_packet_codec, game_packet_factory)
-        self._args = args
+        kwargs['extra'] = b'\x00\x00'
         self._kwargs = kwargs
-
-    def get_extra_args(self) -> tuple:
-        return self._args
 
     def get_extra_kwargs(self) -> dict:
         return self._kwargs
@@ -293,13 +290,9 @@ class GamePacket(PacketAnalyzer):
 
 class ConnectionPacket(PacketAnalyzer):
 
-    def __init__(self, packet_type: ConnectionPacketType, *args, **kwargs) -> None:
+    def __init__(self, packet_type: ConnectionPacketType, **kwargs) -> None:
         super().__init__(packet_type, connection_packet_codec, connection_packet_factory)
-        self._args = args
         self._kwargs = kwargs
-
-    def get_extra_args(self) -> tuple:
-        return self._args
 
     def get_extra_kwargs(self) -> dict:
         return self._kwargs
@@ -342,14 +335,10 @@ class Batch(PacketAnalyzer):
 
 class RakNetFrame(PacketAnalyzer):
 
-    def __init__(self, packet_type: RakNetFrameType, *args, **kwargs) -> None:
+    def __init__(self, packet_type: RakNetFrameType, **kwargs) -> None:
         super().__init__(packet_type, raknet_frame_codec, raknet_frame_factory)
-        self._args = args
         self._kwargs = kwargs
         self._child = None
-
-    def get_extra_args(self) -> tuple:
-        return self._args
 
     def get_extra_kwargs(self) -> dict:
         return self._kwargs
@@ -365,7 +354,7 @@ class RakNetFrame(PacketAnalyzer):
             self, visitor: AnalyzingVisitor, packet: Optional[ValueObject]=None
     ) -> Iterator[Tuple[bytes, PacketAnalyzer]]:
         if packet is None:
-            return iter([(b'', self._child)])
+            return iter([]) if self._child is None else iter([(b'', self._child)])
         payload = packet.payload
         if packet.type == RakNetFrameType.RELIABLE_ORDERED_HAS_SPLIT:
             payload = visitor.append_fragment(packet)
@@ -376,8 +365,10 @@ class RakNetFrame(PacketAnalyzer):
     def get_payload_attr(self, payloads: Tuple[bytes, ...]=None) -> Dict[str, bytes]:
         if payloads is None:
             payloads = (b'', )
-        assert len(payloads) == 1
-        return {'payload': payloads[0], 'payload_length': len(payloads[0] * 8)}  # unit of payload_length is bits
+        if len(payloads) == 1:
+            return {'payload': payloads[0], 'payload_length': len(payloads[0] * 8)}  # unit of payload_length is bits
+        else:
+            return {}
 
     def does_retry_encoding(self) -> bool:
         return True
@@ -388,14 +379,10 @@ class RakNetFrame(PacketAnalyzer):
 
 class RakNetPacket(PacketAnalyzer):
 
-    def __init__(self, packet_type: RakNetPacketType, *args, **kwargs) -> None:
+    def __init__(self, packet_type: RakNetPacketType, **kwargs) -> None:
         super().__init__(packet_type, raknet_packet_codec, raknet_packet_factory)
-        self._args = args
         self._kwargs = kwargs
         self._children = []
-
-    def get_extra_args(self) -> tuple:
-        return self._args
 
     def get_extra_kwargs(self) -> dict:
         return self._kwargs

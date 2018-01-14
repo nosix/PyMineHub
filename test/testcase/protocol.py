@@ -7,6 +7,8 @@ from os.path import dirname
 from typing import NamedTuple as _NamedTuple
 from unittest import TestCase
 
+from pyminehub.mcpe.action import ActionType
+from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.network.address import Address
 from pyminehub.raknet.frame import RakNetFrame as _RakNetFrame
@@ -92,6 +94,9 @@ class _ProtocolProxy:
 
     def send(self, data_producer: Callable[[Address], str], from_: Address) -> None:
         self._protocol.datagram_received(unhex(data_producer(from_)), from_)
+
+    def push_event(self, action_type: ActionType, events: Tuple[Event, ...]) -> None:
+        self._proxy.push_event(action_type, events)
 
     def next_moment(self) -> None:
         self._proxy.put_next_event()
@@ -212,14 +217,14 @@ class _PacketReplacer(AnalyzingVisitor):
         self.get_context().update(dynamic_values)
 
     def visit_after_decoding(
-            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
+            self, decoded_data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
         _capture_dynamic_value(packet, kwargs, self.dynamic_value_found)
         # noinspection PyProtectedMember
         return packet._replace(**kwargs)
 
-    def visit_after_encoding(self, packet: ValueObject, data: bytes, packet_str: str, called: str) -> None:
-        self._data = data
+    def visit_after_encoding(self, packet: ValueObject, encoded_data: bytes, packet_str: str, called: str) -> None:
+        self._data = encoded_data
 
 
 class _PacketCollector(AnalyzingVisitor):
@@ -283,7 +288,7 @@ class _PacketCollector(AnalyzingVisitor):
 
     # noinspection PyMethodOverriding
     def visit_after_decoding(
-            self, data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
+            self, decoded_data: bytes, packet_id: ValueType, packet: ValueObject, packet_str: str, called: str, **kwargs
     ) -> ValueObject:
         """Collect packets whose attributes is replaced with kwargs."""
         replace_pattern = self._remove_replace_pattern(kwargs)
@@ -291,7 +296,7 @@ class _PacketCollector(AnalyzingVisitor):
         tmp_packet = self.replace_values(tmp_packet, kwargs)
         tmp_packet = self._replace_payload(tmp_packet)
         tmp_packet_str = self._replace_pattern(tmp_packet, replace_pattern)
-        self._packets.append(_DecodingInfo(tmp_packet_str, data, called, '  ' + packet_str))
+        self._packets.append(_DecodingInfo(tmp_packet_str, decoded_data, called, '  ' + packet_str))
         return packet
 
 
