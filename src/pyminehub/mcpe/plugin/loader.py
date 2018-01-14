@@ -77,6 +77,6 @@ def get_plugin_loader() -> PluginLoader:
 if __name__ == '__main__':
     sys.path.pop(0)  # remove current directory
     import os
-    os.chdir(Path(__file__).parent)
+    os.chdir(str(Path(__file__).parent))
     import doctest
     doctest_result = doctest.testmod()
