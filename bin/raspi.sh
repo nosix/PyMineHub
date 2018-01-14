@@ -19,7 +19,8 @@ fi
 
 if [ $1 = "deploy" ]; then
   rsync -rav -e ssh \
-    --include='*.py' --include='*.dat' --include='*.sh' --exclude='.*/' --include='*/' --exclude='*' \
+    --include='*.py' --include='*.dat' --include='test/*_data/*.json' --include='test/*_data/*.txt' --include='*.sh' \
+    --exclude='.*/' --include='*/' --exclude='*' \
     . pi@raspberrypi.local:${REMOTE_HOME}
   exit 0
 fi
@@ -41,7 +42,7 @@ fi
 
 if [ $1 = "test" ]; then
   unset LC_CTYPE  # to avoid UnicodeEncodeError
-  ssh pi@raspberrypi.local ${REMOTE_HOME}/bin/test.sh
+  ssh pi@raspberrypi.local env PMH_NO_TEST_LOG= ${REMOTE_HOME}/bin/test.sh
   exit 0
 fi
 
