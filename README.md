@@ -66,7 +66,7 @@ mcpe
   attribute -> .[const, value]
   metadata -> .[const, geometry, value]
   command -> .[const, value]
-  chunk -> binutil.[composite, instance], mcpe.[const, geometry]
+  chunk -> binutil.[composite, instance], mcpe.[const, geometry, value]
   action -> value, mcpe.[value]
   event -> value, mcpe.[value]
   datastore -> config, mcpe.[geometry, chunk]
