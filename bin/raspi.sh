@@ -18,7 +18,9 @@ if [ $# -ne 1 ]; then
 fi
 
 if [ $1 = "deploy" ]; then
-  scp -r . pi@raspberrypi.local:${REMOTE_HOME}
+  rsync -rav -e ssh \
+    --include='*.py' --include='*.dat' --include='*.sh' --exclude='.*/' --include='*/' --exclude='*' \
+    . pi@raspberrypi.local:${REMOTE_HOME}
   exit 0
 fi
 
