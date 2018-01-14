@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import json
+import logging
 import os
 from binascii import unhexlify as unhex
 from os.path import dirname
@@ -16,6 +17,8 @@ from pyminehub.raknet.frame import RakNetFrame as _RakNetFrame
 from pyminehub.raknet.server import _RakNetProtocolImpl
 from util.codec import *
 from util.mock import MockEventLoop, MockTransport, MockWorldProxy
+
+_logger = logging.getLogger(__name__)
 
 
 def by_index(start: int, index: int) -> str:
@@ -397,10 +400,19 @@ class ProtocolTestCase(TestCase):
             self.skipTest('This test is defined in super class.')
         self.proxy = _ProtocolProxy()
         self.data = self._load_data()
-        self._result_output = open(self._get_file_name('protocol_result', self._testMethodName, 'txt'), 'w')
+
+        self._file_handler = None
+        if 'PMH_NO_TEST_LOG' not in os.environ:
+            _logger.setLevel(logging.INFO)
+            self._file_handler = logging.FileHandler(
+                self._get_file_name('protocol_result', self._testMethodName, 'txt'), 'w')
+            _logger.addHandler(self._file_handler)
 
     def tearDown(self) -> None:
-        self._result_output.close()
+        if self._file_handler is not None:
+            _logger.removeHandler(self._file_handler)
+            self._file_handler.close()
+
         self.proxy.close()
         self.proxy = None
         self.data = None
@@ -429,7 +441,7 @@ class ProtocolTestCase(TestCase):
             def action():
                 self.assertEqual(expected.packet, actual.packet,
                                  "Actual data is '{}'".format(actual.data.hex()))
-            print(get_packet_str(actual.packet), file=self._result_output)
+            _logger.info(get_packet_str(actual.packet))
             try_action(action, called_line=actual.called, packet_info=actual.packet_str)
         self.assertEqual(len(expected_packets), len(actual_packets),
                          'Following packets were left:\n'

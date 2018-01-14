@@ -1,5 +1,6 @@
 import inspect
 import logging
+import os
 from binascii import unhexlify as unhex
 from os.path import dirname
 from unittest import TestCase
@@ -28,14 +29,17 @@ class CodecTestCase(TestCase):
         return '{}/{}/{}.{}'.format(dirname(module_file_name), kind, self._testMethodName, ext)
 
     def setUp(self) -> None:
-        _logger.setLevel(logging.INFO)
-        self._file_handler = logging.FileHandler(self.get_file_name('codec_result'), 'w')
-        _logger.addHandler(self._file_handler)
+        self._file_handler = None
+        if 'PMH_NO_TEST_LOG' not in os.environ:
+            _logger.setLevel(logging.INFO)
+            self._file_handler = logging.FileHandler(self.get_file_name('codec_result'), 'w')
+            _logger.addHandler(self._file_handler)
         config.reset()
 
     def tearDown(self) -> None:
-        _logger.removeHandler(self._file_handler)
-        self._file_handler.close()
+        if self._file_handler is not None:
+            _logger.removeHandler(self._file_handler)
+            self._file_handler.close()
 
 
 class _AssertionContext(AnalyzingContext):
