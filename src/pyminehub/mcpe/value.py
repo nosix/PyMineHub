@@ -122,6 +122,14 @@ CommandData = _NamedTuple('CommandData', [
     ('overloads', Tuple[Tuple[CommandParameter], ...])
 ])
 
+CommandSpec = _NamedTuple('CommandSpec', [
+    ('enum_values', Tuple[str, ...]),
+    ('postfixes', Tuple[str, ...]),
+    ('enums', Tuple[CommandEnum, ...]),
+    ('command_data', Tuple[CommandData, ...]),
+    ('permission', CommandPermission)
+])
+
 
 class AdventureSettings(_NamedTuple('AdventureSettings', [
     ('flags', int),

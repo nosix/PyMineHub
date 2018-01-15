@@ -1,6 +1,7 @@
 import chunk_codec
 import codec_login_logout
 import codec_play
+import command
 import doctestsuite
 import geometry
 import protocol_login_logout
@@ -14,6 +15,7 @@ def load_tests(loader, tests, pattern):
     modules = (
         doctestsuite,
         geometry,
+        command,
         chunk_codec,
         codec_login_logout,
         codec_play,

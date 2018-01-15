@@ -2,6 +2,7 @@ import time
 from logging import getLogger
 
 from pyminehub.mcpe.action import ActionType, action_factory
+from pyminehub.mcpe.command import CommandRegistry
 from pyminehub.mcpe.event import EventType, Event
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
@@ -26,8 +27,9 @@ class MCPEHandler(GameDataHandler):
 
     _INTERNAL_ADDRESSES = tuple(to_packet_format((get_unspecified_address(), 0)) for _ in range(20))
 
-    def __init__(self, world: WorldProxy) -> None:
+    def __init__(self, world: WorldProxy, command: CommandRegistry) -> None:
         self._world = world
+        self._command = command
         self._start_time = time.time()
         self._ping_time = {}  # type: Dict[Address, int]
         self._accepted_time = {}  # type: Dict[Address, int]
@@ -191,7 +193,7 @@ class MCPEHandler(GameDataHandler):
         # TODO check the logged-in player and log out the same player
         player.login(
             packet.protocol, player_data, client_data,
-            login_sequence(player, addr, self._session_manager, self._world, self._send_game_packet))
+            login_sequence(player, addr, self._session_manager, self._world, self._command, self._send_game_packet))
         self._session_manager.bind(player.id, addr)
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)

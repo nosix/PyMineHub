@@ -9,6 +9,7 @@ from typing import NamedTuple as _NamedTuple
 from unittest import TestCase
 
 from pyminehub.mcpe.action import ActionType
+from pyminehub.mcpe.command import CommandRegistry
 from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.network import MCPEHandler
 from pyminehub.network.address import Address
@@ -79,13 +80,17 @@ class _ProtocolProxy:
         self._queue = []  # type: List[Tuple[Address, bytes]]
         self._loop = _ProtocolMockEventLoop()
         self._proxy = MockWorldProxy()
-        self._protocol = _RakNetProtocolImpl(self._loop, MCPEHandler(self._proxy))
+        self._command = CommandRegistry()
+        self._protocol = _RakNetProtocolImpl(self._loop, MCPEHandler(self._proxy, self._command))
         self._protocol.connection_made(_ProtocolMockTransport(self._queue))
 
     @staticmethod
     def close() -> None:
         for task in asyncio.Task.all_tasks():
             task.cancel()
+
+    def register_command_processor(self, processor) -> None:
+        self._command.register_command_processor(processor)
 
     def receive(self):
         self._loop.send_waiting_packets()
@@ -398,8 +403,6 @@ class ProtocolTestCase(TestCase):
     def setUp(self) -> None:
         if self._testMethodName not in type(self).__dict__:
             self.skipTest('This test is defined in super class.')
-        self.proxy = _ProtocolProxy()
-        self.data = self._load_data()
 
         self._file_handler = None
         if 'PMH_NO_TEST_LOG' not in os.environ:
@@ -407,6 +410,9 @@ class ProtocolTestCase(TestCase):
             self._file_handler = logging.FileHandler(
                 self._get_file_name('protocol_result', self._testMethodName, 'txt'), 'w')
             _logger.addHandler(self._file_handler)
+
+        self.proxy = _ProtocolProxy()
+        self.data = self._load_data()
 
     def tearDown(self) -> None:
         if self._file_handler is not None:

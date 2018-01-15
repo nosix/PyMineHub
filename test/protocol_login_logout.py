@@ -3,7 +3,7 @@ from pyminehub.mcpe.event import event_factory, EventType
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import *
 from testcase.protocol import *
-from util.mock import CHUNK_DATA
+from util.mock import CHUNK_DATA, MockCommandProcessor
 
 
 class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
@@ -17,6 +17,8 @@ class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
 
     def test_login(self):
         self.test_connection_request()
+
+        self.proxy.register_command_processor(MockCommandProcessor())
 
         for i in range(8):
             packet_type = RakNetPacketType.FRAME_SET_4 if i == 0 else RakNetPacketType.FRAME_SET_C
@@ -363,13 +365,13 @@ class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
                             Batch().that_has(
                                 GamePacket(
                                     GamePacketType.AVAILABLE_COMMANDS,
-                                    enum_values=('suicide', 'pl', 'w', 'msg', 'ver', 'about'),
+                                    enum_values=('suicide', 'pl', 'msg', 'w', 'about', 'ver'),
                                     postfixes=(),
                                     enums=(
-                                        CommandEnum(name='KillAliases', index=(0,)),
-                                        CommandEnum(name='PluginsAliases', index=(1,)),
-                                        CommandEnum(name='TellAliases', index=(2, 3)),
-                                        CommandEnum(name='VersionAliases', index=(4, 5))),
+                                        CommandEnum(name='kill_aliases', index=(0,)),
+                                        CommandEnum(name='plugins_aliases', index=(1,)),
+                                        CommandEnum(name='tell_aliases', index=(2, 3)),
+                                        CommandEnum(name='version_aliases', index=(4, 5))),
                                     command_data=(
                                         CommandData(
                                             name='ban',

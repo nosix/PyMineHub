@@ -106,7 +106,8 @@ mcpe
     - queue -> value, raknet, network.[address], .[packet, codec]
     - login -> network.[address], mcpe.[command, metadata, world], .[packet, player, session]
     - handler -> value, raknet, network.[address],
-                 mcpe.[action, event, metadata, value, world], .[codec, login, packet, queue, reliability, session]
+                 mcpe.[action, event, metadata, value, command, world],
+                 .[codec, login, packet, queue, reliability, session]
   main
     server -> raknet, mcpe.[network, datastore, world], mcpe.plugin.[loader]
 

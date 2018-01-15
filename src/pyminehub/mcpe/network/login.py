@@ -1,6 +1,6 @@
 from typing import Callable
 
-from pyminehub.mcpe.command import get_command_spec
+from pyminehub.mcpe.command import CommandRegistry
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.player import Player
@@ -14,6 +14,7 @@ def login_sequence(
         addr: Address,
         session: SessionManager,
         world: WorldProxy,
+        command: CommandRegistry,
         send: Callable[[GamePacket, Address], None]
 ):
     event = yield
@@ -93,7 +94,7 @@ def login_sequence(
     )
     send(res_packet, addr)
 
-    command_spec = get_command_spec()
+    command_spec = command.get_command_spec()
 
     res_packet = game_packet_factory.create(
         GamePacketType.AVAILABLE_COMMANDS,

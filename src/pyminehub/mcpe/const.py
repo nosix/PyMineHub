@@ -69,6 +69,19 @@ class CommandPermission(Enum):
     ADMIN = 4
 
 
+class CommandArgType(Enum):
+    INT = 1
+    FLOAT = 2
+    VALUE = 3
+    TARGET = 4
+    STRING = 13
+    POSITION = 14
+    RAW_TEXT = 17
+    TEXT = 19
+    JSON = 22
+    COMMAND = 29
+
+
 class AdventureSettingFlag1(Enum):
     WORLD_IMMUTABLE = 0
     NO_PVP = 1

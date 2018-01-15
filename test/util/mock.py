@@ -6,6 +6,7 @@ from pkgutil import get_data
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import Chunk
+from pyminehub.mcpe.command import *
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.world import WorldProxy
@@ -265,3 +266,38 @@ class MockWorldProxy(WorldProxy):
 
     def get_adventure_settings(self) -> AdventureSettings:
         return AdventureSettings(32, 4294967295)
+
+
+class MockCommandProcessor:
+
+    @command
+    def ban(self, args: RawText='') -> None:
+        """Prevents the specified player from using this server"""
+        pass
+
+    @command
+    def kill(self, args: RawText='') -> None:
+        """Commit suicide or kill other players"""
+        pass
+
+    @command
+    def plugins(self, args: RawText='') -> None:
+        """Gets a list of plugins running on the server"""
+        pass
+
+    @command
+    def tell(self, args: RawText='') -> None:
+        """Sends a private message to the given player"""
+        pass
+
+    @command
+    def version(self, args: RawText='') -> None:
+        """Gets the version of this server including any plugins in use"""
+        pass
+
+    suicide = kill
+    pl = plugins
+    w = tell
+    msg = tell
+    ver = version
+    about = version
