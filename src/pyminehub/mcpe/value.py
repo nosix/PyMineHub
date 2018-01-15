@@ -119,7 +119,7 @@ CommandData = _NamedTuple('CommandData', [
     ('flags', int),
     ('permission', int),
     ('aliases', int),
-    ('overloads', Tuple[Tuple[CommandParameter], ...])
+    ('overloads', Tuple[Tuple[CommandParameter, ...], ...])
 ])
 
 CommandSpec = _NamedTuple('CommandSpec', [
