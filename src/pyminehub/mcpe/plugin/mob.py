@@ -41,7 +41,7 @@ MobInfo = _NamedTuple('MobInfo', [
 MobAction = Union[MobSpawn, MobMove]
 
 
-class MobProcessor:
+class MobProcessorPlugin:
 
     def update(self, player_info: Tuple[PlayerInfo, ...], mob_info: Tuple[MobInfo, ...]) -> Tuple[MobAction, ...]:
         raise NotImplementedError()

@@ -6,7 +6,7 @@ _SPAWN_RATIO = 0.1
 _SPAWN_MAX = 10
 
 
-class DefaultMobProcessor(MobProcessor):
+class DefaultMobProcessor(MobProcessorPlugin):
 
     def __init__(self) -> None:
         self._player_spawn_position = None

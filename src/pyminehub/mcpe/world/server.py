@@ -33,8 +33,8 @@ class _World(WorldProxy, WorldEditor):
             loop: asyncio.AbstractEventLoop,
             generator: SpaceGenerator,
             store: DataStore,
-            mob_processor: MobProcessor,
-            player_config: PlayerConfig
+            mob_processor: MobProcessorPlugin,
+            player_config: PlayerConfigPlugin
     ) -> None:
         self._loop = loop
         self._space = Space(generator, store)

@@ -2,7 +2,7 @@ from pyminehub.mcpe.chunk import *
 from pyminehub.mcpe.plugin.generator import *
 
 
-class ChunkGeneratorImpl(ChunkGenerator):
+class ChunkGeneratorPluginImpl(ChunkGeneratorPlugin):
 
     def create(self, position: ChunkPosition) -> Chunk:
         return create_empty_chunk()

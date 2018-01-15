@@ -2,12 +2,12 @@ from logging import getLogger
 
 from pyminehub.mcpe.chunk import *
 from pyminehub.mcpe.geometry import ChunkPosition
-from pyminehub.mcpe.plugin.generator import ChunkGenerator
+from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 
 _logger = getLogger(__name__)
 
 
-class DefaultChunkGenerator(ChunkGenerator):
+class DefaultChunkGenerator(ChunkGeneratorPlugin):
 
     def __init__(self) -> None:
         def set_data(x: int, z: int) -> None:

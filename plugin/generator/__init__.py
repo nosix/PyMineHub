@@ -1,6 +1,6 @@
-from .core import ChunkGeneratorImpl
+from .main import ChunkGeneratorPluginImpl
 
 
 __all__ = [
-    ChunkGeneratorImpl
+    ChunkGeneratorPluginImpl
 ]

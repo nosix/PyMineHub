@@ -3,7 +3,7 @@ from typing import Iterator, Tuple
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import ChunkPosition, ChunkPositionWithDistance
-from pyminehub.mcpe.plugin.generator import ChunkGenerator
+from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 
 
 class SpaceGenerator:
@@ -17,7 +17,7 @@ class SpaceGenerator:
 
 class BatchSpaceGenerator(SpaceGenerator):
 
-    def __init__(self, generator_plugin: ChunkGenerator, store: DataStore) -> None:
+    def __init__(self, generator_plugin: ChunkGeneratorPlugin, store: DataStore) -> None:
         self._store = store
         self._x_length = 0
         self._z_length = 0
