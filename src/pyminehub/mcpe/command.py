@@ -1,6 +1,6 @@
 from collections import defaultdict
 from functools import wraps
-from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple
+from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
@@ -18,6 +18,15 @@ _BASIC_TYPES = {
     Float: CommandArgType.FLOAT.value,
     RawText: CommandArgType.RAW_TEXT.value
 }
+
+
+class CommandContext:
+
+    def send_text(self, text: str, broadcast: bool=False) -> None:
+        raise NotImplementedError()
+
+
+CommandReturnValue = Optional[Callable[[CommandContext], None]]
 
 
 class DuplicateDefinitionError(Exception):
@@ -184,9 +193,18 @@ class CommandRegistry:
             CommandPermission.NORMAL
         )
 
-    def execute_command(self, command_name: str, *args) -> Any:
+    def execute_command(self, command_name: str, *args) -> CommandReturnValue:
         func, receiver = self._commands[command_name]
         return func(receiver, *args)
+
+
+class CommandContextImpl(CommandContext):
+
+    def __init__(self, send_text: Callable[[str, bool], None]) -> None:
+        self._send_text = send_text
+
+    def send_text(self, text: str, broadcast: bool=False) -> None:
+        self._send_text(text, broadcast)
 
 
 if __name__ == '__main__':

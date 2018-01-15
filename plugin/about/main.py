@@ -5,9 +5,11 @@ from pyminehub.mcpe.plugin.command import *
 class AboutCommandProcessor:
 
     @command
-    def about(self) -> None:
+    def about(self) -> CommandReturnValue:
         """Show about server."""
-        raise NotImplementedError()  # TODO implement this
+        def show_about(context: CommandContext) -> None:
+            context.send_text('This is about description.')  # TODO implement this
+        return show_about
 
 
 class AboutCommandPlugin(ExtraCommandPlugin):

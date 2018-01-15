@@ -2,7 +2,7 @@ import time
 from logging import getLogger
 
 from pyminehub.mcpe.action import ActionType, action_factory
-from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.command import CommandRegistry, CommandContextImpl
 from pyminehub.mcpe.event import EventType, Event
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
@@ -300,6 +300,33 @@ class MCPEHandler(GameDataHandler):
             ))
         else:
             raise NotImplementedError()
+        if is_last:
+            self._send_waiting_game_packet()
+
+    def _process_command_request(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+        assert packet.command[0] == '/'
+        func = self._command.execute_command(packet.command[1:])  # TODO pass arguments
+
+        if packet.origin_data.type == CommandOriginDataType.PLAYER:
+            def send_text(text: str, broadcast: bool):
+                nonlocal addr
+                text_packet = game_packet_factory.create(
+                    GamePacketType.TEXT,
+                    EXTRA_DATA,
+                    TextType.TRANSLATION,
+                    False,
+                    None,
+                    text,
+                    (),
+                    ''
+                )
+                if broadcast:
+                    for addr in self._session_manager.addresses:
+                        self._send_game_packet(text_packet, addr)
+                else:
+                    self._send_game_packet(text_packet, addr)
+
+            func(CommandContextImpl(send_text))  # TODO more complex feature
         if is_last:
             self._send_waiting_game_packet()
 
