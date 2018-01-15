@@ -360,8 +360,7 @@ class MCPEHandler(GameDataHandler):
     def _process_event_entity_loaded(self, event: Event) -> None:
         addr = self._session_manager.get_address(event.player_id)
         for e in event.spawn_events:
-            event_type = EventType(e.id)
-            if event_type == EventType.ITEM_SPAWNED:
+            if e.type == EventType.ITEM_SPAWNED:
                 res_packet = game_packet_factory.create(
                     GamePacketType.ADD_ITEM_ENTITY,
                     EXTRA_DATA,
@@ -373,13 +372,14 @@ class MCPEHandler(GameDataHandler):
                     e.metadata
                 )
                 self._send_game_packet(res_packet, addr, immediately=False)
-            if event_type == EventType.MOB_SPAWNED:
+            if e.type == EventType.MOB_SPAWNED:
+                print(e.entity_type)
                 res_packet = game_packet_factory.create(
                     GamePacketType.ADD_ENTITY,
                     EXTRA_DATA,
                     e.entity_unique_id,
                     e.entity_runtime_id,
-                    e.type,
+                    e.entity_type,
                     e.position,
                     Vector3(0.0, 0.0, 0.0),
                     e.pitch,
@@ -491,7 +491,7 @@ class MCPEHandler(GameDataHandler):
             EXTRA_DATA,
             event.entity_unique_id,
             event.entity_runtime_id,
-            event.type,
+            event.entity_type,
             event.position,
             Vector3(0.0, 0.0, 0.0),
             event.pitch,
