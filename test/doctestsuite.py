@@ -27,7 +27,7 @@ class DocTestCase(unittest.TestCase):
             with self.subTest(module=path):
                 result = runpy.run_path(
                     '{}/../src/{}.py'.format(test_dir, path), run_name='__main__')['doctest_result']
-                self.assertEqual(0, result.failed, result)
+                self.assertEqual(0, result.failed, path)
 
 
 if __name__ == '__main__':

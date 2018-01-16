@@ -1,5 +1,6 @@
 import collections
 import functools
+import inspect
 import json
 from enum import Enum
 from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple, Type, Union
@@ -48,8 +49,8 @@ class JSON(str):
     def decode(self) -> Dict:
         """
         >>> json = JSON('{"price": 1980, "pi": 3.14, "messages": ["foo", "bar"]}')
-        >>> json.decode()
-        {'price': 1980, 'pi': 3.14, 'messages': ['foo', 'bar']}
+        >>> sorted(json.decode().items())
+        [('messages', ['foo', 'bar']), ('pi', 3.14), ('price', 1980)]
         """
         return json.loads(self)
 
@@ -117,7 +118,7 @@ def command(func):
     foo(1) is called
     """
 
-    is_method = '.' in func.__qualname__
+    is_method = 'self' in inspect.signature(func).parameters
     first_argument_index = 1 if is_method else 0  # exclude self when func is method
 
     @functools.wraps(func)
@@ -140,9 +141,10 @@ def command(func):
         command_func.overloads.append(_func)
         parameters = get_parameters(_func)
         append_redirect(parameters, _func)
-        if _func.__defaults__ is not None:
-            for i in range(len(_func.__defaults__)):
-                append_redirect(parameters[:-(i + 1)], _func)
+        num_of_parameter_with_default = sum(
+            1 for p in inspect.signature(func).parameters.values() if p.default != inspect.Parameter.empty)
+        for i in range(num_of_parameter_with_default):
+            append_redirect(parameters[:-(i + 1)], _func)
         return call_overload
 
     def append_redirect(parameters, _func):
@@ -152,7 +154,13 @@ def command(func):
         command_func.redirect[parameters] = _func
 
     def get_parameters(_func):
-        return tuple(t for name, t in _func.__annotations__.items() if name != 'return')
+        parameters = list(inspect.signature(_func).parameters.values())
+        if is_method:
+            if len(parameters) > 0 and parameters[0].name == 'self':
+                del parameters[0]
+            else:
+                raise AssertionError('{} must be method.'.format(_func))
+        return tuple(p.annotation for p in parameters)
 
     command_func.overloads = []
     command_func.overload = append_overload
@@ -227,7 +235,8 @@ class CommandRegistry:
             raise DuplicateDefinitionError('Command "{}" is duplicate.'.format(name))
         self._commands[name] = _CommandMethod(command_func, processor)
 
-        description = command_func.__doc__.splitlines()[0] if command_func.__doc__ else 'no description'
+        doc = inspect.getdoc(command_func)
+        description = doc.splitlines()[0] if doc else 'no description'
 
         self._command_data.append(CommandData(
             name,
@@ -239,13 +248,9 @@ class CommandRegistry:
         ))
 
     def _create_command_parameters(self, func) -> Tuple[CommandParameter, ...]:
-        parameters = func.__annotations__.copy()
-        parameters.pop('return', None)
-        num_of_parameters = len(parameters)
-        num_of_defaults = len(func.__defaults__) if func.__defaults__ else 0
-
-        def has_default(index: int) -> bool:
-            return index >= num_of_parameters - num_of_defaults
+        parameters = list(inspect.signature(func).parameters.values())
+        if len(parameters) > 0 and parameters[0].name == 'self':
+            del parameters[0]
 
         def get_type_value(t) -> int:
             if t in _BASIC_TYPES:
@@ -259,8 +264,8 @@ class CommandRegistry:
             # TODO support dynamic
 
         return tuple(
-            CommandParameter(name, get_type_value(parameters[name]), has_default(i))
-            for i, name in enumerate(parameters) if parameters[name] != CommandContext)
+            CommandParameter(p.name, get_type_value(p.annotation), p.default != inspect.Parameter.empty)
+            for i, p in enumerate(parameters) if p.annotation != CommandContext)
 
     def get_command_spec(self) -> CommandSpec:
         return CommandSpec(
