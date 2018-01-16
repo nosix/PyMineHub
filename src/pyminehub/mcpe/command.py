@@ -1,15 +1,58 @@
-from collections import defaultdict
-from functools import wraps
+import collections
+import functools
+import json
 from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple
 
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
+from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
 
 Int = int
 Float = float
+String = str
+
+
+class Value(str):  # TODO change to accurate type
+    pass
+
+
+class Target(str):
+    pass
+
+
+class Position(Vector3[float]):
+
+    def __new__(cls, *args) -> 'Position':
+        """
+        >>> Position('256.5 64 256.5')
+        Position(x=256.5, y=64.0, z=256.5)
+        >>> Position(256.5, 64, 256.5)
+        Position(x=256.5, y=64.0, z=256.5)
+        """
+        argv = args[0].split() if len(args) == 1 and isinstance(args[0], str) else args
+        return super().__new__(cls, *tuple(float(v) for v in argv))
 
 
 class Message(str):
+    pass
+
+
+class Text(str):
+    pass
+
+
+class JSON(str):
+
+    def decode(self) -> Dict:
+        """
+        >>> json = JSON('{"price": 1980, "pi": 3.14, "messages": ["foo", "bar"]}')
+        >>> json.decode()
+        {'price': 1980, 'pi': 3.14, 'messages': ['foo', 'bar']}
+        """
+        return json.loads(self)
+
+
+class Command(str):
     pass
 
 
@@ -20,7 +63,14 @@ _FLAG_DYNAMIC_TYPE = 0x1000000
 _BASIC_TYPES = {
     Int: CommandArgType.INT.value,
     Float: CommandArgType.FLOAT.value,
-    Message: CommandArgType.MESSAGE.value
+    Value: CommandArgType.VALUE.value,
+    Target: CommandArgType.TARGET.value,
+    Position: CommandArgType.POSITION.value,
+    String: CommandArgType.STRING.value,
+    Message: CommandArgType.MESSAGE.value,
+    Text: CommandArgType.TEXT.value,
+    JSON: CommandArgType.JSON.value,
+    Command: CommandArgType.COMMAND.value
 }
 
 
@@ -65,7 +115,7 @@ def command(func):
     is_method = '.' in func.__qualname__
     first_argument_index = 1 if is_method else 0  # exclude self when func is method
 
-    @wraps(func)
+    @functools.wraps(func)
     def command_func(*args):
         func(*args)
 
@@ -124,7 +174,7 @@ class CommandRegistry:
         processor_cls = type(processor)
         command_names = tuple(attr_name for attr_name in dir(processor_cls) if not attr_name.startswith('_'))
         commands = {}
-        aliases = defaultdict(list)
+        aliases = collections.defaultdict(list)
         for command_name in command_names:
             attr = getattr(processor_cls, command_name)
             if command_name == attr.__name__:
