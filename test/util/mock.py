@@ -271,27 +271,48 @@ class MockWorldProxy(WorldProxy):
 class MockCommandProcessor:
 
     @command
-    def ban(self, args: RawText='') -> None:
+    def ban(self, context: CommandContext, args: str) -> None:
         """Prevents the specified player from using this server"""
         pass
 
+    @ban.overload
+    def _ban(self, args: Message= '') -> None:
+        pass
+
     @command
-    def kill(self, args: RawText='') -> None:
+    def kill(self, context: CommandContext, args: str) -> None:
         """Commit suicide or kill other players"""
         pass
 
+    @kill.overload
+    def _kill(self, args: Message= '') -> None:
+        pass
+
     @command
-    def plugins(self, args: RawText='') -> None:
+    def plugins(self, context: CommandContext, args: str) -> None:
         """Gets a list of plugins running on the server"""
         pass
 
-    @command
-    def tell(self, args: RawText='') -> None:
-        """Sends a private message to the given player"""
+    @plugins.overload
+    def _plugins(self, args: Message= '') -> None:
         pass
 
     @command
-    def version(self, args: RawText='') -> None:
+    def tell(self, context: CommandContext, args: str) -> None:
+        """Sends a private message to the given player"""
+        pass
+
+    @tell.overload
+    def _tell(self, args: Message= '') -> None:
+        pass
+
+    @command
+    def version(self, context: CommandContext, args: str) -> None:
+        """Gets the version of this server including any plugins in use"""
+        pass
+
+    @version.overload
+    def _version(self, args: Message= '') -> None:
         """Gets the version of this server including any plugins in use"""
         pass
 
@@ -301,3 +322,12 @@ class MockCommandProcessor:
     msg = tell
     ver = version
     about = version
+
+
+class MockCommandContext(CommandContext):
+
+    def __init__(self) -> None:
+        self.text = None
+
+    def send_text(self, text: str, broadcast: bool = False) -> None:
+        self.text = text

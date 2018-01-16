@@ -1,43 +1,64 @@
 from unittest import TestCase
 
 from pyminehub.mcpe.command import *
+from util.mock import MockCommandContext
 
 
 class CommandProcessor:
 
     @command
-    def ban(self, player_name: RawText) -> str:
+    def ban(self, context: CommandContext, args: str) -> None:
         """Prevents the specified player from using this server"""
-        return 'ban player by name {}'.format(player_name)
+        try:
+            self._ban(context, Int(args))
+        except ValueError:
+            self._ban(context, Message(args))
 
     @ban.overload
-    def ban(self, player_id: Int) -> str:
-        return 'ban player by id {}'.format(player_id)
+    def _ban(self, context: CommandContext, player_name: Message) -> None:
+        context.send_text('ban by name = {}'.format(player_name))
 
     @ban.overload
-    def ban(self, player_name: RawText, player_id: Int) -> str:
-        return 'ban player by name {} and id {}'.format(player_name, player_id)
+    def _ban(self, context: CommandContext, player_id: Int) -> None:
+        context.send_text('ban by id = {}'.format(player_id))
 
     @ban.overload
-    def ban(self) -> str:
-        return 'ban all players'
+    def _ban(self, player_name: Message, player_id: Int) -> None:
+        pass  # NOTE this method is called from ban
+
+    @ban.overload
+    def _ban(self) -> None:
+        pass  # NOTE this method is called from ban
 
     @command
-    def tell(self, message: RawText, lang: RawText='en') -> str:
-        return 'tell {} in {}'.format(message, lang)
+    def tell(self, context: CommandContext, args: str) -> None:
+        # no description
+        context.send_text('tell {}'.format(args))
+
+    @tell.overload
+    def _tell(self, message: Message, lang: Message= 'en') -> None:
+        pass  # NOTE this method is called from tell
 
     @command
-    def kill(self, player_id: RawText) -> None:
+    def kill(self, context: CommandContext, args: str) -> None:
         """"""
         pass
 
+    @kill.overload
+    def _kill(self, player_id: Message) -> None:
+        pass  # NOTE this method is called from kill
+
     @command
-    def version(self, value: RawText=''):
+    def version(self, context: CommandContext, args: str) -> None:
         """Gets the version of this server including any plugins in use
 
         Some description.
         """
         pass
+
+    @version.overload
+    def _version(self, context: CommandContext, value: Message= ''):
+        pass  # NOTE this method is called from version
 
     # aliases
     w = tell
@@ -50,14 +71,14 @@ class CommandProcessor:
 class CommandProcessorDuplicated1:
 
     @command
-    def ban(self) -> None:
+    def ban(self, context: CommandContext, args: str) -> None:
         pass
 
 
 class CommandProcessorDuplicated2:
 
     @command
-    def say(self) -> None:
+    def say(self, context: CommandContext, args: str) -> None:
         pass
 
     msg = say
@@ -70,12 +91,15 @@ class CommandTestCase(TestCase):
         processor = CommandProcessor()
         registry.register_command_processor(processor)
 
-        self.assertEqual('ban player by name taro', processor.ban('taro'))
-        self.assertEqual('ban player by id 1234', processor.ban(1234))
-        self.assertEqual('ban player by name suzuki and id 51', processor.ban('suzuki', 51))
-        self.assertEqual('ban all players', processor.ban())
-        self.assertEqual('tell hi in en', processor.w('hi'))
-        self.assertEqual('tell hello in english', processor.msg('hello', 'english'))
+        context = MockCommandContext()
+        processor.ban(context, 'taro')
+        self.assertEqual('ban by name = taro', context.text)
+        processor.ban(context, '1')
+        self.assertEqual('ban by id = 1', context.text)
+        processor.w(context, 'hi')
+        self.assertEqual('tell hi', context.text)
+        processor.msg(context, 'hello')
+        self.assertEqual('tell hello', context.text)
 
         expected_spec = CommandSpec(
             enum_values=('suicide', 'msg', 'w', 'about', 'ver'),
@@ -127,6 +151,7 @@ class CommandTestCase(TestCase):
                     flags=0, permission=0, aliases=2,
                     overloads=(
                         (
+                            # there is not context parameter
                             CommandParameter(name='value', type=1048593, is_optional=True),
                         ),
                     )
@@ -136,12 +161,15 @@ class CommandTestCase(TestCase):
         )
         self.assertEqual(expected_spec, registry.get_command_spec())
 
-        self.assertEqual('ban player by name taro', registry.execute_command('ban', 'taro'))
-        self.assertEqual('ban player by id 1234', registry.execute_command('ban', 1234))
-        self.assertEqual('ban player by name suzuki and id 51', registry.execute_command('ban', 'suzuki', 51))
-        self.assertEqual('ban all players', registry.execute_command('ban'))
-        self.assertEqual('tell hi in en', registry.execute_command('w', 'hi'))
-        self.assertEqual('tell hello in english', registry.execute_command('msg', 'hello', 'english'))
+        context = MockCommandContext()
+        registry.execute_command(context, 'ban', 'taro')
+        self.assertEqual('ban by name = taro', context.text)
+        registry.execute_command(context, 'ban', '1')
+        self.assertEqual('ban by id = 1', context.text)
+        registry.execute_command(context, 'w', 'hi')
+        self.assertEqual('tell hi', context.text)
+        registry.execute_command(context, 'msg', 'hello')
+        self.assertEqual('tell hello', context.text)
 
     def test_command_duplicate(self):
         registry = CommandRegistry()

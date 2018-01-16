@@ -181,9 +181,9 @@ class MCPEHandler(GameDataHandler):
                 _logger.debug('> %s', LogString(packet))
                 getattr(self, '_process_' + packet.type.name.lower())(packet, addr, i == last_index)
             except AttributeError as exc:
-                _logger.warning('%s', exc)
+                _logger.exception('%s', exc)
             except KeyError as exc:
-                _logger.warning('%s is not supported in batch processing.', exc)
+                _logger.exception('%s is not supported in batch processing.', exc)
 
     def _process_login(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         assert is_last
@@ -305,28 +305,28 @@ class MCPEHandler(GameDataHandler):
 
     def _process_command_request(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
         assert packet.command[0] == '/'
-        func = self._command.execute_command(packet.command[1:])  # TODO pass arguments
 
-        if packet.origin_data.type == CommandOriginDataType.PLAYER:
-            def send_text(text: str, broadcast: bool):
-                nonlocal addr
-                text_packet = game_packet_factory.create(
-                    GamePacketType.TEXT,
-                    EXTRA_DATA,
-                    TextType.TRANSLATION,
-                    False,
-                    None,
-                    text,
-                    (),
-                    ''
-                )
-                if broadcast:
-                    for addr in self._session_manager.addresses:
-                        self._send_game_packet(text_packet, addr)
-                else:
+        def send_text(text: str, broadcast: bool):
+            nonlocal addr
+            text_packet = game_packet_factory.create(
+                GamePacketType.TEXT,
+                EXTRA_DATA,
+                TextType.TRANSLATION,
+                False,
+                None,
+                text,
+                (),
+                ''
+            )
+            if broadcast:
+                for addr in self._session_manager.addresses:
                     self._send_game_packet(text_packet, addr)
+            else:
+                self._send_game_packet(text_packet, addr)
 
-            func(CommandContextImpl(send_text))  # TODO more complex feature
+        command_name, args = packet.command[1:].partition(' ')[0:3:2]
+        self._command.execute_command(CommandContextImpl(send_text), command_name, args)
+
         if is_last:
             self._send_waiting_game_packet()
 

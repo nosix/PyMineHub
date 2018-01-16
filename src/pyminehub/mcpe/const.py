@@ -76,7 +76,7 @@ class CommandArgType(Enum):
     TARGET = 4
     STRING = 13
     POSITION = 14
-    RAW_TEXT = 17
+    MESSAGE = 17
     TEXT = 19
     JSON = 22
     COMMAND = 29

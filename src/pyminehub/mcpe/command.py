@@ -1,13 +1,17 @@
 from collections import defaultdict
 from functools import wraps
-from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Optional, Sequence, Tuple
+from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple
 
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
 
 Int = int
 Float = float
-RawText = str
+
+
+class Message(str):
+    pass
+
 
 _FLAG_BASIC_TYPE = 0x100000
 _FLAG_ENUM_TYPE = 0x200000
@@ -16,7 +20,7 @@ _FLAG_DYNAMIC_TYPE = 0x1000000
 _BASIC_TYPES = {
     Int: CommandArgType.INT.value,
     Float: CommandArgType.FLOAT.value,
-    RawText: CommandArgType.RAW_TEXT.value
+    Message: CommandArgType.MESSAGE.value
 }
 
 
@@ -26,36 +30,36 @@ class CommandContext:
         raise NotImplementedError()
 
 
-CommandReturnValue = Optional[Callable[[CommandContext], None]]
-
-
 class DuplicateDefinitionError(Exception):
     pass
 
 
 def command(func):
+    # noinspection PyUnusedLocal
     """Decorate the function that execute command.
 
     >>> @command
     ... def foo():
     ...    print('foo() is called')
     >>> @foo.overload
-    ... def foo(n: int):
+    ... def _foo(n: Int):
     ...    print('foo({}) is called'.format(n))
     >>> @foo.overload
-    ... def foo(n: int):
-    ...    print('foo({}) is called'.format(n))
+    ... def _bar(n: Int):
+    ...    print('bar({}) is called'.format(n))
     Traceback (most recent call last):
       ...
-    DuplicateDefinitionError: foo(int) is duplicate.
+    DuplicateDefinitionError: foo.by(int) is duplicate.
     >>> foo()
     foo() is called
-    >>> foo(1)
+    >>> foo.by(1)
     foo(1) is called
-    >>> foo(1.2)
+    >>> foo.by(1.2)
     Traceback (most recent call last):
       ...
     TypeError: foo(float) is not found.
+    >>> _foo(1)
+    foo(1) is called
     """
 
     is_method = '.' in func.__qualname__
@@ -63,35 +67,42 @@ def command(func):
 
     @wraps(func)
     def command_func(*args):
-        parameters = tuple(type(arg) for arg in args[first_argument_index:])
-        _func = command_func.overloads.get(parameters, None)
+        func(*args)
+
+    def call_overload(*args):
+        arguments = tuple(
+            type(arg) if not isinstance(arg, CommandContext) else CommandContext
+            for arg in args[first_argument_index:])
+        _func = command_func.redirect.get(arguments, None)
         if _func is not None:
-            return _func(*args)
+            _func(*args)
         else:
             raise TypeError(
                 '{}({}) is not found.'.format(
-                    command_func.__name__, ', '.join(t.__name__ for t in parameters)))
+                    command_func.__name__, ', '.join(t.__name__ for t in arguments)))
+
+    def append_overload(_func):
+        command_func.overloads.append(_func)
+        parameters = get_parameters(_func)
+        append_redirect(parameters, _func)
+        if _func.__defaults__ is not None:
+            for i in range(len(_func.__defaults__)):
+                append_redirect(parameters[:-(i + 1)], _func)
+        return call_overload
+
+    def append_redirect(parameters, _func):
+        if parameters in command_func.redirect:
+            raise DuplicateDefinitionError(
+                '{}.by({}) is duplicate.'.format(func.__name__, ', '.join(t.__name__ for t in parameters)))
+        command_func.redirect[parameters] = _func
 
     def get_parameters(_func):
         return tuple(t for name, t in _func.__annotations__.items() if name != 'return')
 
-    def append_overloads(_func):
-        parameters = get_parameters(_func)
-        append_overload(parameters, _func)
-        if _func.__defaults__ is not None:
-            for i in range(len(_func.__defaults__)):
-                append_overload(parameters[:-(i + 1)], _func)
-        return command_func
-
-    def append_overload(parameters, _func):
-        if parameters in command_func.overloads:
-            raise DuplicateDefinitionError(
-                '{}({}) is duplicate.'.format(_func.__name__, ', '.join(t.__name__ for t in parameters)))
-        command_func.overloads[parameters] = _func
-
-    command_func.overloads = {}
-    append_overloads(func)
-    command_func.overload = append_overloads
+    command_func.overloads = []
+    command_func.overload = append_overload
+    command_func.by = call_overload
+    command_func.redirect = {}
     return command_func
 
 
@@ -153,18 +164,13 @@ class CommandRegistry:
 
         description = command_func.__doc__.splitlines()[0] if command_func.__doc__ else 'no description'
 
-        seen = set()
         self._command_data.append(CommandData(
             name,
             description,
             flags=0,
             permission=0,
             aliases=self._get_enum_index(name + '_aliases'),
-            overloads=tuple(
-                self._create_command_parameters(func)
-                for func in command_func.overloads.values()
-                if func not in seen and not seen.add(func)  # 'seen.add' always return None
-            )
+            overloads=tuple(self._create_command_parameters(func) for func in command_func.overloads)
         ))
 
     @staticmethod
@@ -179,10 +185,9 @@ class CommandRegistry:
 
         def get_type_value(t) -> int:
             return _FLAG_BASIC_TYPE | _BASIC_TYPES[t]  # TODO support enum and dynamic
-
         return tuple(
             CommandParameter(name, get_type_value(parameters[name]), has_default(i))
-            for i, name in enumerate(parameters))
+            for i, name in enumerate(parameters) if parameters[name] != CommandContext)
 
     def get_command_spec(self) -> CommandSpec:
         return CommandSpec(
@@ -193,9 +198,9 @@ class CommandRegistry:
             CommandPermission.NORMAL
         )
 
-    def execute_command(self, command_name: str, *args) -> CommandReturnValue:
+    def execute_command(self, context: CommandContext, command_name: str, args: str) -> None:
         func, receiver = self._commands[command_name]
-        return func(receiver, *args)
+        return func(receiver, context, args)
 
 
 class CommandContextImpl(CommandContext):
