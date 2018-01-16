@@ -65,7 +65,7 @@ mcpe
     - loader
   attribute -> .[const, value]
   metadata -> .[const, geometry, value]
-  command -> .[const, value]
+  command -> .[typevar, const, geometry, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry, value]
   action -> value, mcpe.[value]
   event -> value, mcpe.[value]
@@ -109,7 +109,7 @@ mcpe
                  mcpe.[action, event, metadata, value, command, world],
                  .[codec, login, packet, queue, reliability, session]
   main
-    server -> raknet, mcpe.[network, datastore, world], mcpe.plugin.[loader]
+    server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
 
 - : Hidden from outside modules
 ```
