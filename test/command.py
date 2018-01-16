@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from pyminehub.mcpe.command import *
+from pyminehub.mcpe.const import GameMode
 from util.mock import MockCommandContext
 
 
@@ -57,7 +58,7 @@ class CommandProcessor:
         pass
 
     @version.overload
-    def _version(self, context: CommandContext, value: Message= ''):
+    def _version(self, context: CommandContext, value: Message= '') -> None:
         pass  # NOTE this method is called from version
 
     # aliases
@@ -84,6 +85,17 @@ class CommandProcessorDuplicated2:
     msg = say
 
 
+class CommandProcessorEnum:
+
+    @command
+    def game_mode(self, context: CommandContext, args: str) -> None:
+        context.send_text(str(context.get_enum_value(args)))
+
+    @game_mode.overload
+    def _game_mode(self, mode: GameMode) -> None:
+        pass
+
+
 class CommandTestCase(TestCase):
 
     def test_command(self):
@@ -91,7 +103,7 @@ class CommandTestCase(TestCase):
         processor = CommandProcessor()
         registry.register_command_processor(processor)
 
-        context = MockCommandContext()
+        context = MockCommandContext(registry)
         processor.ban(context, 'taro')
         self.assertEqual('ban by name = taro', context.text)
         processor.ban(context, '1')
@@ -161,7 +173,7 @@ class CommandTestCase(TestCase):
         )
         self.assertEqual(expected_spec, registry.get_command_spec())
 
-        context = MockCommandContext()
+        context = MockCommandContext(registry)
         registry.execute_command(context, 'ban', 'taro')
         self.assertEqual('ban by name = taro', context.text)
         registry.execute_command(context, 'ban', '1')
@@ -181,6 +193,39 @@ class CommandTestCase(TestCase):
         registry.register_command_processor(CommandProcessor())
         with self.assertRaises(DuplicateDefinitionError):
             registry.register_command_processor(CommandProcessorDuplicated2())
+
+    def test_enum(self):
+        registry = CommandRegistry()
+        processor = CommandProcessorEnum()
+        registry.register_command_processor(processor)
+
+        context = MockCommandContext(registry)
+        processor.game_mode(context, 'creative')
+        self.assertEqual(str(GameMode.CREATIVE), context.text)
+
+        expected_spec = CommandSpec(
+            enum_values=('survival', 'creative', 'adventure'),
+            postfixes=(),
+            enums=(
+                CommandEnum(name='GameMode', index=(0, 1, 2)),
+            ),
+            command_data=(
+                CommandData(
+                    name='game_mode', description='no description',
+                    flags=0, permission=0, aliases=-1,
+                    overloads=(
+                        (
+                            CommandParameter(name='mode', type=3145728, is_optional=False),
+                        ),
+                    )
+                ),
+            ),
+            permission=CommandPermission.NORMAL
+        )
+        self.assertEqual(expected_spec, registry.get_command_spec())
+
+        registry.execute_command(context, 'game_mode', 'creative')
+        self.assertEqual(str(GameMode.CREATIVE), context.text)
 
 
 if __name__ == '__main__':

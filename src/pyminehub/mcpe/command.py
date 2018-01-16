@@ -1,11 +1,13 @@
 import collections
 import functools
 import json
-from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple
+from enum import Enum
+from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple, Type, Union
 
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
+from pyminehub.typevar import ET
 
 Int = int
 Float = float
@@ -56,7 +58,7 @@ class Command(str):
     pass
 
 
-_FLAG_BASIC_TYPE = 0x100000
+_FLAG_STATIC_TYPE = 0x100000
 _FLAG_ENUM_TYPE = 0x200000
 _FLAG_DYNAMIC_TYPE = 0x1000000
 
@@ -75,6 +77,9 @@ _BASIC_TYPES = {
 
 
 class CommandContext:
+
+    def get_enum_value(self, name: str) -> Union[ET, Callable]:
+        raise NotImplementedError()
 
     def send_text(self, text: str, broadcast: bool=False) -> None:
         raise NotImplementedError()
@@ -161,12 +166,14 @@ _CommandMethod = _NamedTuple('CommandMethod', [
     ('self', Any)
 ])
 
+_ENUM_IS_NOTHING = -1
+
 
 class CommandRegistry:
 
     def __init__(self) -> None:
         self._commands = {}  # type: Dict[str, _CommandMethod]
-        self._enum_values = []  # type: List[str]
+        self._enum_values = collections.OrderedDict()  # type: Dict[str, Union[Enum, Callable]]
         self._enums = []  # type: List[CommandEnum]
         self._command_data = []  # type: List[CommandData]
 
@@ -182,7 +189,7 @@ class CommandRegistry:
                     raise DuplicateDefinitionError('Command "{}" is duplicate.'.format(command_name))
                 commands[command_name] = attr
             else:
-                aliases[attr.__name__].append(command_name)
+                aliases[attr.__name__].append((command_name, attr))
                 self._append_alias(processor, command_name, attr)
         for name, alias in sorted(aliases.items()):
             self._append_enum(name + '_aliases', alias)
@@ -194,16 +201,24 @@ class CommandRegistry:
             raise DuplicateDefinitionError('Command "{}" is duplicate.'.format(name))
         self._commands[name] = _CommandMethod(command_func, processor)
 
-    def _append_enum(self, name: str, values: Sequence[str]) -> None:
+    def _append_enum(self, name: str, values: Sequence[Tuple[str, Union[Enum, Callable]]]) -> int:
         start = len(self._enum_values)
-        self._enum_values.extend(values)
+        self._enum_values.update(values)
+        assert len(self._enum_values) == start + len(values), 'Enum values may have duplicate name'
+        index = len(self._enums)
         self._enums.append(CommandEnum(name, tuple(range(start, len(self._enum_values)))))
+        return index
 
     def _get_enum_index(self, name: str) -> int:
         for i, e in enumerate(self._enums):
             if e.name == name:
                 return i
-        return -1
+        return _ENUM_IS_NOTHING
+
+    @staticmethod
+    def _enum_to_name_sequence(enum_cls: Type[Enum]) -> Sequence[Tuple[str, Enum]]:
+        # noinspection PyTypeChecker
+        return tuple((m.name.lower(), m) for m in list(enum_cls))
 
     def _append_command(self, processor, name: str, command_func) -> None:
         assert hasattr(command_func, 'overloads'), 'Command method must decorate by command decorator.'
@@ -223,8 +238,7 @@ class CommandRegistry:
             overloads=tuple(self._create_command_parameters(func) for func in command_func.overloads)
         ))
 
-    @staticmethod
-    def _create_command_parameters(func) -> Tuple[CommandParameter, ...]:
+    def _create_command_parameters(self, func) -> Tuple[CommandParameter, ...]:
         parameters = func.__annotations__.copy()
         parameters.pop('return', None)
         num_of_parameters = len(parameters)
@@ -234,7 +248,16 @@ class CommandRegistry:
             return index >= num_of_parameters - num_of_defaults
 
         def get_type_value(t) -> int:
-            return _FLAG_BASIC_TYPE | _BASIC_TYPES[t]  # TODO support enum and dynamic
+            if t in _BASIC_TYPES:
+                return _FLAG_STATIC_TYPE | _BASIC_TYPES[t]
+            if issubclass(t, Enum):
+                enum_name = t.__name__
+                index = self._get_enum_index(enum_name)
+                if index == _ENUM_IS_NOTHING:
+                    index = self._append_enum(enum_name, self._enum_to_name_sequence(t))
+                return _FLAG_STATIC_TYPE | _FLAG_ENUM_TYPE | index
+            # TODO support dynamic
+
         return tuple(
             CommandParameter(name, get_type_value(parameters[name]), has_default(i))
             for i, name in enumerate(parameters) if parameters[name] != CommandContext)
@@ -248,6 +271,9 @@ class CommandRegistry:
             CommandPermission.NORMAL
         )
 
+    def get_enum_value(self, name: str) -> Union[ET, Callable]:
+        return self._enum_values[name]
+
     def execute_command(self, context: CommandContext, command_name: str, args: str) -> None:
         func, receiver = self._commands[command_name]
         return func(receiver, context, args)
@@ -255,8 +281,12 @@ class CommandRegistry:
 
 class CommandContextImpl(CommandContext):
 
-    def __init__(self, send_text: Callable[[str, bool], None]) -> None:
+    def __init__(self, registry: CommandRegistry, send_text: Callable[[str, bool], None]) -> None:
+        self._registry = registry
         self._send_text = send_text
+
+    def get_enum_value(self, name: str) -> Union[ET, Callable]:
+        return self._registry.get_enum_value(name)
 
     def send_text(self, text: str, broadcast: bool=False) -> None:
         self._send_text(text, broadcast)

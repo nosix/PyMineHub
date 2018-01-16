@@ -325,7 +325,7 @@ class MCPEHandler(GameDataHandler):
                 self._send_game_packet(text_packet, addr)
 
         command_name, args = packet.command[1:].partition(' ')[0:3:2]
-        self._command.execute_command(CommandContextImpl(send_text), command_name, args)
+        self._command.execute_command(CommandContextImpl(self._command, send_text), command_name, args)
 
         if is_last:
             self._send_waiting_game_packet()

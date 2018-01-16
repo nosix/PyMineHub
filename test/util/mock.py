@@ -326,8 +326,12 @@ class MockCommandProcessor:
 
 class MockCommandContext(CommandContext):
 
-    def __init__(self) -> None:
+    def __init__(self, registry: CommandRegistry) -> None:
+        self._registry = registry
         self.text = None
+
+    def get_enum_value(self, name: str) -> Union[ET, Callable]:
+        return self._registry.get_enum_value(name)
 
     def send_text(self, text: str, broadcast: bool = False) -> None:
         self.text = text
