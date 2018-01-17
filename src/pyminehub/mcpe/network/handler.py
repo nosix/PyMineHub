@@ -373,7 +373,6 @@ class MCPEHandler(GameDataHandler):
                 )
                 self._send_game_packet(res_packet, addr, immediately=False)
             if e.type == EventType.MOB_SPAWNED:
-                print(e.entity_type)
                 res_packet = game_packet_factory.create(
                     GamePacketType.ADD_ENTITY,
                     EXTRA_DATA,
