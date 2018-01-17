@@ -34,7 +34,7 @@ def configure_log(
 
     levels = {}
     if enable_packet_debug:
-        levels['pyminehub.raknet.server'] = logging.DEBUG
+        levels['pyminehub.raknet.protocol'] = logging.DEBUG
         levels['pyminehub.raknet.session'] = logging.DEBUG
         levels['pyminehub.mcpe.network.handler'] = logging.DEBUG
         levels['pyminehub.mcpe.network.queue'] = logging.DEBUG
@@ -65,15 +65,14 @@ def run() -> None:
     from pyminehub.mcpe.command import CommandRegistry
     from pyminehub.mcpe.plugin.loader import get_plugin_loader
     from pyminehub.mcpe.world import run as run_world
-    from pyminehub.raknet import run as run_raknet
+    from pyminehub.raknet import run_raknet
 
     loop = asyncio.get_event_loop()
     store = create_data_store()
     store.delete_all()
     command = CommandRegistry()
     proxy = run_world(loop, store, get_plugin_loader(command))
-    transport = run_raknet(loop, MCPEHandler(proxy, command))
-    transport.close()
+    run_raknet(loop, MCPEHandler(proxy, command))
     loop.close()
 
 

@@ -56,7 +56,10 @@ raknet
   - codec -> network.[codec], .[frame, packet]
   - sending -> config, value, queue, .[codec, frame]
   - session -> value, .[channel, codec, fragment, frame, packet, sending]
-  - server -> config, value, network.[address, codec], .[handler, codec, packet, frame, session]
+  - protocol -> value, binutil.[composite], network.[address],
+                .[codec, handler, packet, session]
+  - server -> config, network.[address], .[handler, packet, protocol, session]
+  - client -> config, network.[address], .[handler, packet, protocol, session]
 mcpe
   const -> enum
   geometry -> typevar
@@ -110,6 +113,7 @@ mcpe
                  .[codec, login, packet, queue, reliability, session]
   main
     server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
+    client -> raknet, network.[address]
 
 - : Hidden from outside modules
 ```
