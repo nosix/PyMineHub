@@ -27,6 +27,10 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         self._transport = None
         self._update_task = self._start_loop_to_update(loop)
 
+    @property
+    def guid(self) -> int:
+        return self._handler.guid
+
     def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
         async def loop_to_update():
             while True:

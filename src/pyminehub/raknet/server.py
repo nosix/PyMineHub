@@ -11,14 +11,13 @@ from pyminehub.raknet.session import Session
 class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
     def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler) -> None:
+        super().__init__(loop, handler)
         self._sessions = {}  # TODO session timeout
-        self._guid = get_value(ConfigKey.SERVER_GUID)
         self.server_id = 'MCPE;PyMineHub Server;160;1.2.7;0;20;{};{};{};'.format(
-            get_value(ConfigKey.SERVER_GUID),
+            self.guid,
             get_value(ConfigKey.WORLD_NAME),
             get_value(ConfigKey.GAME_MODE).title()
         )
-        super().__init__(loop, handler)
 
     def terminate(self) -> None:
         super().terminate()
@@ -38,17 +37,17 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
     def _process_unconnected_ping(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
-            RakNetPacketType.UNCONNECTED_PONG, packet.time_since_start, self._guid, True, self.server_id)
+            RakNetPacketType.UNCONNECTED_PONG, packet.time_since_start, self.guid, True, self.server_id)
         self.send_to_remote(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
-            RakNetPacketType.OPEN_CONNECTION_REPLY1, True, self._guid, False, packet.mtu_size)
+            RakNetPacketType.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
         self.send_to_remote(res_packet, addr)
 
     def _process_open_connection_request2(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
-            RakNetPacketType.OPEN_CONNECTION_REPLY2, True, self._guid, to_packet_format(addr), packet.mtu_size, False)
+            RakNetPacketType.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_remote(res_packet, addr)
         self._sessions[addr] = self.create_session(packet.mtu_size, addr)
 
@@ -76,6 +75,10 @@ def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> None:
 
 if __name__ == '__main__':
     class MockHandler(GameDataHandler):
+
+        @property
+        def guid(self) -> int:
+            return 0
 
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))

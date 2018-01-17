@@ -22,6 +22,11 @@ class RakNetProtocol:
 
 class GameDataHandler:
 
+    @property
+    def guid(self) -> int:
+        """Return long (64 bits int) value."""
+        raise NotImplementedError()
+
     def register_protocol(self, protocol: RakNetProtocol) -> None:
         """The protocol object registers itself.
 

@@ -21,11 +21,9 @@ class RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
             self,
             loop: asyncio.AbstractEventLoop,
             handler: GameDataHandler,
-            guid: int,
             is_internal_loop: bool
     ) -> None:
         self._session = None  # type: Session
-        self._guid = guid
         self._connected = asyncio.Event()
         super().__init__(loop, handler, is_internal_loop)
 
@@ -54,7 +52,7 @@ class RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
     def _process_open_connection_reply1(self, packet: RakNetPacket, addr: Address) -> None:
         send_packet = raknet_packet_factory.create(
-            RakNetPacketType.OPEN_CONNECTION_REQUEST2, True, to_packet_format(addr), packet.mtu_size, self._guid)
+            RakNetPacketType.OPEN_CONNECTION_REQUEST2, True, to_packet_format(addr), packet.mtu_size, self.guid)
         self.send_to_remote(send_packet, addr)
 
     def _process_open_connection_reply2(self, packet: RakNetPacket, addr: Address) -> None:
@@ -62,25 +60,15 @@ class RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         self._connected.set()
 
 
-class AbstractClient(GameDataHandler):
+class AbstractClient:
 
     @property
-    def guid(self) -> int:
+    def handler(self) -> GameDataHandler:
         raise NotImplementedError()
 
     @property
     def server_addr(self) -> Address:
         return self.__server_addr
-
-    def data_received(self, data: bytes, addr: Address) -> None:
-        raise NotImplementedError()
-
-    async def update(self) -> None:
-        """Update client
-
-        Override this method. This method is called repeatedly. Therefore, it is necessary to 'await'.
-        """
-        await asyncio.Event().wait()
 
     async def start(self) -> None:
         """Start client
@@ -129,7 +117,7 @@ class ClientConnection:
 
     def __enter__(self) -> Client:
         connect = self._loop.create_datagram_endpoint(
-            lambda: RakNetClientProtocol(self._loop, self._client, self._client.guid, self._is_internal_loop),
+            lambda: RakNetClientProtocol(self._loop, self._client.handler, self._is_internal_loop),
             remote_addr=self._server_addr)
         transport, protocol = self._loop.run_until_complete(connect)
         self._loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
@@ -150,17 +138,32 @@ def connect_raknet(
 
 
 if __name__ == '__main__':
-    class MockClient(AbstractClient):
+    class MockHandler(GameDataHandler):
 
         @property
         def guid(self) -> int:
             return 0
 
-        async def start(self) -> None:
-            print('start')
-
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))
+
+        async def update(self) -> None:
+            await asyncio.Event().wait()
+
+        def terminate(self) -> None:
+            pass
+
+    class MockClient(AbstractClient):
+
+        def __init__(self) -> None:
+            self._handler = MockHandler()
+
+        @property
+        def handler(self) -> GameDataHandler:
+            return self._handler
+
+        async def start(self) -> None:
+            print('Client session started.')
 
     import logging
     logging.basicConfig(level=logging.DEBUG)

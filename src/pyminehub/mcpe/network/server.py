@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import ActionType, action_factory
 from pyminehub.mcpe.command import CommandRegistry, CommandContextImpl
 from pyminehub.mcpe.event import EventType, Event
@@ -31,6 +32,10 @@ class MCPEServerHandler(MCPEDataHandler):
         # TODO world clock
 
     # GameDataHandler interface methods
+
+    @property
+    def guid(self) -> int:
+        return get_value(ConfigKey.SERVER_GUID)
 
     async def update(self) -> None:
         event = await self._world.next_event()

@@ -24,6 +24,10 @@ class MCPEDataHandler(GameDataHandler):
 
     # GameDataHandler interface methods
 
+    @property
+    def guid(self) -> int:
+        raise NotImplementedError()
+
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
