@@ -21,15 +21,15 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         :param stop_loop: True if you want to stop loop when connection lost
         """
         handler.register_protocol(self)
-        self._loop = loop
-        self._handler = handler
-        self._stop_loop = stop_loop
-        self._transport = None
-        self._update_task = self._start_loop_to_update(loop)
+        self.__loop = loop
+        self.__handler = handler
+        self.__stop_loop = stop_loop
+        self.__transport = None
+        self.__update_task = self._start_loop_to_update(loop)
 
     @property
     def guid(self) -> int:
-        return self._handler.guid
+        return self.__handler.guid
 
     def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
         async def loop_to_update():
@@ -38,16 +38,16 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         return asyncio.ensure_future(loop_to_update(), loop=loop)
 
     def terminate(self) -> None:
-        self._update_task.cancel()
+        self.__update_task.cancel()
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
-        self._transport = transport
+        self.__transport = transport
 
     def connection_lost(self, exc: Exception) -> None:
         _logger.exception('RakNet connection lost', exc_info=exc)
-        self._transport = None
-        if self._stop_loop:
-            self._loop.stop()
+        self.__transport = None
+        if self.__stop_loop:
+            self.__loop.stop()
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
         _logger.debug('%s > %s', addr, data.hex())
@@ -67,11 +67,11 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         _logger.debug('< %s', LogString(packet))
         data = raknet_packet_codec.encode(packet)
         _logger.debug('%s < %s', addr, data.hex())
-        self._transport.sendto(data, addr)
+        self.__transport.sendto(data, addr)
 
     async def _next_moment(self) -> None:
         try:
-            await self._handler.update()
+            await self.__handler.update()
         except SessionNotFound as exc:
             if exc.addr is not None:
                 _logger.info('%s session is not found.', exc.addr)
@@ -79,8 +79,8 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
 
     def create_session(self, mtu_size: int, addr: Address) -> Session:
         return Session(
-            self._loop, mtu_size,
-            lambda _data: self._handler.data_received(_data, addr),
+            self.__loop, mtu_size,
+            lambda _data: self.__handler.data_received(_data, addr),
             lambda _packet: self.send_to_remote(_packet, addr))
 
     def remove_session(self, addr: Address) -> None:

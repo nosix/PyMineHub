@@ -16,5 +16,7 @@ def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=No
 
 
 if __name__ == '__main__':
-    with connect('127.0.0.1') as client:
-        pass
+    from pyminehub.mcpe.network import MCPEClient
+    with connect('127.0.0.1') as client:  # type: MCPEClient
+        client.execute_command('/about 1')
+        print(client.wait_response())

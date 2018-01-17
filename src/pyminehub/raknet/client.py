@@ -70,6 +70,15 @@ class AbstractClient:
     def server_addr(self) -> Address:
         return self.__server_addr
 
+    @property
+    def loop(self) -> asyncio.AbstractEventLoop:
+        return self.__loop
+
+    @loop.setter
+    def loop(self, loop: asyncio.AbstractEventLoop) -> None:
+        # noinspection PyAttributeOutsideInit
+        self.__loop = loop
+
     async def start(self) -> None:
         """Start client
 
@@ -121,6 +130,7 @@ class ClientConnection:
             remote_addr=self._server_addr)
         transport, protocol = self._loop.run_until_complete(connect)
         self._loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
+        self._client.loop = self._loop
         return self._client
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:

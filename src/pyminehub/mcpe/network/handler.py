@@ -18,9 +18,9 @@ class MCPEDataHandler(GameDataHandler):
     INTERNAL_ADDRESSES = tuple(to_packet_format((get_unspecified_address(), 0)) for _ in range(20))
 
     def __init__(self) -> None:
-        self._start_time = time.time()
-        self._ping_time = {}  # type: Dict[Address, int]
-        self._queue = GamePacketQueue(self.send_connection_packet)
+        self.__start_time = time.time()
+        self.__ping_time = {}  # type: Dict[Address, int]
+        self.__queue = GamePacketQueue(self.send_connection_packet)
 
     # GameDataHandler interface methods
 
@@ -56,21 +56,21 @@ class MCPEDataHandler(GameDataHandler):
 
     def send_game_packet(self, packet: GamePacket, addr: Address, immediately=True) -> None:
         if immediately:
-            self._queue.send_immediately(packet, addr)
+            self.__queue.send_immediately(packet, addr)
         else:
-            self._queue.append(packet, addr)
+            self.__queue.append(packet, addr)
 
     def send_waiting_game_packet(self) -> None:
-        self._queue.send()
+        self.__queue.send()
 
     def send_ping(self, addr: Address) -> None:
-        self._ping_time[addr] = self.get_current_time()
-        packet = connection_packet_factory.create(ConnectionPacketType.CONNECTED_PING, self._ping_time[addr])
+        self.__ping_time[addr] = self.get_current_time()
+        packet = connection_packet_factory.create(ConnectionPacketType.CONNECTED_PING, self.__ping_time[addr])
         self.send_connection_packet(packet, addr, UNRELIABLE)
 
     def get_current_time(self) -> int:
         """Get millisecond time since starting handler."""
-        return int(1000 * (time.time() - self._start_time))
+        return int(1000 * (time.time() - self.__start_time))
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
         last_index = len(packet.payloads) - 1
@@ -92,9 +92,9 @@ class MCPEDataHandler(GameDataHandler):
         self.send_connection_packet(res_packet, addr, UNRELIABLE)
 
     def _process_connected_pong(self, packet: ConnectionPacket, addr: Address) -> None:
-        if packet.ping_time_since_start != self._ping_time[addr]:
+        if packet.ping_time_since_start != self.__ping_time[addr]:
             _logger.warning(
                 'Pong time is invalid. (expected: %d, actual: %d)',
-                self._ping_time[addr], packet.ping_time_since_start)
+                self.__ping_time[addr], packet.ping_time_since_start)
         self.update_status(addr, True)
         # TODO send ping
