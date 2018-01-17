@@ -5,6 +5,7 @@ from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.raknet import Reliability
 
 UNRELIABLE = Reliability(False, None)
+RELIABLE = Reliability(True, None)
 DEFAULT_CHANEL = Reliability(True, 0)
 
 

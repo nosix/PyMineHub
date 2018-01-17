@@ -108,12 +108,13 @@ mcpe
     - session -> raknet, networkd.[address], mcpe.[value] .[player]
     - queue -> value, raknet, network.[address], .[packet, codec]
     - login -> network.[address], mcpe.[command, metadata, world], .[packet, player, session]
-    - handler -> value, raknet, network.[address],
-                 mcpe.[action, event, metadata, value, command, world],
-                 .[codec, login, packet, queue, reliability, session]
+    - handler -> value, raknet, network.[address], .[codec, packet, queue, reliability]
+    - server -> raknet, network.[address], mcpe.[action, command, event, metadata, value, world],
+                .[handler, login, packet, reliability, session]
+    - client -> raknet, network.[address], .[handler, packet, reliability] 
   main
     server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
-    client -> raknet, network.[address]
+    client -> raknet, mcpe.[network]
 
 - : Hidden from outside modules
 ```

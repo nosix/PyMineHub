@@ -60,7 +60,7 @@ def configure_log(
 
 
 def run() -> None:
-    from pyminehub.mcpe.network import MCPEHandler
+    from pyminehub.mcpe.network import MCPEServerHandler
     from pyminehub.mcpe.datastore import create_data_store
     from pyminehub.mcpe.command import CommandRegistry
     from pyminehub.mcpe.plugin.loader import get_plugin_loader
@@ -72,7 +72,7 @@ def run() -> None:
     store.delete_all()
     command = CommandRegistry()
     proxy = run_world(loop, store, get_plugin_loader(command))
-    run_raknet(loop, MCPEHandler(proxy, command))
+    run_raknet(loop, MCPEServerHandler(proxy, command))
     loop.close()
 
 

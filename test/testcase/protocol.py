@@ -11,7 +11,7 @@ from unittest import TestCase
 from pyminehub.mcpe.action import ActionType
 from pyminehub.mcpe.command import CommandRegistry
 from pyminehub.mcpe.event import Event
-from pyminehub.mcpe.network import MCPEHandler
+from pyminehub.mcpe.network import MCPEServerHandler
 from pyminehub.network.address import Address
 from pyminehub.raknet.frame import RakNetFrame as _RakNetFrame
 # noinspection PyProtectedMember
@@ -81,7 +81,7 @@ class _ProtocolProxy:
         self._loop = _ProtocolMockEventLoop()
         self._proxy = MockWorldProxy()
         self._command = CommandRegistry()
-        self._protocol = _RakNetServerProtocol(self._loop, MCPEHandler(self._proxy, self._command))
+        self._protocol = _RakNetServerProtocol(self._loop, MCPEServerHandler(self._proxy, self._command))
         self._protocol.connection_made(_ProtocolMockTransport(self._queue))
 
     @staticmethod

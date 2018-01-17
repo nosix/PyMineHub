@@ -1,16 +1,6 @@
 import asyncio
 
-from pyminehub.network.address import Address
-from pyminehub.raknet import ClientConnection, connect_raknet, AbstractClient
-
-
-class MockClient(AbstractClient):
-
-    def data_received(self, data: bytes, addr: Address) -> None:
-        pass
-
-    def update(self) -> None:
-        pass
+from pyminehub.raknet import ClientConnection
 
 
 def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=None) -> ClientConnection:
@@ -20,7 +10,9 @@ def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=No
     :param port: port number that PyMineHub server listen
     :param loop: client run on this loop
     """
-    return connect_raknet(MockClient(), server_host, port, loop)  # TODO implement
+    from pyminehub.raknet import connect_raknet
+    from pyminehub.mcpe.network import MCPEClient
+    return connect_raknet(MCPEClient(), server_host, port, loop)
 
 
 if __name__ == '__main__':

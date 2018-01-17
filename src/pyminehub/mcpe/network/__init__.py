@@ -1,4 +1,7 @@
-from .handler import MCPEHandler
+from .client import MCPEClient
+from .server import MCPEServerHandler
 
-
-__all__ = [MCPEHandler]
+__all__ = [
+    MCPEServerHandler,
+    MCPEClient
+]
