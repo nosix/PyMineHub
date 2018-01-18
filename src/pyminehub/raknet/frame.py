@@ -55,4 +55,4 @@ _raknet_frame_specs = {
 }
 
 
-raknet_frame_factory = ValueObjectFactory(_raknet_frame_specs)
+raknet_frame_factory = ValueObjectFactory(globals(), _raknet_frame_specs, 'Frame')

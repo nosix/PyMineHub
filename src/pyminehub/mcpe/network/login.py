@@ -1,10 +1,12 @@
 from typing import Callable
 
 from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.event import EventType
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.network.session import SessionManager
+from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address
 
@@ -18,7 +20,7 @@ def login_sequence(
         send: Callable[[GamePacket, Address], None]
 ):
     event = yield
-    assert type(event).__name__ == 'PlayerLoggedIn'
+    assert event.type == EventType.PLAYER_LOGGED_IN
 
     player.set_identity(event.entity_unique_id, event.entity_runtime_id)
     player.position = event.position
@@ -121,7 +123,7 @@ def login_sequence(
     send(res_packet, addr)
 
     event = yield
-    assert type(event).__name__ == 'InventoryLoaded'
+    assert event.type == EventType.INVENTORY_LOADED
 
     for inventory in event.inventory:
         res_packet = game_packet_factory.create(
@@ -133,7 +135,7 @@ def login_sequence(
         send(res_packet, addr)
 
     event = yield
-    assert type(event).__name__ == 'SlotInitialized'
+    assert event.type == EventType.SLOT_INITIALIZED
 
     player.equipped_item = event.equipped_item
     inventory_slot = event.inventory_slot if event.inventory_slot is not None else 0
@@ -184,7 +186,7 @@ def login_sequence(
 
     while not player.is_ready():
         event = yield
-        assert type(event).__name__ == 'FullChunkLoaded'
+        assert event.type == EventType.FULL_CHUNK_LOADED
 
     _spawn_player(player, addr, session, send)
 

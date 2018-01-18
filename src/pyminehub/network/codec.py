@@ -157,7 +157,7 @@ if __name__ == '__main__':
         ]
     }
 
-    _packet_factory = ValueObjectFactory(_packet_specs)
+    _packet_factory = ValueObjectFactory(globals(), _packet_specs)
     _packet_codec = PacketCodec(PacketType, _packet_factory, _data_codecs)
 
     import doctest

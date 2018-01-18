@@ -1,9 +1,10 @@
 import asyncio
 
+from pyminehub.mcpe.network import MCPEClient
 from pyminehub.raknet import ClientConnection
 
 
-def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=None) -> ClientConnection:
+def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=None) -> ClientConnection[MCPEClient]:
     """Connect to PyMineHub server.
 
     :param server_host: IP address that PyMineHub server listen
@@ -11,7 +12,6 @@ def connect(server_host: str, port: int=None, loop: asyncio.AbstractEventLoop=No
     :param loop: client run on this loop
     """
     from pyminehub.raknet import connect_raknet
-    from pyminehub.mcpe.network import MCPEClient
     return connect_raknet(MCPEClient(), server_host, port, loop)
 
 

@@ -3,9 +3,11 @@ import uuid
 from logging import getLogger
 from random import randrange
 
+from pyminehub.mcpe.const import CommandOriginDataType
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
+from pyminehub.mcpe.value import CommandOriginData
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import AbstractClient, GameDataHandler
 

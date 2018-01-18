@@ -1,14 +1,14 @@
-DisconnectionNotification(type=<ConnectionPacketType.DISCONNECTION_NOTIFICATION: 21>)
+PacketDisconnectionNotification(type=<ConnectionPacketType.DISCONNECTION_NOTIFICATION: 21>)
   -> 15
   File "./codec_login_logout.py", line 261, in test_login_s85
     ConnectionPacket(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=8, reliable_message_num=672, message_ordering_index=644, message_ordering_chanel=0, payload=b'\x15')
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=8, reliable_message_num=672, message_ordering_index=644, message_ordering_chanel=0, payload=b'\x15')
   -> 600008a002008402000015
   File "./codec_login_logout.py", line 260, in test_login_s85
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=389, payload=b'`\x00\x08\xa0\x02\x00\x84\x02\x00\x00\x15')
+PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=389, payload=b'`\x00\x08\xa0\x02\x00\x84\x02\x00\x00\x15')
   -> 84850100600008a002008402000015
   File "./codec_login_logout.py", line 259, in test_login_s85
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

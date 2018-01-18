@@ -1,29 +1,29 @@
-MovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=2, position=Vector3(x=477.727294921875, y=71.62200164794922, z=634.8566284179688), pitch=0.0, yaw=16.0, head_yaw=16.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
+PacketMovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=2, position=Vector3(x=477.727294921875, y=71.62200164794922, z=634.8566284179688), pitch=0.0, yaw=16.0, head_yaw=16.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
   -> 1300000218ddee43773e8f42d3b61e44000000000000804100008041000100
   File "./codec_play.py", line 177, in test_player_hotbar
     GamePacket(GamePacketType.MOVE_PLAYER),
 
-PlayerHotbar(type=<GamePacketType.PLAYER_HOTBAR: 48>, extra=b'\x00\x00', selected_hotbar_slot=0, window_type=<WindowType.INVENTORY: 0>, slots=(9, 10, -1, -1, -1, -1, -1, -1, -1), does_select=True)
+PacketPlayerHotbar(type=<GamePacketType.PLAYER_HOTBAR: 48>, extra=b'\x00\x00', selected_hotbar_slot=0, window_type=<WindowType.INVENTORY: 0>, slots=(9, 10, -1, -1, -1, -1, -1, -1, -1), does_select=True)
   -> 300000000009090affffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0f01
   File "./codec_play.py", line 178, in test_player_hotbar
     GamePacket(GamePacketType.PLAYER_HOTBAR),
 
-MobEquipment(type=<GamePacketType.MOB_EQUIPMENT: 31>, extra=b'\x00\x00', entity_runtime_id=2, item=Item(type=<ItemType.DIRT: 3>, aux_value=64, nbt=b'', place_on=(), destroy=()), inventory_slot=9, hotbar_slot=0, window_type=<WindowType.INVENTORY: 0>)
+PacketMobEquipment(type=<GamePacketType.MOB_EQUIPMENT: 31>, extra=b'\x00\x00', entity_runtime_id=2, item=Item(type=<ItemType.DIRT: 3>, aux_value=64, nbt=b'', place_on=(), destroy=()), inventory_slot=9, hotbar_slot=0, window_type=<WindowType.INVENTORY: 0>)
   -> 1f00000206800100000000090000
   File "./codec_play.py", line 179, in test_player_hotbar
     GamePacket(GamePacketType.MOB_EQUIPMENT)
 
-WARNING:Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=([31 bytes], [44 bytes], b'\x1f\x00\x00\x02\x06\x80\x01\x00\x00\x00\x00\t\x00\x00'))
+WARNING:PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=([31 bytes], [44 bytes], b'\x1f\x00\x00\x02\x06\x80\x01\x00\x00\x00\x00\t\x00\x00'))
   -> fe7801015c00a3ff1f1300000218ddee43773e8f42d3b61e440000000000008041000080410001002c300000000009090affffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0f010e1f00000206800100000000090000339a24d4
   File "./codec_play.py", line 176, in test_player_hotbar
     Batch().that_has(
 
-WARNING:ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=832, reliable_message_num=13, message_ordering_index=5, message_ordering_chanel=0, payload=[104 bytes])
+WARNING:FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=832, reliable_message_num=13, message_ordering_index=5, message_ordering_chanel=0, payload=[104 bytes])
   -> 6003400d000005000000fe7801015c00a3ff1f1300000218ddee43773e8f42d3b61e440000000000008041000080410001002c300000000009090affffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0f010e1f00000206800100000000090000339a24d4
   File "./codec_play.py", line 175, in test_player_hotbar
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=16, payload=[114 bytes])
+WARNING:PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=16, payload=[114 bytes])
   -> 841000006003400d000005000000fe7801015c00a3ff1f1300000218ddee43773e8f42d3b61e440000000000008041000080410001002c300000000009090affffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0fffffffff0f010e1f00000206800100000000090000339a24d4
   File "./codec_play.py", line 174, in test_player_hotbar
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

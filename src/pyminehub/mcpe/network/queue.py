@@ -1,6 +1,6 @@
 from collections import defaultdict
 from logging import getLogger
-from typing import Callable, List
+from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import *

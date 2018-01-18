@@ -1,114 +1,114 @@
-TakeItemEntity(type=<GamePacketType.TAKE_ITEM_ENTITY: 17>, extra=b'\x00\x00', item_runtime_id=2, player_runtime_id=1)
+PacketTakeItemEntity(type=<GamePacketType.TAKE_ITEM_ENTITY: 17>, extra=b'\x00\x00', item_runtime_id=2, player_runtime_id=1)
   -> 1100000201
   File "./codec_play.py", line 134, in test_take_item_entity
     GamePacket(GamePacketType.TAKE_ITEM_ENTITY)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x11\x00\x00\x02\x01',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x11\x00\x00\x02\x01',))
   -> fe7801010600f9ff051100000201007e001a
   File "./codec_play.py", line 133, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=144, reliable_message_num=1278, message_ordering_index=1240, message_ordering_chanel=0, payload=[18 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=144, reliable_message_num=1278, message_ordering_index=1240, message_ordering_chanel=0, payload=[18 bytes])
   -> 600090fe0400d8040000fe7801010600f9ff051100000201007e001a
   File "./codec_play.py", line 132, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-InventorySlot(type=<GamePacketType.INVENTORY_SLOT: 50>, extra=b'\x00\x00', window_type=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Item(type=<ItemType.DIRT: 3>, aux_value=1, nbt=b'', place_on=(), destroy=()))
+PacketInventorySlot(type=<GamePacketType.INVENTORY_SLOT: 50>, extra=b'\x00\x00', window_type=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Item(type=<ItemType.DIRT: 3>, aux_value=1, nbt=b'', place_on=(), destroy=()))
   -> 3200000000060200000000
   File "./codec_play.py", line 139, in test_take_item_entity
     GamePacket(GamePacketType.INVENTORY_SLOT)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'2\x00\x00\x00\x00\x06\x02\x00\x00\x00\x00',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'2\x00\x00\x00\x00\x06\x02\x00\x00\x00\x00',))
   -> fe7801010c00f3ff0b320000000006020000000002e40046
   File "./codec_play.py", line 138, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=192, reliable_message_num=1279, message_ordering_index=1241, message_ordering_chanel=0, payload=[24 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=192, reliable_message_num=1279, message_ordering_index=1241, message_ordering_chanel=0, payload=[24 bytes])
   -> 6000c0ff0400d9040000fe7801010c00f3ff0b320000000006020000000002e40046
   File "./codec_play.py", line 137, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-TakeItemEntity(type=<GamePacketType.TAKE_ITEM_ENTITY: 17>, extra=b'\x00\x00', item_runtime_id=3, player_runtime_id=1)
+PacketTakeItemEntity(type=<GamePacketType.TAKE_ITEM_ENTITY: 17>, extra=b'\x00\x00', item_runtime_id=3, player_runtime_id=1)
   -> 1100000301
   File "./codec_play.py", line 144, in test_take_item_entity
     GamePacket(GamePacketType.TAKE_ITEM_ENTITY)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x11\x00\x00\x03\x01',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x11\x00\x00\x03\x01',))
   -> fe7801010600f9ff0511000003010080001b
   File "./codec_play.py", line 143, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=144, reliable_message_num=1280, message_ordering_index=1242, message_ordering_chanel=0, payload=[18 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=144, reliable_message_num=1280, message_ordering_index=1242, message_ordering_chanel=0, payload=[18 bytes])
   -> 600090000500da040000fe7801010600f9ff0511000003010080001b
   File "./codec_play.py", line 142, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-InventorySlot(type=<GamePacketType.INVENTORY_SLOT: 50>, extra=b'\x00\x00', window_type=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Item(type=<ItemType.DIRT: 3>, aux_value=2, nbt=b'', place_on=(), destroy=()))
+PacketInventorySlot(type=<GamePacketType.INVENTORY_SLOT: 50>, extra=b'\x00\x00', window_type=<WindowType.INVENTORY: 0>, inventory_slot=0, item=Item(type=<ItemType.DIRT: 3>, aux_value=2, nbt=b'', place_on=(), destroy=()))
   -> 3200000000060400000000
   File "./codec_play.py", line 149, in test_take_item_entity
     GamePacket(GamePacketType.INVENTORY_SLOT)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'2\x00\x00\x00\x00\x06\x04\x00\x00\x00\x00',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'2\x00\x00\x00\x00\x06\x04\x00\x00\x00\x00',))
   -> fe7801010c00f3ff0b320000000006040000000002ee0048
   File "./codec_play.py", line 148, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=192, reliable_message_num=1281, message_ordering_index=1243, message_ordering_chanel=0, payload=[24 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=192, reliable_message_num=1281, message_ordering_index=1243, message_ordering_chanel=0, payload=[24 bytes])
   -> 6000c0010500db040000fe7801010c00f3ff0b320000000006040000000002ee0048
   File "./codec_play.py", line 147, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-RemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=2)
+PacketRemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=2)
   -> 0e000004
   File "./codec_play.py", line 154, in test_take_item_entity
     GamePacket(GamePacketType.REMOVE_ENTITY)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x0e\x00\x00\x04',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x0e\x00\x00\x04',))
   -> fe7801010500faff040e00000400550017
   File "./codec_play.py", line 153, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=136, reliable_message_num=1282, message_ordering_index=1244, message_ordering_chanel=0, payload=[17 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=136, reliable_message_num=1282, message_ordering_index=1244, message_ordering_chanel=0, payload=[17 bytes])
   -> 600088020500dc040000fe7801010500faff040e00000400550017
   File "./codec_play.py", line 152, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-RemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=3)
+PacketRemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=3)
   -> 0e000006
   File "./codec_play.py", line 159, in test_take_item_entity
     GamePacket(GamePacketType.REMOVE_ENTITY)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x0e\x00\x00\x06',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x0e\x00\x00\x06',))
   -> fe7801010500faff040e00000600570019
   File "./codec_play.py", line 158, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=136, reliable_message_num=1283, message_ordering_index=1245, message_ordering_chanel=0, payload=[17 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=136, reliable_message_num=1283, message_ordering_index=1245, message_ordering_chanel=0, payload=[17 bytes])
   -> 600088030500dd040000fe7801010500faff040e00000600570019
   File "./codec_play.py", line 157, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-SoundEvent(type=<GamePacketType.SOUND_EVENT: 24>, extra=b'\x00\x00', sound=<SoundType.LAND: 35>, position=Vector3(x=475.3085021972656, y=71.23149871826172, z=639.2335815429688), extra_data=6, pitch=638, unknown=False, disable_relative_volume=False)
+PacketSoundEvent(type=<GamePacketType.SOUND_EVENT: 24>, extra=b'\x00\x00', sound=<SoundType.LAND: 35>, position=Vector3(x=475.3085021972656, y=71.23149871826172, z=639.2335815429688), extra_data=6, pitch=638, unknown=False, disable_relative_volume=False)
   -> 180000237da7ed4387768e42f3ce1f4406fe040000
   File "./codec_play.py", line 164, in test_take_item_entity
     GamePacket(GamePacketType.SOUND_EVENT),
 
-MoveEntity(type=<GamePacketType.MOVE_ENTITY: 18>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=475.29998779296875, y=72.62100219726562, z=639.1699829101562), pitch=26.71875, head_yaw=120.9375, yaw=120.9375, on_ground=False, teleported=False)
+PacketMoveEntity(type=<GamePacketType.MOVE_ENTITY: 18>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=475.29998779296875, y=72.62100219726562, z=639.1699829101562), pitch=26.71875, head_yaw=120.9375, yaw=120.9375, on_ground=False, teleported=False)
   -> 1200000166a6ed43f43d9142e1ca1f441356560000
   File "./codec_play.py", line 165, in test_take_item_entity
     GamePacket(GamePacketType.MOVE_ENTITY)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=([21 bytes], [21 bytes]))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=([21 bytes], [21 bytes]))
   -> fe7801012c00d3ff15180000237da7ed4387768e42f3ce1f4406fe040000151200000166a6ed43f43d9142e1ca1f4413565600004e5d0ed3
   File "./codec_play.py", line 163, in test_take_item_entity
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=448, reliable_message_num=1284, message_ordering_index=1246, message_ordering_chanel=0, payload=[56 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=448, reliable_message_num=1284, message_ordering_index=1246, message_ordering_chanel=0, payload=[56 bytes])
   -> 6001c0040500de040000fe7801012c00d3ff15180000237da7ed4387768e42f3ce1f4406fe040000151200000166a6ed43f43d9142e1ca1f4413565600004e5d0ed3
   File "./codec_play.py", line 162, in test_take_item_entity
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=964, payload=[244 bytes])
+PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=964, payload=[244 bytes])
   -> 84c40300600090fe0400d8040000fe7801010600f9ff051100000201007e001a6000c0ff0400d9040000fe7801010c00f3ff0b320000000006020000000002e40046600090000500da040000fe7801010600f9ff0511000003010080001b6000c0010500db040000fe7801010c00f3ff0b320000000006040000000002ee0048600088020500dc040000fe7801010500faff040e00000400550017600088030500dd040000fe7801010500faff040e000006005700196001c0040500de040000fe7801012c00d3ff15180000237da7ed4387768e42f3ce1f4406fe040000151200000166a6ed43f43d9142e1ca1f4413565600004e5d0ed3
   File "./codec_play.py", line 131, in test_take_item_entity
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

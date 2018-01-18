@@ -1,6 +1,6 @@
 import asyncio
 from logging import getLogger
-from typing import Optional, TypeVar
+from typing import Generic, Optional, TypeVar
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import Address, to_packet_format
@@ -110,7 +110,7 @@ class AbstractClient:
 Client = TypeVar('Client', bound=AbstractClient)
 
 
-class ClientConnection:
+class ClientConnection(Generic[Client]):
 
     def __init__(
             self,
@@ -131,7 +131,8 @@ class ClientConnection:
         transport, protocol = self._loop.run_until_complete(connect)
         self._loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
         self._client.loop = self._loop
-        return self._client
+        # noinspection PyTypeChecker
+        return self._client  # FIXME why is type check fail?
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self._client.terminate()
@@ -142,7 +143,7 @@ def connect_raknet(
         server_host: str,
         port: Optional[int]=None,
         loop: Optional[asyncio.AbstractEventLoop]=None
-) -> ClientConnection:
+) -> ClientConnection[Client]:
     server_address = (server_host, get_value(ConfigKey.SERVER_PORT) if port is None else port)
     return ClientConnection(client, server_address, loop)
 

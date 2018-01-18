@@ -4,7 +4,7 @@ from asyncio import subprocess
 from collections import deque
 from pkgutil import get_data
 
-from pyminehub.mcpe.action import Action, ActionType
+from pyminehub.mcpe.action import ActionType
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.command import *
 from pyminehub.mcpe.datastore import DataStore
@@ -335,3 +335,7 @@ class MockCommandContext(CommandContext):
 
     def send_text(self, text: str, broadcast: bool = False) -> None:
         self.text = text
+
+    def perform_action(self, action: Action) -> None:
+        raise NotImplementedError()
+

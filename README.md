@@ -68,7 +68,7 @@ mcpe
     - loader
   attribute -> .[const, value]
   metadata -> .[const, geometry, value]
-  command -> .[typevar, const, geometry, value]
+  command -> typevar, .[action, const, geometry, value]
   chunk -> binutil.[composite, instance], mcpe.[const, geometry, value]
   action -> value, mcpe.[value]
   event -> value, mcpe.[value]
@@ -100,18 +100,20 @@ mcpe
                 mcpe.plugin.[loader, mob, player],
                 .[entity, generator, interface, item, proxy, space]
   network
-    - packet -> value, mcpe.[value], network.[address]
+    - packet
+      - connection -> value, network.[address]
+      - game -> value, mcpe.[value]
     - codec
-      - batch -> typevar, network.[codec], mcpe.network.[packet]
       - connection -> config, network.[codec], mcpe.network.[packet]
+      - game -> network.[codec], mcpe.[value], mcpe.network.[packet]
     - player -> .[value, event]
     - session -> raknet, networkd.[address], mcpe.[value] .[player]
     - queue -> value, raknet, network.[address], .[packet, codec]
-    - login -> network.[address], mcpe.[command, metadata, world], .[packet, player, session]
+    - login -> network.[address], mcpe.[command, event, metadata, value, world], .[packet, player, session]
     - handler -> value, raknet, network.[address], .[codec, packet, queue, reliability]
     - server -> config, raknet, network.[address], mcpe.[action, command, event, metadata, value, world],
                 .[handler, login, packet, reliability, session]
-    - client -> raknet, network.[address], .[handler, packet, reliability] 
+    - client -> raknet, network.[address], mcpe.[const, value], .[handler, packet, reliability] 
   main
     server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
     client -> raknet, mcpe.[network]

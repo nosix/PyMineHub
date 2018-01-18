@@ -73,4 +73,4 @@ _action_specs = {
 }
 
 
-action_factory = ValueObjectFactory(_action_specs)
+action_factory = ValueObjectFactory(globals(), _action_specs, 'Action')

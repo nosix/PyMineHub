@@ -5,6 +5,7 @@ import json
 from enum import Enum
 from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple, Type, Union
 
+from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
@@ -83,6 +84,9 @@ class CommandContext:
         raise NotImplementedError()
 
     def send_text(self, text: str, broadcast: bool=False) -> None:
+        raise NotImplementedError()
+
+    def perform_action(self, action: Action) -> None:
         raise NotImplementedError()
 
 
@@ -286,15 +290,24 @@ class CommandRegistry:
 
 class CommandContextImpl(CommandContext):
 
-    def __init__(self, registry: CommandRegistry, send_text: Callable[[str, bool], None]) -> None:
+    def __init__(
+            self,
+            registry: CommandRegistry,
+            send_text: Callable[[str, bool], None],
+            perform_action: Callable[[Action], None]
+    ) -> None:
         self._registry = registry
         self._send_text = send_text
+        self._perform_action = perform_action
 
     def get_enum_value(self, name: str) -> Union[ET, Callable]:
         return self._registry.get_enum_value(name)
 
     def send_text(self, text: str, broadcast: bool=False) -> None:
         self._send_text(text, broadcast)
+
+    def perform_action(self, action: Action) -> None:
+        self._perform_action(action)
 
 
 if __name__ == '__main__':

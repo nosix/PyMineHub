@@ -128,4 +128,4 @@ _event_specs = {
 }
 
 
-event_factory = ValueObjectFactory(_event_specs)
+event_factory = ValueObjectFactory(globals(), _event_specs, 'Event')

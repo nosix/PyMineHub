@@ -96,4 +96,4 @@ for packet_type in (RakNetPacketType.NCK, RakNetPacketType.ACK):
     ]
 
 
-raknet_packet_factory = ValueObjectFactory(_raknet_packet_specs)
+raknet_packet_factory = ValueObjectFactory(globals(), _raknet_packet_specs, 'Packet')

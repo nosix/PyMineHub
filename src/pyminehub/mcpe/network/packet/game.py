@@ -1,20 +1,7 @@
 from pyminehub.mcpe.value import *
-from pyminehub.network.address import AddressInPacket
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
-
-ConnectionPacket = ValueObject
 GamePacket = ValueObject
-
-
-class ConnectionPacketType(ValueType):
-    CONNECTED_PING = 0x00
-    CONNECTED_PONG = 0x03
-    CONNECTION_REQUEST = 0x09
-    CONNECTION_REQUEST_ACCEPTED = 0x10
-    NEW_INCOMING_CONNECTION = 0x13
-    DISCONNECTION_NOTIFICATION = 0x15
-    BATCH = 0xfe
 
 
 class GamePacketType(ValueType):
@@ -123,47 +110,6 @@ class GamePacketType(ValueType):
     SERVER_SETTINGS_RESPONSE = 0x67
     SHOW_PROFILE = 0x68
     SET_DEFAULT_GAME_TYPE = 0x69
-
-
-_connection_packet_specs = {
-    ConnectionPacketType.CONNECTED_PING: [
-        ('type', ConnectionPacketType),
-        ('ping_time_since_start', int)
-    ],
-    ConnectionPacketType.CONNECTED_PONG: [
-        ('type', ConnectionPacketType),
-        ('ping_time_since_start', int),
-        ('pong_time_since_start', int)
-    ],
-    ConnectionPacketType.CONNECTION_REQUEST: [
-        ('type', ConnectionPacketType),
-        ('client_guid', int),
-        ('client_time_since_start', int),
-        ('use_encryption', bool)
-    ],
-    ConnectionPacketType.CONNECTION_REQUEST_ACCEPTED: [
-        ('type', ConnectionPacketType),
-        ('client_address', AddressInPacket),
-        ('system_index', int),
-        ('internal_address', Tuple[AddressInPacket, ...]),
-        ('client_time_since_start', int),
-        ('server_time_since_start', int)
-    ],
-    ConnectionPacketType.NEW_INCOMING_CONNECTION: [
-        ('type', ConnectionPacketType),
-        ('server_address', AddressInPacket),
-        ('internal_address', Tuple[AddressInPacket, ...]),
-        ('server_time_since_start', int),
-        ('client_time_since_start', int)
-    ],
-    ConnectionPacketType.DISCONNECTION_NOTIFICATION: [
-        ('type', ConnectionPacketType)
-    ],
-    ConnectionPacketType.BATCH: [
-        ('type', ConnectionPacketType),
-        ('payloads', Tuple[bytes, ...])
-    ]
-}
 
 
 _game_packet_specs = {
@@ -510,5 +456,4 @@ _game_packet_specs = {
 
 EXTRA_DATA = b'\x00\x00'
 
-connection_packet_factory = ValueObjectFactory(_connection_packet_specs)
-game_packet_factory = ValueObjectFactory(_game_packet_specs)
+game_packet_factory = ValueObjectFactory(globals(), _game_packet_specs, 'Packet')

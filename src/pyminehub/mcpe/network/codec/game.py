@@ -4,6 +4,7 @@ Codecs for game packet in batch
 import json
 
 from pyminehub.mcpe.network.packet import *
+from pyminehub.mcpe.value import *
 from pyminehub.network.codec import *
 
 _HEADER_EXTRA_DATA = RawData(2)

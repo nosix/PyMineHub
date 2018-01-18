@@ -1,34 +1,34 @@
-PlayStatus(type=<GamePacketType.PLAY_STATUS: 2>, extra=b'\x00\x00', status=<PlayStatus.LOGIN_SUCCESS: 0>)
+PacketPlayStatus(type=<GamePacketType.PLAY_STATUS: 2>, extra=b'\x00\x00', status=<PlayStatus.LOGIN_SUCCESS: 0>)
   -> 02000000000000
   File "./codec_login_logout.py", line 61, in test_login_s04
     GamePacket(GamePacketType.PLAY_STATUS)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x02\x00\x00\x00\x00\x00\x00',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x02\x00\x00\x00\x00\x00\x00',))
   -> fe7801010800f7ff0702000000000000004e000a
   File "./codec_login_logout.py", line 60, in test_login_s04
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=160, reliable_message_num=0, message_ordering_index=0, message_ordering_chanel=0, payload=[20 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=160, reliable_message_num=0, message_ordering_index=0, message_ordering_chanel=0, payload=[20 bytes])
   -> 6000a000000000000000fe7801010800f7ff0702000000000000004e000a
   File "./codec_login_logout.py", line 59, in test_login_s04
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-ResourcePacksInfo(type=<GamePacketType.RESOURCE_PACKS_INFO: 6>, extra=b'\x00\x00', must_accept=False, behavior_pack_entries=(), resource_pack_entries=())
+PacketResourcePacksInfo(type=<GamePacketType.RESOURCE_PACKS_INFO: 6>, extra=b'\x00\x00', must_accept=False, behavior_pack_entries=(), resource_pack_entries=())
   -> 0600000000000000
   File "./codec_login_logout.py", line 66, in test_login_s04
     GamePacket(GamePacketType.RESOURCE_PACKS_INFO)
 
-Batch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x06\x00\x00\x00\x00\x00\x00\x00',))
+PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=(b'\x06\x00\x00\x00\x00\x00\x00\x00',))
   -> fe7801010900f6ff0806000000000000000081000f
   File "./codec_login_logout.py", line 65, in test_login_s04
     Batch().that_has(
 
-ReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=168, reliable_message_num=1, message_ordering_index=1, message_ordering_chanel=0, payload=[21 bytes])
+FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=168, reliable_message_num=1, message_ordering_index=1, message_ordering_chanel=0, payload=[21 bytes])
   -> 6000a801000001000000fe7801010900f6ff0806000000000000000081000f
   File "./codec_login_logout.py", line 64, in test_login_s04
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-FrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=4, payload=[61 bytes])
+PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=4, payload=[61 bytes])
   -> 840400006000a000000000000000fe7801010800f7ff0702000000000000004e000a6000a801000001000000fe7801010900f6ff0806000000000000000081000f
   File "./codec_login_logout.py", line 58, in test_login_s04
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(

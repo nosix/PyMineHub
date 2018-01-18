@@ -11,7 +11,7 @@ def print_packet_info(specs, data_codecs):
 
 if __name__ == '__main__':
     # noinspection PyProtectedMember
-    from pyminehub.mcpe.network.packet import _game_packet_specs
+    from pyminehub.mcpe.network.packet.game import _game_packet_specs
     # noinspection PyProtectedMember
-    from pyminehub.mcpe.network.codec.batch import _game_data_codecs
+    from pyminehub.mcpe.network.codec.game import _game_data_codecs
     print_packet_info(_game_packet_specs, _game_data_codecs)

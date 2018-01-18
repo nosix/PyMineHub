@@ -4,7 +4,7 @@ from collections import namedtuple
 from typing import Callable, Any
 
 # noinspection PyProtectedMember
-from pyminehub.mcpe.network.codec.batch import _RecipeList, _InventoryContentItems
+from pyminehub.mcpe.network.codec.game import _RecipeList, _InventoryContentItems
 from pyminehub.mcpe.value import *
 from pyminehub.network.codec import CompositeCodecContext
 

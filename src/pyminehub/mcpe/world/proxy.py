@@ -3,7 +3,7 @@ from typing import Optional
 from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.const import GameMode, Difficulty
 from pyminehub.mcpe.event import Event
-from pyminehub.mcpe.resource import CRAFGING_DATA_RECIPE
+from pyminehub.mcpe.resource import CRAFTING_DATA_RECIPE
 from pyminehub.mcpe.value import AdventureSettings
 
 
@@ -11,7 +11,7 @@ class WorldProxy:
 
     @staticmethod
     def get_recipe() -> bytes:
-        return CRAFGING_DATA_RECIPE
+        return CRAFTING_DATA_RECIPE
 
     def terminate(self) -> None:
         raise NotImplementedError()

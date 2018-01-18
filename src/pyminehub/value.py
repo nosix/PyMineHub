@@ -14,23 +14,37 @@ def _snake2camel(name: str) -> str:
 
 class ValueObjectFactory:
 
-    def __init__(self, value_specs: Dict[ValueType, Sequence[Tuple[str, type]]]) -> None:
+    def __init__(
+            self,
+            module_globals: Dict,
+            value_specs: Dict[ValueType, Sequence[Tuple[str, type]]],
+            cls_prefix: str=''
+    ) -> None:
         """Build a factory with the specified specification.
 
-        :param value_specs: tuple has attribute name and attribute type pair
+        :param module_globals: it register NamedTuple classes in this dictionary.
+        :param value_specs: tuple has attribute name and attribute type pair.
+        :param cls_prefix: it append prefix to class name of the NamedTuple class.
         """
         self._factory = dict(
             (
                 value_type,
-                self._create_namedtuple_factory(value_type, field_names)
+                self._create_namedtuple_factory(module_globals, value_type, field_names, cls_prefix)
             )
             for value_type, field_names in value_specs.items())
 
     @staticmethod
     def _create_namedtuple_factory(
-            value_type: ValueType, field_names: Iterable[Tuple[str, type]]) -> Callable[..., ValueObject]:
-        cls_name = _snake2camel(value_type.name)
+            module_globals: Dict,
+            value_type: ValueType,
+            field_names: Iterable[Tuple[str, type]],
+            cls_prefix: str
+    ) -> Callable[..., ValueObject]:
+        cls_name = cls_prefix + _snake2camel(value_type.name)
+        assert cls_name not in module_globals, cls_name
         cls = _NamedTuple(cls_name, field_names)
+        cls.__module__ = module_globals['__name__']  # for pickle
+        module_globals[cls_name] = cls  # for pickle
 
         def namedtuple_factory(*args, **kwargs) -> ValueObject:
             try:
@@ -76,7 +90,7 @@ if __name__ == '__main__':
         ]
     }
 
-    factory = ValueObjectFactory(_packet_specs)
+    factory = ValueObjectFactory(globals(), _packet_specs)
 
     import doctest
     doctest_result = doctest.testmod()

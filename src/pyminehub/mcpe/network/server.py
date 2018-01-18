@@ -260,7 +260,8 @@ class MCPEServerHandler(MCPEDataHandler):
                 self.send_game_packet(text_packet, addr, immediately=False)
 
         command_name, args = packet.command[1:].partition(' ')[0:3:2]
-        self._command.execute_command(CommandContextImpl(self._command, send_text), command_name, args)
+        context = CommandContextImpl(self._command, send_text, self._world.perform)
+        self._command.execute_command(context, command_name, args)
 
     # event handling methods
 
