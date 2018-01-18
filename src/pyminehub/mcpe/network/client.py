@@ -2,6 +2,7 @@ import asyncio
 import uuid
 from logging import getLogger
 from random import randrange
+from typing import Optional
 
 from pyminehub.mcpe.const import CommandOriginDataType
 from pyminehub.mcpe.network.handler import MCPEDataHandler
@@ -51,7 +52,7 @@ class MCPEClientHandler(MCPEDataHandler):
         self.send_connection_packet(send_packet, server_addr, RELIABLE)
         await self._connecting.wait()
 
-    def send_command_request(self, server_addr: Address, command: str) -> None:
+    async def send_command_request(self, server_addr: Address, command: str) -> None:
         send_packet = game_packet_factory.create(
             GamePacketType.COMMAND_REQUEST,
             EXTRA_DATA,
@@ -60,6 +61,7 @@ class MCPEClientHandler(MCPEDataHandler):
             True
         )
         self.send_game_packet(send_packet, server_addr, DEFAULT_CHANEL)
+        await asyncio.sleep(0.1)  # execute the send task
 
     async def wait_response(self) -> GamePacket:
         return await self._queue.get()
@@ -108,8 +110,25 @@ class MCPEClient(AbstractClient):
 
     # local methods
 
-    def wait_response(self) -> GamePacket:
-        return self.loop.run_until_complete(self._handler.wait_response())
+    @staticmethod
+    async def _timeout(future: asyncio.Future, time: float) -> None:
+        await asyncio.sleep(time)
+        future.cancel()
+
+    def wait_response(self, timeout: float=0) -> Optional[GamePacket]:
+        """Wait until it receives a packet
+        :param timeout: seconds. If it is 0 then timeout does not occur.
+        :return: None if timeout occurred.
+        """
+        wait_future = asyncio.ensure_future(self._handler.wait_response())
+        futures = [wait_future]
+        if timeout > 0:
+            timeout_future = asyncio.ensure_future(self._timeout(wait_future, timeout))
+            futures.append(timeout_future)
+        try:
+            return self.loop.run_until_complete(asyncio.gather(*futures))[0]
+        except asyncio.CancelledError:
+            return None
 
     def execute_command(self, command: str) -> None:
-        self._handler.send_command_request(self.server_addr, command)
+        self.loop.run_until_complete(self._handler.send_command_request(self.server_addr, command))

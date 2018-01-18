@@ -16,7 +16,6 @@ class ActionCommandProcessor:
     def perform(self, context: CommandContext, args: str) -> None:
         """Perform action in the world."""
         action = loads(unhexlify(args))
-        print(action)
         context.perform_action(action)
 
 
@@ -117,6 +116,13 @@ def start_console():
             int(player_eid)
         )
 
+    def receive():
+        while True:
+            packet = client.wait_response(0.1)
+            if packet is None:
+                break
+            print(packet)
+
     commands = [
         login,
         chunk,
@@ -138,6 +144,7 @@ def start_console():
                 break
             try:
                 command_map[name](*args)
+                receive()
             except KeyError:
                 print('Unknown command "{}".'.format(name))
 
