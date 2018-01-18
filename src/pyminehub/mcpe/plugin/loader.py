@@ -51,7 +51,8 @@ class PluginLoader:
         sys.path.append(str(plugin_root))
         for node in plugin_root.iterdir():
             plugin_module = importlib.import_module(str(node.name))
-            for attr_name in dir(plugin_module):
+            attr_names = plugin_module.__all__ if hasattr(plugin_module, '__all__') else dir(plugin_module)
+            for attr_name in attr_names:
                 attr = getattr(plugin_module, attr_name)
                 if not isinstance(attr, type):
                     continue
