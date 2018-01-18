@@ -1,4 +1,5 @@
 import chunk_codec
+import client
 import codec_login_logout
 import codec_play
 import command
@@ -23,6 +24,7 @@ def load_tests(loader, tests, pattern):
         protocol_login_logout,
         protocol_play,
         world,
+        client,
     )
     suite = unittest.TestSuite()
     for m in modules:

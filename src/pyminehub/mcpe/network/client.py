@@ -80,9 +80,13 @@ class MCPEClientHandler(MCPEDataHandler):
         self.send_ping(addr)
 
     # noinspection PyUnusedLocal
-    def _process_text(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_text(self, packet: GamePacket, addr: Address) -> None:
         # TODO check text_type and needs_translation
-        print(packet.type.name, packet.message, *packet.parameters)
+        parameters = tuple(str(p) for p in packet.parameters)
+        if len(parameters) > 0:
+            _logger.info('%s: %s (%s)', packet.type.name, packet.message, ', '.join(parameters))
+        else:
+            _logger.info('%s: %s', packet.type.name, packet.message)
         self._queue.put_nowait(packet)
 
 

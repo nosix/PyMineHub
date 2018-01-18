@@ -52,25 +52,54 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         self._sessions[addr] = self.create_session(packet.mtu_size, addr)
 
 
-def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> None:
-    server_address = (get_unspecified_address(), get_value(ConfigKey.SERVER_PORT))
-    listen = loop.create_datagram_endpoint(
-        lambda: _RakNetServerProtocol(loop, handler), local_addr=server_address)
-    transport, protocol = loop.run_until_complete(listen)  # non-blocking
-    try:
-        loop.run_forever()  # blocking
-    except KeyboardInterrupt:
-        pass
-    finally:
-        handler.terminate()
-        protocol.terminate()
-        pending = asyncio.Task.all_tasks()
+class ServerProcess:
+
+    def __init__(self, loop: asyncio.AbstractEventLoop, handler: GameDataHandler, server_address: Address) -> None:
+        self._loop = loop
+        self._handler = handler
+        self._server_address = server_address
+        self._transport = None
+        self._protocol = None
+        self._stopped = False
+
+    def __enter__(self) -> 'ServerProcess':
+        listen = self._loop.create_datagram_endpoint(
+            lambda: _RakNetServerProtocol(self._loop, self._handler), local_addr=self._server_address)
+        self._transport, self._protocol = self._loop.run_until_complete(listen)  # non-blocking
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         try:
-            loop.run_until_complete(asyncio.gather(*pending))
-        except asyncio.CancelledError:
+            if exc_type is None and not self._stopped:
+                self._loop.run_forever()  # blocking
+        except KeyboardInterrupt:
             pass
         finally:
-            transport.close()
+            self._handler.terminate()
+            self._protocol.terminate()
+            pending = asyncio.Task.all_tasks()
+            try:
+                self._loop.run_until_complete(asyncio.gather(*pending))
+            except asyncio.CancelledError:
+                pass
+            finally:
+                self._transport.close()
+
+    def start(self) -> None:
+        self.__enter__()
+
+    def join(self) -> None:
+        self.__exit__(None, None, None)
+
+    def stop(self) -> None:
+        self._stopped = True
+        for task in asyncio.Task.all_tasks(self._loop):
+            task.cancel()
+
+
+def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> ServerProcess:
+    server_address = (get_unspecified_address(), get_value(ConfigKey.SERVER_PORT))
+    return ServerProcess(loop, handler, server_address)
 
 
 if __name__ == '__main__':

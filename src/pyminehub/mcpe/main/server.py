@@ -72,7 +72,8 @@ def run() -> None:
     store.delete_all()
     command = CommandRegistry()
     proxy = run_world(loop, store, get_plugin_loader(command))
-    run_raknet(loop, MCPEServerHandler(proxy, command))
+    with run_raknet(loop, MCPEServerHandler(proxy, command)):
+        pass
     loop.close()
 
 

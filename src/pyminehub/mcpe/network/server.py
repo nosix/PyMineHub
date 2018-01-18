@@ -52,10 +52,10 @@ class MCPEServerHandler(MCPEDataHandler):
     def update_status(self, addr: Address, is_connecting: bool) -> None:
         pass  # TODO implement
 
-    def _forward_packet_to_other_players(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _forward_packet_to_other_players(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         for addr, p in self._session_manager.excluding(player):
-            self.send_game_packet(packet, addr, is_last)
+            self.send_game_packet(packet, addr, immediately=False)
 
     @staticmethod
     def _to_internal_format_hotbar(inventory_slot: int) -> Optional[int]:
@@ -131,8 +131,7 @@ class MCPEServerHandler(MCPEDataHandler):
             self.send_game_packet(remove_player_packet, addr)
         raise SessionNotFound(addr)
 
-    def _process_login(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        assert is_last
+    def _process_login(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         player_data = packet.connection_request.player_data
         client_data = packet.connection_request.client_data
@@ -147,8 +146,7 @@ class MCPEServerHandler(MCPEDataHandler):
         res_packet = game_packet_factory.create(GamePacketType.RESOURCE_PACKS_INFO, EXTRA_DATA, False, (), ())
         self.send_game_packet(res_packet, addr)
 
-    def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        assert is_last
+    def _process_resource_pack_client_response(self, packet: GamePacket, addr: Address) -> None:
         if packet.status == ResourcePackStatus.SEND_PACKS:
             pass  # TODO do something?
         elif packet.status == ResourcePackStatus.HAVE_ALL_PACKS:
@@ -158,8 +156,7 @@ class MCPEServerHandler(MCPEDataHandler):
             player = self._session_manager[addr]
             self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
 
-    def _process_request_chunk_radius(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        assert is_last
+    def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         player.update_required_chunk(packet.radius)
         required_chunk = player.next_required_chunk()
@@ -168,7 +165,7 @@ class MCPEServerHandler(MCPEDataHandler):
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self.send_game_packet(res_packet, addr)
 
-    def _process_move_player(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
         assert packet.entity_runtime_id == self._session_manager[addr].entity_runtime_id
         assert packet.mode != MoveMode.TELEPORT
         self._world.perform(action_factory.create(
@@ -182,25 +179,23 @@ class MCPEServerHandler(MCPEDataHandler):
             packet.on_ground,
             packet.riding_eid
         ))
-        if is_last:
-            self.send_waiting_game_packet()
 
-    def _process_player_action(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        self._forward_packet_to_other_players(packet, addr, is_last)
+    def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
+        self._forward_packet_to_other_players(packet, addr)
 
-    def _process_sound_event(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        self._forward_packet_to_other_players(packet, addr, is_last)
+    def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
+        self._forward_packet_to_other_players(packet, addr)
 
-    def _process_animate(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        self._forward_packet_to_other_players(packet, addr, is_last)
+    def _process_animate(self, packet: GamePacket, addr: Address) -> None:
+        self._forward_packet_to_other_players(packet, addr)
 
-    def _process_space_event(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
-        self._forward_packet_to_other_players(packet, addr, is_last)
+    def _process_space_event(self, packet: GamePacket, addr: Address) -> None:
+        self._forward_packet_to_other_players(packet, addr)
 
-    def _process_interact(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_interact(self, packet: GamePacket, addr: Address) -> None:
         pass  # TODO implement
 
-    def _process_inventory_transaction(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_inventory_transaction(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         if packet.transaction_type == InventoryTransactionType.USE_ITEM:
             if packet.data.action_type == UseItemActionType.BREAK_BLOCK:
@@ -219,10 +214,8 @@ class MCPEServerHandler(MCPEDataHandler):
                         packet.data.hotbar_slot,
                         packet.data.item_in_hand
                     ))
-        if is_last:
-            self.send_waiting_game_packet()
 
-    def _process_mob_equipment(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_mob_equipment(self, packet: GamePacket, addr: Address) -> None:
         assert packet.entity_runtime_id == self._session_manager[addr].entity_runtime_id
         if packet.window_type == WindowType.INVENTORY:
             self._world.perform(action_factory.create(
@@ -232,10 +225,8 @@ class MCPEServerHandler(MCPEDataHandler):
                 packet.hotbar_slot,
                 packet.item
             ))
-        if is_last:
-            self.send_waiting_game_packet()
 
-    def _process_player_hotbar(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_player_hotbar(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]
         if packet.window_type == WindowType.INVENTORY:
             self._world.perform(action_factory.create(
@@ -246,10 +237,8 @@ class MCPEServerHandler(MCPEDataHandler):
             ))
         else:
             raise NotImplementedError()
-        if is_last:
-            self.send_waiting_game_packet()
 
-    def _process_command_request(self, packet: GamePacket, addr: Address, is_last: bool) -> None:
+    def _process_command_request(self, packet: GamePacket, addr: Address) -> None:
         assert packet.command[0] == '/'
 
         def send_text(text: str, broadcast: bool):
@@ -266,15 +255,12 @@ class MCPEServerHandler(MCPEDataHandler):
             )
             if broadcast:
                 for addr in self._session_manager.addresses:
-                    self.send_game_packet(text_packet, addr)
+                    self.send_game_packet(text_packet, addr, immediately=False)
             else:
-                self.send_game_packet(text_packet, addr)
+                self.send_game_packet(text_packet, addr, immediately=False)
 
         command_name, args = packet.command[1:].partition(' ')[0:3:2]
         self._command.execute_command(CommandContextImpl(self._command, send_text), command_name, args)
-
-        if is_last:
-            self.send_waiting_game_packet()
 
     # event handling methods
 

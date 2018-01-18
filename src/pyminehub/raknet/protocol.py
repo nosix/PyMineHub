@@ -47,7 +47,8 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         _logger.exception('RakNet connection lost', exc_info=exc)
         self.__transport = None
         if self.__stop_loop:
-            self.__loop.stop()
+            for task in asyncio.Task.all_tasks(self.__loop):
+                task.cancel()
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
         _logger.debug('%s > %s', addr, data.hex())

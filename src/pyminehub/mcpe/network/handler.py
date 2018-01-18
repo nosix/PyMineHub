@@ -73,16 +73,16 @@ class MCPEDataHandler(GameDataHandler):
         return int(1000 * (time.time() - self.__start_time))
 
     def _process_batch(self, packet: ConnectionPacket, addr: Address) -> None:
-        last_index = len(packet.payloads) - 1
         for i, data in enumerate(packet.payloads):
             try:
                 packet = game_packet_codec.decode(data)
                 _logger.debug('> %s', LogString(packet))
-                getattr(self, '_process_' + packet.type.name.lower())(packet, addr, i == last_index)
+                getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
             except AttributeError as exc:
                 _logger.exception('%s', exc)
             except KeyError as exc:
                 _logger.exception('%s is not supported in batch processing.', exc)
+        self.send_waiting_game_packet()
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
         res_packet = connection_packet_factory.create(
