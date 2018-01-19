@@ -9,10 +9,13 @@
 256
 """
 from enum import Enum
+from logging import getLogger
 from random import randrange
-from typing import Dict, Any
+from typing import Any, Dict
 
 from pyminehub.typevar import T
+
+_logger = getLogger(__name__)
 
 
 class ConfigKey(Enum):
@@ -69,6 +72,11 @@ def set_config(**kwargs) -> None:
 
 def get_value(key: ConfigKey) -> T:
     return _config[key]
+
+
+def print_config(*target: ConfigKey) -> None:
+    for key in target:
+        _logger.info('%s=%s', key.name, get_value(key))
 
 
 reset()

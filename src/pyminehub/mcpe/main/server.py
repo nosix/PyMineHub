@@ -66,6 +66,15 @@ def run() -> None:
     from pyminehub.mcpe.plugin.loader import get_plugin_loader
     from pyminehub.mcpe.world import run as run_world
     from pyminehub.raknet import run_raknet
+    from pyminehub.config import ConfigKey, print_config
+
+    print_config(
+        ConfigKey.SERVER_PORT,
+        ConfigKey.SEED,
+        ConfigKey.SPAWN_MOB,
+        ConfigKey.WORLD_NAME,
+        ConfigKey.GAME_MODE,
+    )
 
     loop = asyncio.get_event_loop()
     store = create_data_store()
