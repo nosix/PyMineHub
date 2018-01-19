@@ -3,7 +3,7 @@ import time
 from logging import getLogger
 
 from pyminehub.config import ConfigKey, get_value
-from pyminehub.mcpe.action import Action
+from pyminehub.mcpe.action import Action, ActionType, action_factory
 from pyminehub.mcpe.attribute import create_attribute
 from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.datastore import DataStore
@@ -333,11 +333,10 @@ class _World(WorldProxy, WorldEditor):
         player.hotbar = action.hotbar
         player.hotbar_slot = action.hotbar_slot
 
-    # mob action handle methods
-
-    def _process_mob_spawn(self, action: MobSpawn) -> None:
-        entity_runtime_id = self._entity.create_mob(action.type)
-        self._mob_id_to_entity_id[action.mob_id] = entity_runtime_id
+    def _process_spawn_mob(self, action: Action, mob_id: Optional[MobID]=None) -> None:
+        entity_runtime_id = self._entity.create_mob(action.entity_type)
+        if mob_id is not None:
+            self._mob_id_to_entity_id[mob_id] = entity_runtime_id
         mob = self._entity.get_mob(entity_runtime_id)
         mob.name = action.name
         mob.position = self._space.revise_position(action.position)
@@ -355,9 +354,8 @@ class _World(WorldProxy, WorldEditor):
             mob.name
         ))
 
-    def _process_mob_move(self, action: MobMove) -> None:
-        entity_runtime_id = self._mob_id_to_entity_id[action.mob_id]
-        mob = self._entity.get_mob(entity_runtime_id)
+    def _process_move_mob(self, action: Action) -> None:
+        mob = self._entity.get_mob(action.entity_runtime_id)
         mob.position = self._space.revise_position(action.position)
         mob.pitch = revise_pitch(action.pitch)
         mob.yaw = revise_yaw(action.yaw)
@@ -369,6 +367,34 @@ class _World(WorldProxy, WorldEditor):
             mob.yaw,
             mob.on_ground
         ))
+
+    # mob action handle methods
+
+    def _process_mob_spawn(self, action: MobSpawn) -> None:
+        self._process_spawn_mob(
+            action_factory.create(
+                ActionType.SPAWN_MOB,
+                action.type,
+                action.name,
+                action.position,
+                action.pitch,
+                action.yaw
+            ),
+            action.mob_id,
+            # TODO pass action.monitor_nearby_chunks
+        )
+
+    def _process_mob_move(self, action: MobMove) -> None:
+        entity_runtime_id = self._mob_id_to_entity_id[action.mob_id]
+        self._process_move_mob(
+            action_factory.create(
+                ActionType.MOVE_MOB,
+                entity_runtime_id,
+                action.position,
+                action.pitch,
+                action.yaw
+            )
+        )
 
 
 def run(loop: asyncio.AbstractEventLoop, store: DataStore, plugin: PluginLoader) -> WorldProxy:

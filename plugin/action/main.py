@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 from binascii import unhexlify, hexlify
 from pickle import dumps, loads
 
@@ -7,7 +8,7 @@ from pyminehub.mcpe.command import *
 from pyminehub.mcpe.network import MCPEClient
 from pyminehub.mcpe.plugin.command import *
 from pyminehub.mcpe.value import *
-from pyminehub.raknet import ClientConnection
+from pyminehub.raknet import ClientConnection, connect_raknet
 
 
 class ActionCommandProcessor:
@@ -34,6 +35,117 @@ class ActionCommandClient(MCPEClient):
         data = hexlify(dumps(action)).decode()
         self.execute_command('/perform {}'.format(data))
 
+    def login(self):
+        self.perform_action(action_factory.create(
+            ActionType.LOGIN_PLAYER,
+            uuid.uuid4()
+        ))
+
+    def chunk(self, x: int, z: int):
+        self.perform_action(
+            ActionType.REQUEST_CHUNK,
+            (
+                ChunkPositionWithDistance(0, ChunkPosition(x, z)),
+            )
+        )
+
+    def entity(self, player_eid: EntityRuntimeID):
+        self.perform_action(
+            ActionType.REQUEST_ENTITY,
+            player_eid
+        )
+
+    def move(
+            self,
+            player_eid: EntityRuntimeID,
+            east: float, south: float, height: float,
+            pitch: float=0.0, yaw: float=0.0, head_yaw: float=0.0
+    ):
+        self.perform_action(
+            ActionType.MOVE_PLAYER,
+            player_eid,
+            Vector3(east, height, south),
+            pitch, yaw, head_yaw,
+            MoveMode.NORMAL,
+            True,
+            0
+        )
+
+    def break_block(self, player_eid: EntityRuntimeID, east: int, south: int, height: int):
+        self.perform_action(
+            ActionType.BREAK_BLOCK,
+            player_eid,
+            Vector3(east, height, south)
+        )
+
+    def put_item(
+            self,
+            player_eid: EntityRuntimeID,
+            east: int, south: int, height: int,
+            hotbar_slot: int,
+            item_type: ItemType,
+            face: Face=Face.TOP
+    ):
+        self.perform_action(
+            ActionType.PUT_ITEM,
+            player_eid,
+            Vector3(east, height, south),
+            face,
+            hotbar_slot,
+            Item.create(item_type, 1)
+        )
+
+    def equip(
+            self,
+            player_eid: EntityRuntimeID,
+            inventory_slot: int, hotbar_slot: int,
+            item_type: ItemType,
+            quantity: int=1
+    ):
+        self.perform_action(
+            ActionType.EQUIP,
+            player_eid,
+            inventory_slot,
+            hotbar_slot,
+            Item.create(item_type, quantity)
+        )
+
+    def logout(self, player_eid: EntityRuntimeID):
+        self.perform_action(
+            ActionType.LOGOUT_PLAYER,
+            player_eid
+        )
+
+    def spawn_mob(
+            self,
+            entity_type: EntityType,
+            east: float, south: float, height: float,
+            pitch: float=0.0, yaw: float=0.0,
+            name: Optional[str]=None
+    ):
+        self.perform_action(
+            ActionType.SPAWN_MOB,
+            entity_type,
+            name,
+            Vector3(east, height, south),
+            pitch,
+            yaw
+        )
+
+    def move_mob(
+            self,
+            mob_eid: EntityRuntimeID,
+            east: float, south: float, height: float,
+            pitch: float=0.0, yaw: float=0.0
+    ):
+        self.perform_action(
+            ActionType.MOVE_MOB,
+            mob_eid,
+            Vector3(east, height, south),
+            pitch,
+            yaw
+        )
+
 
 def connect(
         server_host: str,
@@ -46,108 +158,14 @@ def connect(
     :param port: port number that PyMineHub server listen
     :param loop: client run on this loop
     """
-    from pyminehub.raknet import connect_raknet
     return connect_raknet(ActionCommandClient(), server_host, port, loop)
 
 
-def start_console():
-    import uuid
-
-    def login():
-        client.perform_action(action_factory.create(
-            ActionType.LOGIN_PLAYER,
-            uuid.uuid4()
-        ))
-
-    def chunk(x: str, z: str):
-        client.perform_action(
-            ActionType.REQUEST_CHUNK,
-            (
-                ChunkPositionWithDistance(0, ChunkPosition(int(x), int(z))),
-            )
-        )
-
-    def entity(player_eid: str):
-        client.perform_action(
-            ActionType.REQUEST_ENTITY,
-            int(player_eid)
-        )
-
-    def break_block(player_eid: str, x: str, y: str, z: str):
-        client.perform_action(
-            ActionType.BREAK_BLOCK,
-            int(player_eid),
-            Vector3(int(x), int(y), int(z))
-        )
-
-    def move_player(player_eid: str, x: str, y: str, z: str, pitch: str='0', yaw: str='0', head_yaw: str='0'):
-        client.perform_action(
-            ActionType.MOVE_PLAYER,
-            int(player_eid),
-            Vector3(float(x), float(y), float(z)),
-            float(pitch), float(yaw), float(head_yaw),
-            MoveMode.NORMAL,
-            True,
-            0
-        )
-
-    def put_item(player_eid: str, x: str, y: str, z: str, hotbar_slot: str, item: str, face: str= 'top'):
-        client.perform_action(
-            ActionType.PUT_ITEM,
-            int(player_eid),
-            Vector3(int(x), int(y), int(z)),
-            Face[face.upper()],
-            int(hotbar_slot),
-            Item.create(ItemType[item.upper()], 1)
-        )
-
-    def equip(player_eid: str, inventory_slot: str, hotbar_slot: str, item: str, quantity: str='1'):
-        client.perform_action(
-            ActionType.EQUIP,
-            int(player_eid),
-            int(inventory_slot),
-            int(hotbar_slot),
-            Item.create(ItemType[item.upper()], int(quantity))
-        )
-
-    def logout(player_eid: str):
-        client.perform_action(
-            ActionType.LOGOUT_PLAYER,
-            int(player_eid)
-        )
-
-    def receive():
-        while True:
-            packet = client.wait_response(0.1)
-            if packet is None:
-                break
-            print(packet)
-
-    commands = [
-        login,
-        chunk,
-        entity,
-        break_block,
-        move_player,
-        put_item,
-        equip,
-        logout
-    ]
-
-    command_map = dict((c.__name__, c) for c in commands)
-
-    with connect('127.0.0.1') as client:
-        while True:
-            args = input('> ').split()
-            name = args.pop(0)
-            if name == 'exit':
-                break
-            try:
-                command_map[name](*args)
-                receive()
-            except KeyError:
-                print('Unknown command "{}".'.format(name))
-
-
 if __name__ == '__main__':
-    start_console()
+    with connect('127.0.0.1') as _client:
+        _move = 0.0
+        _client.spawn_mob(EntityType.CHICKEN, 256.0, 256.0, 65.0)
+        _packet = _client.wait_response()
+        while True:
+            _move += 0.5
+            _client.move_mob(_packet.entity_runtime_id, 256.0, 256.6 + _move, 65.0)

@@ -137,6 +137,13 @@ class ClientConnection(Generic[Client]):
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         self._client.terminate()
 
+    def start(self) -> Client:
+        # noinspection PyTypeChecker
+        return self.__enter__()  # FIXME why is type check fail?
+
+    def close(self) -> None:
+        self.__exit__(None, None, None)
+
 
 def connect_raknet(
         client: Client,

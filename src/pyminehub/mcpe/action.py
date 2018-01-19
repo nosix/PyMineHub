@@ -14,6 +14,8 @@ class ActionType(ValueType):
     LOGOUT_PLAYER = 6
     SET_HOTBAR = 7
     REQUEST_ENTITY = 8
+    SPAWN_MOB = 9
+    MOVE_MOB = 10
 
 
 _action_specs = {
@@ -69,6 +71,21 @@ _action_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('hotbar_slot', int),
         ('hotbar', Hotbar)
+    ],
+    ActionType.SPAWN_MOB: [
+        ('type', ActionType),
+        ('entity_type', EntityType),
+        ('name', Optional[str]),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float)
+    ],
+    ActionType.MOVE_MOB: [
+        ('type', ActionType),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[float]),
+        ('pitch', float),
+        ('yaw', float)
     ]
 }
 

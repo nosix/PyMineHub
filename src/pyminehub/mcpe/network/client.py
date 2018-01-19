@@ -93,6 +93,14 @@ class MCPEClientHandler(MCPEDataHandler):
             _logger.info('%s: %s', packet.type.name, packet.message)
         self._queue.put_nowait(packet)
 
+    # noinspection PyUnusedLocal
+    def _process_add_entity(self, packet: GamePacket, addr: Address) -> None:
+        self._queue.put_nowait(packet)
+
+    # noinspection PyUnusedLocal
+    def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
+        self._queue.put_nowait(packet)
+
 
 class MCPEClient(AbstractClient):
 
