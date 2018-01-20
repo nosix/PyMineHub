@@ -85,10 +85,11 @@ class ClientTestCase(TestCase):
                 _perform_action(client, action_factory.create(
                     ActionType.SPAWN_MOB,
                     EntityType.CHICKEN,
-                    None,
                     Vector3(256.0, 65.0, 256.0),
                     0.0,
-                    0.0
+                    0.0,
+                    None,
+                    None
                 ))
 
                 actual_packet = client.wait_response(1)

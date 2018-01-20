@@ -63,15 +63,15 @@ class MCPEServerHandler(MCPEDataHandler):
 
     @staticmethod
     def _mob_spawned_event_to_metadata(event: Event) -> Tuple[EntityMetaData, ...]:
-        if event.name is None:
-            return tuple()
-        else:
-            return (
-                create_entity_metadata(EntityMetaDataKey.FLAGS, EntityMetaDataFlagValue.create(
-                    always_show_nametag=True
-                ).flags),
-                create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name),
-            )
+        metadata = []
+        if event.name is not None:
+            metadata.append(create_entity_metadata(EntityMetaDataKey.FLAGS, EntityMetaDataFlagValue.create(
+                always_show_nametag=True
+            ).flags))
+            metadata.append(create_entity_metadata(EntityMetaDataKey.NAMETAG, event.name))
+        if event.owner_runtime_id is not None:
+            metadata.append(create_entity_metadata(EntityMetaDataKey.OWNER_EID, event.owner_runtime_id))
+        return tuple(metadata)
 
     # packet handling methods
 

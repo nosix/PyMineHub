@@ -75,10 +75,11 @@ _action_specs = {
     ActionType.SPAWN_MOB: [
         ('type', ActionType),
         ('entity_type', EntityType),
-        ('name', Optional[str]),
         ('position', Vector3[float]),
         ('pitch', float),
-        ('yaw', float)
+        ('yaw', float),
+        ('name', Optional[str]),
+        ('owner_runtime_id', Optional[EntityRuntimeID])
     ],
     ActionType.MOVE_MOB: [
         ('type', ActionType),

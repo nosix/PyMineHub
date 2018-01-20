@@ -9,9 +9,9 @@ from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.skin import *
-from pyminehub.mcpe.value import CommandOriginData, ConnectionRequest
+from pyminehub.mcpe.value import EntityRuntimeID, CommandOriginData, ConnectionRequest
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.raknet import AbstractClient, GameDataHandler
+from pyminehub.raknet import AbstractClient
 
 _logger = getLogger(__name__)
 
@@ -26,12 +26,18 @@ class MCPEClientHandler(MCPEDataHandler):
         self._queue = asyncio.Queue()
         self._request_time = None
         self._is_active = asyncio.Event()
+        self._entity_runtime_id = None  # type: EntityRuntimeID
 
     # GameDataHandler interface methods
 
     @property
     def guid(self) -> int:
         return self._guid
+
+    @property
+    def entity_runtime_id(self) -> EntityRuntimeID:
+        assert self._entity_runtime_id is not None
+        return self._entity_runtime_id
 
     async def update(self) -> None:
         await asyncio.Event().wait()
@@ -133,8 +139,9 @@ class MCPEClientHandler(MCPEDataHandler):
         if packet.status == PlayStatus.PLAYER_SPAWN:
             self._is_active.set()
 
+    # noinspection PyUnusedLocal
     def _process_start_game(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        self._entity_runtime_id = packet.entity_runtime_id
 
     def _process_set_time(self, packet: GamePacket, addr: Address) -> None:
         pass
@@ -216,7 +223,7 @@ class MCPEClient(AbstractClient):
     # AbstractClient methods
 
     @property
-    def handler(self) -> GameDataHandler:
+    def handler(self) -> MCPEClientHandler:
         return self._handler
 
     async def start(self) -> None:

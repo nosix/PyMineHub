@@ -1,11 +1,11 @@
 import asyncio
-import uuid
 from binascii import unhexlify, hexlify
 from pickle import dumps, loads
 
 from pyminehub.mcpe.action import ActionType, action_factory
 from pyminehub.mcpe.command import *
 from pyminehub.mcpe.network import MCPEClient
+from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.mcpe.plugin.command import *
 from pyminehub.mcpe.value import *
 from pyminehub.raknet import ClientConnection, connect_raknet
@@ -29,17 +29,14 @@ class ActionCommandPlugin(ExtraCommandPlugin):
 
 class ActionCommandClient(MCPEClient):
 
+    def _player_eid(self, player_eid: Optional[EntityRuntimeID]) -> EntityRuntimeID:
+        return player_eid if player_eid is not None else self.handler.entity_runtime_id
+
     def perform_action(self, action_or_type: Union[Action, ActionType], *args, **kwargs) -> None:
         action = action_factory.create(action_or_type, *args, **kwargs) \
             if isinstance(action_or_type, ActionType) else action_or_type
         data = hexlify(dumps(action)).decode()
         self.execute_command('/perform {}'.format(data))
-
-    def login(self):
-        self.perform_action(action_factory.create(
-            ActionType.LOGIN_PLAYER,
-            uuid.uuid4()
-        ))
 
     def chunk(self, x: int, z: int):
         self.perform_action(
@@ -49,21 +46,21 @@ class ActionCommandClient(MCPEClient):
             )
         )
 
-    def entity(self, player_eid: EntityRuntimeID):
+    def entity(self, player_eid: Optional[EntityRuntimeID]=None):
         self.perform_action(
             ActionType.REQUEST_ENTITY,
-            player_eid
+            self._player_eid(player_eid)
         )
 
     def move(
             self,
-            player_eid: EntityRuntimeID,
             east: float, south: float, height: float,
-            pitch: float=0.0, yaw: float=0.0, head_yaw: float=0.0
+            pitch: float=0.0, yaw: float=0.0, head_yaw: float=0.0,
+            player_eid: Optional[EntityRuntimeID]= None
     ):
         self.perform_action(
             ActionType.MOVE_PLAYER,
-            player_eid,
+            self._player_eid(player_eid),
             Vector3(east, height, south),
             pitch, yaw, head_yaw,
             MoveMode.NORMAL,
@@ -71,24 +68,24 @@ class ActionCommandClient(MCPEClient):
             0
         )
 
-    def break_block(self, player_eid: EntityRuntimeID, east: int, south: int, height: int):
+    def break_block(self, east: int, south: int, height: int, player_eid: Optional[EntityRuntimeID]=None):
         self.perform_action(
             ActionType.BREAK_BLOCK,
-            player_eid,
+            self._player_eid(player_eid),
             Vector3(east, height, south)
         )
 
     def put_item(
             self,
-            player_eid: EntityRuntimeID,
             east: int, south: int, height: int,
             hotbar_slot: int,
             item_type: ItemType,
-            face: Face=Face.TOP
+            face: Face=Face.TOP,
+            player_eid: Optional[EntityRuntimeID]=None
     ):
         self.perform_action(
             ActionType.PUT_ITEM,
-            player_eid,
+            self._player_eid(player_eid),
             Vector3(east, height, south),
             face,
             hotbar_slot,
@@ -97,23 +94,17 @@ class ActionCommandClient(MCPEClient):
 
     def equip(
             self,
-            player_eid: EntityRuntimeID,
             inventory_slot: int, hotbar_slot: int,
             item_type: ItemType,
-            quantity: int=1
+            quantity: int=1,
+            player_eid: Optional[EntityRuntimeID]=None
     ):
         self.perform_action(
             ActionType.EQUIP,
-            player_eid,
+            self._player_eid(player_eid),
             inventory_slot,
             hotbar_slot,
             Item.create(item_type, quantity)
-        )
-
-    def logout(self, player_eid: EntityRuntimeID):
-        self.perform_action(
-            ActionType.LOGOUT_PLAYER,
-            player_eid
         )
 
     def spawn_mob(
@@ -126,10 +117,11 @@ class ActionCommandClient(MCPEClient):
         self.perform_action(
             ActionType.SPAWN_MOB,
             entity_type,
-            name,
             Vector3(east, height, south),
             pitch,
-            yaw
+            yaw,
+            name,
+            self.handler.entity_runtime_id
         )
 
     def move_mob(
@@ -163,9 +155,20 @@ def connect(
 
 if __name__ == '__main__':
     with connect('127.0.0.1') as _client:
+        _client.wait_response()  # Login text
         _move = 0.0
         _client.spawn_mob(EntityType.CHICKEN, 256.0, 256.0, 65.0)
-        _packet = _client.wait_response()
+        while True:
+            _packet = _client.wait_response()
+            if _packet.type == GamePacketType.ADD_ENTITY:
+                for _metadata in _packet.metadata:
+                    if _metadata.key == EntityMetaDataKey.OWNER_EID and \
+                            _metadata.value == _client.handler.entity_runtime_id:
+                        mob_runtime_id = _packet.entity_runtime_id
+                        break
+                else:
+                    continue
+                break
         while True:
             _move += 0.5
-            _client.move_mob(_packet.entity_runtime_id, 256.0, 256.6 + _move, 65.0)
+            _client.move_mob(mob_runtime_id, 256.0, 256.6 + _move, 65.0)

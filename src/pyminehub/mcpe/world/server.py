@@ -234,7 +234,8 @@ class _World(WorldProxy, WorldEditor):
             mob.position,
             mob.pitch,
             mob.yaw,
-            mob.name
+            mob.name,
+            None  # TODO set owner
         ) for mob in self._entity.mobs)
         self._notify_event(event_factory.create(
             EventType.ENTITY_LOADED,
@@ -351,7 +352,8 @@ class _World(WorldProxy, WorldEditor):
             mob.position,
             mob.pitch,
             mob.yaw,
-            mob.name
+            mob.name,
+            action.owner_runtime_id
         ))
 
     def _process_move_mob(self, action: Action) -> None:
@@ -375,10 +377,11 @@ class _World(WorldProxy, WorldEditor):
             action_factory.create(
                 ActionType.SPAWN_MOB,
                 action.type,
-                action.name,
                 action.position,
                 action.pitch,
-                action.yaw
+                action.yaw,
+                action.name,
+                None
             ),
             action.mob_id,
             # TODO pass action.monitor_nearby_chunks

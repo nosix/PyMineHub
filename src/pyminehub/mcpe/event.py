@@ -115,7 +115,8 @@ _event_specs = {
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
-        ('name', Optional[str])
+        ('name', Optional[str]),
+        ('owner_runtime_id', Optional[EntityRuntimeID])
     ],
     EventType.MOB_MOVED: [
         ('type', EventType),

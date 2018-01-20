@@ -126,7 +126,7 @@ class ClientConnection(Generic[Client]):
             server_addr: Address,
             loop: Optional[asyncio.AbstractEventLoop]=None
     ) -> None:
-        internal_loop = asyncio.new_event_loop() if loop is None else loop
+        internal_loop = asyncio.get_event_loop() if loop is None else loop
         self._client = client
         self._server_addr = server_addr
         self._loop = internal_loop
