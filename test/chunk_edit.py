@@ -1,6 +1,7 @@
 from pyminehub.mcpe.chunk import decode_chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.geometry import Vector3
+from pyminehub.mcpe.value import Block
 from testcase.chunk import ChunkTestCase
 
 

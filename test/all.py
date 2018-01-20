@@ -1,4 +1,5 @@
 import chunk_codec
+import chunk_edit
 import client
 import codec_login_logout
 import codec_play
@@ -18,6 +19,7 @@ def load_tests(loader, tests, pattern):
         geometry,
         command,
         chunk_codec,
+        chunk_edit,
         codec_login_logout,
         codec_play,
         protocol_unconnected,
