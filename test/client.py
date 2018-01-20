@@ -3,6 +3,7 @@ from binascii import unhexlify, hexlify
 from pickle import loads, dumps
 from unittest import TestCase
 
+from pyminehub.config import set_config
 from pyminehub.mcpe.action import action_factory, Action, ActionType
 from pyminehub.mcpe.command import CommandRegistry, CommandContext, command
 from pyminehub.mcpe.const import *
@@ -13,7 +14,7 @@ from pyminehub.mcpe.network.packet import EXTRA_DATA, GamePacketType, game_packe
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.world import run as run_world
 from pyminehub.raknet import run_raknet
-from util.mock import MockWorldProxy, MockDataStore
+from util.mock import MockDataStore
 
 
 def _encode_action(action: Action) -> str:
@@ -41,16 +42,27 @@ class CommandProcessor:
 
 class ClientTestCase(TestCase):
 
-    def test_command_request(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    def setUp(self):
+        set_config(spawn_mob=False)
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
         registry = CommandRegistry()
         registry.register_command_processor(CommandProcessor())
+        store = MockDataStore()
+        proxy = run_world(self._loop, store, PluginLoader('', registry))
+        self._handler = MCPEServerHandler(proxy, registry)
 
-        with run_raknet(loop, MCPEServerHandler(MockWorldProxy(), registry)) as server:
-            with connect('127.0.0.1', loop=loop) as client:
+    def tearDown(self):
+        self._loop.close()
+
+    def test_command_request(self):
+        with run_raknet(self._loop, self._handler) as server:
+            with connect('127.0.0.1', loop=self._loop) as client:
+                packet = client.wait_response(1)
+                self.assertEqual(GamePacketType.TEXT, packet.type)
+
                 client.execute_command('/ban taro')
-                actual_packet = client.wait_response()
+                actual_packet = client.wait_response(1)
                 expected_packet = game_packet_factory.create(
                     GamePacketType.TEXT,
                     EXTRA_DATA,
@@ -63,18 +75,13 @@ class ClientTestCase(TestCase):
                 )
                 self.assertEqual(expected_packet, actual_packet)
             server.stop()
-        loop.close()
 
     def test_perform_action(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        registry = CommandRegistry()
-        registry.register_command_processor(CommandProcessor())
+        with run_raknet(self._loop, self._handler) as server:
+            with connect('127.0.0.1', loop=self._loop) as client:
+                packet = client.wait_response(1)
+                self.assertEqual(GamePacketType.TEXT, packet.type)
 
-        store = MockDataStore()
-        proxy = run_world(loop, store, PluginLoader('', registry))
-        with run_raknet(loop, MCPEServerHandler(proxy, registry)) as server:
-            with connect('127.0.0.1', loop=loop) as client:
                 _perform_action(client, action_factory.create(
                     ActionType.SPAWN_MOB,
                     EntityType.CHICKEN,
@@ -84,12 +91,12 @@ class ClientTestCase(TestCase):
                     0.0
                 ))
 
-                actual_packet = client.wait_response()
+                actual_packet = client.wait_response(1)
                 expected_packet = game_packet_factory.create(
                     GamePacketType.ADD_ENTITY,
                     EXTRA_DATA,
-                    entity_unique_id=1,
-                    entity_runtime_id=1,
+                    entity_unique_id=2,
+                    entity_runtime_id=2,
                     entity_type=EntityType.CHICKEN,
                     position=Vector3(256.0, 63.0, 256.0),  # height is adjusted
                     motion=Vector3(0.0, 0.0, 0.0),
@@ -103,17 +110,17 @@ class ClientTestCase(TestCase):
 
                 _perform_action(client, action_factory.create(
                     ActionType.MOVE_MOB,
-                    1,
+                    2,
                     Vector3(257.0, 63.0, 254.0),
                     45.0,
                     90.0
                 ))
 
-                actual_packet = client.wait_response()
+                actual_packet = client.wait_response(1)
                 expected_packet = game_packet_factory.create(
                     GamePacketType.MOVE_ENTITY,
                     EXTRA_DATA,
-                    entity_runtime_id=1,
+                    entity_runtime_id=2,
                     position=Vector3(257.0, 63.0, 254.0),
                     pitch=45.0,
                     head_yaw=0.0,
@@ -123,7 +130,6 @@ class ClientTestCase(TestCase):
                 )
                 self.assertEqual(expected_packet, actual_packet)
             server.stop()
-        loop.close()
 
 
 if __name__ == '__main__':

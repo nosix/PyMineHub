@@ -83,7 +83,9 @@ class ServerProcess:
             except asyncio.CancelledError:
                 pass
             finally:
-                self._transport.close()
+                async def close():
+                    self._transport.close()
+                self._loop.run_until_complete(close())  # sock.close() is called with loop.call_soon()
 
     def start(self) -> None:
         self.__enter__()

@@ -31,26 +31,44 @@ _BLOCK_POSITION_DATA = CompositeData(Vector3, (
 
 class _ConnectionRequest(DataCodec[ConnectionRequest]):
 
+    _BYTES_DATA = BytesData(len_codec=L_INT_DATA)
+
     @classmethod
-    def _read_jwt(cls, data: bytes) -> str:
+    def _jwt_to_json(cls, data: bytes) -> Dict:
         head_base64, payload_base64, sig_base64 = data.split(b'.')
         return json.loads(decode_base64(payload_base64).decode())
 
-    def read(self, data: bytearray, context: DataCodecContext) -> ConnectionRequest:
-        length = VAR_INT_DATA.read(data, context)
-        d = bytearray(pop_first(data, length))
-        context.length += length
+    @classmethod
+    def _json_to_jwt(cls, value: Dict) -> bytes:
+        payload_base64 = encode_base64(json.dumps(value).encode())
+        return b'.' + payload_base64 + b'.'
 
+    def read(self, data: bytearray, context: DataCodecContext) -> ConnectionRequest:
+        d = bytearray(VAR_BYTES_DATA.read(data, context))
         local_context = DataCodecContext()
-        chain_data_raw = pop_first(d, L_INT_DATA.read(d, local_context))
+        chain_data_raw = self._BYTES_DATA.read(d, local_context)
         chain_data = json.loads(chain_data_raw.decode())
-        chain_list = tuple(map(lambda _chain: self._read_jwt(_chain.encode('ascii')), chain_data['chain']))
-        client_data_jwt = pop_first(d, L_INT_DATA.read(d, local_context))
-        client_data = self._read_jwt(client_data_jwt)
+        chain_list = tuple(map(lambda _chain: self._jwt_to_json(_chain.encode('ascii')), chain_data['chain']))
+        client_data_jwt = self._BYTES_DATA.read(d, local_context)
+        client_data = self._jwt_to_json(client_data_jwt)
         return ConnectionRequest(chain_list, client_data)
 
     def write(self, data: bytearray, value: ConnectionRequest, context: DataCodecContext) -> None:
-        raise NotImplementedError()
+        """Simplified write
+
+        It is not symmetrical with the read method.
+        """
+        d = bytearray()
+        local_context = DataCodecContext()
+        chain_data = {
+            'chain': tuple(map(lambda _value: self._json_to_jwt(_value).decode('ascii'), value.chain))
+        }
+        chain_data_raw = json.dumps(chain_data).encode()
+        self._BYTES_DATA.write(d, chain_data_raw, local_context)
+        client_data = self._json_to_jwt(value.client)
+        self._BYTES_DATA.write(d, client_data, local_context)
+
+        VAR_BYTES_DATA.write(data, d, context)
 
 
 _PACK_ENTRY_DATA = VarListData(L_SHORT_DATA, CompositeData(PackEntry, (

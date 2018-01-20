@@ -13,27 +13,20 @@ from util.mock import MockDataStore
 
 class WorldTestCase(TestCase):
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        loop = asyncio.get_event_loop()
-
-        def cancel_all(_loop, _context):
-            tasks = asyncio.Task.all_tasks()
-            for task in tasks:
-                if not task.done() and not task.cancelled():
-                    task.set_exception(_context['exception'])
-
-        loop.set_exception_handler(cancel_all)
-
     def setUp(self) -> None:
         set_config(spawn_mob=False)
-        self._loop = asyncio.get_event_loop()
+        self._loop = asyncio.new_event_loop()
         self._world = run(self._loop, MockDataStore(), get_plugin_loader())
         self._players = []
 
-    @classmethod
-    def tearDownClass(cls) -> None:
-        asyncio.get_event_loop().close()
+    def tearDown(self) -> None:
+        self._world.terminate()
+        pending = asyncio.Task.all_tasks(loop=self._loop)
+        try:
+            self._loop.run_until_complete(asyncio.gather(*pending))
+        except asyncio.CancelledError:
+            pass
+        self._loop.close()
 
     def _perform_action(self, action_type: ActionType, *args, **kwargs) -> None:
         self._world.perform(action_factory.create(action_type, *args, **kwargs))

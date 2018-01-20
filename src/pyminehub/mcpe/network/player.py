@@ -19,6 +19,7 @@ class Player:
         self._equipped_item = Item(ItemType.AIR, None, None, None, None)
         self._metadata = None
         self._chunk_radius = 0
+        self._near_chunk_radius = _NEAR_CHUNK_RADIUS
         self._requested_chunk_position = set()  # type: Set[ChunkPosition]
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
@@ -110,13 +111,14 @@ class Player:
             request = tuple(to_chunk_area(self._position, self._chunk_radius))
             request_chunk_position = set(p.position for p in request) - self._requested_chunk_position
             self._requested_chunk_position |= request_chunk_position
-            self._near_chunk_position = set(p.position for p in request if p.distance <= _NEAR_CHUNK_RADIUS)
+            self._near_chunk_position = set(p.position for p in request if p.distance <= self._near_chunk_radius)
             return tuple(p for p in request if p.position in request_chunk_position)
         else:
             return tuple()
 
     def update_required_chunk(self, radius: int) -> None:
         self._chunk_radius = radius
+        self._near_chunk_radius = min(radius, _NEAR_CHUNK_RADIUS)
         self._near_chunk_position = set()
 
     def did_request_chunk(self, position: ChunkPosition) -> bool:

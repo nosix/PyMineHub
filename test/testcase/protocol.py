@@ -86,8 +86,13 @@ class _ProtocolProxy:
 
     @staticmethod
     def close() -> None:
-        for task in asyncio.Task.all_tasks():
+        pending = asyncio.Task.all_tasks()
+        for task in pending:
             task.cancel()
+        try:
+            asyncio.get_event_loop().run_until_complete(asyncio.gather(*pending))
+        except asyncio.CancelledError:
+            pass
 
     def register_command_processor(self, processor) -> None:
         self._command.register_command_processor(processor)

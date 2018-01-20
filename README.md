@@ -100,6 +100,7 @@ mcpe
                 mcpe.plugin.[loader, mob, player],
                 .[entity, generator, interface, item, proxy, space]
   network
+    - skin
     - packet
       - connection -> value, network.[address]
       - game -> value, mcpe.[value]
@@ -113,7 +114,7 @@ mcpe
     - handler -> value, raknet, network.[address], .[codec, packet, queue, reliability]
     - server -> config, raknet, network.[address], mcpe.[action, command, event, metadata, value, world],
                 .[handler, login, packet, reliability, session]
-    - client -> raknet, network.[address], mcpe.[const, value], .[handler, packet, reliability] 
+    - client -> raknet, network.[address], mcpe.[const, value], .[skin, handler, packet, reliability] 
   main
     server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
     client -> raknet, mcpe.[network]

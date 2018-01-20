@@ -17,6 +17,10 @@ def decode_base64(base64_encoded_data: bytes) -> bytes:
     return base64.decodebytes(base64_encoded_data + padding)
 
 
+def encode_base64(data: bytes) -> bytes:
+    return base64.encodebytes(data)
+
+
 def dict_to_flags(enum_cls: Type[Enum], **kwargs: bool) -> int:
     """
     >>> class Settings(Enum):

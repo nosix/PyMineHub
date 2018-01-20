@@ -86,6 +86,13 @@ class AbstractClient:
         """
         raise NotImplementedError()
 
+    async def finished(self) -> None:
+        """Callback when client finish
+
+        This method is called when client finish.
+        """
+        raise NotImplementedError()
+
     # noinspection PyAttributeOutsideInit
     async def connect(self, server_addr: Address, transport: asyncio.Transport, protocol: RakNetClientProtocol) -> None:
         """Connect RakNet server
@@ -98,11 +105,12 @@ class AbstractClient:
         await self.__protocol.connect_raknet(server_addr)
         await self.start()
 
-    def terminate(self) -> None:
+    async def terminate(self) -> None:
         """Terminate connection
 
         Call this method if this method is overridden.
         """
+        await self.finished()
         self.__protocol.terminate()
         self.__transport.close()
 
@@ -118,7 +126,7 @@ class ClientConnection(Generic[Client]):
             server_addr: Address,
             loop: Optional[asyncio.AbstractEventLoop]=None
     ) -> None:
-        internal_loop = asyncio.get_event_loop() if loop is None else loop
+        internal_loop = asyncio.new_event_loop() if loop is None else loop
         self._client = client
         self._server_addr = server_addr
         self._loop = internal_loop
@@ -135,7 +143,7 @@ class ClientConnection(Generic[Client]):
         return self._client  # FIXME why is type check fail?
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self._client.terminate()
+        self._loop.run_until_complete(self._client.terminate())
 
     def start(self) -> Client:
         # noinspection PyTypeChecker
@@ -182,6 +190,9 @@ if __name__ == '__main__':
 
         async def start(self) -> None:
             print('Client session started.')
+
+        async def finished(self) -> None:
+            print('Client session finished.')
 
     import logging
     logging.basicConfig(level=logging.DEBUG)
