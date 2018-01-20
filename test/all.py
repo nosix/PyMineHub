@@ -1,6 +1,7 @@
 import chunk_codec
 import chunk_edit
 import client
+import codec_extra
 import codec_login_logout
 import codec_play
 import command
@@ -22,6 +23,7 @@ def load_tests(loader, tests, pattern):
         chunk_edit,
         codec_login_logout,
         codec_play,
+        codec_extra,
         protocol_unconnected,
         protocol_login_logout,
         protocol_play,

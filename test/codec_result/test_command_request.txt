@@ -1,19 +1,19 @@
-CommandRequest(id=77, extra=b'\x00\x00', command='/ver', origin_data=CommandOriginData(type=<CommandOriginDataType.PLAYER: 0>, uuid=UUID('ca440c32-996c-1f6b-a417-e89be26909bd'), request_id='', long1=None), is_internal=False)
+PacketCommandRequest(type=<GamePacketType.COMMAND_REQUEST: 77>, extra=b'\x00\x00', command='/ver', origin_data=CommandOriginData(type=<CommandOriginDataType.PLAYER: 0>, uuid=UUID('ca440c32-996c-1f6b-a417-e89be26909bd'), request_id='', long1=None), is_internal=False)
   -> 4d0000042f76657200ca440c32996c1f6ba417e89be26909bd0000
   File "./codec_extra.py", line 13, in test_command_request
     GamePacket(GamePacketType.COMMAND_REQUEST)
 
-WARNING:Batch(id=254, payloads=([27 bytes],))
+WARNING:PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads=([27 bytes],))
   -> fe7801011c00e3ff1b4d0000042f76657200ca440c32996c1f6ba417e89be26909bd000071d20913
   File "./codec_extra.py", line 12, in test_command_request
     Batch().that_has(
 
-WARNING:ReliableOrdered(id=96, payload_length=320, reliable_message_num=17, message_ordering_index=6, message_ordering_chanel=0, payload=[40 bytes])
+WARNING:FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length=320, reliable_message_num=17, message_ordering_index=6, message_ordering_chanel=0, payload=[40 bytes])
   -> 60014011000006000000fe7801011c00e3ff1b4d0000042f76657200ca440c32996c1f6ba417e89be26909bd000071d20913
   File "./codec_extra.py", line 11, in test_command_request
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-WARNING:FrameSet4(id=132, packet_sequence_num=29, payload=[50 bytes])
+WARNING:PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=29, payload=[50 bytes])
   -> 841d000060014011000006000000fe7801011c00e3ff1b4d0000042f76657200ca440c32996c1f6ba417e89be26909bd000071d20913
   File "./codec_extra.py", line 10, in test_command_request
     RakNetPacket(RakNetPacketType.FRAME_SET_4).that_has(
