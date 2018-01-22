@@ -10,7 +10,6 @@ from pyminehub.raknet.protocol import AbstractRakNetProtocol
 from pyminehub.raknet.session import Session
 
 __all__ = [
-    'RakNetClientProtocol',
     'AbstractClient',
     'Client',
     'ClientConnection',
@@ -24,7 +23,7 @@ _logger = getLogger(__name__)
 _RAKNET_PROTOCOL_VERSION = 8
 
 
-class RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
+class _RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
     def __init__(
             self,
@@ -92,7 +91,7 @@ class AbstractClient:
         raise NotImplementedError()
 
     # noinspection PyAttributeOutsideInit
-    async def connect(self, server_addr: Address, transport: asyncio.Transport, protocol: RakNetClientProtocol) -> None:
+    async def connect(self, server_addr: Address, transport: asyncio.Transport, protocol: _RakNetClientProtocol) -> None:
         """Connect RakNet server
 
         Don't override this method.
@@ -129,7 +128,7 @@ class ClientConnection(Generic[Client]):
     def __enter__(self) -> Client:
         loop = asyncio.get_event_loop()
         connect = loop.create_datagram_endpoint(
-            lambda: RakNetClientProtocol(self._client.handler),
+            lambda: _RakNetClientProtocol(self._client.handler),
             remote_addr=self._server_addr)
         transport, protocol = loop.run_until_complete(connect)
         loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))

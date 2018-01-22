@@ -1,15 +1,18 @@
 from binascii import unhexlify as unhex
+from typing import List
 
 from pyminehub.binutil.composite import CompositeCodecContext, NamedData
 from pyminehub.binutil.converter import pop_first, OptionalData, DataCodecContext, DataCodec
 from pyminehub.binutil.instance import *
-from pyminehub.network.codec import *
+from pyminehub.network.codec import PacketCodec, ADDRESS_DATA
+from pyminehub.network.const import PACKET_HEADER_SIZE
 from pyminehub.raknet.frame import RakNetFrameType, raknet_frame_factory
 from pyminehub.raknet.packet import RakNetPacketType, raknet_packet_factory
 
 __all__ = [
     'raknet_packet_codec',
-    'raknet_frame_codec'
+    'raknet_frame_codec',
+    'split_frame_set'
 ]
 
 
@@ -166,6 +169,16 @@ _frame_data_codecs = {
 
 raknet_packet_codec = PacketCodec(RakNetPacketType, raknet_packet_factory, _packet_data_codecs)
 raknet_frame_codec = PacketCodec(RakNetFrameType, raknet_frame_factory, _frame_data_codecs)
+
+
+def split_frame_set(payload: bytes) -> List[bytes]:
+    frames = []
+    context = CompositeCodecContext()
+    while len(payload) > 0:
+        frames.append(raknet_frame_codec.decode(payload, context))
+        payload = payload[context.length:]
+        context.clear()
+    return frames
 
 
 if __name__ == '__main__':

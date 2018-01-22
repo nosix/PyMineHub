@@ -3,7 +3,7 @@ from collections import defaultdict
 from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
 
-from pyminehub.network.codec import PACKET_HEADER_SIZE, RAKNET_WEIRD
+from pyminehub.network.const import PACKET_HEADER_SIZE, RAKNET_WEIRD
 from pyminehub.raknet.channel import Channel
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment

@@ -1,9 +1,8 @@
 import asyncio
 from logging import getLogger
 
-from pyminehub.binutil.composite import CompositeCodecContext
 from pyminehub.network.address import Address
-from pyminehub.raknet.codec import raknet_packet_codec, raknet_frame_codec
+from pyminehub.raknet.codec import raknet_packet_codec, split_frame_set
 from pyminehub.raknet.frame import Reliability
 from pyminehub.raknet.handler import RakNetProtocol, GameDataHandler, SessionNotFound
 from pyminehub.raknet.packet import RakNetPacket
@@ -91,14 +90,7 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
 
     def _process_frame_set(self, packet: RakNetPacket, addr: Address) -> None:
         session = self.get_session(addr)
-        context = CompositeCodecContext()
-        frames = []
-        length = 0
-        while length < len(packet.payload):
-            payload = packet.payload[length:]
-            frames.append(raknet_frame_codec.decode(payload, context))
-            length += context.length
-            context.clear()
+        frames = split_frame_set(packet.payload)
         session.frame_received(packet.packet_sequence_num, frames)
 
     def _process_frame_set_4(self, packet: RakNetPacket, addr: Address) -> None:

@@ -6,19 +6,9 @@ from pyminehub.value import ValueObject
 
 
 __all__ = [
-    'IP_HEADER_SIZE',
-    'UDP_HEADER_SIZE',
-    'PACKET_HEADER_SIZE',
-    'RAKNET_WEIRD',
     'PacketCodec',
     'ADDRESS_DATA'
 ]
-
-
-IP_HEADER_SIZE = 20
-UDP_HEADER_SIZE = 8
-PACKET_HEADER_SIZE = IP_HEADER_SIZE + UDP_HEADER_SIZE
-RAKNET_WEIRD = 8
 
 
 class PacketCodec:

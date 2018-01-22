@@ -47,19 +47,18 @@ binutil
   instance -> .[converter]
   composite -> typevar, .[converter]
 network
-  address
-  codec -> value, binutil.[composite, instance], .[address]
+  address -> config
+  codec -> value, binutil.*, .[address]
 raknet
-  - fragment -> value
+  - fragment
+  - frame -> value
   - packet -> value, network.[address]
-  - frame -> .[packet]
   - channel -> .[frame]
   - handler -> network.[address], .[frame]
-  - codec -> network.[codec], .[frame, packet]
-  - sending -> config, value, queue, .[codec, frame]
-  - session -> value, .[channel, codec, fragment, frame, packet, sending]
-  - protocol -> value, binutil.[composite], network.[address],
-                .[codec, handler, packet, session]
+  - codec -> binutil.*, network.[codec, const], .[frame, packet]
+  - sending -> config, queue, value, .[codec, frame]
+  - session -> value, network.[const], .[channel, codec, fragment, frame, packet, sending]
+  - protocol -> value, network.[address], .[codec, frame, handler, packet, session]
   - server -> config, network.[address], .[handler, packet, protocol, session]
   - client -> config, network.[address], .[handler, packet, protocol, session]
 mcpe
