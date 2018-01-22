@@ -4,11 +4,13 @@ Multiplay server of Minecraft Pocket Edition
 
 The goal of this project is to make the server small and to work with others.
 Extensibility than full spec implementation.
+This project will assume that MineCraft is used as an environment of creation, not as a game.
 
 ## Target version
 
 - Python 3.5.3
   - 2017-09-07-raspbian-stretch-lite.img
+- and later
 
 ## Development
 
