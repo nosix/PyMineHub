@@ -26,6 +26,8 @@ if [ $1 = "deploy" ]; then
 fi
 
 if [ $1 = "run" ]; then
+  trap "kill 0" EXIT
+
   # run remote PyMineHub server
   unset LC_CTYPE  # to avoid UnicodeEncodeError
   ssh pi@raspberrypi.local ${REMOTE_HOME}/bin/run.sh &
