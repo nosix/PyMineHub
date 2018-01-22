@@ -13,7 +13,7 @@ from pyminehub.mcpe.network import MCPEServerHandler
 from pyminehub.mcpe.network.packet import EXTRA_DATA, GamePacketType, game_packet_factory
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.world import run as run_world
-from pyminehub.raknet import run_raknet
+from pyminehub.raknet import raknet_server
 from util.mock import MockDataStore
 
 
@@ -44,20 +44,20 @@ class ClientTestCase(TestCase):
 
     def setUp(self):
         set_config(spawn_mob=False)
-        self._loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self._loop)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         registry = CommandRegistry()
         registry.register_command_processor(CommandProcessor())
         store = MockDataStore()
-        proxy = run_world(self._loop, store, PluginLoader('', registry))
+        proxy = run_world(store, PluginLoader('', registry))
         self._handler = MCPEServerHandler(proxy, registry)
 
     def tearDown(self):
-        self._loop.close()
+        asyncio.get_event_loop().close()
 
     def test_command_request(self):
-        with run_raknet(self._loop, self._handler) as server:
-            with connect('127.0.0.1', loop=self._loop) as client:
+        with raknet_server(self._handler) as server:
+            with connect('127.0.0.1') as client:
                 packet = client.wait_response(1)
                 self.assertEqual(GamePacketType.TEXT, packet.type)
 
@@ -77,8 +77,8 @@ class ClientTestCase(TestCase):
             server.stop()
 
     def test_perform_action(self):
-        with run_raknet(self._loop, self._handler) as server:
-            with connect('127.0.0.1', loop=self._loop) as client:
+        with raknet_server(self._handler) as server:
+            with connect('127.0.0.1') as client:
                 packet = client.wait_response(1)
                 self.assertEqual(GamePacketType.TEXT, packet.type)
 

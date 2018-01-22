@@ -65,7 +65,7 @@ def run() -> None:
     from pyminehub.mcpe.command import CommandRegistry
     from pyminehub.mcpe.plugin.loader import get_plugin_loader
     from pyminehub.mcpe.world import run as run_world
-    from pyminehub.raknet import run_raknet
+    from pyminehub.raknet import raknet_server
     from pyminehub.config import ConfigKey, print_config
 
     print_config(
@@ -80,8 +80,8 @@ def run() -> None:
     store = create_data_store()
     store.delete_all()
     command = CommandRegistry()
-    proxy = run_world(loop, store, get_plugin_loader(command))
-    with run_raknet(loop, MCPEServerHandler(proxy, command)):
+    proxy = run_world(store, get_plugin_loader(command))
+    with raknet_server(MCPEServerHandler(proxy, command)):
         pass
     loop.close()
 

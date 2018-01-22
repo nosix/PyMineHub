@@ -26,7 +26,6 @@ class Session:
 
     def __init__(
             self,
-            loop: asyncio.AbstractEventLoop,
             mtu_size: int,
             send_to_game_handler: Callable[[bytes], None],
             send_to_client: Callable[[RakNetPacket], None]
@@ -42,15 +41,15 @@ class Session:
         self._sequence_num = 0  # type: int  # next sequence number for send packet
         self._send_queue = SendQueue(mtu_size - _ALL_HEADER_SIZE, self._send_frame_set)
         self._sendable = asyncio.Event()
-        self._sending_task = self._start_loop_to_send(loop)
+        self._sending_task = self._start_loop_to_send()
 
-    def _start_loop_to_send(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+    def _start_loop_to_send(self) -> asyncio.Task:
         async def loop_to_send():
             while True:
                 await self._sendable.wait()
                 self._send_waiting_packets()
                 self._sendable.clear()
-        return asyncio.ensure_future(loop_to_send(), loop=loop)
+        return asyncio.ensure_future(loop_to_send())
 
     def close(self):
         self._sending_task.cancel()

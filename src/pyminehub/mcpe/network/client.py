@@ -250,9 +250,9 @@ class MCPEClient(AbstractClient):
             timeout_future = asyncio.ensure_future(self._timeout(wait_future, timeout))
             futures.append(timeout_future)
         try:
-            return self.loop.run_until_complete(asyncio.gather(*futures))[0]
+            return asyncio.get_event_loop().run_until_complete(asyncio.gather(*futures))[0]
         except asyncio.CancelledError:
             return None
 
     def execute_command(self, command: str) -> None:
-        self.loop.run_until_complete(self._handler.send_command_request(self.server_addr, command))
+        asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self.server_addr, command))

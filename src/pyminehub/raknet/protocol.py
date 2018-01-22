@@ -14,28 +14,24 @@ _logger = getLogger(__name__)
 
 class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
 
-    def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler, stop_loop: bool=True) -> None:
+    def __init__(self, handler: GameDataHandler) -> None:
         """
-        :param loop: it perform handler and session update
         :param handler: it handle GamePacket
-        :param stop_loop: True if you want to stop loop when connection lost
         """
         handler.register_protocol(self)
-        self.__loop = loop
         self.__handler = handler
-        self.__stop_loop = stop_loop
         self.__transport = None
-        self.__update_task = self._start_loop_to_update(loop)
+        self.__update_task = self._start_loop_to_update()
 
     @property
     def guid(self) -> int:
         return self.__handler.guid
 
-    def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+    def _start_loop_to_update(self) -> asyncio.Task:
         async def loop_to_update():
             while True:
                 await self._next_moment()
-        return asyncio.ensure_future(loop_to_update(), loop=loop)
+        return asyncio.ensure_future(loop_to_update())
 
     def terminate(self) -> None:
         self.__update_task.cancel()
@@ -44,11 +40,8 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         self.__transport = transport
 
     def connection_lost(self, exc: Exception) -> None:
-        _logger.exception('RakNet connection lost', exc_info=exc)
+        _logger.info('RakNet connection lost. (exception=%s)', exc)
         self.__transport = None
-        if self.__stop_loop:
-            for task in asyncio.Task.all_tasks(self.__loop):
-                task.cancel()
 
     def datagram_received(self, data: bytes, addr: Address) -> None:
         _logger.debug('%s > %s', addr, data.hex())
@@ -80,7 +73,7 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
 
     def create_session(self, mtu_size: int, addr: Address) -> Session:
         return Session(
-            self.__loop, mtu_size,
+            mtu_size,
             lambda _data: self.__handler.data_received(_data, addr),
             lambda _packet: self.send_to_remote(_packet, addr))
 

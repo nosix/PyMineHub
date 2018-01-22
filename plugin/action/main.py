@@ -1,4 +1,3 @@
-import asyncio
 from binascii import unhexlify, hexlify
 from pickle import dumps, loads
 
@@ -141,16 +140,14 @@ class ActionCommandClient(MCPEClient):
 
 def connect(
         server_host: str,
-        port: int=None,
-        loop: asyncio.AbstractEventLoop=None
+        port: int=None
 ) -> ClientConnection[ActionCommandClient]:
     """Connect to PyMineHub server.
 
     :param server_host: IP address that PyMineHub server listen
     :param port: port number that PyMineHub server listen
-    :param loop: client run on this loop
     """
-    return connect_raknet(ActionCommandClient(), server_host, port, loop)
+    return connect_raknet(ActionCommandClient(), server_host, port)
 
 
 if __name__ == '__main__':

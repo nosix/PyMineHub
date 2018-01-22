@@ -15,24 +15,26 @@ class WorldTestCase(TestCase):
 
     def setUp(self) -> None:
         set_config(spawn_mob=False)
-        self._loop = asyncio.new_event_loop()
-        self._world = run(self._loop, MockDataStore(), get_plugin_loader())
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self._world = run(MockDataStore(), get_plugin_loader())
         self._players = []
 
     def tearDown(self) -> None:
         self._world.terminate()
-        pending = asyncio.Task.all_tasks(loop=self._loop)
+        loop = asyncio.get_event_loop()
         try:
-            self._loop.run_until_complete(asyncio.gather(*pending))
+            pending = asyncio.Task.all_tasks()
+            loop.run_until_complete(asyncio.gather(*pending))
         except asyncio.CancelledError:
             pass
-        self._loop.close()
+        loop.close()
 
     def _perform_action(self, action_type: ActionType, *args, **kwargs) -> None:
         self._world.perform(action_factory.create(action_type, *args, **kwargs))
 
     def _next_event(self) -> Event:
-        return self._loop.run_until_complete(self._world.next_event())
+        return asyncio.get_event_loop().run_until_complete(self._world.next_event())
 
     def _create_player(self, n: int) -> None:
         for _ in range(n):

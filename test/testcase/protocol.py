@@ -17,7 +17,7 @@ from pyminehub.raknet.frame import RakNetFrame as _RakNetFrame
 # noinspection PyProtectedMember
 from pyminehub.raknet.server import _RakNetServerProtocol
 from util.codec import *
-from util.mock import MockEventLoop, MockTransport, MockWorldProxy
+from util.mock import MockTransport, MockWorldProxy
 
 _logger = logging.getLogger(__name__)
 
@@ -39,31 +39,6 @@ def print_data(data: ReceivedData, addr: Address) -> None:
     print('\n'.join(p.hex() for p in data[addr]))
 
 
-class _ProtocolMockEventLoop(MockEventLoop):
-
-    def __init__(self):
-        self._loop_to_update_coro = None
-        self._loop_to_send_coro = []
-
-    def next_moment(self):
-        self._loop_to_update_coro.send(None)
-
-    def send_waiting_packets(self):
-        for coro in self._loop_to_send_coro:
-            try:
-                coro.send(None)
-            except AssertionError as exc:
-                if exc.args[0].startswith('yield from'):
-                    raise AssertionError('no more received data') from None
-
-    def create_task(self, coro):
-        if coro.__name__ == 'loop_to_update':
-            self._loop_to_update_coro = coro
-        if coro.__name__ == 'loop_to_send':
-            self._loop_to_send_coro.append(coro)
-        return asyncio.Task(coro)
-
-
 class _ProtocolMockTransport(MockTransport):
 
     def __init__(self, queue: List[Tuple[Address, bytes]]):
@@ -78,27 +53,37 @@ class _ProtocolProxy:
 
     def __init__(self) -> None:
         self._queue = []  # type: List[Tuple[Address, bytes]]
-        self._loop = _ProtocolMockEventLoop()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         self._proxy = MockWorldProxy()
         self._command = CommandRegistry()
-        self._protocol = _RakNetServerProtocol(self._loop, MCPEServerHandler(self._proxy, self._command))
+        self._protocol = _RakNetServerProtocol(MCPEServerHandler(self._proxy, self._command))
         self._protocol.connection_made(_ProtocolMockTransport(self._queue))
 
     @staticmethod
     def close() -> None:
+        loop = asyncio.get_event_loop()
         pending = asyncio.Task.all_tasks()
         for task in pending:
             task.cancel()
         try:
-            asyncio.get_event_loop().run_until_complete(asyncio.gather(*pending))
+            loop.run_until_complete(asyncio.gather(*pending))
         except asyncio.CancelledError:
             pass
+        finally:
+            loop.close()
+
+    @staticmethod
+    def _switch_task():
+        async def wait():
+            await asyncio.sleep(0.01)
+        asyncio.get_event_loop().run_until_complete(wait())
 
     def register_command_processor(self, processor) -> None:
         self._command.register_command_processor(processor)
 
     def receive(self):
-        self._loop.send_waiting_packets()
+        self._switch_task()
         d = defaultdict(list)
         for res_addr, res_data in self._queue:
             d[res_addr].append(res_data)
@@ -113,7 +98,7 @@ class _ProtocolProxy:
 
     def next_moment(self) -> None:
         self._proxy.put_next_event()
-        self._loop.next_moment()
+        self._switch_task()
 
 
 class _ProtocolTestContext(AnalyzingContext):

@@ -1,7 +1,7 @@
 from .client import AbstractClient, ClientConnection, connect_raknet
 from .frame import Reliability
 from .handler import SessionNotFound, GameDataHandler
-from .server import ServerProcess, run as run_raknet
+from .server import ServerProcess, raknet_server
 
 __all__ = [
     Reliability,
@@ -11,5 +11,5 @@ __all__ = [
     ClientConnection,
     connect_raknet,
     ServerProcess,
-    run_raknet
+    raknet_server
 ]

@@ -30,27 +30,25 @@ class _World(WorldProxy, WorldEditor):
 
     def __init__(
             self,
-            loop: asyncio.AbstractEventLoop,
             generator: SpaceGenerator,
             store: DataStore,
             mob_processor: MobProcessorPlugin,
             player_config: PlayerConfigPlugin
     ) -> None:
-        self._loop = loop
         self._space = Space(generator, store)
         self._entity = EntityPool(store)
         self._mob_processor = mob_processor
         self._player_config = player_config
         self._event_queue = asyncio.Queue()
         self._mob_id_to_entity_id = {}  # type: Dict[MobID, EntityRuntimeID]
-        loop.call_soon(self._space.init_space)
-        self._update_task = self._start_loop_to_update(loop)
+        asyncio.get_event_loop().call_soon(self._space.init_space)
+        self._update_task = self._start_loop_to_update()
 
-    def _start_loop_to_update(self, loop: asyncio.AbstractEventLoop) -> asyncio.Task:
+    def _start_loop_to_update(self) -> asyncio.Task:
         async def loop_to_update():
             while True:
                 await self._next_moment()
-        return asyncio.ensure_future(loop_to_update(), loop=loop)
+        return asyncio.ensure_future(loop_to_update())
 
     # WorldProxy methods
 
@@ -60,7 +58,7 @@ class _World(WorldProxy, WorldEditor):
 
     def perform(self, action: Action) -> None:
         _logger.debug('>> %s', LogString(action))
-        self._loop.call_soon(
+        asyncio.get_event_loop().call_soon(
             getattr(self, '_process_' + action.type.name.lower()), action)
 
     async def next_event(self) -> Optional[Event]:
@@ -400,10 +398,9 @@ class _World(WorldProxy, WorldEditor):
         )
 
 
-def run(loop: asyncio.AbstractEventLoop, store: DataStore, plugin: PluginLoader) -> WorldProxy:
+def run(store: DataStore, plugin: PluginLoader) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
     world = _World(
-        loop,
         BatchSpaceGenerator(plugin.generator, store),
         store,
         plugin.mob_processor,

@@ -19,13 +19,11 @@ class RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
     def __init__(
             self,
-            loop: asyncio.AbstractEventLoop,
-            handler: GameDataHandler,
-            is_internal_loop: bool
+            handler: GameDataHandler
     ) -> None:
         self._session = None  # type: Session
         self._connected = asyncio.Event()
-        super().__init__(loop, handler, is_internal_loop)
+        super().__init__(handler)
 
     def terminate(self) -> None:
         super().terminate()
@@ -69,15 +67,6 @@ class AbstractClient:
     @property
     def server_addr(self) -> Address:
         return self.__server_addr
-
-    @property
-    def loop(self) -> asyncio.AbstractEventLoop:
-        return self.__loop
-
-    @loop.setter
-    def loop(self, loop: asyncio.AbstractEventLoop) -> None:
-        # noinspection PyAttributeOutsideInit
-        self.__loop = loop
 
     async def start(self) -> None:
         """Start client
@@ -123,27 +112,24 @@ class ClientConnection(Generic[Client]):
     def __init__(
             self,
             client: Client,
-            server_addr: Address,
-            loop: Optional[asyncio.AbstractEventLoop]=None
+            server_addr: Address
     ) -> None:
-        internal_loop = asyncio.get_event_loop() if loop is None else loop
         self._client = client
         self._server_addr = server_addr
-        self._loop = internal_loop
-        self._is_internal_loop = internal_loop != loop
 
     def __enter__(self) -> Client:
-        connect = self._loop.create_datagram_endpoint(
-            lambda: RakNetClientProtocol(self._loop, self._client.handler, self._is_internal_loop),
+        loop = asyncio.get_event_loop()
+        connect = loop.create_datagram_endpoint(
+            lambda: RakNetClientProtocol(self._client.handler),
             remote_addr=self._server_addr)
-        transport, protocol = self._loop.run_until_complete(connect)
-        self._loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
-        self._client.loop = self._loop
+        transport, protocol = loop.run_until_complete(connect)
+        loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
         # noinspection PyTypeChecker
         return self._client  # FIXME why is type check fail?
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
-        self._loop.run_until_complete(self._client.terminate())
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self._client.terminate())
 
     def start(self) -> Client:
         # noinspection PyTypeChecker
@@ -156,11 +142,10 @@ class ClientConnection(Generic[Client]):
 def connect_raknet(
         client: Client,
         server_host: str,
-        port: Optional[int]=None,
-        loop: Optional[asyncio.AbstractEventLoop]=None
+        port: Optional[int]=None
 ) -> ClientConnection[Client]:
     server_address = (server_host, get_value(ConfigKey.SERVER_PORT) if port is None else port)
-    return ClientConnection(client, server_address, loop)
+    return ClientConnection(client, server_address)
 
 
 if __name__ == '__main__':

@@ -10,8 +10,8 @@ from pyminehub.raknet.session import Session
 
 class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
-    def __init__(self, loop: asyncio.events.AbstractEventLoop, handler: GameDataHandler) -> None:
-        super().__init__(loop, handler)
+    def __init__(self, handler: GameDataHandler) -> None:
+        super().__init__(handler)
         self._sessions = {}  # TODO session timeout
         self.server_id = 'MCPE;PyMineHub Server;160;1.2.7;0;20;{};{};{};'.format(
             self.guid,
@@ -54,8 +54,7 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
 
 class ServerProcess:
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, handler: GameDataHandler, server_address: Address) -> None:
-        self._loop = loop
+    def __init__(self, handler: GameDataHandler, server_address: Address) -> None:
         self._handler = handler
         self._server_address = server_address
         self._transport = None
@@ -63,15 +62,17 @@ class ServerProcess:
         self._stopped = False
 
     def __enter__(self) -> 'ServerProcess':
-        listen = self._loop.create_datagram_endpoint(
-            lambda: _RakNetServerProtocol(self._loop, self._handler), local_addr=self._server_address)
-        self._transport, self._protocol = self._loop.run_until_complete(listen)  # non-blocking
+        loop = asyncio.get_event_loop()
+        listen = loop.create_datagram_endpoint(
+            lambda: _RakNetServerProtocol(self._handler), local_addr=self._server_address)
+        self._transport, self._protocol = loop.run_until_complete(listen)  # non-blocking
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        loop = asyncio.get_event_loop()
         try:
             if exc_type is None and not self._stopped:
-                self._loop.run_forever()  # blocking
+                loop.run_forever()  # blocking
         except KeyboardInterrupt:
             pass
         finally:
@@ -79,13 +80,13 @@ class ServerProcess:
             self._protocol.terminate()
             pending = asyncio.Task.all_tasks()
             try:
-                self._loop.run_until_complete(asyncio.gather(*pending))
+                loop.run_until_complete(asyncio.gather(*pending))
             except asyncio.CancelledError:
                 pass
             finally:
                 async def close():
                     self._transport.close()
-                self._loop.run_until_complete(close())  # sock.close() is called with loop.call_soon()
+                loop.run_until_complete(close())  # sock.close() is called with loop.call_soon()
 
     def start(self) -> None:
         self.__enter__()
@@ -95,13 +96,13 @@ class ServerProcess:
 
     def stop(self) -> None:
         self._stopped = True
-        for task in asyncio.Task.all_tasks(self._loop):
+        for task in asyncio.Task.all_tasks():
             task.cancel()
 
 
-def run(loop: asyncio.AbstractEventLoop, handler: GameDataHandler) -> ServerProcess:
+def raknet_server(handler: GameDataHandler) -> ServerProcess:
     server_address = (get_unspecified_address(), get_value(ConfigKey.SERVER_PORT))
-    return ServerProcess(loop, handler, server_address)
+    return ServerProcess(handler, server_address)
 
 
 if __name__ == '__main__':
@@ -123,5 +124,6 @@ if __name__ == '__main__':
     import logging
     logging.basicConfig(level=logging.DEBUG)
     _loop = asyncio.get_event_loop()
-    run(_loop, MockHandler())
+    with raknet_server(MockHandler()):
+        pass
     _loop.close()
