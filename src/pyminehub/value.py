@@ -1,11 +1,19 @@
 from enum import Enum
-from typing import NamedTuple as _NamedTuple, Callable, Dict, Iterable, Sequence, Tuple, Union
+from typing import Callable, Dict, Iterable, NamedTuple, Sequence, Tuple, Union
 
 from pyminehub.config import ConfigKey, get_value
 
+__all__ = [
+    'ValueType',
+    'ValueObject',
+    'ValueObjectFactory',
+    'LogString'
+]
+
+
 ValueType = Enum
 
-ValueObject = Union[tuple, _NamedTuple('ValueObject', [])]  # To suppress warnings, NamedTuple is specified.
+ValueObject = Union[tuple, NamedTuple('ValueObject', [])]  # To suppress warnings, NamedTuple is specified.
 
 
 def _snake2camel(name: str) -> str:
@@ -42,7 +50,7 @@ class ValueObjectFactory:
     ) -> Callable[..., ValueObject]:
         cls_name = cls_prefix + _snake2camel(value_type.name)
         assert cls_name not in module_globals, cls_name
-        cls = _NamedTuple(cls_name, field_names)
+        cls = NamedTuple(cls_name, field_names)
         cls.__module__ = module_globals['__name__']  # for pickle
         module_globals[cls_name] = cls  # for pickle
 

@@ -3,6 +3,12 @@ from heapq import heappush, heappop
 from queue import Empty
 from typing import Callable, Dict, Generic, List, Optional, Tuple, TypeVar
 
+
+__all__ = [
+    'UpdatablePriorityQueue'
+]
+
+
 _UPPT = TypeVar('UPPT', int, float)
 _UPKT = TypeVar('UPKT')
 _UPTT = TypeVar('UPTT')
