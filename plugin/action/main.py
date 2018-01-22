@@ -140,18 +140,22 @@ class ActionCommandClient(MCPEClient):
 
 def connect(
         server_host: str,
-        port: int=None
+        port: int=None,
+        player_name: str= '',
+        locale: str='ja_JP'
 ) -> ClientConnection[ActionCommandClient]:
     """Connect to PyMineHub server.
 
     :param server_host: IP address that PyMineHub server listen
     :param port: port number that PyMineHub server listen
+    :param player_name: if player name is empty string then player is invisible
+    :param locale: locale in application
     """
-    return connect_raknet(ActionCommandClient(), server_host, port)
+    return connect_raknet(ActionCommandClient(player_name, locale), server_host, port)
 
 
 if __name__ == '__main__':
-    with connect('127.0.0.1') as _client:
+    with connect('127.0.0.1', player_name='Taro') as _client:
         _client.wait_response()  # Login text
         _move = 0.0
         _client.spawn_mob(EntityType.CHICKEN, 256.0, 256.0, 65.0)

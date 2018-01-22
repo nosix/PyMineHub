@@ -53,7 +53,7 @@ class MCPEClientHandler(MCPEDataHandler):
 
     # local methods
 
-    async def start(self, server_addr: Address) -> None:
+    async def start(self, server_addr: Address, player_name: str, locale: str) -> None:
         assert not self._is_active.is_set()
         self._request_time = self.get_current_time()
         send_packet = connection_packet_factory.create(
@@ -70,15 +70,15 @@ class MCPEClientHandler(MCPEDataHandler):
                     {
                         'extraData': {
                             'XUID': '',
-                            'identity': 'a302a666-4cac-3e3f-a6b8-685f9506f8fe',
-                            'displayName': 'CantingAtol3766',
+                            'identity': str(uuid.uuid4()),
+                            'displayName': player_name,
                         },
                         'identityPublicKey': ''
                     },
                 ),
                 client={
                     'ClientRandomId': self.guid,
-                    'LanguageCode': 'ja_JP',  # TODO change
+                    'LanguageCode': locale,
                     'CapeData': '',
                     'SkinId': DEFAULT_SKIN_ID,
                     'SkinGeometryName': DEFAULT_SKIN_GEOMETRY_NAME,
@@ -217,8 +217,10 @@ class MCPEClientHandler(MCPEDataHandler):
 
 class MCPEClient(AbstractClient):
 
-    def __init__(self) -> None:
+    def __init__(self, player_name: str, locale: str) -> None:
         self._handler = MCPEClientHandler()
+        self._player_name = player_name
+        self._locale = locale
 
     # AbstractClient methods
 
@@ -227,7 +229,7 @@ class MCPEClient(AbstractClient):
         return self._handler
 
     async def start(self) -> None:
-        await self._handler.start(self.server_addr)
+        await self._handler.start(self.server_addr, self._player_name, self._locale)
 
     async def finished(self) -> None:
         await self._handler.stop(self.server_addr)
