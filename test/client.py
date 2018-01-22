@@ -57,7 +57,7 @@ class ClientTestCase(TestCase):
 
     def test_command_request(self):
         with raknet_server(self._handler) as server:
-            with connect('127.0.0.1') as client:
+            with connect('127.0.0.1', player_name='Taro') as client:
                 packet = client.wait_response(1)
                 self.assertEqual(GamePacketType.TEXT, packet.type)
 
@@ -78,7 +78,7 @@ class ClientTestCase(TestCase):
 
     def test_perform_action(self):
         with raknet_server(self._handler) as server:
-            with connect('127.0.0.1') as client:
+            with connect('127.0.0.1', player_name='Taro') as client:
                 packet = client.wait_response(1)
                 self.assertEqual(GamePacketType.TEXT, packet.type)
 

@@ -198,6 +198,9 @@ def _notify_new_player(
 ) -> None:
     assert player.has_identity()
 
+    if player.invisible:
+        return
+
     res_packet = game_packet_factory.create(
         GamePacketType.PLAYER_LIST,
         EXTRA_DATA,
@@ -224,6 +227,9 @@ def _spawn_player(
     res_packet = game_packet_factory.create(
         GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.PLAYER_SPAWN)
     send(res_packet, addr)
+
+    if player.invisible:
+        return
 
     text_packet = game_packet_factory.create(
         GamePacketType.TEXT,
