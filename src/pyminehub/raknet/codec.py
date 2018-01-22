@@ -1,3 +1,8 @@
+from binascii import unhexlify as unhex
+
+from pyminehub.binutil.composite import NamedData
+from pyminehub.binutil.converter import pop_first, OptionalData
+from pyminehub.binutil.instance import *
 from pyminehub.network.codec import *
 from pyminehub.raknet.frame import RakNetFrameType, raknet_frame_factory
 from pyminehub.raknet.packet import RakNetPacketType, raknet_packet_factory
@@ -35,7 +40,7 @@ class _MagicData(DataCodec[bool]):
     False
     """
 
-    BYTES = unhexlify(b'00ffff00fefefefefdfdfdfd12345678')
+    BYTES = unhex(b'00ffff00fefefefefdfdfdfd12345678')
 
     _LENGTH = len(BYTES)
 
@@ -159,5 +164,6 @@ raknet_frame_codec = PacketCodec(RakNetFrameType, raknet_frame_factory, _frame_d
 
 
 if __name__ == '__main__':
+    from binascii import hexlify
     import doctest
     doctest_result = doctest.testmod()

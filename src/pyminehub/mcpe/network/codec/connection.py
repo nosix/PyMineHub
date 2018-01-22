@@ -2,7 +2,10 @@
 Codecs for connection packet
 """
 import zlib
+from typing import Tuple
 
+from pyminehub.binutil.converter import pop_first
+from pyminehub.binutil.instance import *
 from pyminehub.config import get_value, ConfigKey
 from pyminehub.mcpe.network.packet import *
 from pyminehub.network.codec import *

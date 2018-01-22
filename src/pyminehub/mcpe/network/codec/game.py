@@ -3,6 +3,9 @@ Codecs for game packet in batch
 """
 import json
 
+from pyminehub.binutil.composite import *
+from pyminehub.binutil.converter import *
+from pyminehub.binutil.instance import *
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.value import *
 from pyminehub.network.codec import *
