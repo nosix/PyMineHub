@@ -3,10 +3,10 @@ from binascii import unhexlify as unhex
 from collections import namedtuple
 from typing import Callable, Any
 
+from pyminehub.binutil.composite import CompositeCodecContext
 # noinspection PyProtectedMember
 from pyminehub.mcpe.network.codec.game import _RecipeList, _InventoryContentItems
 from pyminehub.mcpe.value import *
-from pyminehub.network.codec import CompositeCodecContext
 
 _KEY_CLASS_NAME = '__cls__'
 

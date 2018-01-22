@@ -3,13 +3,12 @@ import sys
 import traceback
 from collections import defaultdict
 from enum import Enum
-from typing import *
+from typing import Any, Callable, Dict, Generator, Iterator, Optional, Tuple, TypeVar, Union
 
-from pyminehub.mcpe.network.codec import connection_packet_codec
-from pyminehub.mcpe.network.codec import game_packet_codec
+from pyminehub.binutil.composite import CompositeCodecContext
+from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacketType, connection_packet_factory
 from pyminehub.mcpe.network.packet import GamePacketType, game_packet_factory
-from pyminehub.network.codec import CompositeCodecContext
 from pyminehub.network.codec import PacketCodec
 from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.codec import raknet_packet_codec

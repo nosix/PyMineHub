@@ -5,7 +5,7 @@ import logging
 import os
 from binascii import unhexlify as unhex
 from os.path import dirname
-from typing import NamedTuple as _NamedTuple
+from typing import NamedTuple as _NamedTuple, List
 from unittest import TestCase
 
 from pyminehub.mcpe.action import ActionType

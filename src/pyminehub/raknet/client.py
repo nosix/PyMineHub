@@ -9,6 +9,15 @@ from pyminehub.raknet.packet import RakNetPacket, RakNetPacketType, raknet_packe
 from pyminehub.raknet.protocol import AbstractRakNetProtocol
 from pyminehub.raknet.session import Session
 
+__all__ = [
+    'RakNetClientProtocol',
+    'AbstractClient',
+    'Client',
+    'ClientConnection',
+    'connect_raknet'
+]
+
+
 _logger = getLogger(__name__)
 
 

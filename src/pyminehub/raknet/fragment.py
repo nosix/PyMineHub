@@ -8,6 +8,11 @@ and message fragment in Wireshark.
 from typing import Dict, Optional
 
 
+__all__ = [
+    'Fragment'
+]
+
+
 class _Entry:
 
     def __init__(self, split_count: int) -> None:

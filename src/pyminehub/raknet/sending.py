@@ -11,6 +11,11 @@ from pyminehub.raknet.codec import raknet_frame_codec
 from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame, raknet_frame_factory
 from pyminehub.value import LogString
 
+__all__ = [
+    'SendQueue'
+]
+
+
 _logger = getLogger(__name__)
 
 

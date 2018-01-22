@@ -3,6 +3,11 @@ from typing import Dict, Iterator
 
 from pyminehub.raknet.frame import RakNetFrame
 
+__all__ = [
+    'Channel'
+]
+
+
 _logger = getLogger(__name__)
 
 

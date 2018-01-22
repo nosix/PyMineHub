@@ -12,6 +12,11 @@ from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packe
 from pyminehub.raknet.sending import SendQueue
 from pyminehub.value import LogString
 
+__all__ = [
+    'Session'
+]
+
+
 _logger = getLogger(__name__)
 
 
