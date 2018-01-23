@@ -68,7 +68,7 @@ def configure_log(
 def run() -> None:
     from pyminehub.mcpe.network import MCPEServerHandler
     from pyminehub.mcpe.datastore import create_data_store
-    from pyminehub.mcpe.command import CommandRegistry
+    from pyminehub.mcpe.command.api import CommandRegistry
     from pyminehub.mcpe.plugin.loader import get_plugin_loader
     from pyminehub.mcpe.world import run as run_world
     from pyminehub.raknet import raknet_server

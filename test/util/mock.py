@@ -5,7 +5,8 @@ from typing import Callable, Optional, Tuple, Union
 
 from pyminehub.mcpe.action import Action, ActionType
 from pyminehub.mcpe.chunk import Chunk
-from pyminehub.mcpe.command import *
+from pyminehub.mcpe.command.annotation import Message
+from pyminehub.mcpe.command.api import *
 from pyminehub.mcpe.const import GameMode, Difficulty
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *

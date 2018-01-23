@@ -8,6 +8,8 @@ from uuid import UUID
 from pyminehub.binutil.composite import *
 from pyminehub.binutil.converter import *
 from pyminehub.binutil.instance import *
+from pyminehub.mcpe.command.const import CommandPermission, CommandOriginDataType
+from pyminehub.mcpe.command.value import *
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition
 from pyminehub.mcpe.network.const import *

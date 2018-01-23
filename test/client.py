@@ -5,7 +5,7 @@ from unittest import TestCase
 
 from pyminehub.config import set_config
 from pyminehub.mcpe.action import action_factory, Action, ActionType
-from pyminehub.mcpe.command import CommandRegistry, CommandContext, command
+from pyminehub.mcpe.command.api import CommandRegistry, CommandContext, command
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.main.client import connect

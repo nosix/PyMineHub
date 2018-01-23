@@ -9,7 +9,7 @@ from typing import NamedTuple as _NamedTuple, List
 from unittest import TestCase
 
 from pyminehub.mcpe.action import ActionType
-from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.command.api import CommandRegistry
 from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.network import MCPEServerHandler
 from pyminehub.network.address import Address

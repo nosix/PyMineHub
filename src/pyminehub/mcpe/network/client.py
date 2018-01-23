@@ -4,14 +4,15 @@ from logging import getLogger
 from random import randrange
 from typing import Optional
 
-from pyminehub.mcpe.const import CommandOriginDataType
+from pyminehub.mcpe.command.const import CommandOriginDataType
+from pyminehub.mcpe.command.value import CommandOriginData
 from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.skin import *
 from pyminehub.mcpe.network.value import ConnectionRequest
-from pyminehub.mcpe.value import EntityRuntimeID, CommandOriginData
+from pyminehub.mcpe.value import EntityRuntimeID
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import AbstractClient
 

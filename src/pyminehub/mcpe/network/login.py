@@ -1,6 +1,6 @@
 from typing import Callable
 
-from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.command.api import CommandRegistry
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import EventType
 from pyminehub.mcpe.geometry import Vector3

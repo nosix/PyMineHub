@@ -1,6 +1,8 @@
 from typing import Optional, Tuple, Union
 from uuid import UUID
 
+from pyminehub.mcpe.command.const import CommandPermission
+from pyminehub.mcpe.command.value import CommandEnum, CommandData, CommandOriginData
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition
 from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus, PlayerListType, InventoryTransactionType

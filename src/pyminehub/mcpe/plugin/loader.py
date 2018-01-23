@@ -4,7 +4,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
-from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.command.api import CommandRegistry
 from pyminehub.mcpe.plugin.command import ExtraCommandPlugin
 from pyminehub.mcpe.plugin.default import *
 from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin

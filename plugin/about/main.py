@@ -1,6 +1,7 @@
 from typing import Any
 
-from pyminehub.mcpe.command import *
+from pyminehub.mcpe.command.annotation import *
+from pyminehub.mcpe.command.api import *
 from pyminehub.mcpe.plugin.command import ExtraCommandPlugin
 
 

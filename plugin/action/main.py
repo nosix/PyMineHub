@@ -3,7 +3,7 @@ from pickle import dumps, loads
 from typing import Any, Optional, Union
 
 from pyminehub.mcpe.action import Action, ActionType, action_factory
-from pyminehub.mcpe.command import *
+from pyminehub.mcpe.command.api import *
 from pyminehub.mcpe.const import MoveMode, ItemType, EntityType, EntityMetaDataKey
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition, ChunkPositionWithDistance
 from pyminehub.mcpe.network import MCPEClient

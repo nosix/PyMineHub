@@ -1,6 +1,8 @@
 from uuid import UUID
 
 from protocol_unconnected import ProtocolUnconnectedTestCase
+from pyminehub.mcpe.command.const import CommandPermission
+from pyminehub.mcpe.command.value import *
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import event_factory, EventType
 from pyminehub.mcpe.geometry import Vector3, to_chunk_area

@@ -11,8 +11,6 @@ __all__ = [
     'Difficulty',
     'GameRuleType',
     'PlayerPermission',
-    'CommandPermission',
-    'CommandArgType',
     'AdventureSettingFlag1',
     'AdventureSettingFlag2',
     'AttributeType',
@@ -34,7 +32,6 @@ __all__ = [
     'SourceType',
     'EntityType',
     'SpaceEventType',
-    'CommandOriginDataType',
 ]
 
 
@@ -78,27 +75,6 @@ class PlayerPermission(Enum):
     OPERATOR = 2
     MEMBER = 1
     VISITOR = 0
-
-
-class CommandPermission(Enum):
-    NORMAL = 0
-    OPERATOR = 1
-    HOST = 2
-    AUTOMATION = 3
-    ADMIN = 4
-
-
-class CommandArgType(Enum):
-    INT = 1
-    FLOAT = 2
-    VALUE = 3
-    TARGET = 4
-    STRING = 13
-    POSITION = 14
-    MESSAGE = 17
-    TEXT = 19
-    JSON = 22
-    COMMAND = 29
 
 
 class AdventureSettingFlag1(Enum):
@@ -1365,23 +1341,8 @@ class SpaceEventType(Enum):
     SET_DATA = 4000
     # 4001-9799
     PLAYERS_SLEEPING = 9800
-    
 
-class CommandOriginDataType(Enum):
-    PLAYER = 0
-    BLOCK = 1
-    MINECART_BLOCK = 2
-    DEV_CONSOLE = 3
-    TEST = 4
-    AUTOMATION_PLAYER = 5
-    CLIENT_AUTOMATION = 6
-    DEDICATED_SERVER = 7
-    ENTITY = 8
-    VIRTUAL = 9
-    GAME_ARGUMENT = 10
-    ENTITY_SERVER = 11
-    
-    
+
 if __name__ == '__main__':
     import doctest
     doctest_result = doctest.testmod()

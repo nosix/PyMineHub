@@ -1,83 +1,21 @@
 import collections
 import functools
 import inspect
-import json
 from enum import Enum
 from typing import Any, Callable, Dict, List, NamedTuple, Sequence, Tuple, Type, Union
 
 from pyminehub.mcpe.action import Action
-from pyminehub.mcpe.const import CommandPermission, CommandArgType
-from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
+from pyminehub.mcpe.command.annotation import *
+from pyminehub.mcpe.command.const import CommandPermission, CommandArgType
+from pyminehub.mcpe.command.value import CommandEnum, CommandParameter, CommandData, CommandSpec
 from pyminehub.typevar import ET
 
 __all__ = [
-    'Int',
-    'Float',
-    'String',
-    'Value',
-    'Target',
-    'Position',
-    'Message',
-    'Text',
-    'JSON',
-    'Command',
     'CommandContext',
     'DuplicateDefinitionError',
     'command',
-    'CommandRegistry',
-    'CommandContextImpl'
+    'CommandRegistry'
 ]
-
-
-Int = int
-Float = float
-String = str
-
-
-class Value(str):  # TODO change to accurate type
-    pass
-
-
-class Target(str):
-    pass
-
-
-class Position(Vector3[float]):
-
-    def __new__(cls, *args) -> 'Position':
-        """
-        >>> Position('256.5 64 256.5')
-        Position(x=256.5, y=64.0, z=256.5)
-        >>> Position(256.5, 64, 256.5)
-        Position(x=256.5, y=64.0, z=256.5)
-        """
-        argv = args[0].split() if len(args) == 1 and isinstance(args[0], str) else args
-        return super().__new__(cls, *tuple(float(v) for v in argv))
-
-
-class Message(str):
-    pass
-
-
-class Text(str):
-    pass
-
-
-class JSON(str):
-
-    def decode(self) -> Dict:
-        """
-        >>> json = JSON('{"price": 1980, "pi": 3.14, "messages": ["foo", "bar"]}')
-        >>> sorted(json.decode().items())
-        [('messages', ['foo', 'bar']), ('pi', 3.14), ('price', 1980)]
-        """
-        return json.loads(self)
-
-
-class Command(str):
-    pass
-
 
 _FLAG_STATIC_TYPE = 0x100000
 _FLAG_ENUM_TYPE = 0x200000
@@ -305,28 +243,6 @@ class CommandRegistry:
     def execute_command(self, context: CommandContext, command_name: str, args: str) -> None:
         func, receiver = self._commands[command_name]
         return func(receiver, context, args)
-
-
-class CommandContextImpl(CommandContext):
-
-    def __init__(
-            self,
-            registry: CommandRegistry,
-            send_text: Callable[[str, bool], None],
-            perform_action: Callable[[Action], None]
-    ) -> None:
-        self._registry = registry
-        self._send_text = send_text
-        self._perform_action = perform_action
-
-    def get_enum_value(self, name: str) -> Union[ET, Callable]:
-        return self._registry.get_enum_value(name)
-
-    def send_text(self, text: str, broadcast: bool=False) -> None:
-        self._send_text(text, broadcast)
-
-    def perform_action(self, action: Action) -> None:
-        self._perform_action(action)
 
 
 if __name__ == '__main__':
