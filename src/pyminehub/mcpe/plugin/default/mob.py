@@ -1,6 +1,13 @@
 import random
+from typing import Tuple
 
+from pyminehub.mcpe.const import EntityType
 from pyminehub.mcpe.plugin.mob import *
+
+__all__ = [
+    'DefaultMobProcessor'
+]
+
 
 _SPAWN_RATIO = 0.1
 _SPAWN_MAX = 10

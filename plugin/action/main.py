@@ -1,6 +1,6 @@
 from binascii import unhexlify, hexlify
 from pickle import dumps, loads
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from pyminehub.mcpe.action import Action, ActionType, action_factory
 from pyminehub.mcpe.command import *

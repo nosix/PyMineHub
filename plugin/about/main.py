@@ -1,5 +1,7 @@
+from typing import Any
+
 from pyminehub.mcpe.command import *
-from pyminehub.mcpe.plugin.command import *
+from pyminehub.mcpe.plugin.command import ExtraCommandPlugin
 
 
 class AboutCommandProcessor:

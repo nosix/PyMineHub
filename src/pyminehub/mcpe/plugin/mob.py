@@ -4,6 +4,18 @@ from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import EntityType
 from pyminehub.mcpe.geometry import Vector3
 
+__all__ = [
+    'MobID',
+    'PlayerID',
+    'MobSpawn',
+    'MobMove',
+    'MobAction',
+    'PlayerInfo',
+    'MobInfo',
+    'MobProcessorPlugin'
+]
+
+
 MobID = int
 PlayerID = int
 

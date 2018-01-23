@@ -6,6 +6,11 @@ from pyminehub.mcpe.geometry import Vector3, ChunkPosition
 from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 from pyminehub.mcpe.value import Block
 
+__all__ = [
+    'DefaultChunkGenerator'
+]
+
+
 _logger = getLogger(__name__)
 
 

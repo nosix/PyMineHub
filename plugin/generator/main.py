@@ -1,5 +1,6 @@
-from pyminehub.mcpe.chunk import *
-from pyminehub.mcpe.plugin.generator import *
+from pyminehub.mcpe.chunk import Chunk, create_empty_chunk
+from pyminehub.mcpe.geometry import ChunkPosition
+from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 
 
 class ChunkGeneratorPluginImpl(ChunkGeneratorPlugin):

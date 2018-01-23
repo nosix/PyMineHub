@@ -1,4 +1,10 @@
-from pyminehub.mcpe.plugin.player import *
+from pyminehub.mcpe.const import GameMode
+from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
+from pyminehub.mcpe.value import PlayerID
+
+__all__ = [
+    'DefaultPlayerConfig'
+]
 
 
 class DefaultPlayerConfig(PlayerConfigPlugin):

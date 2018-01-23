@@ -2,13 +2,20 @@ import importlib
 import sys
 from logging import getLogger
 from pathlib import Path
+from typing import Optional
 
 from pyminehub.mcpe.command import CommandRegistry
-from pyminehub.mcpe.plugin.command import *
+from pyminehub.mcpe.plugin.command import ExtraCommandPlugin
 from pyminehub.mcpe.plugin.default import *
-from pyminehub.mcpe.plugin.generator import *
-from pyminehub.mcpe.plugin.mob import *
-from pyminehub.mcpe.plugin.player import *
+from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
+from pyminehub.mcpe.plugin.mob import MobProcessorPlugin
+from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
+
+__all__ = [
+    'PluginLoader',
+    'get_plugin_loader'
+]
+
 
 _logger = getLogger(__name__)
 
