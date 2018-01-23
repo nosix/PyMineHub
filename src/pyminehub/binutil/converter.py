@@ -159,7 +159,7 @@ class _Converter(_NamedTuple('Converter', [
     __slots__ = ()
 
     def pack(self, type_char: str, value: T, size: int=None) -> bytes:
-        buffer = struct.pack(self.byte_order + type_char, value)
+        buffer = struct.pack(self.byte_order + type_char, value)  # type: bytes
         return buffer if size is None else buffer[self.slice_pack(len(buffer), size)]
 
     def unpack(self, type_char: str, buffer: bytes, fill_size: int=None) -> T:
