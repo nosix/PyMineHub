@@ -3,6 +3,12 @@ from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity
 from pyminehub.mcpe.world.interface import WorldEditor
 
 
+__all__ = [
+    'Collision',
+    'CollisionWithItem'
+]
+
+
 class Collision:
 
     def update(self, editor: WorldEditor) -> None:

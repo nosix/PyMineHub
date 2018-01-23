@@ -7,6 +7,13 @@ from pyminehub.mcpe.value import EntityUniqueID, EntityRuntimeID, PlayerID, Inve
 from pyminehub.mcpe.world.entity.spec import EntitySpec, PLAYER_ENTITY_SPEC, ITEM_ENTITY_SPEC, get_spec
 from pyminehub.mcpe.world.inventory import ITEM_AIR, MutableInventory
 
+__all__ = [
+    'Entity',
+    'PlayerEntity',
+    'ItemEntity',
+    'MobEntity'
+]
+
 
 class Entity:
 

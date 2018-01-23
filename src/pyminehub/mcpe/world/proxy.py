@@ -6,6 +6,10 @@ from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.resource import CRAFTING_DATA_RECIPE
 from pyminehub.mcpe.value import AdventureSettings
 
+__all__ = [
+    'WorldProxy'
+]
+
 
 class WorldProxy:
 

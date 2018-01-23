@@ -14,7 +14,7 @@ from pyminehub.mcpe.event import *
 from pyminehub.mcpe.geometry import Vector3, revise_pitch, revise_yaw
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.plugin.mob import *
-from pyminehub.mcpe.plugin.player import *
+from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world.entity import EntityPool, PlayerEntity
 from pyminehub.mcpe.world.generator import SpaceGenerator
@@ -23,6 +23,11 @@ from pyminehub.mcpe.world.item import get_item_spec
 from pyminehub.mcpe.world.proxy import WorldProxy
 from pyminehub.mcpe.world.space import Space
 from pyminehub.value import LogString
+
+__all__ = [
+    'run'
+]
+
 
 _logger = getLogger(__name__)
 

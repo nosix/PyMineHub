@@ -1,9 +1,17 @@
-from typing import NamedTuple as _NamedTuple
+from typing import NamedTuple
 
 from pyminehub.mcpe.const import PLAYER_EYE_HEIGHT, EntityType
 from pyminehub.mcpe.geometry import Vector3
 
-EntitySpec = _NamedTuple('EntitySpec', [
+__all__ = [
+    'EntitySpec',
+    'PLAYER_ENTITY_SPEC',
+    'ITEM_ENTITY_SPEC',
+    'get_spec'
+]
+
+
+EntitySpec = NamedTuple('EntitySpec', [
     ('size', Vector3[float]),
     ('eye_height', float),
 ])

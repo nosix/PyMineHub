@@ -8,6 +8,12 @@ from pyminehub.mcpe.value import Item, Block
 from pyminehub.mcpe.world.block import get_block_spec
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
+__all__ = [
+    'BLOCK_AIR',
+    'Space'
+]
+
+
 BLOCK_AIR = Block(BlockType.AIR, 0)
 
 

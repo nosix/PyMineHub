@@ -1,9 +1,14 @@
-from typing import NamedTuple as _NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from pyminehub.mcpe.const import ItemType, BlockType
 
+__all__ = [
+    'ItemSpec',
+    'get_item_spec'
+]
 
-class ItemSpec(_NamedTuple('ItemSpec', [
+
+class ItemSpec(NamedTuple('ItemSpec', [
     ('block_type', Optional[BlockType]),
     ('max_quantity', int)
 ])):

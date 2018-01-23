@@ -6,6 +6,10 @@ from pyminehub.mcpe.value import PlayerID, EntityUniqueID, EntityRuntimeID, Item
 from pyminehub.mcpe.world.entity.collision import Collision, CollisionWithItem
 from pyminehub.mcpe.world.entity.instance import PlayerEntity, ItemEntity, MobEntity
 
+__all__ = [
+    'EntityPool'
+]
+
 
 class EntityPool:
 

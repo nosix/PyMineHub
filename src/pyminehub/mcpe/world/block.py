@@ -1,10 +1,15 @@
-from typing import NamedTuple as _NamedTuple, List, Optional
+from typing import List, NamedTuple, Optional
 
 from pyminehub.mcpe.const import BlockType, ItemType
 from pyminehub.mcpe.value import Item
 
+__all__ = [
+    'BlockSpec',
+    'get_block_spec'
+]
 
-class BlockSpec(_NamedTuple('BlockSpec', [
+
+class BlockSpec(NamedTuple('BlockSpec', [
     ('item', Optional[Item])  # TODO support many items
 ])):
     __slots__ = ()

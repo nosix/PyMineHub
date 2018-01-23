@@ -2,6 +2,14 @@ from pyminehub.mcpe.const import WindowType, ItemType
 from pyminehub.mcpe.value import Item, Inventory
 from pyminehub.mcpe.world.item import get_item_spec
 
+
+__all__ = [
+    'ITEM_AIR',
+    'MutableSlot',
+    'MutableInventory'
+]
+
+
 _INVENTORY_SIZE = {
     WindowType.INVENTORY: 36,
     WindowType.ARMOR: 4

@@ -5,6 +5,11 @@ from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import ChunkPosition, ChunkPositionWithDistance
 from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 
+__all__ = [
+    'SpaceGenerator',
+    'BatchSpaceGenerator'
+]
+
 
 class SpaceGenerator:
 
