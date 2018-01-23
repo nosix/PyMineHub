@@ -4,7 +4,7 @@ from logging import getLogger
 from random import randrange
 from typing import Optional
 
-from pyminehub.mcpe.const import *
+from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, CommandOriginDataType
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
@@ -13,10 +13,15 @@ from pyminehub.mcpe.value import EntityRuntimeID, CommandOriginData, ConnectionR
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import AbstractClient
 
+__all__ = [
+    'MCPEClient'
+]
+
+
 _logger = getLogger(__name__)
 
 
-class MCPEClientHandler(MCPEDataHandler):
+class _MCPEClientHandler(MCPEDataHandler):
 
     def __init__(self) -> None:
         super().__init__()
@@ -218,14 +223,14 @@ class MCPEClientHandler(MCPEDataHandler):
 class MCPEClient(AbstractClient):
 
     def __init__(self, player_name: str, locale: str) -> None:
-        self._handler = MCPEClientHandler()
+        self._handler = _MCPEClientHandler()
         self._player_name = player_name
         self._locale = locale
 
     # AbstractClient methods
 
     @property
-    def handler(self) -> MCPEClientHandler:
+    def handler(self) -> _MCPEClientHandler:
         return self._handler
 
     async def start(self) -> None:

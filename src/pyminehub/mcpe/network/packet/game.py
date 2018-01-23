@@ -6,6 +6,14 @@ from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition
 from pyminehub.mcpe.value import *
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
+__all__ = [
+    'GamePacket',
+    'GamePacketType',
+    'game_packet_factory',
+    'EXTRA_DATA'
+]
+
+
 GamePacket = ValueObject
 
 

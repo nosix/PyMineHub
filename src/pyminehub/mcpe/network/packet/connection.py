@@ -3,6 +3,13 @@ from typing import Tuple
 from pyminehub.network.address import AddressInPacket
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
+__all__ = [
+    'ConnectionPacket',
+    'ConnectionPacketType',
+    'connection_packet_factory'
+]
+
+
 ConnectionPacket = ValueObject
 
 

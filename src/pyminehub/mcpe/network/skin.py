@@ -1,3 +1,11 @@
+__all__ = [
+    'DEFAULT_SKIN_ID',
+    'DEFAULT_SKIN_GEOMETRY_NAME',
+    'DEFAULT_SKIN_DATA',
+    'DEFAULT_SKIN_GEOMETRY'
+]
+
+
 DEFAULT_SKIN_ID = 'c18e65aa-7b21-4637-9b63-8ad63622ef01_Alex'
 
 DEFAULT_SKIN_GEOMETRY_NAME = 'geometry.humanoid.customSlim'

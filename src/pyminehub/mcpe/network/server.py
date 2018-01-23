@@ -13,10 +13,15 @@ from pyminehub.mcpe.network.login import login_sequence
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import DEFAULT_CHANEL
 from pyminehub.mcpe.network.session import SessionManager
-from pyminehub.mcpe.value import *
+from pyminehub.mcpe.value import EntityMetaData, EntityMetaDataFlagValue, PlayerListEntry
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import SessionNotFound
+
+__all__ = [
+    'MCPEServerHandler'
+]
+
 
 _logger = getLogger(__name__)
 

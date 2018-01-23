@@ -5,6 +5,10 @@ from pyminehub.mcpe.value import PlayerID
 from pyminehub.network.address import Address
 from pyminehub.raknet import SessionNotFound
 
+__all__ = [
+    'SessionManager'
+]
+
 
 class SessionManager:
 

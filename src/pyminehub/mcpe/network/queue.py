@@ -3,11 +3,16 @@ from logging import getLogger
 from typing import Callable, Dict, List, Tuple
 
 from pyminehub.mcpe.network.codec import game_packet_codec
-from pyminehub.mcpe.network.packet import *
+from pyminehub.mcpe.network.packet import GamePacket, ConnectionPacket, ConnectionPacketType, connection_packet_factory
 from pyminehub.mcpe.network.reliability import RELIABILITY_DICT
 from pyminehub.network.address import Address
 from pyminehub.raknet import Reliability
 from pyminehub.value import LogString
+
+__all__ = [
+    'GamePacketQueue'
+]
+
 
 _logger = getLogger(__name__)
 

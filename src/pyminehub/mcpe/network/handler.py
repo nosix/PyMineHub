@@ -10,6 +10,11 @@ from pyminehub.network.address import Address, to_packet_format, get_unspecified
 from pyminehub.raknet import GameDataHandler, Reliability
 from pyminehub.value import LogString
 
+__all__ = [
+    'MCPEDataHandler'
+]
+
+
 _logger = getLogger(__name__)
 
 

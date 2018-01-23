@@ -14,6 +14,11 @@ from pyminehub.mcpe.network.packet import GamePacketType, game_packet_factory
 from pyminehub.mcpe.value import *
 from pyminehub.network.codec import PacketCodec
 
+__all__ = [
+    'game_packet_codec'
+]
+
+
 _HEADER_EXTRA_DATA = RawData(2)
 
 

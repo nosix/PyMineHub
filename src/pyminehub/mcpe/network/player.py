@@ -5,6 +5,11 @@ from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.geometry import Vector3, ChunkPosition, ChunkPositionWithDistance, to_chunk_area
 from pyminehub.mcpe.value import *
 
+__all__ = [
+    'Player'
+]
+
+
 _NEAR_CHUNK_RADIUS = 2
 
 

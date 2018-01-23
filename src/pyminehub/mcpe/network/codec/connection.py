@@ -7,9 +7,13 @@ from typing import Tuple
 from pyminehub.binutil.converter import pop_first, DataCodecContext, DataCodec
 from pyminehub.binutil.instance import *
 from pyminehub.config import get_value, ConfigKey
-from pyminehub.mcpe.network.packet import *
+from pyminehub.mcpe.network.packet import ConnectionPacketType, connection_packet_factory
 from pyminehub.network.address import AddressInPacket
-from pyminehub.network.codec import *
+from pyminehub.network.codec import PacketCodec, ADDRESS_DATA
+
+__all__ = [
+    'connection_packet_codec'
+]
 
 
 class _AddressList(DataCodec[Tuple[AddressInPacket, ...]]):

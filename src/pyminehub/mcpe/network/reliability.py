@@ -4,6 +4,14 @@ from typing import Dict
 from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.raknet import Reliability
 
+__all__ = [
+    'UNRELIABLE',
+    'RELIABLE',
+    'DEFAULT_CHANEL',
+    'RELIABILITY_DICT'
+]
+
+
 UNRELIABLE = Reliability(False, None)
 RELIABLE = Reliability(True, None)
 DEFAULT_CHANEL = Reliability(True, 0)
