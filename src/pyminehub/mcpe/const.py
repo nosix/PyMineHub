@@ -5,8 +5,6 @@ from itertools import chain
 __all__ = [
     'HOTBAR_SIZE',
     'PLAYER_EYE_HEIGHT',
-    'PlayStatus',
-    'ResourcePackStatus',
     'Dimension',
     'GeneratorType',
     'GameMode',
@@ -21,7 +19,6 @@ __all__ = [
     'MetaDataType',
     'EntityMetaDataKey',
     'EntityMetaDataFlag',
-    'PlayerListType',
     'WindowType',
     'RecipeType',
     'BlockType',
@@ -34,7 +31,6 @@ __all__ = [
     'TextType',
     'EscapeSequence',
     'EntityEventType',
-    'InventoryTransactionType',
     'UseItemActionType',
     'UseItemOnEntityActionType',
     'ReleaseItemActionType',
@@ -47,23 +43,6 @@ __all__ = [
 
 HOTBAR_SIZE = 9
 PLAYER_EYE_HEIGHT = 1.625
-
-
-class PlayStatus(Enum):
-    LOGIN_SUCCESS = 0
-    LOGIN_FAILED_CLIENT = 1
-    LOGIN_FAILED_SERVER = 2
-    PLAYER_SPAWN = 3
-    LOGIN_FAILED_INVALID_TENANT = 4
-    LOGIN_FAILED_VANILLA_EDU = 5
-    LOGIN_FAILED_EDU_VANILLA = 6
-
-
-class ResourcePackStatus(Enum):
-    REFUSED = 1
-    SEND_PACKS = 2
-    HAVE_ALL_PACKS = 3
-    COMPLETED = 4
 
 
 class Dimension(Enum):
@@ -300,11 +279,6 @@ class EntityMetaDataFlag(Enum):
     AFFECTED_BY_GRAVITY = 46
     FIRE_IMMUNE = 47
     DANCING = 48
-
-
-class PlayerListType(Enum):
-    ADD = 0
-    REMOVE = 1
 
 
 class WindowType(Enum):
@@ -1216,14 +1190,6 @@ class EntityEventType(Enum):
     ENTITY_SPAWN = 67  # used for MinecraftEventing stuff, not needed
     DRAGON_PUKE = 68  # they call this puke particles
     ITEM_ENTITY_MERGE = 69
-
-
-class InventoryTransactionType(Enum):
-    NORMAL = 0
-    MISMATCH = 1
-    USE_ITEM = 2
-    USE_ITEM_ON_ENTITY = 3
-    RELEASE_ITEM = 4
 
 
 class UseItemActionType(Enum):

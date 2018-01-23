@@ -4,7 +4,8 @@ from logging import getLogger
 from random import randrange
 from typing import Optional
 
-from pyminehub.mcpe.const import PlayStatus, ResourcePackStatus, CommandOriginDataType
+from pyminehub.mcpe.const import CommandOriginDataType
+from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL

@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition
+from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus, PlayerListType, InventoryTransactionType
 from pyminehub.mcpe.value import *
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
