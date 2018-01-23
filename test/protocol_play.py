@@ -4,7 +4,8 @@ from protocol_login_logout import ProtocolLoginLogoutTestCase
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import event_factory, EventType
 from pyminehub.mcpe.geometry import Vector3, Face
-from pyminehub.mcpe.network.const import InventoryTransactionType
+from pyminehub.mcpe.network.const import InventoryTransactionType, UseItemActionType
+from pyminehub.mcpe.network.value import TransactionToUseItem
 from pyminehub.mcpe.value import *
 from testcase.protocol import *
 

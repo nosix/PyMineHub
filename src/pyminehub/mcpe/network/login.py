@@ -9,7 +9,7 @@ from pyminehub.mcpe.network.const import PlayStatus, PlayerListType
 from pyminehub.mcpe.network.packet import GamePacket, GamePacketType, game_packet_factory, EXTRA_DATA
 from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.network.session import SessionManager
-from pyminehub.mcpe.value import PlayerListEntry
+from pyminehub.mcpe.network.value import PlayerListEntry
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address
 

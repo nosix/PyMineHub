@@ -10,7 +10,8 @@ from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
 from pyminehub.mcpe.network.skin import *
-from pyminehub.mcpe.value import EntityRuntimeID, CommandOriginData, ConnectionRequest
+from pyminehub.mcpe.network.value import ConnectionRequest
+from pyminehub.mcpe.value import EntityRuntimeID, CommandOriginData
 from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import AbstractClient
 

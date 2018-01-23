@@ -1,8 +1,7 @@
-import re
-from typing import NamedTuple as _NamedTuple, Dict, Optional, Tuple, Union
+from typing import Dict, NamedTuple, Optional, Tuple, Union
 from uuid import UUID
 
-from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_base64
+from pyminehub.binutil.converter import dict_to_flags, flags_to_dict
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
 
@@ -10,12 +9,6 @@ __all__ = [
     'PlayerID',
     'EntityUniqueID',
     'EntityRuntimeID',
-    'Skin',
-    'PlayerData',
-    'ClientData',
-    'ConnectionRequest',
-    'PackEntry',
-    'PackStack',
     'GameRule',
     'Attribute',
     'CommandEnum',
@@ -33,17 +26,12 @@ __all__ = [
     'Hotbar',
     'Inventory',
     'PlayerState',
-    'PlayerListEntry',
     'RecipeForNormal',
     'RecipeForFurnace',
     'RecipeForMulti',
     'RecipeData',
     'Recipe',
     'InventoryAction',
-    'TransactionToUseItem',
-    'TransactionToUseItemOnEntity',
-    'TransactionToReleaseItem',
-    'TransactionData',
     'Block',
 ]
 
@@ -52,91 +40,13 @@ PlayerID = UUID
 EntityUniqueID = int
 EntityRuntimeID = int
 
-
-Skin = _NamedTuple('Skin', [
-    ('id', str),
-    ('data', bytes),
-    ('cape', str),
-    ('geometry_name', str),
-    ('geometry_data', str)
-])
-
-PlayerData = _NamedTuple('PlayerData', [
-    ('xuid', str),
-    ('identity', UUID),
-    ('display_name', str),
-    ('identity_public_key', str)
-])
-
-
-class ClientData(_NamedTuple('ClientData', [
-    ('client_random_id', int),
-    ('language_code', str),
-    ('cape_data', str),
-    ('skin_id', str),
-    ('skin_data', bytes),
-    ('skin_geometry_name', str),
-    ('skin_geometry_data', str)
-])):
-    @property
-    def skin(self) -> Skin:
-        return Skin(self.skin_id, self.skin_data, self.cape_data, self.skin_geometry_name, self.skin_geometry_data)
-
-
-class ConnectionRequest(_NamedTuple('ConnectionRequest', [
-    ('chain', Tuple[dict, ...]),  # NOTE: dict is mutable
-    ('client', dict)  # NOTE: dict is mutable
-])):
-    _KEY_EXTRA = 'extraData'
-    _MINIMIZE_REGEXP = re.compile(r'\s+')
-
-    @property
-    def player_data(self) -> PlayerData:
-        for webtoken in self.chain:
-            if self._KEY_EXTRA in webtoken:
-                extra_data = webtoken[self._KEY_EXTRA]
-                identity = UUID('{' + extra_data['identity'] + '}')
-                return PlayerData(
-                    extra_data['XUID'], identity, extra_data['displayName'],
-                    webtoken['identityPublicKey'])
-        raise AssertionError('ConnectionRequest must have extraData.')
-
-    @property
-    def client_data(self) -> ClientData:
-        skin_data = decode_base64(self.client['SkinData'].encode('ascii'))
-        skin_geometry = decode_base64(self.client['SkinGeometry'].encode('ascii')).decode()
-        return ClientData(
-            self.client['ClientRandomId'],
-            self.client['LanguageCode'],
-            self.client['CapeData'],
-            self.client['SkinId'],
-            skin_data,
-            self.client['SkinGeometryName'],
-            self._MINIMIZE_REGEXP.sub('', skin_geometry).replace('.0', '')  # TODO remove replace '.0'
-        )
-
-
-PackEntry = _NamedTuple('PackEntry', [
-    ('id', str),
-    ('version', str),
-    ('size', int),
-    ('unknown1', str),
-    ('unknown2', str)
-])
-
-PackStack = _NamedTuple('PackStack', [
-    ('id', str),
-    ('version', str),
-    ('unknown1', str)
-])
-
-GameRule = _NamedTuple('GameRule', [
+GameRule = NamedTuple('GameRule', [
     ('name', str),
     ('type', GameRuleType),
     ('value', Union[bool, int, float])
 ])
 
-Attribute = _NamedTuple('Attribute', [
+Attribute = NamedTuple('Attribute', [
     ('min', float),
     ('max', float),
     ('current', float),
@@ -144,18 +54,18 @@ Attribute = _NamedTuple('Attribute', [
     ('name', str)
 ])
 
-CommandEnum = _NamedTuple('CommandEnum', [
+CommandEnum = NamedTuple('CommandEnum', [
     ('name', str),
     ('index', Tuple[int, ...])
 ])
 
-CommandParameter = _NamedTuple('CommandParameter', [
+CommandParameter = NamedTuple('CommandParameter', [
     ('name', str),
     ('type', int),
     ('is_optional', bool)
 ])
 
-CommandData = _NamedTuple('CommandData', [
+CommandData = NamedTuple('CommandData', [
     ('name', str),
     ('description', str),
     ('flags', int),
@@ -164,7 +74,7 @@ CommandData = _NamedTuple('CommandData', [
     ('overloads', Tuple[Tuple[CommandParameter, ...], ...])
 ])
 
-CommandSpec = _NamedTuple('CommandSpec', [
+CommandSpec = NamedTuple('CommandSpec', [
     ('enum_values', Tuple[str, ...]),
     ('postfixes', Tuple[str, ...]),
     ('enums', Tuple[CommandEnum, ...]),
@@ -173,7 +83,7 @@ CommandSpec = _NamedTuple('CommandSpec', [
 ])
 
 
-class AdventureSettings(_NamedTuple('AdventureSettings', [
+class AdventureSettings(NamedTuple('AdventureSettings', [
     ('flags', int),
     ('flags2', int)
 ])):
@@ -198,7 +108,7 @@ class AdventureSettings(_NamedTuple('AdventureSettings', [
         return d
 
 
-class Item(_NamedTuple('Item', [
+class Item(NamedTuple('Item', [
     ('type', ItemType),
     ('aux_value', Optional[int]),  # None if ItemType.AIR
     ('nbt', Optional[bytes]),  # None if ItemType.AIR
@@ -230,14 +140,14 @@ class Item(_NamedTuple('Item', [
 
 MetaDataValue = Union[int, float, str, Vector3, Item]
 
-EntityMetaData = _NamedTuple('EntityMetaData', [
+EntityMetaData = NamedTuple('EntityMetaData', [
     ('key', EntityMetaDataKey),
     ('type', MetaDataType),
     ('value', MetaDataValue)
 ])
 
 
-class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
+class EntityMetaDataFlagValue(NamedTuple('EntityMetaDataFlags', [
     ('flags', int)
 ])):
     @staticmethod
@@ -256,14 +166,14 @@ class EntityMetaDataFlagValue(_NamedTuple('EntityMetaDataFlags', [
         return flags_to_dict(EntityMetaDataFlag, self.flags)
 
 
-EntityAttribute = _NamedTuple('EntityAttribute', [
+EntityAttribute = NamedTuple('EntityAttribute', [
     ('name', str),
     ('min', float),
     ('current', float),
     ('max', float)
 ])
 
-EntityLink = _NamedTuple('EntityLink', [
+EntityLink = NamedTuple('EntityLink', [
     ('from_entity_unique_id', EntityUniqueID),
     ('to_entity_unique_id', EntityUniqueID),
     ('type', int),
@@ -272,12 +182,12 @@ EntityLink = _NamedTuple('EntityLink', [
 
 Hotbar = Tuple[Optional[int], ...]
 
-Inventory = _NamedTuple('Inventory', [
+Inventory = NamedTuple('Inventory', [
     ('window_type', WindowType),
     ('slots', Tuple[Item, ...])
 ])
 
-PlayerState = _NamedTuple('PlayerState', [
+PlayerState = NamedTuple('PlayerState', [
     ('spawn_position', Vector3[int]),
     ('position', Vector3[float]),
     ('yaw', float),
@@ -289,15 +199,7 @@ PlayerState = _NamedTuple('PlayerState', [
     ('hotbar', Hotbar)
 ])
 
-PlayerListEntry = _NamedTuple('PlayerListEntry', [
-    ('uuid', UUID),
-    ('entity_unique_id', Optional[int]),
-    ('user_name', Optional[str]),
-    ('skin', Optional[Skin]),
-    ('xbox_user_id', Optional[str])
-])
-
-RecipeForNormal = _NamedTuple('RecipeForNormal', [
+RecipeForNormal = NamedTuple('RecipeForNormal', [
     ('width', Optional[int]),
     ('height', Optional[int]),
     ('input', Tuple[Item, ...]),
@@ -305,24 +207,24 @@ RecipeForNormal = _NamedTuple('RecipeForNormal', [
     ('uuid', UUID)
 ])
 
-RecipeForFurnace = _NamedTuple('RecipeForFurnace', [
+RecipeForFurnace = NamedTuple('RecipeForFurnace', [
     ('input_id', int),
     ('input_damage', Optional[int]),
     ('output', Item)
 ])
 
-RecipeForMulti = _NamedTuple('RecipeForMulti', [
+RecipeForMulti = NamedTuple('RecipeForMulti', [
     ('uuid', UUID)
 ])
 
 RecipeData = Union[RecipeForNormal, RecipeForFurnace, RecipeForMulti]
 
-Recipe = _NamedTuple('Recipe', [
+Recipe = NamedTuple('Recipe', [
     ('type', RecipeType),
     ('data', RecipeData)
 ])
 
-InventoryAction = _NamedTuple('InventoryAction', [
+InventoryAction = NamedTuple('InventoryAction', [
     ('source_type', SourceType),
     ('window_type', Optional[WindowType]),
     ('unknown1', Optional[int]),
@@ -331,36 +233,8 @@ InventoryAction = _NamedTuple('InventoryAction', [
     ('new_item', Item)
 ])
 
-TransactionToUseItem = _NamedTuple('TransactionToUseItem', [
-    ('action_type', UseItemActionType),
-    ('position', Vector3[int]),
-    ('face', Face),
-    ('hotbar_slot', int),
-    ('item_in_hand', Item),
-    ('player_position', Vector3[float]),
-    ('click_position', Vector3[float])
-])
 
-TransactionToUseItemOnEntity = _NamedTuple('TransactionToUseItemOnEntity', [
-    ('entity_runtime_id', EntityRuntimeID),
-    ('action_type', UseItemOnEntityActionType),
-    ('hotbar_slot', int),
-    ('item_in_hand', Item),
-    ('unknown1', float),
-    ('unknown2', float)
-])
-
-TransactionToReleaseItem = _NamedTuple('TransactionToReleaseItem', [
-    ('action_type', ReleaseItemActionType),
-    ('hotbar_slot', int),
-    ('item_in_hand', Item),
-    ('head_position', Vector3[float])
-])
-
-TransactionData = Union[TransactionToUseItem, TransactionToUseItemOnEntity, TransactionToReleaseItem]
-
-
-class Block(_NamedTuple('Block', [
+class Block(NamedTuple('Block', [
     ('type', BlockType),
     ('aux_value', int)
 ])):
@@ -393,7 +267,7 @@ class Block(_NamedTuple('Block', [
         return flags_to_dict(BlockFlag, self.aux_value >> 4)
 
 
-CommandOriginData = _NamedTuple('CommandOriginData', [
+CommandOriginData = NamedTuple('CommandOriginData', [
     ('type', CommandOriginDataType),
     ('uuid', UUID),
     ('request_id', str),
