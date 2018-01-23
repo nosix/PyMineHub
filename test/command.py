@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from pyminehub.mcpe.command import *
-from pyminehub.mcpe.const import GameMode
+from pyminehub.mcpe.const import GameMode, CommandPermission
+from pyminehub.mcpe.value import CommandSpec, CommandEnum, CommandData, CommandParameter
 from util.mock import MockCommandContext
 
 

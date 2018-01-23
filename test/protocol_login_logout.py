@@ -1,5 +1,9 @@
+from uuid import UUID
+
 from protocol_unconnected import ProtocolUnconnectedTestCase
+from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import event_factory, EventType
+from pyminehub.mcpe.geometry import Vector3, to_chunk_area
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
 from pyminehub.mcpe.value import *
 from testcase.protocol import *

@@ -1,10 +1,12 @@
 import asyncio
-import uuid
 from unittest import TestCase
+from uuid import UUID, uuid4
 
 from pyminehub.config import set_config
 from pyminehub.mcpe.action import action_factory, ActionType
+from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import event_factory, EventType, Event
+from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.plugin.loader import get_plugin_loader
 from pyminehub.mcpe.value import *
 from pyminehub.mcpe.world import run
@@ -38,7 +40,7 @@ class WorldTestCase(TestCase):
 
     def _create_player(self, n: int) -> None:
         for _ in range(n):
-            self._players.append(uuid.uuid4())
+            self._players.append(uuid4())
 
     def _get_player_id(self, index: int) -> UUID:
         return self._players[index]

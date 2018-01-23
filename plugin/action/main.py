@@ -1,8 +1,11 @@
 from binascii import unhexlify, hexlify
 from pickle import dumps, loads
+from typing import Optional, Union
 
-from pyminehub.mcpe.action import ActionType, action_factory
+from pyminehub.mcpe.action import Action, ActionType, action_factory
 from pyminehub.mcpe.command import *
+from pyminehub.mcpe.const import MoveMode, ItemType, EntityType, EntityMetaDataKey
+from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition, ChunkPositionWithDistance
 from pyminehub.mcpe.network import MCPEClient
 from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.mcpe.plugin.command import *

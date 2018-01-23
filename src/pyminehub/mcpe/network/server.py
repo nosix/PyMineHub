@@ -1,9 +1,12 @@
 from logging import getLogger
+from typing import Dict, Optional, Tuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import ActionType, action_factory
 from pyminehub.mcpe.command import CommandRegistry, CommandContextImpl
+from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import EventType, Event
+from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.login import login_sequence

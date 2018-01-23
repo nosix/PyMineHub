@@ -6,6 +6,48 @@ from pyminehub.binutil.converter import dict_to_flags, flags_to_dict, decode_bas
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import *
 
+__all__ = [
+    'PlayerID',
+    'EntityUniqueID',
+    'EntityRuntimeID',
+    'Skin',
+    'PlayerData',
+    'ClientData',
+    'ConnectionRequest',
+    'PackEntry',
+    'PackStack',
+    'GameRule',
+    'Attribute',
+    'CommandEnum',
+    'CommandParameter',
+    'CommandData',
+    'CommandSpec',
+    'CommandOriginData',
+    'AdventureSettings',
+    'MetaDataValue',
+    'EntityMetaData',
+    'EntityMetaDataFlagValue',
+    'EntityAttribute',
+    'EntityLink',
+    'Item',
+    'Hotbar',
+    'Inventory',
+    'PlayerState',
+    'PlayerListEntry',
+    'RecipeForNormal',
+    'RecipeForFurnace',
+    'RecipeForMulti',
+    'RecipeData',
+    'Recipe',
+    'InventoryAction',
+    'TransactionToUseItem',
+    'TransactionToUseItemOnEntity',
+    'TransactionToReleaseItem',
+    'TransactionData',
+    'Block',
+]
+
+
 PlayerID = UUID
 EntityUniqueID = int
 EntityRuntimeID = int

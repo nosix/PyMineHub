@@ -2,6 +2,49 @@ from enum import Enum
 from itertools import chain
 
 
+__all__ = [
+    'HOTBAR_SIZE',
+    'PLAYER_EYE_HEIGHT',
+    'PlayStatus',
+    'ResourcePackStatus',
+    'Dimension',
+    'GeneratorType',
+    'GameMode',
+    'Difficulty',
+    'GameRuleType',
+    'PlayerPermission',
+    'CommandPermission',
+    'CommandArgType',
+    'AdventureSettingFlag1',
+    'AdventureSettingFlag2',
+    'AttributeType',
+    'MetaDataType',
+    'EntityMetaDataKey',
+    'EntityMetaDataFlag',
+    'PlayerListType',
+    'WindowType',
+    'RecipeType',
+    'BlockType',
+    'BlockFlag',
+    'BiomeType',
+    'ItemType',
+    'MoveMode',
+    'SoundType',
+    'PlayerActionType',
+    'TextType',
+    'EscapeSequence',
+    'EntityEventType',
+    'InventoryTransactionType',
+    'UseItemActionType',
+    'UseItemOnEntityActionType',
+    'ReleaseItemActionType',
+    'SourceType',
+    'EntityType',
+    'SpaceEventType',
+    'CommandOriginDataType',
+]
+
+
 HOTBAR_SIZE = 9
 PLAYER_EYE_HEIGHT = 1.625
 

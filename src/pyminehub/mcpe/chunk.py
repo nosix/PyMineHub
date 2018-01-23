@@ -7,6 +7,15 @@ from pyminehub.mcpe.const import BlockType, BiomeType
 from pyminehub.mcpe.geometry import ChunkGeometry, Vector3
 from pyminehub.mcpe.value import Block
 
+__all__ = [
+    'Chunk',
+    'create_empty_chunk',
+    'encode_chunk',
+    'decode_chunk',
+    'foreach_xz'
+]
+
+
 _layout = {
     'sub_chunk_header': 1,
     'sub_chunk_block_id': ChunkGeometry.Sub.SHAPE.volume,
@@ -15,28 +24,28 @@ _layout = {
     'chunk_biome_id': ChunkGeometry.SHAPE.area
 }
 
-EMPTY_HEADER = b'\00'
-EMPTY_BLOCK_ID = b'\00' * _layout['sub_chunk_block_id']
-EMPTY_BLOCK_DATA = b'\00' * _layout['sub_chunk_block_data']
-EMPTY_HEIGHT_MAP = b'\00' * _layout['chunk_height_map']
-EMPTY_BIOME_ID = b'\00' * _layout['chunk_biome_id']
+_EMPTY_HEADER = b'\00'
+_EMPTY_BLOCK_ID = b'\00' * _layout['sub_chunk_block_id']
+_EMPTY_BLOCK_DATA = b'\00' * _layout['sub_chunk_block_data']
+_EMPTY_HEIGHT_MAP = b'\00' * _layout['chunk_height_map']
+_EMPTY_BIOME_ID = b'\00' * _layout['chunk_biome_id']
 
 
 class _SubChunk:
     """Chunk of ChunkGeometry.Sub.SHAPE blocks."""
 
     def __init__(self, header: bytes, block_id: bytes, block_data: bytes) -> None:
-        assert header == EMPTY_HEADER
+        assert header == _EMPTY_HEADER
         self._block_id = bytearray(block_id)
         self._block_data = bytearray(block_data)
 
     def __iter__(self):
-        yield EMPTY_HEADER
+        yield _EMPTY_HEADER
         yield bytes(self._block_id)
         yield bytes(self._block_data)
 
     def copy(self) -> '_SubChunk':
-        return _SubChunk(EMPTY_HEADER, self._block_id, self._block_data)
+        return _SubChunk(_EMPTY_HEADER, self._block_id, self._block_data)
 
     @classmethod
     def _to_block_id_index(cls, x: int, y: int, z: int) -> int:
@@ -68,7 +77,7 @@ class _SubChunk:
 
 
 def _create_empty_sub_chunk() -> _SubChunk:
-    return _SubChunk(EMPTY_HEADER, EMPTY_BLOCK_ID, EMPTY_BLOCK_DATA)
+    return _SubChunk(_EMPTY_HEADER, _EMPTY_BLOCK_ID, _EMPTY_BLOCK_DATA)
 
 
 class Chunk:
@@ -179,7 +188,7 @@ _chunk_codec = CompositeCodec(_chunk_codec_spec)
 
 
 def create_empty_chunk() -> Chunk:
-    return Chunk(tuple(), EMPTY_HEIGHT_MAP, EMPTY_BIOME_ID, tuple(), tuple())
+    return Chunk(tuple(), _EMPTY_HEIGHT_MAP, _EMPTY_BIOME_ID, tuple(), tuple())
 
 
 def encode_chunk(chunk: Chunk) -> bytes:

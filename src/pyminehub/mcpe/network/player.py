@@ -1,6 +1,8 @@
-from typing import Generator, Set
+from typing import Generator, Set, Tuple
 
+from pyminehub.mcpe.const import PLAYER_EYE_HEIGHT, ItemType
 from pyminehub.mcpe.event import Event
+from pyminehub.mcpe.geometry import Vector3, ChunkPosition, ChunkPositionWithDistance, to_chunk_area
 from pyminehub.mcpe.value import *
 
 _NEAR_CHUNK_RADIUS = 2

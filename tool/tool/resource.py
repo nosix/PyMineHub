@@ -1,12 +1,15 @@
 import json
 from binascii import unhexlify as unhex
 from collections import namedtuple
-from typing import Callable, Any
+from enum import Enum
+from typing import Any, Callable, Dict, Tuple
+from uuid import UUID
 
 from pyminehub.binutil.composite import CompositeCodecContext
+from pyminehub.mcpe.const import ItemType, RecipeType
 # noinspection PyProtectedMember
 from pyminehub.mcpe.network.codec.game import _RecipeList, _InventoryContentItems
-from pyminehub.mcpe.value import *
+from pyminehub.mcpe.value import Item, Recipe, RecipeForNormal, RecipeForFurnace, RecipeForMulti
 
 _KEY_CLASS_NAME = '__cls__'
 

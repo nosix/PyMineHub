@@ -3,6 +3,11 @@ from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import MetaDataValue, EntityMetaData, Item
 
 
+__all__ = [
+    'create_entity_metadata'
+]
+
+
 _ENTITY_METADATA_TYPE = {
     EntityMetaDataKey.FLAGS: MetaDataType.LONG,
     EntityMetaDataKey.HEALTH: MetaDataType.INT,

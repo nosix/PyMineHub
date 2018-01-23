@@ -3,6 +3,11 @@ from typing import Optional
 from pyminehub.mcpe.const import AttributeType
 from pyminehub.mcpe.value import Attribute
 
+__all__ = [
+    'create_attribute'
+]
+
+
 _ATTRIBUTES = {
     AttributeType.HEALTH: (0.0, 20.0, 20.0),
     AttributeType.FOLLOW_RANGE: (0.0, 2048.0, 16.0),

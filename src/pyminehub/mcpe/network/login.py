@@ -1,7 +1,9 @@
 from typing import Callable
 
 from pyminehub.mcpe.command import CommandRegistry
+from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import EventType
+from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.metadata import create_entity_metadata
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.player import Player

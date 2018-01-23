@@ -3,13 +3,32 @@ import functools
 import inspect
 import json
 from enum import Enum
-from typing import NamedTuple as _NamedTuple, Any, Callable, Dict, List, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, NamedTuple, Sequence, Tuple, Type, Union
 
 from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.const import CommandPermission, CommandArgType
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import CommandData, CommandParameter, CommandEnum, CommandSpec
 from pyminehub.typevar import ET
+
+__all__ = [
+    'Int',
+    'Float',
+    'String',
+    'Value',
+    'Target',
+    'Position',
+    'Message',
+    'Text',
+    'JSON',
+    'Command',
+    'CommandContext',
+    'DuplicateDefinitionError',
+    'command',
+    'CommandRegistry',
+    'CommandContextImpl'
+]
+
 
 Int = int
 Float = float
@@ -173,7 +192,7 @@ def command(func):
     return command_func
 
 
-_CommandMethod = _NamedTuple('CommandMethod', [
+_CommandMethod = NamedTuple('CommandMethod', [
     ('func', Callable),
     ('self', Any)
 ])

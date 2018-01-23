@@ -3,12 +3,25 @@ import math
 import operator as _op
 from enum import Enum
 from numbers import Number
-from typing import NamedTuple as _NamedTuple, Generic, Iterator
+from typing import Generic, Iterator, NamedTuple
 
 from pyminehub.typevar import NT
 
+__all__ = [
+    'Vector3',
+    'Face',
+    'OrientedBoundingBox',
+    'ChunkGeometry',
+    'ChunkPosition',
+    'ChunkPositionWithDistance',
+    'to_chunk_area',
+    'to_local_position',
+    'revise_pitch',
+    'revise_yaw'
+]
 
-class Vector3(_NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):
+
+class Vector3(NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[NT]):
     """
     x : west - <=> + east
     y : downward - <=> + upward
@@ -228,7 +241,7 @@ class Face(Enum):
         return cls.by_yaw(yaw)
 
 
-class OrientedBoundingBox(_NamedTuple('OrientedBoundingBox', [
+class OrientedBoundingBox(NamedTuple('OrientedBoundingBox', [
     ('origin', Vector3[float]),
     ('forward', Vector3[float]),
     ('right', Vector3[float]),
@@ -281,7 +294,7 @@ class ChunkGeometry:
         SHAPE = Vector3(16, 16, 16)
 
 
-class ChunkPosition(_NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
+class ChunkPosition(NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
 
     def __add__(self, other: tuple) -> 'ChunkPosition':
         return ChunkPosition(self.x + other[0], self.z + other[1])
@@ -306,7 +319,7 @@ class ChunkPosition(_NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
         return ChunkPosition(int(position.x // ChunkGeometry.SHAPE.x), int(position.z // ChunkGeometry.SHAPE.z))
 
 
-ChunkPositionWithDistance = _NamedTuple('ChunkPositionWithDistance', [('distance', int), ('position', ChunkPosition)])
+ChunkPositionWithDistance = NamedTuple('ChunkPositionWithDistance', [('distance', int), ('position', ChunkPosition)])
 
 
 def to_chunk_area(center: Vector3, radius: int) -> Iterator[ChunkPositionWithDistance]:
