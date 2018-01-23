@@ -62,62 +62,73 @@ raknet
   - server -> config, network.[address], .[handler, packet, protocol, session]
   - client -> config, network.[address], .[handler, packet, protocol, session]
 mcpe
-  const -> enum
+  const
   geometry -> typevar
   value -> binutil.[converter], .[const, geometry]
   resource
     - loader
   attribute -> .[const, value]
   metadata -> .[const, geometry, value]
-  command -> typevar, .[action, const, geometry, value]
-  chunk -> binutil.[composite, instance], mcpe.[const, geometry, value]
-  action -> value, mcpe.[value]
-  event -> value, mcpe.[value]
-  datastore -> config, mcpe.[geometry, chunk]
+  action -> value, mcpe.[const, geometry, value]
+  event -> value, mcpe.[const, geometry, value]
+  chunk -> binutil.*, mcpe.[const, geometry, value]
+  datastore -> config, mcpe.[chunk, geometry, value]
+  command
+    const
+    annotation -> mcpe.[geometry]
+    value -> .[const]
+    api -> typevar, mcpe.[action], .[annotation, const, value]
+    impl -> typevar, mcpe.[action], .[api]
   plugin
-    generator -> mcpe.[geometry, chunk]
-    mob -> mcpe.[const, geometry, chunk]
+    command
+    generator -> mcpe.[chunk, geometry]
+    mob -> mcpe.[chunk, const, geometry]
     player -> mcpe.[const, value]
     default
-      - generator -> mcpe.[geometry, chunk], mcpe.plugin.[generator]
-      - mob -> mcpe.plugin.[mob]
-      - player -> mcpe.plugin.[player]
-    loader -> .[default, generator, mob, player]
+      - generator -> mcpe.[chunk, const, geometry, value], mcpe.plugin.[generator]
+      - mob -> mcpe.[const], mcpe.plugin.[mob]
+      - player -> mcpe.[const, value], mcpe.plugin.[player]
+    loader -> mcpe.command.[api], .[command, default, generator, mob, player]
   world
     - interface -> mcpe.[value]
+    - proxy -> mcpe.[action, const, event, resource, value]
     - item -> mcpe.[const]
     - block -> mcpe.[const, value]
-    - inventory -> .[const, value, item]
+    - generator -> mcpe.[chunk, datastore, geometry], mcpe.plugin.[generator]
+    - inventory -> .[const, value], .[item]
+    - space -> mcpe.[chunk, const, datastore, geometry, value], .[block, generator]
     - entity
       - spec -> mcpe.[const, geometry]
       - instance -> mcpe.[const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[const, value, datastore], .[collision, instance]
-    - generator -> mcpe.[geometry, chunk, datastore], mcpe.plugin.[generator]
-    - space -> mcpe.[const, value, geometry, chunk, datastore], .[block, generator]
-    - proxy -> mcpe.[const, value, resource], .[action, event]
+      - pool -> mcpe.[const, datastore, value], .[collision, instance]
     - server -> config, value,
-                mcpe.[action, attribute, chunk, datastore, event],
+                mcpe.[action, attribute, chunk, const, datastore, event, geometry, value],
                 mcpe.plugin.[loader, mob, player],
                 .[entity, generator, interface, item, proxy, space]
   network
     - skin
+    - const
+    - value -> binutil.[converter], mcpe.[geometry, value], .[const]
     - packet
       - connection -> value, network.[address]
-      - game -> value, mcpe.[value]
+      - game -> value, mcpe.[const, geometry, value], mcpe.command.[const, value], .[const, value]
     - codec
-      - connection -> config, network.[codec], mcpe.network.[packet]
-      - game -> network.[codec], mcpe.[value], mcpe.network.[packet]
-    - player -> .[value, event]
+      - connection -> config, binutil.*, network.*, mcpe.network.[packet]
+      - game -> binutil.*, network.*, mcpe.[const, geometry, value], mcpe.command.[const, value],
+                mcpe.network.[const, packet, value]
+    - player -> mcpe.[const, event, geometry, value], .[value]
     - session -> raknet, networkd.[address], mcpe.[value] .[player]
-    - queue -> value, raknet, network.[address], .[packet, codec]
-    - login -> network.[address], mcpe.[command, event, metadata, value, world], .[packet, player, session]
+    - queue -> value, raknet, network.[address], .[codec, packet, reliabiliry]
+    - login -> network.[address], mcpe.[const, event, geometry, metadata, world], mcpe.command.[api]
+               .[const, packet, player, session, value]
     - handler -> value, raknet, network.[address], .[codec, packet, queue, reliability]
-    - server -> config, raknet, network.[address], mcpe.[action, command, event, metadata, value, world],
-                .[handler, login, packet, reliability, session]
-    - client -> raknet, network.[address], mcpe.[const, value], .[skin, handler, packet, reliability] 
+    - server -> config, raknet, network.[address], mcpe.[action, const, event, geometry, metadata, value, world],
+                mcpe.command.[api, impl], .[const, handler, login, packet, reliability, session, value]
+    - client -> raknet, network.[address], mcpe.[value], mcpe.command.[const, value],
+                .[const, handler, packet, reliability, skin, value] 
   main
-    server -> raknet, mcpe.[network, datastore, command, world], mcpe.plugin.[loader]
+    server -> config, raknet, mcpe.[network, datastore, world], mcpe.command.[api], mcpe.plugin.[loader]
     client -> raknet, mcpe.[network]
 
 - : Hidden from outside modules
