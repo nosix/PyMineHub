@@ -2,6 +2,12 @@ import asyncio
 import logging
 
 
+__all__ = [
+    'configure_log',
+    'run'
+]
+
+
 def configure_log(
         enable_packet_debug=False,
         enable_world_debug=False,

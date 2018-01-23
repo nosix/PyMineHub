@@ -8,8 +8,8 @@ from pyminehub.mcpe.action import action_factory, Action, ActionType
 from pyminehub.mcpe.command import CommandRegistry, CommandContext, command
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.main.client import connect, MCPEClient
-from pyminehub.mcpe.network import MCPEServerHandler
+from pyminehub.mcpe.main.client import connect
+from pyminehub.mcpe.network import MCPEServerHandler, MCPEClient
 from pyminehub.mcpe.network.packet import EXTRA_DATA, GamePacketType, game_packet_factory
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.world import run as run_world

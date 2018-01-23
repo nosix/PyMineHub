@@ -2,6 +2,11 @@ from pyminehub.mcpe.network import MCPEClient
 from pyminehub.raknet import ClientConnection
 
 
+__all__ = [
+    'connect'
+]
+
+
 def connect(
         server_host: str,
         port: int=None,
