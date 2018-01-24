@@ -173,7 +173,8 @@ class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
                         swimmer=True,
                         affected_by_gravity=True,
                         fire_immune=True
-                    )
+                    ),
+                    time=4800
                 ),
                 event_factory.create(
                     EventType.INVENTORY_LOADED,

@@ -399,7 +399,7 @@ _game_data_codecs = {
     ],
     GamePacketType.SET_TIME: [
         _HEADER_EXTRA_DATA,
-        VAR_INT_DATA
+        VAR_SIGNED_INT_DATA
     ],
     GamePacketType.UPDATE_ATTRIBUTES: [
         _HEADER_EXTRA_DATA,

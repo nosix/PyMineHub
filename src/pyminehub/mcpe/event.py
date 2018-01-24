@@ -30,6 +30,7 @@ class EventType(ValueType):
     MOB_SPAWNED = 13
     MOB_MOVED = 14
     ENTITY_LOADED = 15
+    TIME_UPDATED = 16
 
 
 _event_specs = {
@@ -46,7 +47,8 @@ _event_specs = {
         ('bed_position', Vector3[int]),
         ('permission', PlayerPermission),
         ('attributes', Tuple[Attribute, ...]),
-        ('metadata_flags', EntityMetaDataFlagValue)
+        ('metadata_flags', EntityMetaDataFlagValue),
+        ('time', int)
     ],
     EventType.INVENTORY_LOADED: [
         ('type', EventType),
@@ -135,6 +137,10 @@ _event_specs = {
         ('pitch', float),
         ('yaw', float),
         ('on_ground', bool)
+    ],
+    EventType.TIME_UPDATED: [
+        ('type', EventType),
+        ('time', int)
     ]
 }
 

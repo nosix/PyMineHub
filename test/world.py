@@ -16,7 +16,7 @@ from util.mock import MockDataStore
 class WorldTestCase(TestCase):
 
     def setUp(self) -> None:
-        set_config(spawn_mob=False)
+        set_config(spawn_mob=False, clock_time=-4800)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         self._world = run(MockDataStore(), get_plugin_loader())
@@ -93,7 +93,8 @@ class WorldTestCase(TestCase):
                 Attribute(min=0.0, max=24791.0, current=0.0, default=0.0, name='minecraft:player.level'),
                 Attribute(min=0.0, max=1.0, current=0.0, default=0.0, name='minecraft:player.experience')
             ),
-            metadata_flags=EntityMetaDataFlagValue(flags=211106233679872)
+            metadata_flags=EntityMetaDataFlagValue(flags=211106233679872),
+            time=4800
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -392,7 +393,8 @@ class WorldTestCase(TestCase):
                 Attribute(min=0.0, max=24791.0, current=0.0, default=0.0, name='minecraft:player.level'),
                 Attribute(min=0.0, max=1.0, current=0.0, default=0.0, name='minecraft:player.experience')
             ),
-            metadata_flags=EntityMetaDataFlagValue(flags=211106233679872)
+            metadata_flags=EntityMetaDataFlagValue(flags=211106233679872),
+            time=4800
         )
         self.assertEqual(expected_event, actual_event)
 

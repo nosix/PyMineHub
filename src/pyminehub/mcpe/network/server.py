@@ -68,6 +68,10 @@ class MCPEServerHandler(MCPEDataHandler):
         for addr, p in self._session_manager.excluding(player):
             self.send_game_packet(packet, addr, immediately=False)
 
+    def _broadcast(self, packet: GamePacket) -> None:
+        for addr in self._session_manager.addresses:
+            self.send_game_packet(packet, addr)
+
     @staticmethod
     def _to_internal_format_hotbar(inventory_slot: int) -> Optional[int]:
         return inventory_slot - HOTBAR_SIZE if inventory_slot != -1 else None
@@ -366,8 +370,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.position,
             event.block
         )
-        for addr in self._session_manager.addresses:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet)
 
     def _process_event_item_spawned(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -380,8 +383,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.motion,
             event.metadata
         )
-        for addr in self._session_manager.addresses:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet)
 
     def _process_event_item_taken(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -410,8 +412,7 @@ class MCPEServerHandler(MCPEDataHandler):
             EXTRA_DATA,
             event.entity_runtime_id
         )
-        for addr in self._session_manager.addresses:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet)
 
     def _process_event_equipment_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -443,8 +444,7 @@ class MCPEServerHandler(MCPEDataHandler):
             self._mob_spawned_event_to_metadata(event),
             tuple()
         )
-        for addr in self._session_manager.addresses:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet)
 
     def _process_event_mob_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -458,5 +458,12 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        for addr in self._session_manager.addresses:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet)
+
+    def _process_event_time_updated(self, event: Event) -> None:
+        res_packet = game_packet_factory.create(
+            GamePacketType.SET_TIME,
+            EXTRA_DATA,
+            event.time
+        )
+        self._broadcast(res_packet)

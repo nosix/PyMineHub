@@ -16,6 +16,7 @@ from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.plugin.mob import *
 from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
 from pyminehub.mcpe.value import *
+from pyminehub.mcpe.world.clock import Clock
 from pyminehub.mcpe.world.entity import EntityPool, PlayerEntity
 from pyminehub.mcpe.world.generator import SpaceGenerator
 from pyminehub.mcpe.world.interface import WorldEditor
@@ -36,15 +37,17 @@ def _camel_to_snake(s: str) -> str:
     return re.sub(r'([A-Z])', r'_\1', s).lower().lstrip('_')
 
 
-class _World(WorldProxy, WorldEditor):
+class _World(WorldEditor):
 
     def __init__(
             self,
+            game_mode: GameMode,
             generator: SpaceGenerator,
             store: DataStore,
             mob_processor: MobProcessorPlugin,
             player_config: PlayerConfigPlugin
     ) -> None:
+        self._game_mode = game_mode
         self._space = Space(generator, store)
         self._entity = EntityPool(store)
         self._mob_processor = mob_processor
@@ -52,7 +55,9 @@ class _World(WorldProxy, WorldEditor):
         self._event_queue = asyncio.Queue()
         self._mob_id_to_entity_id = {}  # type: Dict[MobID, EntityRuntimeID]
         asyncio.get_event_loop().call_soon(self._space.init_space)
+        self._clock = Clock(self._notify_time)
         self._update_task = self._start_loop_to_update()
+        self._clock_task = self._start_clock()
 
     def _start_loop_to_update(self) -> asyncio.Task:
         async def loop_to_update():
@@ -60,9 +65,13 @@ class _World(WorldProxy, WorldEditor):
                 await self._next_moment()
         return asyncio.ensure_future(loop_to_update())
 
+    def _start_clock(self) -> asyncio.Task:
+        return asyncio.ensure_future(self._clock.run_loop())
+
     # WorldProxy methods
 
     def terminate(self) -> None:
+        self._clock_task.cancel()
         self._update_task.cancel()
         self._space.save()
 
@@ -75,30 +84,6 @@ class _World(WorldProxy, WorldEditor):
         event = await self._event_queue.get()
         _logger.debug('<< %s', LogString(event))
         return event
-
-    def get_seed(self) -> int:
-        return get_value(ConfigKey.SEED)
-
-    def get_game_mode(self) -> GameMode:
-        return GameMode[get_value(ConfigKey.GAME_MODE)]
-
-    def get_difficulty(self) -> Difficulty:
-        return Difficulty[get_value(ConfigKey.DIFFICULTY)]
-
-    def get_rain_level(self) -> float:
-        return get_value(ConfigKey.RAIN_LEVEL)
-
-    def get_lightning_level(self) -> float:
-        return get_value(ConfigKey.LIGHTNING_LEVEL)
-
-    def get_world_name(self) -> str:
-        return get_value(ConfigKey.WORLD_NAME)
-
-    def get_time(self) -> int:
-        return 4800
-
-    def get_adventure_settings(self) -> AdventureSettings:
-        return AdventureSettings(32, 4294967295)
 
     # WorldEditor methods
 
@@ -125,12 +110,15 @@ class _World(WorldProxy, WorldEditor):
     def _notify_event(self, event: Event) -> None:
         self._event_queue.put_nowait(event)
 
+    def _notify_time(self, mc_time: int) -> None:
+        self._notify_event(event_factory.create(EventType.TIME_UPDATED, mc_time))
+
     async def _next_moment(self) -> None:
         start_time = time.time()
         if get_value(ConfigKey.SPAWN_MOB):
             self._update_mob()
         run_time = time.time() - start_time
-        tick_time = get_value(ConfigKey.TICK_TIME)
+        tick_time = get_value(ConfigKey.WORLD_TICK_TIME)
         if run_time < tick_time:
             await asyncio.sleep(tick_time - run_time)
 
@@ -168,7 +156,7 @@ class _World(WorldProxy, WorldEditor):
             entity.player_id,
             entity.entity_unique_id,
             entity_runtime_id,
-            self._player_config.get_game_mode(self.get_game_mode(), entity.player_id),
+            self._player_config.get_game_mode(self._game_mode, entity.player_id),
             entity.position,
             entity.pitch,
             entity.yaw,
@@ -194,7 +182,8 @@ class _World(WorldProxy, WorldEditor):
                 swimmer=True,
                 affected_by_gravity=True,
                 fire_immune=True
-            )
+            ),
+            self._clock.time
         ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_LOADED,
@@ -408,9 +397,51 @@ class _World(WorldProxy, WorldEditor):
         )
 
 
+class _WorldProxyImpl(WorldProxy):
+
+    def __init__(
+            self,
+            generator: SpaceGenerator,
+            store: DataStore,
+            mob_processor: MobProcessorPlugin,
+            player_config: PlayerConfigPlugin
+    ) -> None:
+        self._world = _World(self.get_game_mode(), generator, store, mob_processor, player_config)
+
+    def terminate(self) -> None:
+        self._world.terminate()
+
+    def perform(self, action: Action) -> None:
+        self._world.perform(action)
+
+    async def next_event(self) -> Optional[Event]:
+        return await self._world.next_event()
+
+    def get_seed(self) -> int:
+        return get_value(ConfigKey.SEED)
+
+    def get_game_mode(self) -> GameMode:
+        return GameMode[get_value(ConfigKey.GAME_MODE)]
+
+    def get_difficulty(self) -> Difficulty:
+        return Difficulty[get_value(ConfigKey.DIFFICULTY)]
+
+    def get_rain_level(self) -> float:
+        return get_value(ConfigKey.RAIN_LEVEL)
+
+    def get_lightning_level(self) -> float:
+        return get_value(ConfigKey.LIGHTNING_LEVEL)
+
+    def get_world_name(self) -> str:
+        return get_value(ConfigKey.WORLD_NAME)
+
+    def get_adventure_settings(self) -> AdventureSettings:
+        return AdventureSettings(32, 4294967295)
+
+
 def run(store: DataStore, plugin: PluginLoader) -> WorldProxy:
     from pyminehub.mcpe.world.generator import BatchSpaceGenerator
-    world = _World(
+    world = _WorldProxyImpl(
         BatchSpaceGenerator(plugin.generator, store),
         store,
         plugin.mob_processor,

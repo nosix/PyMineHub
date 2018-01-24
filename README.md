@@ -90,6 +90,7 @@ mcpe
       - player -> mcpe.[const, value], mcpe.plugin.[player]
     loader -> mcpe.command.[api], .[command, default, generator, mob, player]
   world
+    - clock -> config
     - interface -> mcpe.[value]
     - proxy -> mcpe.[action, const, event, resource, value]
     - item -> mcpe.[const]
@@ -105,7 +106,7 @@ mcpe
     - server -> config, value,
                 mcpe.[action, attribute, chunk, const, datastore, event, geometry, value],
                 mcpe.plugin.[loader, mob, player],
-                .[entity, generator, interface, item, proxy, space]
+                .[clock, entity, generator, interface, item, proxy, space]
   network
     - skin
     - const

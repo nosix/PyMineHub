@@ -13,7 +13,7 @@ FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length
   File "./codec_login_logout.py", line 105, in test_login_s09
     RakNetFrame(RakNetFrameType.RELIABLE_ORDERED).that_has(
 
-PacketSetTime(type=<GamePacketType.SET_TIME: 10>, extra=b'\x00\x00', time=33868)
+PacketSetTime(type=<GamePacketType.SET_TIME: 10>, extra=b'\x00\x00', time=16934)
   -> 0a0000cc8802
   File "./codec_login_logout.py", line 112, in test_login_s09
     GamePacket(GamePacketType.SET_TIME)

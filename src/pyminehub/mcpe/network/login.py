@@ -59,7 +59,7 @@ def login_sequence(
         world.get_difficulty(),
         event.spawn,
         has_achievements_disabled=True,
-        time=world.get_time(),
+        time=event.time,
         edu_mode=False,
         rain_level=world.get_rain_level(),
         lightning_level=world.get_lightning_level(),
@@ -84,7 +84,7 @@ def login_sequence(
     send(res_packet, addr)
 
     res_packet = game_packet_factory.create(
-        GamePacketType.SET_TIME, EXTRA_DATA, world.get_time())
+        GamePacketType.SET_TIME, EXTRA_DATA, event.time)
     send(res_packet, addr)
 
     res_packet = game_packet_factory.create(
