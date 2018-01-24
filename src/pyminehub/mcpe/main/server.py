@@ -84,7 +84,6 @@ def run() -> None:
 
     loop = asyncio.get_event_loop()
     store = create_data_store()
-    store.delete_all()
     command = CommandRegistry()
     proxy = run_world(store, get_plugin_loader(command))
     with raknet_server(MCPEServerHandler(proxy, command)):
