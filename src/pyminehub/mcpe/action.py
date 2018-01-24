@@ -27,6 +27,7 @@ class ActionType(ValueType):
     REQUEST_ENTITY = 8
     SPAWN_MOB = 9
     MOVE_MOB = 10
+    SET_INVENTORY = 11
 
 
 _action_specs = {
@@ -98,6 +99,12 @@ _action_specs = {
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float)
+    ],
+    ActionType.SET_INVENTORY: [
+        ('type', ActionType),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('inventory_slot', int),
+        ('item', Item)
     ]
 }
 

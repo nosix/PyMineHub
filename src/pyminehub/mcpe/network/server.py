@@ -229,6 +229,21 @@ class MCPEServerHandler(MCPEDataHandler):
                         packet.data.hotbar_slot,
                         packet.data.item_in_hand
                     ))
+        if packet.transaction_type == InventoryTransactionType.NORMAL:
+            is_creative = False
+            for action in packet.actions:
+                if action.source_type == SourceType.CREATIVE:
+                    is_creative = True
+                    continue
+                if action.source_type == SourceType.CONTAINER:
+                    assert is_creative
+                    assert action.window_type == WindowType.INVENTORY, action.window_type
+                    self._world.perform(action_factory.create(
+                        ActionType.SET_INVENTORY,
+                        player.entity_runtime_id,
+                        action.inventory_slot,
+                        action.new_item
+                    ))
 
     def _process_mob_equipment(self, packet: GamePacket, addr: Address) -> None:
         assert packet.entity_runtime_id == self._session_manager[addr].entity_runtime_id

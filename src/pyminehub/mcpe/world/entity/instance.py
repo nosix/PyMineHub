@@ -202,8 +202,11 @@ class PlayerEntity(Entity):
         else:
             raise AssertionError(window_type)
 
-    def get_item(self, inventory_slot) -> Item:
+    def get_item(self, inventory_slot: int) -> Item:
         return self._inventory[inventory_slot]
+
+    def set_item(self, inventory_slot: int, item: Item) -> None:
+        self._inventory[inventory_slot] = item
 
     def append_item(self, item: Item) -> int:
         return self._inventory.append(item)

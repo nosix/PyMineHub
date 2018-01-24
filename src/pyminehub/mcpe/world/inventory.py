@@ -92,6 +92,9 @@ class MutableInventory:
     def __getitem__(self, slot_index: int) -> Item:
         return self._slots[slot_index].to_value()
 
+    def __setitem__(self, slot_index: int, item: Item) -> None:
+        self._slots[slot_index].set(item)
+
     def set(self, value: Inventory) -> None:
         assert value.window_type == self._window_type, '{}, {}'.format(value.window_type, self._window_type)
         assert len(value.slots) == len(self._slots), '{}, {}'.format(len(value.slots), len(self._slots))

@@ -276,6 +276,8 @@ class _World(WorldEditor):
             action.position,
             Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)
         ))
+        if self._game_mode == GameMode.CREATIVE:
+            return
         for item in items:
             entity_runtime_id = self._entity.create_item(item)
             entity = self._entity.get_item(entity_runtime_id)
@@ -296,7 +298,12 @@ class _World(WorldEditor):
         player = self._entity.get_player(action.entity_runtime_id)
         inventory_slot = player.get_inventory_slot(action.hotbar_slot)
         assert inventory_slot is not None
-        old_slot, new_slot = player.spend_item(inventory_slot, action.item)
+        if self._game_mode != GameMode.CREATIVE:
+            old_slot, new_slot = player.spend_item(inventory_slot, action.item)
+        else:
+            old_slot = player.get_item(inventory_slot)
+            new_slot = old_slot
+            assert action.item == new_slot, '{}, {}'.format(action.item, new_slot)
         position = action.position + action.face.direction
         block_type = get_item_spec(old_slot.type).to_block()
         if block_type is not None:
@@ -317,7 +324,8 @@ class _World(WorldEditor):
     def _process_equip(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
         player.equip(action.hotbar_slot, action.inventory_slot)
-        assert action.item == player.equipped_item, '{}, {}'.format(action.item, player.equipped_item)
+        if self._game_mode != GameMode.CREATIVE:
+            assert action.item == player.equipped_item, '{}, {}'.format(action.item, player.equipped_item)
         self._notify_event(event_factory.create(
             EventType.EQUIPMENT_UPDATED,
             player.entity_runtime_id,
@@ -365,6 +373,17 @@ class _World(WorldEditor):
             mob.pitch,
             mob.yaw,
             mob.on_ground
+        ))
+
+    def _process_set_inventory(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        inventory_slot = action.inventory_slot
+        player.set_item(inventory_slot, action.item)
+        self._notify_event(event_factory.create(
+            EventType.INVENTORY_UPDATED,
+            player.player_id,
+            inventory_slot,
+            player.get_item(inventory_slot)
         ))
 
     # mob action handle methods
