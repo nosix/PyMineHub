@@ -62,7 +62,7 @@ class Space:
         if block.type in (BlockType.AIR, BlockType.BEDROCK):
             return None
         chunk.set_block(position_in_chunk, BLOCK_AIR)
-        return get_block_spec(block.type).to_item()
+        return get_block_spec(block.type).to_item(block.data)
 
     def put_block(self, position: Vector3[int], block: Block) -> None:
         chunk, position_in_chunk = self._to_local(position)
