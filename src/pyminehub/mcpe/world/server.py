@@ -307,7 +307,7 @@ class _World(WorldEditor):
         position = action.position + action.face.direction
         block_type = get_item_spec(old_slot.type).to_block()
         if block_type is not None:
-            block = Block.create(block_type, 0, neighbors=True, network=True, priority=True)  # TODO set block data
+            block = Block.create(block_type, old_slot.data, neighbors=True, network=True, priority=True)
             self._space.put_block(position, block)
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,

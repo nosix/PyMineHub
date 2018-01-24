@@ -235,7 +235,7 @@ class MCPEServerHandler(MCPEDataHandler):
                     is_creative = True
                     continue
                 if action.source_type == SourceType.CONTAINER:
-                    assert is_creative
+                    assert is_creative, packet
                     assert action.window_type == WindowType.INVENTORY, action.window_type
                     self._world.perform(action_factory.create(
                         ActionType.SET_INVENTORY,
