@@ -40,7 +40,6 @@ class MCPEServerHandler(MCPEDataHandler):
         self._command = command
         self._accepted_time = {}  # type: Dict[Address, int]
         self._session_manager = SessionManager()
-        # TODO world clock
 
     # GameDataHandler interface methods
 
