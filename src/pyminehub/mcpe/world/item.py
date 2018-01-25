@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 from pyminehub.mcpe.const import ItemType, BlockType
 from pyminehub.mcpe.geometry import Vector3, Face
@@ -59,6 +59,63 @@ class DefaultItemSpec(ItemSpec):
         return item_data
 
 
+class DirectionalItemSpec(ItemSpec):
+
+    def __init__(self, block_type: Optional[BlockType], max_quantity: int, directional_data: Tuple[int, ...]) -> None:
+        super().__init__(block_type, max_quantity)
+        self._directional_data = directional_data
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = DirectionalItemSpec(None, 0, (0, ))
+        >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 0, 0, 0]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [0, 0, 0, 0]
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        8
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        8
+
+        >>> spec = DirectionalItemSpec(None, 0, (1, 2))
+        >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
+        >>> list(spec.to_block_data(1, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [1, 1, 1, 1]
+        >>> list(spec.to_block_data(2, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [2, 2, 2, 2]
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        0
+        >>> spec.to_block_data(1, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        5
+        >>> spec.to_block_data(2, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        6
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        0
+        >>> spec.to_block_data(1, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        9
+        >>> spec.to_block_data(2, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        10
+        """
+        if item_data not in self._directional_data:
+            return item_data
+        if attached_face in (Face.EAST, Face.WEST):
+            return 4 + item_data
+        if attached_face in (Face.NORTH, Face.SOUTH):
+            return 8 + item_data
+        return item_data
+
+
 class StairItemSpec(ItemSpec):
 
     def to_block_data(
@@ -114,14 +171,23 @@ class TerracottaItemSpec(ItemSpec):
         >>> list(spec.to_block_data(0, Face.SOUTH, f, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
         [4, 5]
         """
+        assert item_data == 0
         return horizontal_player_face.inverse.value
 
 
 _item_specs = {
     ItemType.AIR: DefaultItemSpec(None, 0),
+    ItemType.HAY_BLOCK: DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
+    ItemType.BONE_BLOCK: DirectionalItemSpec(BlockType.BONE_BLOCK, 64, (0,)),
+    ItemType.QUARTZ_BLOCK: DirectionalItemSpec(BlockType.QUARTZ_BLOCK, 64, (1, 2)),
+    ItemType.PURPUR_BLOCK: DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
+    ItemType.LOG: DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
+    ItemType.LOG2: DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
 }
 
 _block_items = [
+    # Construction
+
     ItemType.PLANKS,
 
     ItemType.COBBLESTONE_WALL,
@@ -148,9 +214,9 @@ _block_items = [
 
     ItemType.LADDER,
 
-    ItemType.STONE_SLAB,
-    ItemType.WOODEN_SLAB,
-    ItemType.STONE_SLAB2,
+    ItemType.STONE_SLAB,  # TODO layer
+    ItemType.WOODEN_SLAB,  # TODO layer
+    ItemType.STONE_SLAB2,  # TODO layer
 
     ItemType.BRICK_BLOCK,
     ItemType.STONE_BRICK,
@@ -170,20 +236,21 @@ _block_items = [
     ItemType.EMERALD_BLOCK,
     ItemType.DIAMOND_BLOCK,
     ItemType.LAPIS_BLOCK,
-    ItemType.QUARTZ_BLOCK,
-    ItemType.HAY_BLOCK,
-    ItemType.BONE_BLOCK,
     ItemType.NETHER_WART_BLOCK,
+
     ItemType.WOOL,
 
-    ItemType.CARPET,
+    ItemType.CARPET,  # TODO layer
 
     ItemType.CONCRETE_POWDER,
     ItemType.CONCRETE,
+
     ItemType.CLAY,
     ItemType.HARDENED_CLAY,
     ItemType.STAINED_HARDENED_CLAY,
-    ItemType.PURPUR_BLOCK,
+
+    # Nature
+
     ItemType.DIRT,
     ItemType.GRASS,
     ItemType.PODZOL,
@@ -198,10 +265,10 @@ _block_items = [
     ItemType.EMERALD_ORE,
     ItemType.QUARTZ_ORE,
     ItemType.GRAVEL,
+
     ItemType.SAND,
     ItemType.CACTUS,
-    ItemType.LOG,
-    ItemType.LOG2,
+
     ItemType.LEAVES,
     ItemType.LEAVES2,
 
@@ -209,7 +276,7 @@ _block_items = [
 
     ItemType.MELON_BLOCK,
     ItemType.PUMPKIN,
-    ItemType.LIT_PUMPKIN,
+    ItemType.LIT_PUMPKIN,  # TODO direction
 
     ItemType.TALLGRASS,
     ItemType.DOUBLE_PLANT,
@@ -221,7 +288,7 @@ _block_items = [
     ItemType.SNOW,
     ItemType.ICE,
     ItemType.PACKED_ICE,
-    ItemType.SNOW_LAYER,
+    ItemType.SNOW_LAYER,  # TODO layer
 
     ItemType.BROWN_MUSHROOM_BLOCK,
     ItemType.RED_MUSHROOM_BLOCK,
