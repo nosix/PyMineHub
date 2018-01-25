@@ -59,18 +59,6 @@ class DefaultItemSpec(ItemSpec):
         return item_data
 
 
-class DirectivityItemSpec(ItemSpec):
-
-    def to_block_data(
-            self,
-            item_data: int,
-            attached_face: Face,
-            horizontal_player_face: Face,
-            click_position: Vector3[float]
-    ) -> int:
-        return attached_face.value if attached_face.direction.y == 0 else horizontal_player_face.inverse.value
-
-
 class StairItemSpec(ItemSpec):
 
     def to_block_data(
@@ -97,6 +85,36 @@ class StairItemSpec(ItemSpec):
             return Face.WEST.value - horizontal_player_face.value
         else:
             return 4 + Face.WEST.value - horizontal_player_face.value
+
+
+class TerracottaItemSpec(ItemSpec):
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = TerracottaItemSpec(None, 0)
+        >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [2, 3, 4, 5]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [2, 3, 4, 5]
+        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.5, 0.5)) for f in faces)
+        [2, 3, 4, 5]
+        >>> list(spec.to_block_data(0, Face.WEST, f, Vector3(1.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        [2, 3]
+        >>> list(spec.to_block_data(0, Face.NORTH, f, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
+        [4, 5]
+        >>> list(spec.to_block_data(0, Face.EAST, f, Vector3(0.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        [2, 3]
+        >>> list(spec.to_block_data(0, Face.SOUTH, f, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
+        [4, 5]
+        """
+        return horizontal_player_face.inverse.value
 
 
 _item_specs = {
@@ -261,7 +279,24 @@ _block_items = [
     ItemType.TNT,
 ]
 
-_directivity_block_items = [
+_stairs_block_items = [
+    ItemType.STONE_STAIRS,
+    ItemType.OAK_STAIRS,
+    ItemType.SPRUCE_STAIRS,
+    ItemType.BIRCH_STAIRS,
+    ItemType.JUNGLE_STAIRS,
+    ItemType.ACACIA_STAIRS,
+    ItemType.DARK_OAK_STAIRS,
+    ItemType.BRICK_STAIRS,
+    ItemType.STONE_BRICK_STAIRS,
+    ItemType.NETHER_BRICK_STAIRS,
+    ItemType.SANDSTONE_STAIRS,
+    ItemType.RED_SANDSTONE_STAIRS,
+    ItemType.QUARTZ_STAIRS,
+    ItemType.PURPUR_STAIRS,
+]
+
+_terracotta_block_items = [
     ItemType.WHITE_GLAZED_TERRACOTTA,
     ItemType.SILVER_GLAZED_TERRACOTTA,
     ItemType.GRAY_GLAZED_TERRACOTTA,
@@ -280,32 +315,15 @@ _directivity_block_items = [
     ItemType.PINK_GLAZED_TERRACOTTA,
 ]
 
-_stairs_block_items = [
-    ItemType.STONE_STAIRS,
-    ItemType.OAK_STAIRS,
-    ItemType.SPRUCE_STAIRS,
-    ItemType.BIRCH_STAIRS,
-    ItemType.JUNGLE_STAIRS,
-    ItemType.ACACIA_STAIRS,
-    ItemType.DARK_OAK_STAIRS,
-    ItemType.BRICK_STAIRS,
-    ItemType.STONE_BRICK_STAIRS,
-    ItemType.NETHER_BRICK_STAIRS,
-    ItemType.SANDSTONE_STAIRS,
-    ItemType.RED_SANDSTONE_STAIRS,
-    ItemType.QUARTZ_STAIRS,
-    ItemType.PURPUR_STAIRS,
-]
-
 
 for _item_type in _block_items:
     _item_specs[_item_type] = DefaultItemSpec(BlockType(_item_type.value), 64)
 
-for _item_type in _directivity_block_items:
-    _item_specs[_item_type] = DirectivityItemSpec(BlockType(_item_type.value), 64)
-
 for _item_type in _stairs_block_items:
     _item_specs[_item_type] = StairItemSpec(BlockType(_item_type.value), 64)
+
+for _item_type in _terracotta_block_items:
+    _item_specs[_item_type] = TerracottaItemSpec(BlockType(_item_type.value), 64)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:
