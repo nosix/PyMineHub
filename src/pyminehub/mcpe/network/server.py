@@ -224,6 +224,7 @@ class MCPEServerHandler(MCPEDataHandler):
                         ActionType.PUT_ITEM,
                         player.entity_runtime_id,
                         packet.data.position,
+                        packet.data.click_position,
                         packet.data.face,
                         packet.data.hotbar_slot,
                         packet.data.item_in_hand

@@ -304,6 +304,7 @@ class WorldTestCase(TestCase):
             ActionType.PUT_ITEM,
             entity_runtime_id=1,
             position=Vector3(x=256, y=61, z=257),
+            click_position=Vector3(0.5, 1.0, 0.5),
             face=Face.TOP,
             hotbar_slot=0,
             item=Item(type=ItemType.DIRT, aux_value=1, nbt=b'', place_on=(), destroy=())

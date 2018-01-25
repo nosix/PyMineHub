@@ -63,6 +63,7 @@ _action_specs = {
         ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int]),
+        ('click_position', Vector3[float]),  # [0.0, 1.0]
         ('face', Face),
         ('hotbar_slot', int),
         ('item', Item)

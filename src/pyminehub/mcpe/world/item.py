@@ -1,7 +1,7 @@
-from typing import Dict, Optional
+from typing import Optional
 
 from pyminehub.mcpe.const import ItemType, BlockType
-from pyminehub.mcpe.geometry import Face
+from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.value import Block
 
 __all__ = [
@@ -24,26 +24,79 @@ class ItemSpec:
     def max_quantity(self) -> int:
         return self._max_quantity
 
-    def to_block(self, item_data: int, attached_face: Face, horizontal_player_face: Face, **kwargs) -> Optional[Block]:
+    def to_block(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float],
+            **flags: bool
+    ) -> Optional[Block]:
         if self.block_type is None:
             return None
-        block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, kwargs)
-        return Block.create(self.block_type, block_data, **kwargs)
+        block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, click_position)
+        return Block.create(self.block_type, block_data, **flags)
 
-    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
         raise NotImplementedError()
 
 
 class DefaultItemSpec(ItemSpec):
 
-    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
         return item_data
 
 
 class DirectivityItemSpec(ItemSpec):
 
-    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
         return attached_face.value if attached_face.direction.y == 0 else horizontal_player_face.inverse.value
+
+
+class StairItemSpec(ItemSpec):
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = StairItemSpec(None, 0)
+        >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [4, 5, 6, 7]
+        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.25, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.75, 0.5)) for f in faces)
+        [4, 5, 6, 7]
+        """
+        assert item_data == 0
+        if attached_face is Face.TOP or (attached_face is not Face.BOTTOM and click_position.y < 0.5):
+            return Face.WEST.value - horizontal_player_face.value
+        else:
+            return 4 + Face.WEST.value - horizontal_player_face.value
 
 
 _item_specs = {
@@ -64,21 +117,6 @@ _block_items = [
     ItemType.JUNGLE_FENCE_GATE,
     ItemType.ACACIA_FENCE_GATE,
     ItemType.DARK_OAK_FENCE_GATE,
-
-    ItemType.STONE_STAIRS,
-    ItemType.OAK_STAIRS,
-    ItemType.SPRUCE_STAIRS,
-    ItemType.BIRCH_STAIRS,
-    ItemType.JUNGLE_STAIRS,
-    ItemType.ACACIA_STAIRS,
-    ItemType.DARK_OAK_STAIRS,
-    ItemType.BRICK_STAIRS,
-    ItemType.STONE_BRICK_STAIRS,
-    ItemType.NETHER_BRICK_STAIRS,
-    ItemType.SANDSTONE_STAIRS,
-    ItemType.RED_SANDSTONE_STAIRS,
-    ItemType.QUARTZ_STAIRS,
-    ItemType.PURPUR_STAIRS,
 
     ItemType.TRAPDOOR,
     ItemType.IRON_TRAPDOOR,
@@ -242,6 +280,23 @@ _directivity_block_items = [
     ItemType.PINK_GLAZED_TERRACOTTA,
 ]
 
+_stairs_block_items = [
+    ItemType.STONE_STAIRS,
+    ItemType.OAK_STAIRS,
+    ItemType.SPRUCE_STAIRS,
+    ItemType.BIRCH_STAIRS,
+    ItemType.JUNGLE_STAIRS,
+    ItemType.ACACIA_STAIRS,
+    ItemType.DARK_OAK_STAIRS,
+    ItemType.BRICK_STAIRS,
+    ItemType.STONE_BRICK_STAIRS,
+    ItemType.NETHER_BRICK_STAIRS,
+    ItemType.SANDSTONE_STAIRS,
+    ItemType.RED_SANDSTONE_STAIRS,
+    ItemType.QUARTZ_STAIRS,
+    ItemType.PURPUR_STAIRS,
+]
+
 
 for _item_type in _block_items:
     _item_specs[_item_type] = DefaultItemSpec(BlockType(_item_type.value), 64)
@@ -249,6 +304,14 @@ for _item_type in _block_items:
 for _item_type in _directivity_block_items:
     _item_specs[_item_type] = DirectivityItemSpec(BlockType(_item_type.value), 64)
 
+for _item_type in _stairs_block_items:
+    _item_specs[_item_type] = StairItemSpec(BlockType(_item_type.value), 64)
+
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:
     return _item_specs[item_type]
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest_result = doctest.testmod()

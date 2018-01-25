@@ -22,6 +22,7 @@ class DocTestCase(unittest.TestCase):
             'pyminehub/mcpe/command/annotation',
             'pyminehub/mcpe/command/api',
             'pyminehub/mcpe/plugin/loader',
+            'pyminehub/mcpe/world/item',
             'pyminehub/mcpe/network/codec/connection',
         ]
         for path in module_path:
