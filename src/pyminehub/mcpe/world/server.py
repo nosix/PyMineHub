@@ -11,7 +11,7 @@ from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.geometry import Vector3, revise_pitch, revise_yaw
+from pyminehub.mcpe.geometry import Vector3, Face, revise_angle
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.plugin.mob import *
 from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
@@ -243,9 +243,9 @@ class _World(WorldEditor):
     def _process_move_player(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
         player.position = action.position
-        player.pitch = action.pitch
-        player.yaw = action.yaw
-        player.head_yaw = action.head_yaw
+        player.pitch = revise_angle(action.pitch)
+        player.yaw = revise_angle(action.yaw)
+        player.head_yaw = revise_angle(action.head_yaw)
         player.on_ground = action.on_ground
 
         collisions = self._entity.detect_collision(player.entity_runtime_id)
@@ -305,9 +305,10 @@ class _World(WorldEditor):
             new_slot = old_slot
             assert action.item == new_slot, '{}, {}'.format(action.item, new_slot)
         position = action.position + action.face.direction
-        block_type = get_item_spec(old_slot.type).to_block()
-        if block_type is not None:
-            block = Block.create(block_type, old_slot.data, neighbors=True, network=True, priority=True)
+        horizontal_player_face = Face.by_yaw(player.yaw)
+        block = get_item_spec(old_slot.type).to_block(
+            old_slot.data, action.face, horizontal_player_face, neighbors=True, network=True, priority=True)
+        if block is not None:
             self._space.put_block(position, block)
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,
@@ -346,8 +347,8 @@ class _World(WorldEditor):
         mob = self._entity.get_mob(entity_runtime_id)
         mob.name = action.name
         mob.position = self._space.revise_position(action.position)
-        mob.pitch = revise_pitch(action.pitch)
-        mob.yaw = revise_yaw(action.yaw)
+        mob.pitch = revise_angle(action.pitch)
+        mob.yaw = revise_angle(action.yaw)
         # TODO set monitor_nearby_chunks
         self._notify_event(event_factory.create(
             EventType.MOB_SPAWNED,
@@ -364,8 +365,8 @@ class _World(WorldEditor):
     def _process_move_mob(self, action: Action) -> None:
         mob = self._entity.get_mob(action.entity_runtime_id)
         mob.position = self._space.revise_position(action.position)
-        mob.pitch = revise_pitch(action.pitch)
-        mob.yaw = revise_yaw(action.yaw)
+        mob.pitch = revise_angle(action.pitch)
+        mob.yaw = revise_angle(action.yaw)
         self._notify_event(event_factory.create(
             EventType.MOB_MOVED,
             mob.entity_runtime_id,

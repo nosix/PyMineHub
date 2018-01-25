@@ -16,8 +16,7 @@ __all__ = [
     'ChunkPositionWithDistance',
     'to_chunk_area',
     'to_local_position',
-    'revise_pitch',
-    'revise_yaw'
+    'revise_angle'
 ]
 
 
@@ -194,6 +193,10 @@ class Face(Enum):
     def direction(self) -> Vector3[int]:
         return self._direction
 
+    @property
+    def inverse(self) -> 'Face':
+        return Face(self.value ^ 1) if self is not self.NONE else self
+
     @classmethod
     def by_yaw(cls, yaw: float) -> 'Face':
         """Return the face the player is looking at.
@@ -206,7 +209,14 @@ class Face(Enum):
 
         >>> Face.by_yaw(0)
         <Face.NORTH: 3>
+        >>> Face.by_yaw(90)
+        <Face.EAST: 4>
+        >>> Face.by_yaw(180)
+        <Face.SOUTH: 2>
+        >>> Face.by_yaw(270)
+        <Face.WEST: 5>
         """
+        assert 0 <= yaw < 360
         if 45 <= yaw <= 135:
             return cls.EAST
         if 225 <= yaw <= 315:
@@ -220,10 +230,13 @@ class Face(Enum):
     def by_pitch(cls, pitch: float) -> 'Face':
         """Return the face the player is looking at.
 
-        >>> Face.by_pitch(1)
+        >>> Face.by_pitch(90)
+        <Face.TOP: 1>
+        >>> Face.by_pitch(270)
         <Face.BOTTOM: 0>
         """
-        return cls.TOP if pitch < 0 else cls.BOTTOM
+        assert 0 <= pitch < 360
+        return cls.TOP if 0 <= pitch < 180 else cls.BOTTOM
 
     @classmethod
     def by_angle(cls, yaw: float, pitch: float) -> 'Face':
@@ -234,9 +247,10 @@ class Face(Enum):
         >>> Face.by_angle(0, 30)
         <Face.NORTH: 3>
         """
-        if pitch > 45:
+        assert 0 <= pitch < 360
+        if 45 <= pitch < 135:
             return cls.BOTTOM
-        if pitch < -45:
+        if 225 <= pitch < 315:
             return cls.TOP
         return cls.by_yaw(yaw)
 
@@ -351,29 +365,17 @@ def to_local_position(position: Vector3) -> Vector3[int]:
         int(position.z % ChunkGeometry.SHAPE.z))
 
 
-def revise_pitch(value: float) -> float:
+def revise_angle(value: float) -> float:
     """
-    >>> revise_pitch(0)
+    >>> revise_angle(0)
     0
-    >>> revise_pitch(135)
-    45
-    >>> revise_pitch(-45)
-    45
-    >>> revise_pitch(-135)
-    45
-    """
-    return value % 90
-
-
-def revise_yaw(value: float) -> float:
-    """
-    >>> revise_yaw(0)
-    0
-    >>> revise_yaw(540)
+    >>> revise_angle(540)
     180
-    >>> revise_yaw(-180)
+    >>> revise_angle(-90)
+    270
+    >>> revise_angle(-180)
     180
-    >>> revise_yaw(-540)
+    >>> revise_angle(-540)
     180
     """
     return value % 360

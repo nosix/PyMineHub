@@ -355,8 +355,8 @@ _game_packet_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
         ('pitch', float),
-        ('head_yaw', float),
         ('yaw', float),
+        ('head_yaw', float),  # TODO check this value
         ('on_ground', bool),
         ('teleported', bool)
     ],

@@ -3,7 +3,7 @@ PacketSoundEvent(type=<GamePacketType.SOUND_EVENT: 24>, extra=b'\x00\x00', sound
   File "./codec_play.py", line 25, in test_sound_event
     GamePacket(GamePacketType.SOUND_EVENT),
 
-PacketMovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.0, y=63.62001037597656, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
+PacketMovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=256.0, y=63.62001037597656, z=256.0), pitch=0.0, yaw=358.0, head_yaw=358.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
   -> 1300000100008043e47a7e420000804300000000000000c0000000c0000100
   File "./codec_play.py", line 26, in test_sound_event
     GamePacket(GamePacketType.MOVE_PLAYER)

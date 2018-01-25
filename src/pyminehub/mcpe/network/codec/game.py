@@ -288,7 +288,10 @@ _CHUNK_POSITION = CompositeData(ChunkPosition, (
     VAR_SIGNED_INT_DATA
 ))
 
-_ANGLE_DATA = ValueFilter(
+_FLOAT_ANGLE_DATA = ValueFilter(
+    L_FLOAT_DATA, read=lambda _data: _data % 360, write=lambda _value: _value if _value < 180 else _value - 360)
+
+_BYTE_ANGLE_DATA = ValueFilter(
     BYTE_DATA, read=lambda _data: _data * (360 / 256), write=lambda _value: int(_value / (360 / 256)))
 
 
@@ -547,9 +550,9 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA,
-        L_FLOAT_DATA,
-        L_FLOAT_DATA,
-        L_FLOAT_DATA,
+        _FLOAT_ANGLE_DATA,
+        _FLOAT_ANGLE_DATA,
+        _FLOAT_ANGLE_DATA,
         NamedData('mode', EnumData(BYTE_DATA, MoveMode)),
         BOOL_DATA,
         _ENTITY_RUNTIME_ID,
@@ -567,9 +570,9 @@ _game_data_codecs = {
         _HEADER_EXTRA_DATA,
         _ENTITY_RUNTIME_ID,
         _FLOAT_VECTOR3_DATA,
-        _ANGLE_DATA,
-        _ANGLE_DATA,
-        _ANGLE_DATA,
+        _BYTE_ANGLE_DATA,
+        _BYTE_ANGLE_DATA,
+        _BYTE_ANGLE_DATA,
         BOOL_DATA,
         BOOL_DATA
     ],

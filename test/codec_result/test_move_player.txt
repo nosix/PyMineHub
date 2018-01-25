@@ -1,4 +1,4 @@
-PacketMovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=10, position=Vector3(x=256.0, y=57.62099838256836, z=256.0), pitch=0.0, yaw=-2.0, head_yaw=-2.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
+PacketMovePlayer(type=<GamePacketType.MOVE_PLAYER: 19>, extra=b'\x00\x00', entity_runtime_id=10, position=Vector3(x=256.0, y=57.62099838256836, z=256.0), pitch=0.0, yaw=358.0, head_yaw=358.0, mode=<MoveMode.NORMAL: 0>, on_ground=True, riding_eid=0, int1=None, int2=None)
   -> 1300000a00008043e77b66420000804300000000000000c0000000c0000100
   File "./codec_play.py", line 13, in test_move_player
     GamePacket(GamePacketType.MOVE_PLAYER)

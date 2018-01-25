@@ -209,13 +209,13 @@ class Block(NamedTuple('Block', [
         return '{}(type={}, data={}, flags={})'.format(self.__class__.__name__, self.type, self.data, self.flags)
 
     @staticmethod
-    def create(block_type: BlockType, data: int, **kwargs: bool) -> 'Block':
+    def create(block_type: BlockType, data: int, **flags: bool) -> 'Block':
         """
         >>> Block.create(BlockType.DIRT, 1, neighbors=True, network=True, priority=True)
         Block(type=<BlockType.DIRT: 3>, aux_value=177)
         """
         assert data <= 0xf
-        return Block(block_type, dict_to_flags(BlockFlag, **kwargs) << 4 | data)
+        return Block(block_type, dict_to_flags(BlockFlag, **flags) << 4 | data)
 
     @property
     def data(self) -> int:

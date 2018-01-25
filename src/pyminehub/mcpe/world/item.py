@@ -1,6 +1,8 @@
-from typing import NamedTuple, Optional
+from typing import Dict, Optional
 
 from pyminehub.mcpe.const import ItemType, BlockType
+from pyminehub.mcpe.geometry import Face
+from pyminehub.mcpe.value import Block
 
 __all__ = [
     'ItemSpec',
@@ -8,20 +10,45 @@ __all__ = [
 ]
 
 
-class ItemSpec(NamedTuple('ItemSpec', [
-    ('block_type', Optional[BlockType]),
-    ('max_quantity', int)
-])):
-    __slots__ = ()
+class ItemSpec:
 
-    def to_block(self) -> Optional[BlockType]:
-        return self.block_type
+    def __init__(self, block_type: Optional[BlockType], max_quantity: int) -> None:
+        self._block_type = block_type
+        self._max_quantity = max_quantity
+
+    @property
+    def block_type(self) -> Optional[BlockType]:
+        return self._block_type
+
+    @property
+    def max_quantity(self) -> int:
+        return self._max_quantity
+
+    def to_block(self, item_data: int, attached_face: Face, horizontal_player_face: Face, **kwargs) -> Optional[Block]:
+        if self.block_type is None:
+            return None
+        block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, kwargs)
+        return Block.create(self.block_type, block_data, **kwargs)
+
+    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+        raise NotImplementedError()
+
+
+class DefaultItemSpec(ItemSpec):
+
+    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+        return item_data
+
+
+class DirectivityItemSpec(ItemSpec):
+
+    def to_block_data(self, item_data: int, attached_face: Face, horizontal_player_face: Face, kwargs: Dict) -> int:
+        return attached_face.value if attached_face.direction.y == 0 else horizontal_player_face.inverse.value
 
 
 _item_specs = {
-    ItemType.AIR: ItemSpec(None, 0),
+    ItemType.AIR: DefaultItemSpec(None, 0),
 }
-
 
 _block_items = [
     ItemType.PLANKS,
@@ -100,22 +127,6 @@ _block_items = [
     ItemType.CLAY,
     ItemType.HARDENED_CLAY,
     ItemType.STAINED_HARDENED_CLAY,
-    ItemType.WHITE_GLAZED_TERRACOTTA,
-    ItemType.SILVER_GLAZED_TERRACOTTA,
-    ItemType.GRAY_GLAZED_TERRACOTTA,
-    ItemType.BLACK_GLAZED_TERRACOTTA,
-    ItemType.BROWN_GLAZED_TERRACOTTA,
-    ItemType.RED_GLAZED_TERRACOTTA,
-    ItemType.ORANGE_GLAZED_TERRACOTTA,
-    ItemType.YELLOW_GLAZED_TERRACOTTA,
-    ItemType.LIME_GLAZED_TERRACOTTA,
-    ItemType.GREEN_GLAZED_TERRACOTTA,
-    ItemType.CYAN_GLAZED_TERRACOTTA,
-    ItemType.LIGHT_BLUE_GLAZED_TERRACOTTA,
-    ItemType.BLUE_GLAZED_TERRACOTTA,
-    ItemType.PURPLE_GLAZED_TERRACOTTA,
-    ItemType.MAGENTA_GLAZED_TERRACOTTA,
-    ItemType.PINK_GLAZED_TERRACOTTA,
     ItemType.PURPUR_BLOCK,
     ItemType.DIRT,
     ItemType.GRASS,
@@ -212,9 +223,31 @@ _block_items = [
     ItemType.TNT,
 ]
 
+_directivity_block_items = [
+    ItemType.WHITE_GLAZED_TERRACOTTA,
+    ItemType.SILVER_GLAZED_TERRACOTTA,
+    ItemType.GRAY_GLAZED_TERRACOTTA,
+    ItemType.BLACK_GLAZED_TERRACOTTA,
+    ItemType.BROWN_GLAZED_TERRACOTTA,
+    ItemType.RED_GLAZED_TERRACOTTA,
+    ItemType.ORANGE_GLAZED_TERRACOTTA,
+    ItemType.YELLOW_GLAZED_TERRACOTTA,
+    ItemType.LIME_GLAZED_TERRACOTTA,
+    ItemType.GREEN_GLAZED_TERRACOTTA,
+    ItemType.CYAN_GLAZED_TERRACOTTA,
+    ItemType.LIGHT_BLUE_GLAZED_TERRACOTTA,
+    ItemType.BLUE_GLAZED_TERRACOTTA,
+    ItemType.PURPLE_GLAZED_TERRACOTTA,
+    ItemType.MAGENTA_GLAZED_TERRACOTTA,
+    ItemType.PINK_GLAZED_TERRACOTTA,
+]
+
 
 for _item_type in _block_items:
-    _item_specs[_item_type] = ItemSpec(BlockType(_item_type.value), 64)
+    _item_specs[_item_type] = DefaultItemSpec(BlockType(_item_type.value), 64)
+
+for _item_type in _directivity_block_items:
+    _item_specs[_item_type] = DirectivityItemSpec(BlockType(_item_type.value), 64)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:

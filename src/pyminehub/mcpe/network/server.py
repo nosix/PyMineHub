@@ -467,8 +467,8 @@ class MCPEServerHandler(MCPEDataHandler):
             event.entity_runtime_id,
             event.position,
             event.pitch,
-            0.0,
             event.yaw,
+            0.0,
             event.on_ground,
             False
         )

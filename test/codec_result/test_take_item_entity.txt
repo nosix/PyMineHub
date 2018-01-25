@@ -93,7 +93,7 @@ PacketSoundEvent(type=<GamePacketType.SOUND_EVENT: 24>, extra=b'\x00\x00', sound
   File "./codec_play.py", line 164, in test_take_item_entity
     GamePacket(GamePacketType.SOUND_EVENT),
 
-PacketMoveEntity(type=<GamePacketType.MOVE_ENTITY: 18>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=475.29998779296875, y=72.62100219726562, z=639.1699829101562), pitch=26.71875, head_yaw=120.9375, yaw=120.9375, on_ground=False, teleported=False)
+PacketMoveEntity(type=<GamePacketType.MOVE_ENTITY: 18>, extra=b'\x00\x00', entity_runtime_id=1, position=Vector3(x=475.29998779296875, y=72.62100219726562, z=639.1699829101562), pitch=26.71875, yaw=120.9375, head_yaw=120.9375, on_ground=False, teleported=False)
   -> 1200000166a6ed43f43d9142e1ca1f441356560000
   File "./codec_play.py", line 165, in test_take_item_entity
     GamePacket(GamePacketType.MOVE_ENTITY)
