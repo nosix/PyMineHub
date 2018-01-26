@@ -175,6 +175,42 @@ class TerracottaItemSpec(ItemSpec):
         return horizontal_player_face.inverse.value
 
 
+class JackOLanternSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.SOUTH: 0,
+        Face.WEST: 1,
+        Face.NORTH: 2,
+        Face.EAST: 3
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = JackOLanternSpec(None, 0)
+        >>> faces = [Face.SOUTH, Face.WEST, Face.NORTH, Face.EAST]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        >>> list(spec.to_block_data(0, Face.EAST, f, Vector3(0.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
+        [0, 2]
+        >>> list(spec.to_block_data(0, Face.WEST, f, Vector3(1.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
+        [0, 2]
+        >>> list(spec.to_block_data(0, Face.SOUTH, f, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
+        [1, 3]
+        >>> list(spec.to_block_data(0, Face.NORTH, f, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
+        [1, 3]
+        """
+        assert item_data == 0
+        return self._FACE_TO_DATA[horizontal_player_face]
+
+
 _item_specs = {
     ItemType.AIR: DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -183,6 +219,7 @@ _item_specs = {
     ItemType.PURPUR_BLOCK: DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
     ItemType.LOG: DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
     ItemType.LOG2: DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
+    ItemType.LIT_PUMPKIN: JackOLanternSpec(BlockType.LIT_PUMPKIN, 64),
 }
 
 _block_items = [
@@ -276,7 +313,6 @@ _block_items = [
 
     ItemType.MELON_BLOCK,
     ItemType.PUMPKIN,
-    ItemType.LIT_PUMPKIN,  # TODO direction
 
     ItemType.TALLGRASS,
     ItemType.DOUBLE_PLANT,
