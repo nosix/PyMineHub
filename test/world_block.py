@@ -204,6 +204,70 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=65, z=255), BlockType.STONE_SLAB, 0)
         self._assert_inventory_updated(item)
 
+    def test_put_stone_slab2(self):
+        self.test_login()
+        item = self._equip(ItemType.STONE_SLAB2, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 256))
+        self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on slab (face=TOP, block_pos=(256, 63, 256))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.DOUBLE_STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=TOP, block_pos=(256, 64, 256))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on slab (face=TOP, block_pos=(256, 64, 256))
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.DOUBLE_STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (face=EAST, block_pos=(255, 63, 256))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.STONE_SLAB2, 8)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (face=*TOP*, block_pos=(255, 63, 256))
+        self._put_item(Vector3(x=255, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.DOUBLE_STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (face=EAST, block_pos=(255, 64, 256))
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.STONE_SLAB2, 8)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (face=*EAST*, block_pos=(255, 64, 256))
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.0, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.DOUBLE_STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (face=WEST, block_pos=(257, 64, 256))
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.0, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (face=BOTTOM, block_pos=(257, 63, 256))
+        self._put_item(Vector3(x=257, y=64, z=256), Vector3(0.5, 0.0, 0.5), Face.BOTTOM, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=256), BlockType.STONE_SLAB2, 8)
+        self._assert_inventory_updated(item)
+
+        # put on upper (face=SOUTH, block_pos=(256, 64, 255))
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.STONE_SLAB2, 8)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (face=TOP, block_pos=(256, 65, 256))
+        self._put_item(Vector3(x=256, y=64, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=65, z=255), BlockType.STONE_SLAB2, 0)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
