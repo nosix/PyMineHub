@@ -136,8 +136,8 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_inventory_updated(item)
 
         # put on bottom (face=TOP, block_pos=(256, 65, 256))
-        self._put_item(Vector3(x=256, y=64, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
-        self._assert_block_updated(Vector3(x=256, y=65, z=257), BlockType.WOODEN_SLAB, 0)
+        self._put_item(Vector3(x=256, y=64, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=65, z=255), BlockType.WOODEN_SLAB, 0)
         self._assert_inventory_updated(item)
 
 
