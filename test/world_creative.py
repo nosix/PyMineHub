@@ -16,6 +16,9 @@ from util.mock import MockDataStore
 class WorldCreativeTestCase(TestCase):
 
     def setUp(self) -> None:
+        if self._testMethodName not in type(self).__dict__:
+            self.skipTest('This test is defined in super class.')
+
         set_config(spawn_mob=False, clock_time=-4800, game_mode='CREATIVE')
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
