@@ -72,7 +72,14 @@ class SlabBlockSpec(BlockSpec):
 _block_specs = {
     BlockType.AIR: BlockSpec(None),
     BlockType.GRASS: BlockSpec(ItemType.DIRT),
-    BlockType.STONE_SLAB: BlockSpec(ItemType.STONE_SLAB, 2),
+    BlockType.STONE_SLAB: SlabBlockSpec(ItemType.STONE_SLAB, {
+        0: Block.create(BlockType.DOUBLE_STONE_SLAB, 0),
+        1: Block.create(BlockType.DOUBLE_STONE_SLAB, 1),
+        3: Block.create(BlockType.DOUBLE_STONE_SLAB, 3),
+        4: Block.create(BlockType.DOUBLE_STONE_SLAB, 4),
+        5: Block.create(BlockType.DOUBLE_STONE_SLAB, 5),
+        7: Block.create(BlockType.DOUBLE_STONE_SLAB, 7),
+    }),
     BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, {
         0: Block.create(BlockType.PLANKS, 0),
         1: Block.create(BlockType.PLANKS, 1),
@@ -267,6 +274,8 @@ _blocks = [
     BlockType.HEAVY_WEIGHTED_PRESSURE_PLATE,
 
     BlockType.TNT,
+
+    BlockType.DOUBLE_STONE_SLAB,
 ]
 
 
