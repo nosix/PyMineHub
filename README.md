@@ -93,8 +93,8 @@ mcpe
     - clock -> config
     - interface -> mcpe.[value]
     - proxy -> mcpe.[action, const, event, resource, value]
-    - item -> mcpe.[const]
-    - block -> mcpe.[const, value]
+    - item -> mcpe.[const, geometry, value]
+    - block -> mcpe.[const, geometry, value]
     - generator -> mcpe.[chunk, datastore, geometry], mcpe.plugin.[generator]
     - inventory -> .[const, value], .[item]
     - space -> mcpe.[chunk, const, datastore, geometry, value], .[block, generator]
