@@ -49,7 +49,6 @@ class SlabBlockSpec(BlockSpec):
         >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.BOTTOM)
         Block(type=<BlockType.PLANKS: 5>, aux_value=0)
         >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.TOP)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.BOTTOM)
         >>> spec.stack_layer(Block.create(block_type, 0, neighbors=True), Block.create(block_type, 8), Face.TOP)
         Block(type=<BlockType.PLANKS: 5>, aux_value=0)
@@ -62,7 +61,9 @@ class SlabBlockSpec(BlockSpec):
         slab_type = stacked_block.data & self._SLAB_TYPE_MASK
         assert slab_type == base_block.data & self._SLAB_TYPE_MASK, slab_type
         is_upper = stacked_block.data & self._IS_UPPER_MASK
-        if is_upper != (base_block.data & self._IS_UPPER_MASK) and not (face is Face.BOTTOM and is_upper):
+        if is_upper != base_block.data & self._IS_UPPER_MASK:
+            if (face is Face.BOTTOM and is_upper) or (face is Face.TOP and not is_upper):
+                return None
             return self._layered_block_type[slab_type].copy(**stacked_block.flags)
         return None
 

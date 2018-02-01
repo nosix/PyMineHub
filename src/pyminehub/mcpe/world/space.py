@@ -92,7 +92,7 @@ class Space:
         chunk, position_in_chunk = self._to_local(position)
         target_block = BlockModel(chunk.get_block(position_in_chunk))
         if block.type == target_block.type:
-            new_block = target_block.stack_layer(block, face)
+            new_block = target_block.stack_layer(block, face.inverse)
             if new_block is not None:
                 chunk.set_block(position_in_chunk, new_block)
                 return position, new_block
