@@ -10,7 +10,8 @@ import geometry
 import protocol_login_logout
 import protocol_play
 import protocol_unconnected
-import world
+import world_creative
+import world_survival
 
 
 # noinspection PyUnusedLocal
@@ -27,7 +28,8 @@ def load_tests(loader, tests, pattern):
         protocol_unconnected,
         protocol_login_logout,
         protocol_play,
-        world,
+        world_survival,
+        world_creative,
         client,
     )
     suite = unittest.TestSuite()
