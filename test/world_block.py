@@ -1,13 +1,12 @@
+import world_creative
 from pyminehub.mcpe.action import ActionType
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import event_factory, EventType
 from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.value import *
 
-from world_creative import WorldCreativeTestCase
 
-
-class WorldBlockTestCase(WorldCreativeTestCase):
+class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
     def _equip(self, item_type: ItemType, item_data: int) -> Item:
         item = Item.create(item_type, 64, item_data)
@@ -88,7 +87,47 @@ class WorldBlockTestCase(WorldCreativeTestCase):
 
         # put on slab (y=63, face=TOP)
         self._put_item(Vector3(x=256, y=63, z=257), Vector3(0.5, 0.5, 0.5), Face.TOP, item)
-        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.WOODEN_SLAB, 0)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (y=63, face=EAST)
+        self._put_item(Vector3(x=256, y=63, z=257), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=257), BlockType.WOODEN_SLAB, 8)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (y=62, face=TOP)
+        self._put_item(Vector3(x=255, y=62, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=257), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        # put on top (y=63, face=TOP)
+        self._put_item(Vector3(x=256, y=63, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=257), BlockType.WOODEN_SLAB, 0)
+        self._assert_inventory_updated(item)
+
+        # put on slab (y=64, face=TOP)
+        self._put_item(Vector3(x=256, y=64, z=257), Vector3(0.5, 0.5, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=257), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (y=64, face=EAST)
+        self._put_item(Vector3(x=256, y=64, z=257), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=257), BlockType.WOODEN_SLAB, 8)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (y=64, face=EAST)
+        self._put_item(Vector3(x=256, y=64, z=257), Vector3(0.5, 0.0, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=257), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        # put on bottom (y=64, face=WEST)
+        self._put_item(Vector3(x=256, y=64, z=257), Vector3(0.5, 0.0, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=257), BlockType.WOODEN_SLAB, 0)
+        self._assert_inventory_updated(item)
+
+        # put on upper (y=64, face=WEST)
+        self._put_item(Vector3(x=257, y=64, z=257), Vector3(0.5, 0.0, 0.5), Face.BOTTOM, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=257), BlockType.WOODEN_SLAB, 8)
         self._assert_inventory_updated(item)
 
 
