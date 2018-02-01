@@ -82,12 +82,12 @@ _block_specs = {
         7: Block.create(BlockType.DOUBLE_STONE_SLAB, 7),
     }),
     BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, {
-        0: Block.create(BlockType.PLANKS, 0),
-        1: Block.create(BlockType.PLANKS, 1),
-        2: Block.create(BlockType.PLANKS, 2),
-        3: Block.create(BlockType.PLANKS, 3),
-        4: Block.create(BlockType.PLANKS, 4),
-        5: Block.create(BlockType.PLANKS, 5),
+        0: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 0),
+        1: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 1),
+        2: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 2),
+        3: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 3),
+        4: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 4),
+        5: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 5),
     }),
     BlockType.STONE_SLAB2: SlabBlockSpec(ItemType.STONE_SLAB2, {
         0: Block.create(BlockType.DOUBLE_STONE_SLAB2, 0),
@@ -280,6 +280,7 @@ _blocks = [
     BlockType.TNT,
 
     BlockType.DOUBLE_STONE_SLAB,
+    BlockType.DOUBLE_WOODEN_SLAB,
     BlockType.DOUBLE_STONE_SLAB2,
 ]
 
