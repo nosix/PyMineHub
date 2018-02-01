@@ -60,7 +60,7 @@ def configure_log(
 
         def log_filter(record) -> bool:
             packet_str = str(record.args[0])
-            return not packet_str.startswith('FullChunkLoaded') and not packet_str.startswith('RequestChunk')
+            return not packet_str.startswith('EventFullChunkLoaded') and not packet_str.startswith('ActionRequestChunk')
 
         logging.getLogger('pyminehub.mcpe.world.server').addFilter(log_filter)
 
