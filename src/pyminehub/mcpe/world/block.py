@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from pyminehub.mcpe.const import BlockType, ItemType
 from pyminehub.mcpe.geometry import Face
@@ -36,27 +36,27 @@ class SlabBlockSpec(BlockSpec):
     _SLAB_TYPE_MASK = 0b111
     _IS_UPPER_MASK = 0b1000
 
-    def __init__(self, item_type: Optional[ItemType], layered_block_type: Dict[int, Block]) -> None:
+    def __init__(self, item_type: Optional[ItemType], full_stacked_block_type: BlockType) -> None:
         super().__init__(item_type, 2)
-        self._layered_block_type = layered_block_type
+        self._full_stacked_block_type = full_stacked_block_type
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
-        >>> spec = SlabBlockSpec(None, {0: Block.create(BlockType.PLANKS, 0)})
+        >>> spec = SlabBlockSpec(None, BlockType.DOUBLE_WOODEN_SLAB)
         >>> block_type = BlockType.WOODEN_SLAB
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.TOP)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
         >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.BOTTOM)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
         >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.TOP)
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.BOTTOM)
         >>> spec.stack_layer(Block.create(block_type, 0, neighbors=True), Block.create(block_type, 8), Face.TOP)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8, neighbors=True), Face.TOP)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=16)
+        Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=16)
         >>> spec.stack_layer(\\
         ...     Block.create(block_type, 0, neighbors=True), Block.create(block_type, 8, neighbors=False), Face.TOP)
-        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
         """
         slab_type = stacked_block.data & self._SLAB_TYPE_MASK
         if slab_type != base_block.data & self._SLAB_TYPE_MASK:
@@ -65,34 +65,16 @@ class SlabBlockSpec(BlockSpec):
         if is_upper != base_block.data & self._IS_UPPER_MASK:
             if (face is Face.BOTTOM and is_upper) or (face is Face.TOP and not is_upper):
                 return None
-            return self._layered_block_type[slab_type].copy(**stacked_block.flags)
+            return Block.create(self._full_stacked_block_type, slab_type, **stacked_block.flags)
         return None
 
 
 _block_specs = {
     BlockType.AIR: BlockSpec(None),
     BlockType.GRASS: BlockSpec(ItemType.DIRT),
-    BlockType.STONE_SLAB: SlabBlockSpec(ItemType.STONE_SLAB, {
-        0: Block.create(BlockType.DOUBLE_STONE_SLAB, 0),
-        1: Block.create(BlockType.DOUBLE_STONE_SLAB, 1),
-        3: Block.create(BlockType.DOUBLE_STONE_SLAB, 3),
-        4: Block.create(BlockType.DOUBLE_STONE_SLAB, 4),
-        5: Block.create(BlockType.DOUBLE_STONE_SLAB, 5),
-        6: Block.create(BlockType.DOUBLE_STONE_SLAB, 6),
-        7: Block.create(BlockType.DOUBLE_STONE_SLAB, 7),
-    }),
-    BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, {
-        0: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 0),
-        1: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 1),
-        2: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 2),
-        3: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 3),
-        4: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 4),
-        5: Block.create(BlockType.DOUBLE_WOODEN_SLAB, 5),
-    }),
-    BlockType.STONE_SLAB2: SlabBlockSpec(ItemType.STONE_SLAB2, {
-        0: Block.create(BlockType.DOUBLE_STONE_SLAB2, 0),
-        1: Block.create(BlockType.DOUBLE_STONE_SLAB2, 1),
-    }),
+    BlockType.STONE_SLAB: SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
+    BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
+    BlockType.STONE_SLAB2: SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
 }
 
 
