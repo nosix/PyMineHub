@@ -93,6 +93,9 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
         frames = split_frame_set(packet.payload)
         session.frame_received(packet.packet_sequence_num, frames)
 
+    def _process_frame_set_0(self, packet: RakNetPacket, addr: Address) -> None:
+        self._process_frame_set(packet, addr)
+
     def _process_frame_set_4(self, packet: RakNetPacket, addr: Address) -> None:
         self._process_frame_set(packet, addr)
 

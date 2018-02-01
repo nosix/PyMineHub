@@ -47,7 +47,7 @@ class ItemSpec:
         raise NotImplementedError()
 
 
-class DefaultItemSpec(ItemSpec):
+class _DefaultItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -59,7 +59,7 @@ class DefaultItemSpec(ItemSpec):
         return item_data
 
 
-class DirectionalItemSpec(ItemSpec):
+class _DirectionalItemSpec(ItemSpec):
 
     def __init__(self, block_type: Optional[BlockType], max_quantity: int, directional_data: Tuple[int, ...]) -> None:
         super().__init__(block_type, max_quantity)
@@ -73,7 +73,7 @@ class DirectionalItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = DirectionalItemSpec(None, 0, (0, ))
+        >>> spec = _DirectionalItemSpec(None, 0, (0, ))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
@@ -88,7 +88,7 @@ class DirectionalItemSpec(ItemSpec):
         >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
         8
 
-        >>> spec = DirectionalItemSpec(None, 0, (1, 2))
+        >>> spec = _DirectionalItemSpec(None, 0, (1, 2))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(1, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [1, 1, 1, 1]
@@ -116,7 +116,7 @@ class DirectionalItemSpec(ItemSpec):
         return item_data
 
 
-class StairItemSpec(ItemSpec):
+class _StairItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -126,7 +126,7 @@ class StairItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = StairItemSpec(None, 0)
+        >>> spec = _StairItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -144,7 +144,7 @@ class StairItemSpec(ItemSpec):
             return 4 + Face.WEST.value - horizontal_player_face.value
 
 
-class TerracottaItemSpec(ItemSpec):
+class _TerracottaItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -154,7 +154,7 @@ class TerracottaItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = TerracottaItemSpec(None, 0)
+        >>> spec = _TerracottaItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
@@ -175,7 +175,7 @@ class TerracottaItemSpec(ItemSpec):
         return horizontal_player_face.inverse.value
 
 
-class JackOLanternSpec(ItemSpec):
+class _JackOLanternSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.SOUTH: 0,
@@ -192,7 +192,7 @@ class JackOLanternSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = JackOLanternSpec(None, 0)
+        >>> spec = _JackOLanternSpec(None, 0)
         >>> faces = [Face.SOUTH, Face.WEST, Face.NORTH, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -211,15 +211,54 @@ class JackOLanternSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
+class _SlabItemSpec(ItemSpec):
+
+    _IS_UPPER = 0b1000
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _SlabItemSpec(None, 0)
+        >>> y_pos = [0.0, 0.5, 1.0]
+        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, y, 0.5)) for y in y_pos)
+        [0, 8, 0]
+        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, y, 0.5)) for y in y_pos)
+        [0, 8, 0]
+        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, y, 1.0)) for y in y_pos)
+        [0, 8, 0]
+        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, y, 0.0)) for y in y_pos)
+        [0, 8, 0]
+        >>> list(spec.to_block_data(0, Face.TOP, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.5, 1.0])
+        [8, 0]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
+        [8, 0]
+        """
+        assert not (attached_face is Face.TOP and click_position.y == 0.0)
+        assert not (attached_face is Face.BOTTOM and click_position.y == 1.0)
+        y = click_position.y % 1.0
+        if attached_face is Face.BOTTOM:
+            return item_data | self._IS_UPPER if y < 0.5 else 0
+        else:
+            return item_data | self._IS_UPPER if y >= 0.5 else 0
+
+
 _item_specs = {
-    ItemType.AIR: DefaultItemSpec(None, 0),
-    ItemType.HAY_BLOCK: DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
-    ItemType.BONE_BLOCK: DirectionalItemSpec(BlockType.BONE_BLOCK, 64, (0,)),
-    ItemType.QUARTZ_BLOCK: DirectionalItemSpec(BlockType.QUARTZ_BLOCK, 64, (1, 2)),
-    ItemType.PURPUR_BLOCK: DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
-    ItemType.LOG: DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
-    ItemType.LOG2: DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
-    ItemType.LIT_PUMPKIN: JackOLanternSpec(BlockType.LIT_PUMPKIN, 64),
+    ItemType.AIR: _DefaultItemSpec(None, 0),
+    ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
+    ItemType.BONE_BLOCK: _DirectionalItemSpec(BlockType.BONE_BLOCK, 64, (0,)),
+    ItemType.QUARTZ_BLOCK: _DirectionalItemSpec(BlockType.QUARTZ_BLOCK, 64, (1, 2)),
+    ItemType.PURPUR_BLOCK: _DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
+    ItemType.LOG: _DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
+    ItemType.LOG2: _DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
+    ItemType.LIT_PUMPKIN: _JackOLanternSpec(BlockType.LIT_PUMPKIN, 64),
+    ItemType.STONE_SLAB: _SlabItemSpec(BlockType.STONE_SLAB, 64),
+    ItemType.WOODEN_SLAB: _SlabItemSpec(BlockType.WOODEN_SLAB, 64),
+    ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
 }
 
 _block_items = [
@@ -250,10 +289,6 @@ _block_items = [
     ItemType.STAINED_GLASS_PANE,
 
     ItemType.LADDER,
-
-    ItemType.STONE_SLAB,  # TODO layer
-    ItemType.WOODEN_SLAB,  # TODO layer
-    ItemType.STONE_SLAB2,  # TODO layer
 
     ItemType.BRICK_BLOCK,
     ItemType.STONE_BRICK,
@@ -420,13 +455,13 @@ _terracotta_block_items = [
 
 
 for _item_type in _block_items:
-    _item_specs[_item_type] = DefaultItemSpec(BlockType(_item_type.value), 64)
+    _item_specs[_item_type] = _DefaultItemSpec(BlockType(_item_type.value), 64)
 
 for _item_type in _stairs_block_items:
-    _item_specs[_item_type] = StairItemSpec(BlockType(_item_type.value), 64)
+    _item_specs[_item_type] = _StairItemSpec(BlockType(_item_type.value), 64)
 
 for _item_type in _terracotta_block_items:
-    _item_specs[_item_type] = TerracottaItemSpec(BlockType(_item_type.value), 64)
+    _item_specs[_item_type] = _TerracottaItemSpec(BlockType(_item_type.value), 64)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:

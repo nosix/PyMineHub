@@ -304,13 +304,12 @@ class _World(WorldEditor):
             old_slot = player.get_item(inventory_slot)
             new_slot = old_slot
             assert action.item == new_slot, '{}, {}'.format(action.item, new_slot)
-        position = action.position + action.face.direction
         horizontal_player_face = Face.by_yaw(player.yaw)
         block = get_item_spec(old_slot.type).to_block(
             old_slot.data, action.face, horizontal_player_face, action.click_position,
             neighbors=True, network=True, priority=True)
         if block is not None:
-            self._space.put_block(position, block)
+            position, block = self._space.put_block(action.position, action.face, block)
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,
                 position,

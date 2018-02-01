@@ -1,29 +1,89 @@
-from typing import List, NamedTuple, Optional
+from typing import Dict, List, Optional
 
 from pyminehub.mcpe.const import BlockType, ItemType
-from pyminehub.mcpe.value import Item
+from pyminehub.mcpe.geometry import Face
+from pyminehub.mcpe.value import Item, Block
 
 __all__ = [
     'BlockSpec',
-    'get_block_spec'
+    'BlockModel'
 ]
 
 
-class BlockSpec(NamedTuple('BlockSpec', [
-    ('item_type', Optional[ItemType])
-])):
-    __slots__ = ()
+class BlockSpec:
+
+    def __init__(self, item_type: Optional[ItemType], max_layer_num: int=1) -> None:
+        self._item_type = item_type
+        self._max_layer_num = max_layer_num
+
+    @property
+    def item_type(self) -> Optional[ItemType]:
+        return self._item_type
+
+    @property
+    def max_layer_num(self) -> int:
+        return self._max_layer_num
 
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
 
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+
+class SlabBlockSpec(BlockSpec):
+
+    _SLAB_TYPE_MASK = 0b111
+    _IS_UPPER_MASK = 0b1000
+
+    def __init__(self, item_type: Optional[ItemType], layered_block_type: Dict[int, Block]) -> None:
+        super().__init__(item_type, 2)
+        self._layered_block_type = layered_block_type
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        """
+        >>> spec = SlabBlockSpec(None, {0: Block.create(BlockType.PLANKS, 0)})
+        >>> block_type = BlockType.WOODEN_SLAB
+        >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.TOP)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.BOTTOM)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        >>> spec.stack_layer(Block.create(block_type, 8), Block.create(block_type, 0), Face.TOP)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.BOTTOM)
+        >>> spec.stack_layer(Block.create(block_type, 0, neighbors=True), Block.create(block_type, 8), Face.TOP)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8, neighbors=True), Face.TOP)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=16)
+        >>> spec.stack_layer(\\
+        ...     Block.create(block_type, 0, neighbors=True), Block.create(block_type, 8, neighbors=False), Face.TOP)
+        Block(type=<BlockType.PLANKS: 5>, aux_value=0)
+        """
+        slab_type = stacked_block.data & self._SLAB_TYPE_MASK
+        assert slab_type == base_block.data & self._SLAB_TYPE_MASK, slab_type
+        is_upper = stacked_block.data & self._IS_UPPER_MASK
+        if is_upper != (base_block.data & self._IS_UPPER_MASK) and not (face is Face.BOTTOM and is_upper):
+            return self._layered_block_type[slab_type].copy(**stacked_block.flags)
+        return None
+
 
 _block_specs = {
+    BlockType.AIR: BlockSpec(None),
     BlockType.GRASS: BlockSpec(ItemType.DIRT),
+    BlockType.STONE_SLAB: BlockSpec(ItemType.STONE_SLAB, 2),
+    BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, {
+        0: Block.create(BlockType.PLANKS, 0),
+        1: Block.create(BlockType.PLANKS, 1),
+        2: Block.create(BlockType.PLANKS, 2),
+        3: Block.create(BlockType.PLANKS, 3),
+        4: Block.create(BlockType.PLANKS, 4),
+        5: Block.create(BlockType.PLANKS, 5),
+    }),
+    BlockType.STONE_SLAB2: BlockSpec(ItemType.STONE_SLAB2, 2),
 }
 
 
-_block_items = [
+_blocks = [
     BlockType.PLANKS,
 
     BlockType.COBBLESTONE_WALL,
@@ -64,10 +124,6 @@ _block_items = [
     BlockType.STAINED_GLASS_PANE,
 
     BlockType.LADDER,
-
-    BlockType.STONE_SLAB,
-    BlockType.WOODEN_SLAB,
-    BlockType.STONE_SLAB2,
 
     BlockType.BRICK_BLOCK,
     BlockType.STONE_BRICK,
@@ -212,9 +268,34 @@ _block_items = [
 ]
 
 
-for _block_type in _block_items:
+for _block_type in _blocks:
     _block_specs[_block_type] = BlockSpec(ItemType(_block_type.value))
 
 
-def get_block_spec(block_type: BlockType) -> BlockSpec:
-    return _block_specs[block_type]
+class BlockModel:
+
+    def __init__(self, block: Block) -> None:
+        self._block = block
+        self._block_spec = _block_specs[block.type]
+
+    def __str__(self) -> str:
+        return str(self._block)
+
+    @property
+    def type(self) -> BlockType:
+        return self._block.type
+
+    @property
+    def has_layer(self) -> bool:
+        return self._block_spec.max_layer_num > 1
+
+    def to_item(self) -> List[Item]:
+        return self._block_spec.to_item(self._block.data)
+
+    def stack_layer(self, stacked_block: 'BlockModel', face: Face) -> Optional[Block]:
+        return self._block_spec.stack_layer(self._block, stacked_block._block, face)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest_result = doctest.testmod()

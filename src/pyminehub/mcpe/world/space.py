@@ -3,9 +3,9 @@ from typing import Dict, List, Optional, Tuple
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
-from pyminehub.mcpe.geometry import Vector3, ChunkPositionWithDistance, ChunkPosition, to_local_position
+from pyminehub.mcpe.geometry import Vector3, Face, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item, Block
-from pyminehub.mcpe.world.block import get_block_spec
+from pyminehub.mcpe.world.block import BlockModel
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [
@@ -62,11 +62,41 @@ class Space:
         if block.type in (BlockType.AIR, BlockType.BEDROCK):
             return None
         chunk.set_block(position_in_chunk, BLOCK_AIR)
-        return get_block_spec(block.type).to_item(block.data)
+        return BlockModel(block).to_item()
 
-    def put_block(self, position: Vector3[int], block: Block) -> None:
+    def put_block(self, position: Vector3[int], face: Face, block: Block) -> Tuple[Vector3[int], Block]:
+        block_model = BlockModel(block)
+        if block_model.has_layer:
+            updated = self._update_layer(position, face, block_model)
+            if updated is not None:
+                return updated
+        position = position + face.direction
         chunk, position_in_chunk = self._to_local(position)
         chunk.set_block(position_in_chunk, block)
+        return position, block
+
+    def _update_layer(
+            self,
+            position: Vector3[int],
+            face: Face,
+            block: BlockModel
+    ) -> Optional[Tuple[Vector3[int], Block]]:
+        chunk, position_in_chunk = self._to_local(position)
+        current_block = BlockModel(chunk.get_block(position_in_chunk))
+        if block.type == current_block.type:
+            new_block = current_block.stack_layer(block, face)
+            if new_block is not None:
+                chunk.set_block(position_in_chunk, new_block)
+                return position, new_block
+        position += face.direction
+        chunk, position_in_chunk = self._to_local(position)
+        target_block = BlockModel(chunk.get_block(position_in_chunk))
+        if block.type == target_block.type:
+            new_block = target_block.stack_layer(block, face)
+            if new_block is not None:
+                chunk.set_block(position_in_chunk, new_block)
+                return position, new_block
+        return None
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)
