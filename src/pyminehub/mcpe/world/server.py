@@ -309,12 +309,14 @@ class _World(WorldEditor):
             old_slot.data, action.face, horizontal_player_face, action.click_position,
             neighbors=True, network=True, priority=True)
         if block is not None:
-            position, block = self._space.put_block(action.position, action.face, block)
-            self._notify_event(event_factory.create(
-                EventType.BLOCK_UPDATED,
-                position,
-                block
-            ))
+            updated = self._space.put_block(action.position, action.face, block)
+            if updated is not None:
+                position, block = updated
+                self._notify_event(event_factory.create(
+                    EventType.BLOCK_UPDATED,
+                    position,
+                    block
+                ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,
             player.player_id,

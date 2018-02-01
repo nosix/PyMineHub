@@ -64,12 +64,22 @@ class Space:
         chunk.set_block(position_in_chunk, BLOCK_AIR)
         return BlockModel(block).to_item()
 
-    def put_block(self, position: Vector3[int], face: Face, block: Block) -> Tuple[Vector3[int], Block]:
+    def put_block(
+            self,
+            position: Vector3[int],
+            face: Face,
+            block: Block
+    ) -> Optional[Tuple[Vector3[int], Block]]:
+        """Put a block
+
+        :param position: position to attach block
+        :param face: face to attach block
+        :param block: block to be attached
+        :return: updated position and block, or None if block can't be put
+        """
         block_model = BlockModel(block)
         if block_model.has_layer:
-            updated = self._update_layer(position, face, block_model)
-            if updated is not None:
-                return updated
+            return self._update_layer(position, face, block_model)
         position = position + face.direction
         chunk, position_in_chunk = self._to_local(position)
         chunk.set_block(position_in_chunk, block)
@@ -81,22 +91,36 @@ class Space:
             face: Face,
             block: BlockModel
     ) -> Optional[Tuple[Vector3[int], Block]]:
+        """Put a stackable block
+
+        :param position: position to attach block
+        :param face: face to attach block
+        :param block: block to be attached
+        :return: updated position and block, or None if block can't be put
+        """
         chunk, position_in_chunk = self._to_local(position)
         current_block = BlockModel(chunk.get_block(position_in_chunk))
         if block.type == current_block.type:
             new_block = current_block.stack_layer(block, face)
             if new_block is not None:
-                chunk.set_block(position_in_chunk, new_block)
-                return position, new_block
+                if new_block != current_block.value:
+                    chunk.set_block(position_in_chunk, new_block)
+                    return position, new_block
+                else:
+                    return None
         position += face.direction
         chunk, position_in_chunk = self._to_local(position)
         target_block = BlockModel(chunk.get_block(position_in_chunk))
         if block.type == target_block.type:
             new_block = target_block.stack_layer(block, face.inverse)
             if new_block is not None:
-                chunk.set_block(position_in_chunk, new_block)
-                return position, new_block
-        return None
+                if new_block != target_block.value:
+                    chunk.set_block(position_in_chunk, new_block)
+                    return position, new_block
+                else:
+                    return None
+        chunk.set_block(position_in_chunk, block.value)
+        return position, block.value
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)

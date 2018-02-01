@@ -237,14 +237,16 @@ class _SlabItemSpec(ItemSpec):
         [8, 0]
         >>> list(spec.to_block_data(0, Face.BOTTOM, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
         [8, 0]
+        >>> list(spec.to_block_data(1, Face.BOTTOM, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
+        [9, 1]
         """
         assert not (attached_face is Face.TOP and click_position.y == 0.0)
         assert not (attached_face is Face.BOTTOM and click_position.y == 1.0)
         y = click_position.y % 1.0
         if attached_face is Face.BOTTOM:
-            return item_data | self._IS_UPPER if y < 0.5 else 0
+            return item_data | (self._IS_UPPER if y < 0.5 else 0)
         else:
-            return item_data | self._IS_UPPER if y >= 0.5 else 0
+            return item_data | (self._IS_UPPER if y >= 0.5 else 0)
 
 
 _item_specs = {

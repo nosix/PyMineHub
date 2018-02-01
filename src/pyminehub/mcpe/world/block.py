@@ -59,7 +59,8 @@ class SlabBlockSpec(BlockSpec):
         Block(type=<BlockType.PLANKS: 5>, aux_value=0)
         """
         slab_type = stacked_block.data & self._SLAB_TYPE_MASK
-        assert slab_type == base_block.data & self._SLAB_TYPE_MASK, slab_type
+        if slab_type != base_block.data & self._SLAB_TYPE_MASK:
+            return base_block
         is_upper = stacked_block.data & self._IS_UPPER_MASK
         if is_upper != base_block.data & self._IS_UPPER_MASK:
             if (face is Face.BOTTOM and is_upper) or (face is Face.TOP and not is_upper):
@@ -285,6 +286,10 @@ class BlockModel:
     @property
     def type(self) -> BlockType:
         return self._block.type
+
+    @property
+    def value(self) -> Block:
+        return self._block
 
     @property
     def has_layer(self) -> bool:
