@@ -102,22 +102,22 @@ class Space:
         :return: updated position and block, or None if block can't be put
         """
         chunk, position_in_chunk = self._to_local(position)
-        current_block = BlockModel(chunk.get_block(position_in_chunk))
+        current_block = chunk.get_block(position_in_chunk)
         if block.type == current_block.type:
-            new_block = current_block.stack_layer(block, face)
+            new_block = block.stack_on(current_block, face)
             if new_block is not None:
-                if new_block != current_block.value:
+                if new_block != current_block:
                     chunk.set_block(position_in_chunk, new_block)
                     return position, new_block
                 else:
                     return None
         position += face.direction
         chunk, position_in_chunk = self._to_local(position)
-        target_block = BlockModel(chunk.get_block(position_in_chunk))
+        target_block = chunk.get_block(position_in_chunk)
         if block.type == target_block.type:
-            new_block = target_block.stack_layer(block, face.inverse)
+            new_block = block.stack_on(target_block, face.inverse)
             if new_block is not None:
-                if new_block != target_block.value:
+                if new_block != target_block:
                     chunk.set_block(position_in_chunk, new_block)
                     return position, new_block
                 else:

@@ -340,8 +340,8 @@ class BlockModel:
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
 
-    def stack_layer(self, stacked_block: 'BlockModel', face: Face) -> Optional[Block]:
-        return self._block_spec.stack_layer(self._block, stacked_block._block, face)
+    def stack_on(self, base_block: Block, face: Face) -> Optional[Block]:
+        return self._block_spec.stack_layer(base_block, self._block, face)
 
     def can_be_attached_on(self, base_block: Block) -> bool:
         return self._block_spec.can_be_attached_on(base_block)
