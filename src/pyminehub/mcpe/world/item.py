@@ -314,7 +314,7 @@ _block_items = [
 
     ItemType.WOOL,
 
-    ItemType.CARPET,  # TODO layer
+    ItemType.CARPET,
 
     ItemType.CONCRETE_POWDER,
     ItemType.CONCRETE,
