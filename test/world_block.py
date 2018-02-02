@@ -46,6 +46,33 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
         return item
 
+    def _move_player(self, position: Vector3[float], yaw: float) -> None:
+        self.perform_action(
+            ActionType.MOVE_PLAYER,
+            entity_runtime_id=1,
+            position=position,
+            pitch=0.0,
+            yaw=yaw,
+            head_yaw=0.0,
+            mode=MoveMode.NORMAL,
+            on_ground=True,
+            riding_eid=0
+        )
+
+        actual_event = self.next_event()
+        expected_event = event_factory.create(
+            EventType.PLAYER_MOVED,
+            entity_runtime_id=1,
+            position=position,
+            pitch=0.0,
+            yaw=yaw,
+            head_yaw=0.0,
+            mode=MoveMode.NORMAL,
+            on_ground=True,
+            riding_eid=0
+        )
+        self.assertEqual(expected_event, actual_event)
+
     def _put_item(self, position: Vector3[float], click_position: Vector3[float], face: Face, item: Item) -> None:
         self.perform_action(
             ActionType.PUT_ITEM,
@@ -365,6 +392,51 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=256, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_inventory_updated(item)
+
+    def test_put_fence_gate(self):
+        self.test_login()
+        item = self._equip(ItemType.PLANKS, 0)
+
+        # put a pole (face=TOP, block_pos=(256, 63, 256))
+        self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.PLANKS, 0)
+        self._assert_inventory_updated(item)
+
+        item = self._equip(ItemType.FENCE_GATE, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 255))
+        self._move_player(Vector3(x=256, y=63, z=254), 0.0)  # Face.NORTH
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.FENCE_GATE, 0)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=TOP, block_pos=(257, 63, 256))
+        self._move_player(Vector3(x=258, y=63, z=256), 90.0)  # Face.EAST
+        self._put_item(Vector3(x=257, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=256), BlockType.FENCE_GATE, 1)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=SOUTH, block_pos=(256, 63, 257))
+        self._move_player(Vector3(x=256, y=63, z=258), 180.0)  # Face.SOUTH
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.FENCE_GATE, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=WEST, block_pos=(255, 63, 256))
+        self._move_player(Vector3(x=254, y=63, z=256), 270.0)  # Face.WEST
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.FENCE_GATE, 1)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
         self._assert_inventory_updated(item)
 
 
