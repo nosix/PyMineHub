@@ -361,7 +361,7 @@ _block_items = [
     ItemType.SNOW,
     ItemType.ICE,
     ItemType.PACKED_ICE,
-    ItemType.SNOW_LAYER,  # TODO layer
+    ItemType.SNOW_LAYER,
 
     ItemType.BROWN_MUSHROOM_BLOCK,
     ItemType.RED_MUSHROOM_BLOCK,
