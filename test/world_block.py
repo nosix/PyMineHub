@@ -268,6 +268,50 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=65, z=255), BlockType.STONE_SLAB2, 0)
         self._assert_inventory_updated(item)
 
+    def test_put_snow_layer(self):
+        self.test_login()
+        item = self._equip(ItemType.SNOW_LAYER, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 256))
+        for i in range(7):
+            self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+            self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.SNOW_LAYER, i)
+            self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.SNOW, 0)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=TOP, block_pos=(256, 64, 256))
+        for i in range(7):
+            self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+            self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.SNOW_LAYER, i)
+            self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.SNOW, 0)
+        self._assert_inventory_updated(item)
+
+        # put on side (face=EAST, block_pos=(255, 63, 256))
+        for i in range(7):
+            self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+            self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.SNOW_LAYER, i)
+            self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.SNOW, 0)
+        self._assert_inventory_updated(item)
+
+        # put on side (face=EAST, block_pos=(255, 64, 256))
+        for i in range(7):
+            self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+            self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.SNOW_LAYER, i)
+            self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.SNOW, 0)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
