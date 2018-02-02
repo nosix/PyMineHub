@@ -32,10 +32,13 @@ class ItemSpec:
             click_position: Vector3[float],
             **flags: bool
     ) -> Optional[Block]:
-        if self.block_type is None:
+        if self.block_type is None or not self.is_attachable(attached_face):
             return None
         block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, click_position)
         return Block.create(self.block_type, block_data, **flags)
+
+    def is_attachable(self, attached_face: Face) -> bool:
+        return True
 
     def to_block_data(
             self,
@@ -249,6 +252,33 @@ class _SlabItemSpec(ItemSpec):
             return item_data | (self._IS_UPPER if y >= 0.5 else 0)
 
 
+class _LadderItemSpec(ItemSpec):
+
+    def is_attachable(self, attached_face: Face) -> bool:
+        return attached_face not in (Face.TOP, Face.BOTTOM)
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _LadderItemSpec(None, 0)
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        2
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        3
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        5
+        """
+        assert attached_face not in (Face.TOP, Face.BOTTOM)
+        return attached_face.value
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -261,6 +291,7 @@ _item_specs = {
     ItemType.STONE_SLAB: _SlabItemSpec(BlockType.STONE_SLAB, 64),
     ItemType.WOODEN_SLAB: _SlabItemSpec(BlockType.WOODEN_SLAB, 64),
     ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
+    ItemType.LADDER: _LadderItemSpec(BlockType.LADDER, 64),
 }
 
 _block_items = [
@@ -289,8 +320,6 @@ _block_items = [
     ItemType.STAINED_GLASS,
     ItemType.GLASS_PANE,
     ItemType.STAINED_GLASS_PANE,
-
-    ItemType.LADDER,
 
     ItemType.BRICK_BLOCK,
     ItemType.STONE_BRICK,

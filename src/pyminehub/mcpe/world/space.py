@@ -78,6 +78,9 @@ class Space:
         :return: updated position and block, or None if block can't be put
         """
         block_model = BlockModel(block)
+        chunk, position_in_chunk = self._to_local(position)
+        if not block_model.can_be_attached_on(chunk.get_block(position_in_chunk)):
+            return None
         if block_model.has_layer:
             return self._update_layer(position, face, block_model)
         position = position + face.direction

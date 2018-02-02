@@ -29,6 +29,9 @@ class _BlockSpec:
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         raise NotImplementedError()
 
+    def can_be_attached_on(self, block: Block) -> bool:
+        return True
+
 
 class _SlabBlockSpec(_BlockSpec):
 
@@ -93,13 +96,33 @@ class _SnowBlockSpec(_BlockSpec):
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
 
 
+class _LadderBlockSpec(_BlockSpec):
+
+    _CAN_NOT_BE_ATTACHED = (
+        BlockType.STONE_SLAB,
+        BlockType.WOODEN_SLAB,
+        BlockType.STONE_SLAB2,
+        BlockType.SNOW_LAYER
+    )
+
+    def __init__(self) -> None:
+        super().__init__(ItemType.LADDER)
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def can_be_attached_on(self, block: Block) -> bool:
+        return block.type not in self._CAN_NOT_BE_ATTACHED
+
+
 _block_specs = {
     BlockType.AIR: _BlockSpec(None),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
     BlockType.STONE_SLAB: _SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
     BlockType.WOODEN_SLAB: _SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
     BlockType.STONE_SLAB2: _SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
-    BlockType.SNOW_LAYER: _SnowBlockSpec()
+    BlockType.SNOW_LAYER: _SnowBlockSpec(),
+    BlockType.LADDER: _LadderBlockSpec(),
 }
 
 
@@ -142,8 +165,6 @@ _blocks = [
     BlockType.STAINED_GLASS,
     BlockType.GLASS_PANE,
     BlockType.STAINED_GLASS_PANE,
-
-    BlockType.LADDER,
 
     BlockType.BRICK_BLOCK,
     BlockType.STONE_BRICK,
@@ -321,6 +342,9 @@ class BlockModel:
 
     def stack_layer(self, stacked_block: 'BlockModel', face: Face) -> Optional[Block]:
         return self._block_spec.stack_layer(self._block, stacked_block._block, face)
+
+    def can_be_attached_on(self, base_block: Block) -> bool:
+        return self._block_spec.can_be_attached_on(base_block)
 
 
 if __name__ == '__main__':

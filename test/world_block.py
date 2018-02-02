@@ -312,6 +312,61 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.SNOW, 0)
         self._assert_inventory_updated(item)
 
+    def test_put_ladder(self):
+        self.test_login()
+        item = self._equip(ItemType.WOODEN_SLAB, 0)
+
+        # put a pole (face=TOP, block_pos=(256, 63, 256))
+        self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.WOODEN_SLAB, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.DOUBLE_WOODEN_SLAB, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=256), BlockType.WOODEN_SLAB, 0)
+        self._assert_inventory_updated(item)
+
+        item = self._equip(ItemType.LADDER, 0)
+
+        # put on top (face=TOP, block_pos=(255, 63, 256))
+        self._put_item(Vector3(x=255, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_inventory_updated(item)
+
+        # put on south (face=SOUTH, block_pos=(256, 63, 255))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.LADDER, 2)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_inventory_updated(item)
+
+        # put on north (face=NORTH, block_pos=(256, 63, 257))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.LADDER, 3)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.0), Face.NORTH, item)
+        self._assert_inventory_updated(item)
+
+        # put on east (face=EAST, block_pos=(255, 63, 256))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.LADDER, 4)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_inventory_updated(item)
+
+        # put on west (face=WEST, block_pos=(257, 63, 256))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=256), BlockType.LADDER, 5)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
