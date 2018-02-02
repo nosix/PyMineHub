@@ -5,12 +5,11 @@ from pyminehub.mcpe.geometry import Face
 from pyminehub.mcpe.value import Item, Block
 
 __all__ = [
-    'BlockSpec',
     'BlockModel'
 ]
 
 
-class BlockSpec:
+class _BlockSpec:
 
     def __init__(self, item_type: Optional[ItemType], max_layer_num: int=1) -> None:
         self._item_type = item_type
@@ -31,7 +30,7 @@ class BlockSpec:
         raise NotImplementedError()
 
 
-class SlabBlockSpec(BlockSpec):
+class _SlabBlockSpec(_BlockSpec):
 
     _SLAB_TYPE_MASK = 0b111
     _IS_UPPER_MASK = 0b1000
@@ -42,7 +41,7 @@ class SlabBlockSpec(BlockSpec):
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
-        >>> spec = SlabBlockSpec(None, BlockType.DOUBLE_WOODEN_SLAB)
+        >>> spec = _SlabBlockSpec(None, BlockType.DOUBLE_WOODEN_SLAB)
         >>> block_type = BlockType.WOODEN_SLAB
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.TOP)
         Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
@@ -69,12 +68,38 @@ class SlabBlockSpec(BlockSpec):
         return None
 
 
+class _SnowBlockSpec(_BlockSpec):
+
+    def __init__(self) -> None:
+        super().__init__(None, 8)
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        """
+        >>> spec = _SnowBlockSpec()
+        >>> block_type = BlockType.SNOW_LAYER
+        >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 0), Face.TOP)
+        Block(type=<BlockType.SNOW_LAYER: 78>, aux_value=1)
+        >>> spec.stack_layer(Block.create(block_type, 1), Block.create(block_type, 0), Face.TOP)
+        Block(type=<BlockType.SNOW_LAYER: 78>, aux_value=2)
+        >>> spec.stack_layer(Block.create(block_type, 5), Block.create(block_type, 0), Face.TOP)
+        Block(type=<BlockType.SNOW_LAYER: 78>, aux_value=6)
+        >>> spec.stack_layer(Block.create(block_type, 6), Block.create(block_type, 0), Face.TOP)
+        Block(type=<BlockType.SNOW: 80>, aux_value=0)
+        """
+        layer_index = base_block.data + 1
+        if layer_index != self.max_layer_num - 1:
+            return Block.create(BlockType.SNOW_LAYER, layer_index, **stacked_block.flags)
+        else:
+            return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
+
+
 _block_specs = {
-    BlockType.AIR: BlockSpec(None),
-    BlockType.GRASS: BlockSpec(ItemType.DIRT),
-    BlockType.STONE_SLAB: SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
-    BlockType.WOODEN_SLAB: SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
-    BlockType.STONE_SLAB2: SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
+    BlockType.AIR: _BlockSpec(None),
+    BlockType.GRASS: _BlockSpec(ItemType.DIRT),
+    BlockType.STONE_SLAB: _SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
+    BlockType.WOODEN_SLAB: _SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
+    BlockType.STONE_SLAB2: _SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
+    BlockType.SNOW_LAYER: _SnowBlockSpec()
 }
 
 
@@ -204,7 +229,6 @@ _blocks = [
     BlockType.SNOW,
     BlockType.ICE,
     BlockType.PACKED_ICE,
-    BlockType.SNOW_LAYER,
 
     BlockType.BROWN_MUSHROOM_BLOCK,
     BlockType.RED_MUSHROOM_BLOCK,
@@ -268,7 +292,7 @@ _blocks = [
 
 
 for _block_type in _blocks:
-    _block_specs[_block_type] = BlockSpec(ItemType(_block_type.value))
+    _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
 
 
 class BlockModel:
