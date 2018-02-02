@@ -98,11 +98,101 @@ class _SnowBlockSpec(_BlockSpec):
 
 class _LadderBlockSpec(_BlockSpec):
 
-    _CAN_NOT_BE_ATTACHED = (
-        BlockType.STONE_SLAB,
-        BlockType.WOODEN_SLAB,
-        BlockType.STONE_SLAB2,
-        BlockType.SNOW_LAYER
+    _CAN_BE_ATTACHED = (
+        BlockType.PLANKS,
+
+        BlockType.BRICK_BLOCK,
+        BlockType.STONE_BRICK,
+        BlockType.END_BRICK,
+        BlockType.PRISMARINE,
+        BlockType.NETHER_BRICK_BLOCK,
+        BlockType.RED_NETHER_BRICK,
+        BlockType.COBBLESTONE,
+        BlockType.MOSSY_COBBLESTONE,
+
+        BlockType.SANDSTONE,
+        BlockType.RED_SANDSTONE,
+        BlockType.COAL_BLOCK,
+        BlockType.REDSTONE_BLOCK,
+        BlockType.GOLD_BLOCK,
+        BlockType.IRON_BLOCK,
+        BlockType.EMERALD_BLOCK,
+        BlockType.DIAMOND_BLOCK,
+        BlockType.LAPIS_BLOCK,
+        BlockType.QUARTZ_BLOCK,
+        BlockType.HAY_BLOCK,
+        BlockType.BONE_BLOCK,
+        BlockType.NETHER_WART_BLOCK,
+        BlockType.WOOL,
+
+        BlockType.CONCRETE_POWDER,
+        BlockType.CONCRETE,
+        BlockType.CLAY,
+        BlockType.HARDENED_CLAY,
+        BlockType.STAINED_HARDENED_CLAY,
+        BlockType.WHITE_GLAZED_TERRACOTTA,
+        BlockType.SILVER_GLAZED_TERRACOTTA,
+        BlockType.GRAY_GLAZED_TERRACOTTA,
+        BlockType.BLACK_GLAZED_TERRACOTTA,
+        BlockType.BROWN_GLAZED_TERRACOTTA,
+        BlockType.RED_GLAZED_TERRACOTTA,
+        BlockType.ORANGE_GLAZED_TERRACOTTA,
+        BlockType.YELLOW_GLAZED_TERRACOTTA,
+        BlockType.LIME_GLAZED_TERRACOTTA,
+        BlockType.GREEN_GLAZED_TERRACOTTA,
+        BlockType.CYAN_GLAZED_TERRACOTTA,
+        BlockType.LIGHT_BLUE_GLAZED_TERRACOTTA,
+        BlockType.BLUE_GLAZED_TERRACOTTA,
+        BlockType.PURPLE_GLAZED_TERRACOTTA,
+        BlockType.MAGENTA_GLAZED_TERRACOTTA,
+        BlockType.PINK_GLAZED_TERRACOTTA,
+        BlockType.PURPUR_BLOCK,
+
+        BlockType.DOUBLE_STONE_SLAB,
+        BlockType.DOUBLE_WOODEN_SLAB,
+        BlockType.DOUBLE_STONE_SLAB2,
+
+        BlockType.DIRT,
+        BlockType.PODZOL,
+        BlockType.MYCELIUM,
+        BlockType.STONE,
+        BlockType.IRON_ORE,
+        BlockType.GOLD_ORE,
+        BlockType.DIAMOND_ORE,
+        BlockType.LAPIS_ORE,
+        BlockType.REDSTONE_ORE,
+        BlockType.COAL_ORE,
+        BlockType.EMERALD_ORE,
+        BlockType.QUARTZ_ORE,
+        BlockType.GRAVEL,
+        BlockType.SAND,
+        BlockType.LOG,
+        BlockType.LOG2,
+
+        BlockType.MELON_BLOCK,
+        BlockType.PUMPKIN,
+        BlockType.LIT_PUMPKIN,
+
+        BlockType.SNOW,
+        BlockType.PACKED_ICE,
+
+        BlockType.BROWN_MUSHROOM_BLOCK,
+        BlockType.RED_MUSHROOM_BLOCK,
+
+        BlockType.MOB_SPAWNER,
+
+        BlockType.OBSIDIAN,
+        BlockType.BEDROCK,
+        BlockType.SOUL_SAND,
+        BlockType.NETHERRACK,
+        BlockType.MAGMA,
+        BlockType.END_STONE,
+        BlockType.SPONGE,
+
+        BlockType.REDSTONE_LAMP,
+        BlockType.OBSERVER,
+        BlockType.PISTON,
+        BlockType.STICKY_PISTON,
     )
 
     def __init__(self) -> None:
@@ -112,7 +202,7 @@ class _LadderBlockSpec(_BlockSpec):
         raise NotImplementedError()
 
     def can_be_attached_on(self, block: Block) -> bool:
-        return block.type not in self._CAN_NOT_BE_ATTACHED
+        return block.type in self._CAN_BE_ATTACHED
 
 
 _block_specs = {
