@@ -279,6 +279,25 @@ class _LadderItemSpec(ItemSpec):
         return attached_face.value
 
 
+class _FenceGateItemSpec(ItemSpec):
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _FenceGateItemSpec(None, 0)
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.SOUTH, Face.NORTH])
+        [0, 0]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.EAST, Face.WEST])
+        [1, 1]
+        """
+        return 0 if horizontal_player_face.direction.x == 0 else 1
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -303,13 +322,6 @@ _block_items = [
 
     ItemType.FENCE,
     ItemType.NETHER_BRICK_FENCE,
-
-    ItemType.FENCE_GATE,
-    ItemType.SPRUCE_FENCE_GATE,
-    ItemType.BIRCH_FENCE_GATE,
-    ItemType.JUNGLE_FENCE_GATE,
-    ItemType.ACACIA_FENCE_GATE,
-    ItemType.DARK_OAK_FENCE_GATE,
 
     ItemType.TRAPDOOR,
     ItemType.IRON_TRAPDOOR,
@@ -484,6 +496,14 @@ _terracotta_block_items = [
     ItemType.PINK_GLAZED_TERRACOTTA,
 ]
 
+_fence_gate_block_items = [
+    ItemType.FENCE_GATE,
+    ItemType.SPRUCE_FENCE_GATE,
+    ItemType.BIRCH_FENCE_GATE,
+    ItemType.JUNGLE_FENCE_GATE,
+    ItemType.ACACIA_FENCE_GATE,
+    ItemType.DARK_OAK_FENCE_GATE,
+]
 
 for _item_type in _block_items:
     _item_specs[_item_type] = _DefaultItemSpec(BlockType(_item_type.value), 64)
@@ -493,6 +513,9 @@ for _item_type in _stairs_block_items:
 
 for _item_type in _terracotta_block_items:
     _item_specs[_item_type] = _TerracottaItemSpec(BlockType(_item_type.value), 64)
+
+for _item_type in _fence_gate_block_items:
+    _item_specs[_item_type] = _FenceGateItemSpec(BlockType(_item_type.value), 64)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:

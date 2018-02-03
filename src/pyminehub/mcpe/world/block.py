@@ -1,19 +1,38 @@
-from typing import List, Optional
+from typing import List, Optional, FrozenSet
 
 from pyminehub.mcpe.const import BlockType, ItemType
 from pyminehub.mcpe.geometry import Face
 from pyminehub.mcpe.value import Item, Block
 
 __all__ = [
-    'BlockModel'
+    'CompositeBlock'
 ]
+
+
+_Connector = FrozenSet[Face]
+
+_CONNECTOR_NONE = frozenset()
+_CONNECTOR_BOTTOM = frozenset([Face.BOTTOM])
+_CONNECTOR_TOP = frozenset([Face.TOP])
+_CONNECTOR_SOUTH = frozenset([Face.SOUTH])
+_CONNECTOR_NORTH = frozenset([Face.NORTH])
+_CONNECTOR_EAST = frozenset([Face.EAST])
+_CONNECTOR_WEST = frozenset([Face.WEST])
+_CONNECTOR_SIDE = frozenset([Face.SOUTH, Face.NORTH, Face.EAST, Face.WEST])
+_CONNECTOR_ALL = frozenset([Face.BOTTOM, Face.TOP, Face.SOUTH, Face.NORTH, Face.EAST, Face.WEST])
 
 
 class _BlockSpec:
 
-    def __init__(self, item_type: Optional[ItemType], max_layer_num: int=1) -> None:
+    def __init__(
+            self,
+            item_type: Optional[ItemType],
+            max_layer_num: int=1,
+            can_be_attached_on_ground: bool=False
+    ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
+        self._can_be_attached_on_ground = can_be_attached_on_ground
 
     @property
     def item_type(self) -> Optional[ItemType]:
@@ -23,14 +42,36 @@ class _BlockSpec:
     def max_layer_num(self) -> int:
         return self._max_layer_num
 
+    @property
+    def can_be_attached_on_ground(self) -> bool:
+        return self._can_be_attached_on_ground
+
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         raise NotImplementedError()
 
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL
+
     def can_be_attached_on(self, block: Block) -> bool:
         return True
+
+
+class _AirBlockSpec(_BlockSpec):
+
+    def __init__(self) -> None:
+        super().__init__(None)
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
 
 
 class _SlabBlockSpec(_BlockSpec):
@@ -70,15 +111,27 @@ class _SlabBlockSpec(_BlockSpec):
             return Block.create(self._full_stacked_block_type, slab_type, **stacked_block.flags)
         return None
 
+    def female_connector(self, block: Block) -> _Connector:
+        if block.data & self._IS_UPPER_MASK:
+            return _CONNECTOR_ALL - _CONNECTOR_BOTTOM
+        else:
+            return _CONNECTOR_ALL - _CONNECTOR_TOP
 
-class _SnowBlockSpec(_BlockSpec):
+    def male_connector(self, block: Block):
+        if block.data & self._IS_UPPER_MASK:
+            return _CONNECTOR_ALL - _CONNECTOR_BOTTOM
+        else:
+            return _CONNECTOR_ALL - _CONNECTOR_TOP
+
+
+class _SnowLayerBlockSpec(_BlockSpec):
 
     def __init__(self) -> None:
-        super().__init__(None, 8)
+        super().__init__(None, max_layer_num=8, can_be_attached_on_ground=True)
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
-        >>> spec = _SnowBlockSpec()
+        >>> spec = _SnowLayerBlockSpec()
         >>> block_type = BlockType.SNOW_LAYER
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 0), Face.TOP)
         Block(type=<BlockType.SNOW_LAYER: 78>, aux_value=1)
@@ -94,6 +147,12 @@ class _SnowBlockSpec(_BlockSpec):
             return Block.create(BlockType.SNOW_LAYER, layer_index, **stacked_block.flags)
         else:
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
 
 
 class _LadderBlockSpec(_BlockSpec):
@@ -195,23 +254,51 @@ class _LadderBlockSpec(_BlockSpec):
         BlockType.STICKY_PISTON,
     )
 
+    _CONNECTOR = {
+        2: _CONNECTOR_NORTH,
+        3: _CONNECTOR_SOUTH,
+        4: _CONNECTOR_WEST,
+        5: _CONNECTOR_EAST
+    }
+
     def __init__(self) -> None:
         super().__init__(ItemType.LADDER)
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         raise NotImplementedError()
 
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return self._CONNECTOR[block.data]
+
     def can_be_attached_on(self, block: Block) -> bool:
         return block.type in self._CAN_BE_ATTACHED
 
 
+class _FenceGateBlockSpec(_BlockSpec):
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, can_be_attached_on_ground=True)
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
 _block_specs = {
-    BlockType.AIR: _BlockSpec(None),
+    BlockType.AIR: _AirBlockSpec(),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
     BlockType.STONE_SLAB: _SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
     BlockType.WOODEN_SLAB: _SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
     BlockType.STONE_SLAB2: _SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
-    BlockType.SNOW_LAYER: _SnowBlockSpec(),
+    BlockType.SNOW_LAYER: _SnowLayerBlockSpec(),
     BlockType.LADDER: _LadderBlockSpec(),
 }
 
@@ -223,13 +310,6 @@ _blocks = [
 
     BlockType.FENCE,
     BlockType.NETHER_BRICK_FENCE,
-
-    BlockType.FENCE_GATE,
-    BlockType.SPRUCE_FENCE_GATE,
-    BlockType.BIRCH_FENCE_GATE,
-    BlockType.JUNGLE_FENCE_GATE,
-    BlockType.ACACIA_FENCE_GATE,
-    BlockType.DARK_OAK_FENCE_GATE,
 
     BlockType.STONE_STAIRS,
     BlockType.OAK_STAIRS,
@@ -401,12 +481,24 @@ _blocks = [
     BlockType.DOUBLE_STONE_SLAB2,
 ]
 
+_fence_gate_blocks = [
+    BlockType.FENCE_GATE,
+    BlockType.SPRUCE_FENCE_GATE,
+    BlockType.BIRCH_FENCE_GATE,
+    BlockType.JUNGLE_FENCE_GATE,
+    BlockType.ACACIA_FENCE_GATE,
+    BlockType.DARK_OAK_FENCE_GATE,
+]
 
 for _block_type in _blocks:
     _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
 
+for _block_type in _fence_gate_blocks:
+    _block_specs[_block_type] = _FenceGateBlockSpec(ItemType(_block_type.value))
 
-class BlockModel:
+
+class CompositeBlock:
+    """CompositeBlock joins block value and block specification"""
 
     def __init__(self, block: Block) -> None:
         self._block = block
@@ -427,13 +519,22 @@ class BlockModel:
     def has_layer(self) -> bool:
         return self._block_spec.max_layer_num > 1
 
+    @property
+    def can_be_attached_on_ground(self) -> bool:
+        return self._block_spec.can_be_attached_on_ground
+
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
 
     def stack_on(self, base_block: Block, face: Face) -> Optional[Block]:
         return self._block_spec.stack_layer(base_block, self._block, face)
 
-    def can_be_attached_on(self, base_block: Block) -> bool:
+    def can_be_attached_on(self, base_block: Block, face: Face) -> bool:
+        if face.inverse not in self._block_spec.male_connector(self._block):
+            return False
+        base_block_spec = _block_specs[base_block.type]
+        if face not in base_block_spec.female_connector(base_block):
+            return False
         return self._block_spec.can_be_attached_on(base_block)
 
 

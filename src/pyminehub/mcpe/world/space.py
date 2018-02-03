@@ -5,7 +5,7 @@ from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item, Block
-from pyminehub.mcpe.world.block import BlockModel
+from pyminehub.mcpe.world.block import CompositeBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [
@@ -62,7 +62,7 @@ class Space:
         if block.type in (BlockType.AIR, BlockType.BEDROCK):
             return None
         chunk.set_block(position_in_chunk, BLOCK_AIR)
-        return BlockModel(block).to_item()
+        return CompositeBlock(block).to_item()
 
     def put_block(
             self,
@@ -77,53 +77,63 @@ class Space:
         :param block: block to be attached
         :return: updated position and block, or None if block can't be put
         """
-        block_model = BlockModel(block)
-        chunk, position_in_chunk = self._to_local(position)
-        if not block_model.can_be_attached_on(chunk.get_block(position_in_chunk)):
-            return None
-        if block_model.has_layer:
-            return self._update_layer(position, face, block_model)
-        position = position + face.direction
-        chunk, position_in_chunk = self._to_local(position)
-        chunk.set_block(position_in_chunk, block)
-        return position, block
+        composite_block = CompositeBlock(block)
+        if composite_block.has_layer:
+            return self._put_stackable_block(position, face, composite_block)
+        return self._update_block(position, face, composite_block)
 
-    def _update_layer(
+    def _put_stackable_block(
             self,
             position: Vector3[int],
             face: Face,
-            block: BlockModel
+            composite_block: CompositeBlock
     ) -> Optional[Tuple[Vector3[int], Block]]:
         """Put a stackable block
 
         :param position: position to attach block
         :param face: face to attach block
-        :param block: block to be attached
+        :param composite_block: block to be attached
         :return: updated position and block, or None if block can't be put
         """
         chunk, position_in_chunk = self._to_local(position)
         current_block = chunk.get_block(position_in_chunk)
-        if block.type == current_block.type:
-            new_block = block.stack_on(current_block, face)
+        if composite_block.type == current_block.type:
+            new_block = composite_block.stack_on(current_block, face)
             if new_block is not None:
                 if new_block != current_block:
                     chunk.set_block(position_in_chunk, new_block)
                     return position, new_block
                 else:
                     return None
-        position += face.direction
-        chunk, position_in_chunk = self._to_local(position)
+        chunk, position_in_chunk = self._to_local(position + face.direction)
         target_block = chunk.get_block(position_in_chunk)
-        if block.type == target_block.type:
-            new_block = block.stack_on(target_block, face.inverse)
+        if composite_block.type == target_block.type:
+            new_block = composite_block.stack_on(target_block, face.inverse)
             if new_block is not None:
                 if new_block != target_block:
                     chunk.set_block(position_in_chunk, new_block)
-                    return position, new_block
+                    return position + face.direction, new_block
                 else:
                     return None
-        chunk.set_block(position_in_chunk, block.value)
-        return position, block.value
+        return self._update_block(position, face, composite_block)
+
+    def _update_block(
+            self,
+            position: Vector3[int],
+            face: Face,
+            composite_block: CompositeBlock
+    ) -> Optional[Tuple[Vector3[int], Block]]:
+        chunk, position_in_chunk = self._to_local(position)
+        if not composite_block.can_be_attached_on(chunk.get_block(position_in_chunk), face):
+            if composite_block.can_be_attached_on_ground and face not in (Face.TOP, Face.BOTTOM):
+                position += face.direction
+                return self.put_block(position - (0, 1, 0), Face.TOP, composite_block.value)
+            return None
+        position += face.direction
+        chunk, position_in_chunk = self._to_local(position)
+        block = composite_block.value
+        chunk.set_block(position_in_chunk, block)
+        return position, block
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)
