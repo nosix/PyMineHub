@@ -28,11 +28,13 @@ class _BlockSpec:
             self,
             item_type: Optional[ItemType],
             max_layer_num: int=1,
-            can_be_attached_on_ground: bool=False
+            can_be_attached_on_ground: bool=False,
+            is_switchable: bool=False
     ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
         self._can_be_attached_on_ground = can_be_attached_on_ground
+        self._is_switchable = is_switchable
 
     @property
     def item_type(self) -> Optional[ItemType]:
@@ -46,10 +48,17 @@ class _BlockSpec:
     def can_be_attached_on_ground(self) -> bool:
         return self._can_be_attached_on_ground
 
+    @property
+    def is_switchable(self) -> bool:
+        return self._is_switchable
+
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
         raise NotImplementedError()
 
     def female_connector(self, block: Block) -> _Connector:
@@ -264,9 +273,6 @@ class _LadderBlockSpec(_BlockSpec):
     def __init__(self) -> None:
         super().__init__(ItemType.LADDER)
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
-
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
@@ -279,11 +285,13 @@ class _LadderBlockSpec(_BlockSpec):
 
 class _FenceGateBlockSpec(_BlockSpec):
 
-    def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, can_be_attached_on_ground=True)
+    _DOES_OPEN_MASK = 0b100
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, can_be_attached_on_ground=True, is_switchable=True)
+
+    def switch(self, block: Block) -> Block:
+        return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -523,11 +531,18 @@ class CompositeBlock:
     def can_be_attached_on_ground(self) -> bool:
         return self._block_spec.can_be_attached_on_ground
 
+    @property
+    def is_switchable(self) -> bool:
+        return self._block_spec.is_switchable
+
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
 
     def stack_on(self, base_block: Block, face: Face) -> Optional[Block]:
         return self._block_spec.stack_layer(base_block, self._block, face)
+
+    def switch(self) -> Block:
+        return self._block_spec.switch(self._block)
 
     def can_be_attached_on(self, base_block: Block, face: Face) -> bool:
         if face.inverse not in self._block_spec.male_connector(self._block):
