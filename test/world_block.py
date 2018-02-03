@@ -436,7 +436,7 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.FENCE_GATE, 1)
         self._assert_inventory_updated(item)
 
-        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
         self._assert_inventory_updated(item)
 
 
