@@ -430,6 +430,10 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
         self._assert_inventory_updated(item)
 
+        self._put_item(Vector3(x=256, y=63, z=257), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.FENCE_GATE, 4)
+        self._assert_inventory_updated(item)
+
         # put on top (face=WEST, block_pos=(255, 63, 256))
         self._move_player(Vector3(x=254, y=63, z=256), 270.0)  # Face.WEST
         self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
@@ -437,6 +441,10 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=255, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.FENCE_GATE, 5)
         self._assert_inventory_updated(item)
 
 
