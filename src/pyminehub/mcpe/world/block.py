@@ -341,6 +341,24 @@ class _TrapDoorBlockSpec(_BlockSpec):
         return _CONNECTOR_ALL
 
 
+class _CarpetBlockSpec(_BlockSpec):
+
+    def __init__(self) -> None:
+        super().__init__(ItemType.CARPET, can_be_attached_on_ground=True)
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
@@ -351,6 +369,7 @@ _block_specs = {
     BlockType.LADDER: _LadderBlockSpec(),
     BlockType.TRAPDOOR: _TrapDoorBlockSpec(ItemType.TRAPDOOR),
     BlockType.IRON_TRAPDOOR: _TrapDoorBlockSpec(ItemType.IRON_TRAPDOOR),
+    BlockType.CARPET: _CarpetBlockSpec(),
 }
 
 
@@ -407,8 +426,6 @@ _blocks = [
     BlockType.BONE_BLOCK,
     BlockType.NETHER_WART_BLOCK,
     BlockType.WOOL,
-
-    BlockType.CARPET,
 
     BlockType.CONCRETE_POWDER,
     BlockType.CONCRETE,
