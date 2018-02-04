@@ -298,6 +298,47 @@ class _FenceGateItemSpec(ItemSpec):
         return 0 if horizontal_player_face.direction.x == 0 else 1
 
 
+class _TrapDoorItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.EAST: 0,
+        Face.WEST: 1,
+        Face.SOUTH: 2,
+        Face.NORTH: 3
+    }
+
+    _IS_UPPER = 0b100
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _TrapDoorItemSpec(None, 0)
+        >>> faces = [Face.EAST, Face.WEST, Face.SOUTH, Face.NORTH]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [4, 5, 6, 7]
+        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, y, 0.5)) for y in [0.0, 0.5])
+        [0, 4]
+        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, y, 0.5)) for y in [0.0, 0.5])
+        [1, 5]
+        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, y, 1.0)) for y in [0.0, 0.5])
+        [2, 6]
+        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, y, 0.0)) for y in [0.0, 0.5])
+        [3, 7]
+        """
+        assert not (attached_face is Face.TOP and click_position.y == 0.0)
+        assert not (attached_face is Face.BOTTOM and click_position.y == 1.0)
+        y = click_position.y % 1.0
+        is_upper = self._IS_UPPER if y >= 0.5 or attached_face is Face.BOTTOM else 0
+        return self._FACE_TO_DATA[horizontal_player_face] | is_upper
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -311,6 +352,7 @@ _item_specs = {
     ItemType.WOODEN_SLAB: _SlabItemSpec(BlockType.WOODEN_SLAB, 64),
     ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
     ItemType.LADDER: _LadderItemSpec(BlockType.LADDER, 64),
+    ItemType.TRAPDOOR: _TrapDoorItemSpec(BlockType.TRAPDOOR, 64),
 }
 
 _block_items = [
@@ -323,7 +365,6 @@ _block_items = [
     ItemType.FENCE,
     ItemType.NETHER_BRICK_FENCE,
 
-    ItemType.TRAPDOOR,
     ItemType.IRON_TRAPDOOR,
 
     ItemType.IRON_BARS,

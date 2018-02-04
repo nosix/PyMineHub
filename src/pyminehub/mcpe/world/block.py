@@ -76,6 +76,12 @@ class _AirBlockSpec(_BlockSpec):
     def __init__(self) -> None:
         super().__init__(None)
 
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
+
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
@@ -120,6 +126,9 @@ class _SlabBlockSpec(_BlockSpec):
             return Block.create(self._full_stacked_block_type, slab_type, **stacked_block.flags)
         return None
 
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
+
     def female_connector(self, block: Block) -> _Connector:
         if block.data & self._IS_UPPER_MASK:
             return _CONNECTOR_ALL - _CONNECTOR_BOTTOM
@@ -156,6 +165,9 @@ class _SnowLayerBlockSpec(_BlockSpec):
             return Block.create(BlockType.SNOW_LAYER, layer_index, **stacked_block.flags)
         else:
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
+
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -273,6 +285,12 @@ class _LadderBlockSpec(_BlockSpec):
     def __init__(self) -> None:
         super().__init__(ItemType.LADDER)
 
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
+
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
@@ -290,6 +308,9 @@ class _FenceGateBlockSpec(_BlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True, is_switchable=True)
 
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
@@ -300,6 +321,26 @@ class _FenceGateBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
+class _TrapDoorBlockSpec(_BlockSpec):
+
+    _DOES_OPEN_MASK = 0b1000
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, is_switchable=True)
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
+        return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
@@ -308,6 +349,7 @@ _block_specs = {
     BlockType.STONE_SLAB2: _SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
     BlockType.SNOW_LAYER: _SnowLayerBlockSpec(),
     BlockType.LADDER: _LadderBlockSpec(),
+    BlockType.TRAPDOOR: _TrapDoorBlockSpec(ItemType.TRAPDOOR),
 }
 
 
@@ -334,7 +376,6 @@ _blocks = [
     BlockType.QUARTZ_STAIRS,
     BlockType.PURPUR_STAIRS,
 
-    BlockType.TRAPDOOR,
     BlockType.IRON_TRAPDOOR,
 
     BlockType.IRON_BARS,
