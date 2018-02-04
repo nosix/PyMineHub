@@ -353,6 +353,7 @@ _item_specs = {
     ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
     ItemType.LADDER: _LadderItemSpec(BlockType.LADDER, 64),
     ItemType.TRAPDOOR: _TrapDoorItemSpec(BlockType.TRAPDOOR, 64),
+    ItemType.IRON_TRAPDOOR: _TrapDoorItemSpec(BlockType.IRON_TRAPDOOR, 64),
 }
 
 _block_items = [
@@ -364,8 +365,6 @@ _block_items = [
 
     ItemType.FENCE,
     ItemType.NETHER_BRICK_FENCE,
-
-    ItemType.IRON_TRAPDOOR,
 
     ItemType.IRON_BARS,
 

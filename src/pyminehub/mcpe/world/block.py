@@ -350,6 +350,7 @@ _block_specs = {
     BlockType.SNOW_LAYER: _SnowLayerBlockSpec(),
     BlockType.LADDER: _LadderBlockSpec(),
     BlockType.TRAPDOOR: _TrapDoorBlockSpec(ItemType.TRAPDOOR),
+    BlockType.IRON_TRAPDOOR: _TrapDoorBlockSpec(ItemType.IRON_TRAPDOOR),
 }
 
 
@@ -375,8 +376,6 @@ _blocks = [
     BlockType.RED_SANDSTONE_STAIRS,
     BlockType.QUARTZ_STAIRS,
     BlockType.PURPUR_STAIRS,
-
-    BlockType.IRON_TRAPDOOR,
 
     BlockType.IRON_BARS,
 
