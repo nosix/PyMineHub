@@ -438,12 +438,16 @@ _block_items = [
     ItemType.FLOWER,
 
     ItemType.VINE,
+    ItemType.LILY_PAD,
+    ItemType.DEAD_BUSH,
 
     ItemType.SNOW,
     ItemType.ICE,
     ItemType.PACKED_ICE,
     ItemType.SNOW_LAYER,
 
+    ItemType.BROWN_MUSHROOM,
+    ItemType.RED_MUSHROOM,
     ItemType.BROWN_MUSHROOM_BLOCK,
     ItemType.RED_MUSHROOM_BLOCK,
 

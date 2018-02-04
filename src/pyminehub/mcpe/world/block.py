@@ -359,6 +359,21 @@ class _CarpetBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
+class _PlantBlockSpec(_BlockSpec):
+
+    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
+        raise NotImplementedError()
+
+    def switch(self, block: Block) -> Block:
+        raise NotImplementedError()
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
@@ -469,25 +484,15 @@ _blocks = [
     BlockType.LEAVES,
     BlockType.LEAVES2,
 
-    BlockType.SAPLING,
-
     BlockType.MELON_BLOCK,
     BlockType.PUMPKIN,
     BlockType.LIT_PUMPKIN,
-
-    BlockType.TALLGRASS,
-    BlockType.DOUBLE_PLANT,
-    BlockType.YELLOW_FLOWER,
-    BlockType.FLOWER,
 
     BlockType.VINE,
 
     BlockType.SNOW,
     BlockType.ICE,
     BlockType.PACKED_ICE,
-
-    BlockType.BROWN_MUSHROOM_BLOCK,
-    BlockType.RED_MUSHROOM_BLOCK,
 
     BlockType.MOB_SPAWNER,
 
@@ -555,11 +560,27 @@ _fence_gate_blocks = [
     BlockType.DARK_OAK_FENCE_GATE,
 ]
 
+_plant_blocks = [
+    BlockType.SAPLING,
+    BlockType.TALLGRASS,
+    BlockType.DOUBLE_PLANT,
+    BlockType.YELLOW_FLOWER,
+    BlockType.FLOWER,
+    BlockType.LILY_PAD,
+    BlockType.DEAD_BUSH,
+    BlockType.BROWN_MUSHROOM,
+    BlockType.RED_MUSHROOM,
+]
+
+
 for _block_type in _blocks:
     _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
 
 for _block_type in _fence_gate_blocks:
     _block_specs[_block_type] = _FenceGateBlockSpec(ItemType(_block_type.value))
+
+for _block_type in _plant_blocks:
+    _block_specs[_block_type] = _PlantBlockSpec(ItemType(_block_type.value))
 
 
 class CompositeBlock:
