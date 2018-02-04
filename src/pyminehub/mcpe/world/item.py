@@ -178,7 +178,7 @@ class _TerracottaItemSpec(ItemSpec):
         return horizontal_player_face.inverse.value
 
 
-class _JackOLanternSpec(ItemSpec):
+class _PumpkinSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.SOUTH: 0,
@@ -195,7 +195,7 @@ class _JackOLanternSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _JackOLanternSpec(None, 0)
+        >>> spec = _PumpkinSpec(None, 0)
         >>> faces = [Face.SOUTH, Face.WEST, Face.NORTH, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -347,7 +347,8 @@ _item_specs = {
     ItemType.PURPUR_BLOCK: _DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
     ItemType.LOG: _DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
     ItemType.LOG2: _DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
-    ItemType.LIT_PUMPKIN: _JackOLanternSpec(BlockType.LIT_PUMPKIN, 64),
+    ItemType.PUMPKIN: _PumpkinSpec(BlockType.PUMPKIN, 64),
+    ItemType.LIT_PUMPKIN: _PumpkinSpec(BlockType.LIT_PUMPKIN, 64),
     ItemType.STONE_SLAB: _SlabItemSpec(BlockType.STONE_SLAB, 64),
     ItemType.WOODEN_SLAB: _SlabItemSpec(BlockType.WOODEN_SLAB, 64),
     ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
@@ -430,7 +431,6 @@ _block_items = [
     ItemType.SAPLING,
 
     ItemType.MELON_BLOCK,
-    ItemType.PUMPKIN,
 
     ItemType.TALLGRASS,
     ItemType.DOUBLE_PLANT,
