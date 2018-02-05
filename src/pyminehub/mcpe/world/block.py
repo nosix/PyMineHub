@@ -74,6 +74,9 @@ class _BlockSpec:
         assert self.has_layer > 1
         return None
 
+    def get_switch_position(self, block: Block) -> Vector3[int]:
+        return Vector3(0, 0, 0)
+
     def switch(self, block: Block) -> Block:
         assert self.is_switchable
         return block
@@ -350,6 +353,25 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
         return PlacedBlock(Vector3(0, 1, 0), block.copy(data=8)),
 
 
+class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
+
+    _DOES_OPEN_MASK = 0b100
+    _IS_UPPER_MASK = 0b1000
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, is_switchable=True, is_large=True)
+
+    def switch(self, block: Block) -> Block:
+        return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
+
+    def get_switch_position(self, block: Block) -> Vector3[int]:
+        dy = -1 if block.data & self._IS_UPPER_MASK else 0
+        return Vector3(0, dy, 0)
+
+    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
+        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=block.data | self._IS_UPPER_MASK)),
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
@@ -548,6 +570,16 @@ _plant_blocks = [
     BlockType.RED_MUSHROOM,
 ]
 
+_door_blocks = [
+    (ItemType.WOODEN_DOOR, BlockType.WOODEN_DOOR_BLOCK),
+    (ItemType.IRON_DOOR, BlockType.IRON_DOOR_BLOCK),
+    (ItemType.SPRUCE_DOOR, BlockType.SPRUCE_DOOR_BLOCK),
+    (ItemType.BIRCH_DOOR, BlockType.BIRCH_DOOR_BLOCK),
+    (ItemType.JUNGLE_DOOR, BlockType.JUNGLE_DOOR_BLOCK),
+    (ItemType.ACACIA_DOOR, BlockType.ACACIA_DOOR_BLOCK),
+    (ItemType.DARK_OAK_DOOR, BlockType.DARK_OAK_DOOR_BLOCK),
+]
+
 
 for _block_type in _blocks:
     _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
@@ -557,6 +589,9 @@ for _block_type in _fence_gate_blocks:
 
 for _block_type in _plant_blocks:
     _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
+
+for _item_type, _block_type in _door_blocks:
+    _block_specs[_block_type] = _DoorBlockSpec(_item_type)
 
 
 class CompositeBlock:
@@ -588,6 +623,10 @@ class CompositeBlock:
     @property
     def is_switchable(self) -> bool:
         return self._block_spec.is_switchable
+
+    @property
+    def switch_position(self) -> Vector3[int]:
+        return self._block_spec.get_switch_position(self._block)
 
     @property
     def is_large(self) -> bool:

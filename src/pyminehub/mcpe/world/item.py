@@ -345,6 +345,31 @@ class _TrapDoorItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face] | is_upper
 
 
+class _DoorItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.WEST: 0,
+        Face.NORTH: 1,
+        Face.EAST: 2,
+        Face.SOUTH: 3
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _DoorItemSpec(None, 0)
+        >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
+        """
+        return self._FACE_TO_DATA[horizontal_player_face]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -555,6 +580,17 @@ _fence_gate_block_items = [
     ItemType.DARK_OAK_FENCE_GATE,
 ]
 
+_door_items = [
+    (ItemType.WOODEN_DOOR, BlockType.WOODEN_DOOR_BLOCK),
+    (ItemType.IRON_DOOR, BlockType.IRON_DOOR_BLOCK),
+    (ItemType.SPRUCE_DOOR, BlockType.SPRUCE_DOOR_BLOCK),
+    (ItemType.BIRCH_DOOR, BlockType.BIRCH_DOOR_BLOCK),
+    (ItemType.JUNGLE_DOOR, BlockType.JUNGLE_DOOR_BLOCK),
+    (ItemType.ACACIA_DOOR, BlockType.ACACIA_DOOR_BLOCK),
+    (ItemType.DARK_OAK_DOOR, BlockType.DARK_OAK_DOOR_BLOCK),
+]
+
+
 for _item_type in _block_items:
     _item_specs[_item_type] = _DefaultItemSpec(BlockType(_item_type.value), 64)
 
@@ -566,6 +602,9 @@ for _item_type in _terracotta_block_items:
 
 for _item_type in _fence_gate_block_items:
     _item_specs[_item_type] = _FenceGateItemSpec(BlockType(_item_type.value), 64)
+
+for _item_type, _block_type in _door_items:
+    _item_specs[_item_type] = _DoorItemSpec(_block_type, 64)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:

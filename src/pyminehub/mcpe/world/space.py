@@ -160,7 +160,10 @@ class Space:
         chunk, position_in_chunk = self._to_local(position)
         current_block = CompositeBlock(chunk.get_block(position_in_chunk))
         if not on_ground and current_block.is_switchable:
-            new_block = current_block.switch()
+            position += current_block.switch_position
+            chunk, position_in_chunk = self._to_local(position)
+            switch_block = CompositeBlock(chunk.get_block(position_in_chunk))
+            new_block = switch_block.switch()
             update = partial(chunk.set_block, position_in_chunk, new_block)
             transaction.append(position, new_block, update)
             return
