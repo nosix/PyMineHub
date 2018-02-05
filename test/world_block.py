@@ -84,12 +84,26 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
             item=item
         )
 
-    def _put_pole(self, position: Vector3[float], height: int=2, item_type: ItemType=ItemType.PLANKS) -> None:
+    def _put_pole(self, position: Vector3[float], height: int, item_type: ItemType=ItemType.PLANKS) -> None:
         item = self._equip(item_type, 0)
         for h in range(height):
             self._put_item(position + (0, h, 0), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
             self._assert_block_updated(position + (0, h + 1, 0), BlockType(item_type.value), 0)
             self._assert_inventory_updated(item)
+
+    def _break_block(self, position: Vector3[int]):
+        self.perform_action(
+            ActionType.BREAK_BLOCK,
+            entity_runtime_id=1,
+            position=position
+        )
+        actual_event = self.next_event()
+        expected_event = event_factory.create(
+            EventType.BLOCK_UPDATED,
+            position=position,
+            block=Block(type=BlockType.AIR, aux_value=176)
+        )
+        self.assertEqual(expected_event, actual_event)
 
     def _assert_block_updated(self, position: Vector3[float], block_type: BlockType, block_data: int) -> None:
         actual_event = self.next_event()
@@ -403,7 +417,7 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
     def test_put_fence_gate(self):
         self.test_login()
-        self._put_pole(Vector3(x=256, y=62, z=256))
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
         item = self._equip(ItemType.FENCE_GATE, 0)
 
         # put on top (face=TOP, block_pos=(256, 63, 255))
@@ -446,7 +460,7 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
     def test_put_trapdoor(self):
         self.test_login()
-        self._put_pole(Vector3(x=256, y=62, z=256))
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
         item = self._equip(ItemType.TRAPDOOR, 0)
 
         # put on top (face=TOP, block_pos=(256, 63, 255))
@@ -483,7 +497,7 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
     def test_put_carpet(self):
         self.test_login()
-        self._put_pole(Vector3(x=256, y=62, z=256))
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
         item = self._equip(ItemType.CARPET, 0)
 
         # put on top (face=TOP, block_pos=(256, 63, 255))
@@ -499,6 +513,22 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_inventory_updated(item)
+
+    def test_put_double_plant(self):
+        self.test_login()
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
+        self._break_block(Vector3(x=256, y=63, z=256))
+        item = self._equip(ItemType.DOUBLE_PLANT, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 255))
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.DOUBLE_PLANT, 0)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.DOUBLE_PLANT, 8)
+        self._assert_inventory_updated(item)
+
+        # can not put (face=TOP, block_pos=(256, 63, 256))
+        self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_inventory_updated(item)
 
 
