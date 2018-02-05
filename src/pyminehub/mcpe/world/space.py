@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Callable, Dict, Iterator, List, NamedTuple, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
@@ -134,8 +135,7 @@ class Space:
             new_block = attached_block.stack_on(current_block, face)
             if new_block is not None:
                 if new_block != current_block:
-                    def update():
-                        chunk.set_block(position_in_chunk, new_block)
+                    update = partial(chunk.set_block, position_in_chunk, new_block)
                     transaction.append(position, new_block, update)
                 return
         chunk, position_in_chunk = self._to_local(position + face.direction)
@@ -144,8 +144,7 @@ class Space:
             new_block = attached_block.stack_on(target_block, face.inverse)
             if new_block is not None:
                 if new_block != target_block:
-                    def update():
-                        chunk.set_block(position_in_chunk, new_block)
+                    update = partial(chunk.set_block, position_in_chunk, new_block)
                     transaction.append(position + face.direction, new_block, update)
                 return
         self._update_block(transaction, position, face, attached_block, on_ground)
@@ -162,8 +161,7 @@ class Space:
         current_block = CompositeBlock(chunk.get_block(position_in_chunk))
         if not on_ground and current_block.is_switchable:
             new_block = current_block.switch()
-            def update():
-                chunk.set_block(position_in_chunk, new_block)
+            update = partial(chunk.set_block, position_in_chunk, new_block)
             transaction.append(position, new_block, update)
             return
         if not attached_block.can_be_attached_on(current_block.value, face):
@@ -174,8 +172,7 @@ class Space:
         position += face.direction
         chunk, position_in_chunk = self._to_local(position)
         block = attached_block.value
-        def update():
-            chunk.set_block(position_in_chunk, block)
+        update = partial(chunk.set_block, position_in_chunk, block)
         transaction.append(position, block, update)
 
         if attached_block.is_large:
@@ -186,8 +183,7 @@ class Space:
                 if current_block.type is not BlockType.AIR:
                     transaction.clear()
                     return
-                def update():
-                    chunk.set_block(position_in_chunk, additional.block)
+                update = partial(chunk.set_block, position_in_chunk, additional.block)
                 transaction.append(additional_position, additional.block, update)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
