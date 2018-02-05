@@ -5,25 +5,19 @@ from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item, Block
-from pyminehub.mcpe.world.block import CompositeBlock
+from pyminehub.mcpe.world.block import CompositeBlock, PlacedBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [
     'BLOCK_AIR',
     'Space',
-    'BlockUpdated',
 ]
 
 
 BLOCK_AIR = Block(BlockType.AIR, 0)
 
-BlockUpdated = NamedTuple('BlockUpdated', [
-    ('position', Vector3[int]),
-    ('block', Block)
-])
-
 _UpdateAction = NamedTuple('UpdateAction', [
-    ('info', BlockUpdated),
+    ('block', PlacedBlock),
     ('update', Callable[[], None])
 ])
 
@@ -34,12 +28,16 @@ class _Transaction:
         self._action = []  # type: List[_UpdateAction]
 
     def append(self, position: Vector3[int], block: Block, update: Callable[[], None]) -> None:
-        self._action.append(_UpdateAction(BlockUpdated(position, block), update))
+        self._action.append(_UpdateAction(PlacedBlock(position, block), update))
 
-    def commit(self) -> Iterator[BlockUpdated]:
+    def clear(self) -> None:
+        self._action.clear()
+
+    def commit(self) -> Iterator[PlacedBlock]:
         for action in self._action:
             action.update()
-            yield action.info
+            yield action.block
+        self._action.clear()
 
 
 class Space:
@@ -94,7 +92,7 @@ class Space:
             position: Vector3[int],
             face: Face,
             block: Block
-    ) -> List[BlockUpdated]:
+    ) -> List[PlacedBlock]:
         """Put a block
 
         :param position: position to attach block
@@ -179,6 +177,18 @@ class Space:
         def update():
             chunk.set_block(position_in_chunk, block)
         transaction.append(position, block, update)
+
+        if attached_block.is_large:
+            for additional in attached_block.additional_blocks:
+                additional_position = position + additional.position
+                chunk, position_in_chunk = self._to_local(additional_position)
+                current_block = chunk.get_block(position_in_chunk)
+                if current_block.type is not BlockType.AIR:
+                    transaction.clear()
+                    return
+                def update():
+                    chunk.set_block(position_in_chunk, additional.block)
+                transaction.append(additional_position, additional.block, update)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)

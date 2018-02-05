@@ -1,13 +1,18 @@
-from typing import List, Optional, FrozenSet
+from typing import List, Optional, FrozenSet, NamedTuple, Tuple
 
 from pyminehub.mcpe.const import BlockType, ItemType
-from pyminehub.mcpe.geometry import Face
+from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.value import Item, Block
 
 __all__ = [
-    'CompositeBlock'
+    'CompositeBlock',
+    'PlacedBlock'
 ]
 
+PlacedBlock = NamedTuple('PlacedBlock', [
+    ('position', Vector3[int]),
+    ('block', Block)
+])
 
 _Connector = FrozenSet[Face]
 
@@ -29,16 +34,22 @@ class _BlockSpec:
             item_type: Optional[ItemType],
             max_layer_num: int=1,
             can_be_attached_on_ground: bool=False,
-            is_switchable: bool=False
+            is_switchable: bool=False,
+            is_large: bool=False
     ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
         self._can_be_attached_on_ground = can_be_attached_on_ground
         self._is_switchable = is_switchable
+        self._is_large = is_large
 
     @property
     def item_type(self) -> Optional[ItemType]:
         return self._item_type
+
+    @property
+    def has_layer(self) -> bool:
+        return self._max_layer_num > 1
 
     @property
     def max_layer_num(self) -> int:
@@ -52,14 +63,24 @@ class _BlockSpec:
     def is_switchable(self) -> bool:
         return self._is_switchable
 
+    @property
+    def is_large(self) -> bool:
+        return self._is_large
+
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
+        assert self.has_layer > 1
+        return None
 
     def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
+        assert self.is_switchable
+        return block
+
+    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
+        assert self.is_large
+        return ()
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_ALL
@@ -75,12 +96,6 @@ class _AirBlockSpec(_BlockSpec):
 
     def __init__(self) -> None:
         super().__init__(None)
-
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
-
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -126,9 +141,6 @@ class _SlabBlockSpec(_BlockSpec):
             return Block.create(self._full_stacked_block_type, slab_type, **stacked_block.flags)
         return None
 
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
-
     def female_connector(self, block: Block) -> _Connector:
         if block.data & self._IS_UPPER_MASK:
             return _CONNECTOR_ALL - _CONNECTOR_BOTTOM
@@ -165,9 +177,6 @@ class _SnowLayerBlockSpec(_BlockSpec):
             return Block.create(BlockType.SNOW_LAYER, layer_index, **stacked_block.flags)
         else:
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
-
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -285,12 +294,6 @@ class _LadderBlockSpec(_BlockSpec):
     def __init__(self) -> None:
         super().__init__(ItemType.LADDER)
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
-
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
-
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
@@ -307,9 +310,6 @@ class _FenceGateBlockSpec(_BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True, is_switchable=True)
-
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
@@ -328,9 +328,6 @@ class _TrapDoorBlockSpec(_BlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_switchable=True)
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
-
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
@@ -346,12 +343,6 @@ class _CarpetBlockSpec(_BlockSpec):
     def __init__(self) -> None:
         super().__init__(ItemType.CARPET, can_be_attached_on_ground=True)
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
-
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
-
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
@@ -361,11 +352,20 @@ class _CarpetBlockSpec(_BlockSpec):
 
 class _PlantBlockSpec(_BlockSpec):
 
-    def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
-        raise NotImplementedError()
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
 
-    def switch(self, block: Block) -> Block:
-        raise NotImplementedError()
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
+class _DoublePlantBlockSpec(_BlockSpec):
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, is_large=True)
+
+    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
+        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=8)),
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -385,6 +385,7 @@ _block_specs = {
     BlockType.TRAPDOOR: _TrapDoorBlockSpec(ItemType.TRAPDOOR),
     BlockType.IRON_TRAPDOOR: _TrapDoorBlockSpec(ItemType.IRON_TRAPDOOR),
     BlockType.CARPET: _CarpetBlockSpec(),
+    BlockType.DOUBLE_PLANT: _DoublePlantBlockSpec(ItemType.DOUBLE_PLANT),
 }
 
 
@@ -563,7 +564,6 @@ _fence_gate_blocks = [
 _plant_blocks = [
     BlockType.SAPLING,
     BlockType.TALLGRASS,
-    BlockType.DOUBLE_PLANT,
     BlockType.YELLOW_FLOWER,
     BlockType.FLOWER,
     BlockType.LILY_PAD,
@@ -603,7 +603,7 @@ class CompositeBlock:
 
     @property
     def has_layer(self) -> bool:
-        return self._block_spec.max_layer_num > 1
+        return self._block_spec.has_layer
 
     @property
     def can_be_attached_on_ground(self) -> bool:
@@ -612,6 +612,14 @@ class CompositeBlock:
     @property
     def is_switchable(self) -> bool:
         return self._block_spec.is_switchable
+
+    @property
+    def is_large(self) -> bool:
+        return self._block_spec.is_large
+
+    @property
+    def additional_blocks(self) -> Tuple[PlacedBlock, ...]:
+        return self._block_spec.get_additional_blocks(self._block)
 
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
