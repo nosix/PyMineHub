@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple
+from typing import Callable, Dict, Iterator, List, NamedTuple, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
@@ -10,11 +10,36 @@ from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [
     'BLOCK_AIR',
-    'Space'
+    'Space',
+    'BlockUpdated',
 ]
 
 
 BLOCK_AIR = Block(BlockType.AIR, 0)
+
+BlockUpdated = NamedTuple('BlockUpdated', [
+    ('position', Vector3[int]),
+    ('block', Block)
+])
+
+_UpdateAction = NamedTuple('UpdateAction', [
+    ('info', BlockUpdated),
+    ('update', Callable[[], None])
+])
+
+
+class _Transaction:
+
+    def __init__(self) -> None:
+        self._action = []  # type: List[_UpdateAction]
+
+    def append(self, position: Vector3[int], block: Block, update: Callable[[], None]) -> None:
+        self._action.append(_UpdateAction(BlockUpdated(position, block), update))
+
+    def commit(self) -> Iterator[BlockUpdated]:
+        for action in self._action:
+            action.update()
+            yield action.info
 
 
 class Space:
@@ -68,84 +93,92 @@ class Space:
             self,
             position: Vector3[int],
             face: Face,
-            block: Block,
-            on_ground: bool=False
-    ) -> Optional[Tuple[Vector3[int], Block]]:
+            block: Block
+    ) -> List[BlockUpdated]:
         """Put a block
 
         :param position: position to attach block
         :param face: face to attach block
         :param block: block to be attached
-        :param on_ground: True if it put on ground
-        :return: updated position and block, or None if block can't be put
+        :return: updated position and block
         """
+        transaction = _Transaction()
+        self._put_block(transaction, position, face, block)
+        return list(transaction.commit())
+
+    def _put_block(
+            self,
+            transaction: _Transaction,
+            position: Vector3[int],
+            face: Face,
+            block: Block,
+            on_ground: bool=False
+    ) -> None:
         if on_ground:
             assert face is Face.TOP
         attached_block = CompositeBlock(block)
         if attached_block.has_layer:
-            return self._put_stackable_block(position, face, attached_block, on_ground)
-        return self._update_block(position, face, attached_block, on_ground)
+            self._put_stackable_block(transaction, position, face, attached_block, on_ground)
+        else:
+            self._update_block(transaction, position, face, attached_block, on_ground)
 
     def _put_stackable_block(
             self,
+            transaction: _Transaction,
             position: Vector3[int],
             face: Face,
             attached_block: CompositeBlock,
             on_ground: bool
-    ) -> Optional[Tuple[Vector3[int], Block]]:
-        """Put a stackable block
-
-        :param position: position to attach block
-        :param face: face to attach block
-        :param attached_block: block to be attached
-        :param on_ground: True if it put on ground
-        :return: updated position and block, or None if block can't be put
-        """
+    ) -> None:
         chunk, position_in_chunk = self._to_local(position)
         current_block = chunk.get_block(position_in_chunk)
         if attached_block.type == current_block.type:
             new_block = attached_block.stack_on(current_block, face)
             if new_block is not None:
                 if new_block != current_block:
-                    chunk.set_block(position_in_chunk, new_block)
-                    return position, new_block
-                else:
-                    return None
+                    def update():
+                        chunk.set_block(position_in_chunk, new_block)
+                    transaction.append(position, new_block, update)
+                return
         chunk, position_in_chunk = self._to_local(position + face.direction)
         target_block = chunk.get_block(position_in_chunk)
         if attached_block.type == target_block.type:
             new_block = attached_block.stack_on(target_block, face.inverse)
             if new_block is not None:
                 if new_block != target_block:
-                    chunk.set_block(position_in_chunk, new_block)
-                    return position + face.direction, new_block
-                else:
-                    return None
-        return self._update_block(position, face, attached_block, on_ground)
+                    def update():
+                        chunk.set_block(position_in_chunk, new_block)
+                    transaction.append(position + face.direction, new_block, update)
+                return
+        self._update_block(transaction, position, face, attached_block, on_ground)
 
     def _update_block(
             self,
+            transaction: _Transaction,
             position: Vector3[int],
             face: Face,
             attached_block: CompositeBlock,
             on_ground: bool
-    ) -> Optional[Tuple[Vector3[int], Block]]:
+    ) -> None:
         chunk, position_in_chunk = self._to_local(position)
         current_block = CompositeBlock(chunk.get_block(position_in_chunk))
         if not on_ground and current_block.is_switchable:
             new_block = current_block.switch()
-            chunk.set_block(position_in_chunk, new_block)
-            return position, new_block
+            def update():
+                chunk.set_block(position_in_chunk, new_block)
+            transaction.append(position, new_block, update)
+            return
         if not attached_block.can_be_attached_on(current_block.value, face):
             if not on_ground and attached_block.can_be_attached_on_ground:
                 position += face.direction
-                return self.put_block(position - (0, 1, 0), Face.TOP, attached_block.value, on_ground=True)
-            return None
+                self._put_block(transaction, position - (0, 1, 0), Face.TOP, attached_block.value, on_ground=True)
+            return
         position += face.direction
         chunk, position_in_chunk = self._to_local(position)
         block = attached_block.value
-        chunk.set_block(position_in_chunk, block)
-        return position, block
+        def update():
+            chunk.set_block(position_in_chunk, block)
+        transaction.append(position, block, update)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)
