@@ -281,6 +281,13 @@ class _LadderItemSpec(ItemSpec):
 
 class _FenceGateItemSpec(ItemSpec):
 
+    _FACE_TO_DATA = {
+        Face.NORTH: 0,
+        Face.EAST: 1,
+        Face.SOUTH: 2,
+        Face.WEST: 3
+    }
+
     def to_block_data(
             self,
             item_data: int,
@@ -290,12 +297,11 @@ class _FenceGateItemSpec(ItemSpec):
     ) -> int:
         """
         >>> spec = _FenceGateItemSpec(None, 0)
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.SOUTH, Face.NORTH])
-        [0, 0]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.EAST, Face.WEST])
-        [1, 1]
+        >>> faces = [Face.NORTH, Face.EAST, Face.SOUTH, Face.WEST]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
         """
-        return 0 if horizontal_player_face.direction.x == 0 else 1
+        return self._FACE_TO_DATA[horizontal_player_face]
 
 
 class _TrapDoorItemSpec(ItemSpec):
