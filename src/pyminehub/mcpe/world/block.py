@@ -104,6 +104,15 @@ class _AirBlockSpec(_BlockSpec):
         return _CONNECTOR_NONE
 
 
+class _ToExtendUpwardBlockSpec(_BlockSpec):
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
 class _SlabBlockSpec(_BlockSpec):
 
     _SLAB_TYPE_MASK = 0b111
@@ -154,7 +163,7 @@ class _SlabBlockSpec(_BlockSpec):
             return _CONNECTOR_ALL - _CONNECTOR_TOP
 
 
-class _SnowLayerBlockSpec(_BlockSpec):
+class _SnowLayerBlockSpec(_ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
         super().__init__(None, max_layer_num=8, can_be_attached_on_ground=True)
@@ -177,12 +186,6 @@ class _SnowLayerBlockSpec(_BlockSpec):
             return Block.create(BlockType.SNOW_LAYER, layer_index, **stacked_block.flags)
         else:
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
-
-    def female_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_NONE
-
-    def male_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_BOTTOM
 
 
 class _LadderBlockSpec(_BlockSpec):
@@ -304,7 +307,7 @@ class _LadderBlockSpec(_BlockSpec):
         return block.type in self._CAN_BE_ATTACHED
 
 
-class _FenceGateBlockSpec(_BlockSpec):
+class _FenceGateBlockSpec(_ToExtendUpwardBlockSpec):
 
     _DOES_OPEN_MASK = 0b100
 
@@ -313,12 +316,6 @@ class _FenceGateBlockSpec(_BlockSpec):
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
-
-    def female_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_NONE
-
-    def male_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_BOTTOM
 
 
 class _TrapDoorBlockSpec(_BlockSpec):
@@ -338,40 +335,19 @@ class _TrapDoorBlockSpec(_BlockSpec):
         return _CONNECTOR_ALL
 
 
-class _CarpetBlockSpec(_BlockSpec):
+class _CarpetBlockSpec(_ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
         super().__init__(ItemType.CARPET, can_be_attached_on_ground=True)
 
-    def female_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_NONE
 
-    def male_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_BOTTOM
-
-
-class _PlantBlockSpec(_BlockSpec):
-
-    def female_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_NONE
-
-    def male_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_BOTTOM
-
-
-class _DoublePlantBlockSpec(_BlockSpec):
+class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_large=True)
 
     def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
         return PlacedBlock(Vector3(0, 1, 0), block.copy(data=8)),
-
-    def female_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_NONE
-
-    def male_connector(self, block: Block) -> _Connector:
-        return _CONNECTOR_BOTTOM
 
 
 _block_specs = {
@@ -580,7 +556,7 @@ for _block_type in _fence_gate_blocks:
     _block_specs[_block_type] = _FenceGateBlockSpec(ItemType(_block_type.value))
 
 for _block_type in _plant_blocks:
-    _block_specs[_block_type] = _PlantBlockSpec(ItemType(_block_type.value))
+    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
 
 
 class CompositeBlock:
