@@ -1041,6 +1041,8 @@ class PlayerActionType(Enum):
     BUILD_DENIED = 17
     CONTINUE_BREAK = 18
     SET_ENCHANTMENT_SEED = 20
+    UNKNOWN_22 = 22
+    UNKNOWN_24 = 24
     UNKNOWN_36 = 36
 
 
