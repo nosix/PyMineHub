@@ -459,6 +459,7 @@ _block_specs = {
     BlockType.IRON_TRAPDOOR: _TrapDoorBlockSpec(ItemType.IRON_TRAPDOOR),
     BlockType.CARPET: _CarpetBlockSpec(),
     BlockType.DOUBLE_PLANT: _DoublePlantBlockSpec(ItemType.DOUBLE_PLANT),
+    BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
 }
 
 

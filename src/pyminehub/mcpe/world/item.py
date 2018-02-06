@@ -386,6 +386,7 @@ _item_specs = {
     ItemType.LADDER: _LadderItemSpec(BlockType.LADDER, 64),
     ItemType.TRAPDOOR: _TrapDoorItemSpec(BlockType.TRAPDOOR, 64),
     ItemType.IRON_TRAPDOOR: _TrapDoorItemSpec(BlockType.IRON_TRAPDOOR, 64),
+    ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
 }
 
 _block_items = [
