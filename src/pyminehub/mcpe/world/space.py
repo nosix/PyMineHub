@@ -6,7 +6,7 @@ from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPositionWithDistance, ChunkPosition, to_local_position
 from pyminehub.mcpe.value import Item, Block
-from pyminehub.mcpe.world.block import CompositeBlock, PlacedBlock
+from pyminehub.mcpe.world.block import FunctionalBlock, PlacedBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [
@@ -41,6 +41,32 @@ class _Transaction:
         self._action.clear()
 
 
+class _BlockCache:
+
+    def __init__(
+            self,
+            position: Vector3[int],
+            producer: Callable[[Vector3[int]], Tuple[Chunk, Vector3[int]]]
+    ) -> None:
+        chunk, position_in_chunk = producer(position)
+        self._position = position
+        self._chunk = chunk
+        self._position_in_chunk = position_in_chunk
+        self._block = chunk.get_block(position_in_chunk)
+
+    @property
+    def value(self) -> Block:
+        return self._block
+
+    def give_function(self) -> FunctionalBlock:
+        return FunctionalBlock(self._block)
+
+    def put(self, block: BlockType, transaction: _Transaction) -> None:
+        update = partial(self._chunk.set_block, self._position_in_chunk, block)
+        transaction.append(self._position, block, update)
+        self._block = block
+
+
 class Space:
 
     def __init__(self, generator: SpaceGenerator, store: DataStore) -> None:
@@ -72,6 +98,9 @@ class Space:
         position_in_chunk = to_local_position(position)
         return chunk, position_in_chunk
 
+    def _get_cache(self, position: Vector3[int]) -> _BlockCache:
+        return _BlockCache(position, self._to_local)
+
     def get_height(self, position: Vector3) -> int:
         chunk, position_in_chunk = self._to_local(position)
         return chunk.get_height(position_in_chunk.x, position_in_chunk.z)
@@ -81,17 +110,13 @@ class Space:
         :param position: to break
         :return: updated position and block | spawned item list
         """
-        chunk, position_in_chunk = self._to_local(position)
-        block = chunk.get_block(position_in_chunk)
-        broken_block = CompositeBlock(block)
+        block_cache = self._get_cache(position)
+        broken_block = block_cache.give_function()
         if not broken_block.can_be_broken:
             return [], []
         transaction = _Transaction()
         for break_target in broken_block.break_target:
-            additional_position = position + break_target
-            chunk, position_in_chunk = self._to_local(additional_position)
-            update = partial(chunk.set_block, position_in_chunk, BLOCK_AIR)
-            transaction.append(additional_position, BLOCK_AIR, update)
+            self._get_cache(position + break_target).put(BLOCK_AIR, transaction)
         return list(transaction.commit()), broken_block.to_item()
 
     def put_block(
@@ -108,7 +133,7 @@ class Space:
         :return: updated position and block
         """
         transaction = _Transaction()
-        self._put_block(transaction, position, face, block)
+        self._put_block(transaction, position, face, FunctionalBlock(block), on_ground=False)
         return list(transaction.commit())
 
     def _put_block(
@@ -116,12 +141,11 @@ class Space:
             transaction: _Transaction,
             position: Vector3[int],
             face: Face,
-            block: Block,
-            on_ground: bool=False
+            attached_block: FunctionalBlock,
+            on_ground: bool
     ) -> None:
         if on_ground:
             assert face is Face.TOP
-        attached_block = CompositeBlock(block)
         if attached_block.has_layer:
             self._put_stackable_block(transaction, position, face, attached_block, on_ground)
         else:
@@ -132,26 +156,22 @@ class Space:
             transaction: _Transaction,
             position: Vector3[int],
             face: Face,
-            attached_block: CompositeBlock,
+            attached_block: FunctionalBlock,
             on_ground: bool
     ) -> None:
-        chunk, position_in_chunk = self._to_local(position)
-        current_block = chunk.get_block(position_in_chunk)
-        if attached_block.type == current_block.type:
-            new_block = attached_block.stack_on(current_block, face)
+        current_block_cache = self._get_cache(position)
+        if attached_block.type == current_block_cache.value.type:
+            new_block = attached_block.stack_on(current_block_cache.value, face)
             if new_block is not None:
-                if new_block != current_block:
-                    update = partial(chunk.set_block, position_in_chunk, new_block)
-                    transaction.append(position, new_block, update)
+                if new_block != current_block_cache.value:
+                    current_block_cache.put(new_block, transaction)
                 return
-        chunk, position_in_chunk = self._to_local(position + face.direction)
-        target_block = chunk.get_block(position_in_chunk)
-        if attached_block.type == target_block.type:
-            new_block = attached_block.stack_on(target_block, face.inverse)
+        target_block_cache = self._get_cache(position + face.direction)
+        if attached_block.type == target_block_cache.value.type:
+            new_block = attached_block.stack_on(target_block_cache.value, face.inverse)
             if new_block is not None:
-                if new_block != target_block:
-                    update = partial(chunk.set_block, position_in_chunk, new_block)
-                    transaction.append(position + face.direction, new_block, update)
+                if new_block != target_block_cache.value:
+                    target_block_cache.put(new_block, transaction)
                 return
         self._update_block(transaction, position, face, attached_block, on_ground)
 
@@ -160,47 +180,34 @@ class Space:
             transaction: _Transaction,
             position: Vector3[int],
             face: Face,
-            attached_block: CompositeBlock,
+            attached_block: FunctionalBlock,
             on_ground: bool
     ) -> None:
-        chunk, position_in_chunk = self._to_local(position)
-        current_block = CompositeBlock(chunk.get_block(position_in_chunk))
+        current_block = self._get_cache(position).give_function()
         if not on_ground and current_block.is_switchable:
-            position += current_block.switch_position
-            chunk, position_in_chunk = self._to_local(position)
-            switch_block = CompositeBlock(chunk.get_block(position_in_chunk))
-            new_block = switch_block.switch()
-            update = partial(chunk.set_block, position_in_chunk, new_block)
-            transaction.append(position, new_block, update)
+            switch_block_cache = self._get_cache(position + current_block.switch_position)
+            new_block = switch_block_cache.give_function().switch()
+            switch_block_cache.put(new_block, transaction)
             return
         if not attached_block.can_be_attached_on(current_block.value, face):
             if not on_ground and attached_block.can_be_attached_on_ground:
                 position += face.direction
-                self._put_block(transaction, position - (0, 1, 0), Face.TOP, attached_block.value, on_ground=True)
+                self._put_block(transaction, position - (0, 1, 0), Face.TOP, attached_block, on_ground=True)
             return
+
         position += face.direction
-        self._link_blocks(position, attached_block)
-        chunk, position_in_chunk = self._to_local(position)
-        block = attached_block.value
-        update = partial(chunk.set_block, position_in_chunk, block)
-        transaction.append(position, block, update)
+        self._get_cache(position).put(attached_block.value, transaction)
 
         if attached_block.is_large:
-            for additional in attached_block.additional_blocks:
-                additional_position = position + additional.position
-                chunk, position_in_chunk = self._to_local(additional_position)
-                current_block = chunk.get_block(position_in_chunk)
-                if current_block.type is not BlockType.AIR:
+            for additional in attached_block.get_additional_blocks(self._get_linked_blocks(position, attached_block)):
+                current_block_cache = self._get_cache(position + additional.position)
+                if current_block_cache.value.type is not BlockType.AIR:
                     transaction.clear()
                     return
-                update = partial(chunk.set_block, position_in_chunk, additional.block)
-                transaction.append(additional_position, additional.block, update)
+                current_block_cache.put(additional.block, transaction)
 
-    def _link_blocks(self, position: Vector3[int], attached_block: CompositeBlock) -> None:
-        for link_target in attached_block.link_target:
-            chunk, position_in_chunk = self._to_local(position + link_target)
-            linking_block = chunk.get_block(position_in_chunk)
-            attached_block.link_with(linking_block)
+    def _get_linked_blocks(self, position: Vector3[int], attached_block: FunctionalBlock) -> List[Block]:
+        return list(self._get_cache(position + link_target).value for link_target in attached_block.link_target)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)

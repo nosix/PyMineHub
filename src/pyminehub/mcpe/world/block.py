@@ -5,7 +5,7 @@ from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.value import Item, Block
 
 __all__ = [
-    'CompositeBlock',
+    'FunctionalBlock',
     'PlacedBlock'
 ]
 
@@ -668,13 +668,12 @@ for _item_type, _block_type in _door_blocks:
     _block_specs[_block_type] = _DoorBlockSpec(_item_type)
 
 
-class CompositeBlock:
-    """CompositeBlock joins block value and block specification"""
+class FunctionalBlock:
+    """Functional block joins block value and block specification"""
 
     def __init__(self, block: Block) -> None:
         self._block = block
         self._block_spec = _block_specs[block.type]
-        self._linked_block = []
 
     def __str__(self) -> str:
         return str(self._block)
@@ -712,10 +711,6 @@ class CompositeBlock:
         return self._block_spec.is_large
 
     @property
-    def additional_blocks(self) -> Tuple[PlacedBlock, ...]:
-        return self._block_spec.get_additional_blocks(self._block, self._linked_block)
-
-    @property
     def link_target(self) -> Tuple[Vector3[int], ...]:
         return self._block_spec.get_link_target(self._block)
 
@@ -740,8 +735,8 @@ class CompositeBlock:
             return False
         return self._block_spec.can_be_attached_on(base_block)
 
-    def link_with(self, block: Block) -> None:
-        self._linked_block.append(block)
+    def get_additional_blocks(self, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
+        return self._block_spec.get_additional_blocks(self._block, linked_blocks)
 
 
 if __name__ == '__main__':
