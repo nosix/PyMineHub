@@ -587,18 +587,12 @@ _blocks = [
 
     BlockType.GLOWSTONE,
 
-    BlockType.CRAFTING_TABLE,
-    BlockType.FURNACE,
-
     BlockType.ANVIL,
 
-    BlockType.STONECUTTER,
     BlockType.CHEST,
     BlockType.TRAPPED_CHEST,
     BlockType.ENDER_CHEST,
     BlockType.BOOKSHELF,
-    BlockType.ENCHANTING_TABLE,
-    BlockType.NOTEBLOCK,
 
     BlockType.DAYLIGHT_DETECTOR,
     BlockType.END_PORTAL_FRAME,
@@ -658,6 +652,14 @@ _door_blocks = [
     (ItemType.DARK_OAK_DOOR, BlockType.DARK_OAK_DOOR_BLOCK),
 ]
 
+_tool_blocks = [
+    BlockType.CRAFTING_TABLE,
+    BlockType.FURNACE,  # TODO direction
+    BlockType.ENCHANTING_TABLE,
+    BlockType.NOTEBLOCK,
+    BlockType.STONECUTTER,
+]
+
 
 for _block_type in _blocks:
     _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
@@ -670,6 +672,9 @@ for _block_type in _plant_blocks:
 
 for _item_type, _block_type in _door_blocks:
     _block_specs[_block_type] = _DoorBlockSpec(_item_type)
+
+for _block_type in _tool_blocks:
+    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
 
 
 class FunctionalBlock:
