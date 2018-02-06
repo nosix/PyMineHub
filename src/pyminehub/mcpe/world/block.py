@@ -1,4 +1,4 @@
-from typing import List, Optional, FrozenSet, NamedTuple, Tuple
+from typing import List, Optional, FrozenSet, NamedTuple, Sequence, Tuple
 
 from pyminehub.mcpe.const import BlockType, ItemType
 from pyminehub.mcpe.geometry import Vector3, Face
@@ -67,6 +67,9 @@ class _BlockSpec:
     def is_large(self) -> bool:
         return self._is_large
 
+    def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        return ()
+
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
 
@@ -81,7 +84,7 @@ class _BlockSpec:
         assert self.is_switchable
         return block
 
-    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
+    def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
         assert self.is_large
         return ()
 
@@ -349,27 +352,72 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_large=True)
 
-    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
+    def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
         return PlacedBlock(Vector3(0, 1, 0), block.copy(data=8)),
 
 
 class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
 
-    _DOES_OPEN_MASK = 0b100
+    # set to the upper part
     _IS_UPPER_MASK = 0b1000
+    _IS_RIGHT_SIDE_MASK = 0b1
+
+    # set to the lower part
+    _DOES_OPEN_MASK = 0b100
+    _FACE_MASK = 0b11
+
+    _LEFT_SIDE = {
+        0: Vector3(0, 0, -1),
+        1: Vector3(1, 0, 0),
+        2: Vector3(0, 0, 1),
+        3: Vector3(-1, 0, 0)
+    }
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_switchable=True, is_large=True)
 
+    def _get_face(self, block: Block) -> int:
+        return block.data & self._FACE_MASK
+
+    def _is_upper_part(self, block: Block) -> bool:
+        return bool(block.data & self._IS_UPPER_MASK)
+
+    def _is_right_side(self, block: Block) -> bool:
+        assert self._is_upper_part(block)
+        return bool(block.data & self._IS_RIGHT_SIDE_MASK)
+
+    def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        """
+        >>> spec = _DoorBlockSpec(None)
+        >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 0))
+        (Vector3(x=0, y=0, z=-1), Vector3(x=0, y=1, z=-1))
+        >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 1))
+        (Vector3(x=1, y=0, z=0), Vector3(x=1, y=1, z=0))
+        >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 2))
+        (Vector3(x=0, y=0, z=1), Vector3(x=0, y=1, z=1))
+        >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 3))
+        (Vector3(x=-1, y=0, z=0), Vector3(x=-1, y=1, z=0))
+        """
+        assert not self._is_upper_part(block)
+        left_side = self._LEFT_SIDE[self._get_face(block)]
+        return left_side, left_side + (0, 1, 0)
+
+    def get_switch_position(self, block: Block) -> Vector3[int]:
+        dy = -1 if self._is_upper_part(block) else 0
+        return Vector3(0, dy, 0)
+
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
-    def get_switch_position(self, block: Block) -> Vector3[int]:
-        dy = -1 if block.data & self._IS_UPPER_MASK else 0
-        return Vector3(0, dy, 0)
-
-    def get_additional_blocks(self, block: Block) -> Tuple[PlacedBlock, ...]:
-        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=block.data | self._IS_UPPER_MASK)),
+    def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
+        assert len(linked_blocks) == 2
+        left_side_lower_block, left_side_upper_block = linked_blocks
+        right_side_mask = 0
+        if left_side_lower_block.type == block.type and self._get_face(left_side_lower_block) == self._get_face(block):
+            if not self._is_right_side(left_side_upper_block):
+                right_side_mask = self._IS_RIGHT_SIDE_MASK
+        data = self._IS_UPPER_MASK | right_side_mask
+        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=data)),
 
 
 _block_specs = {
@@ -600,6 +648,7 @@ class CompositeBlock:
     def __init__(self, block: Block) -> None:
         self._block = block
         self._block_spec = _block_specs[block.type]
+        self._linked_block = []
 
     def __str__(self) -> str:
         return str(self._block)
@@ -634,7 +683,11 @@ class CompositeBlock:
 
     @property
     def additional_blocks(self) -> Tuple[PlacedBlock, ...]:
-        return self._block_spec.get_additional_blocks(self._block)
+        return self._block_spec.get_additional_blocks(self._block, self._linked_block)
+
+    @property
+    def link_target(self) -> Tuple[Vector3[int], ...]:
+        return self._block_spec.get_link_target(self._block)
 
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
@@ -652,6 +705,9 @@ class CompositeBlock:
         if face not in base_block_spec.female_connector(base_block):
             return False
         return self._block_spec.can_be_attached_on(base_block)
+
+    def link_with(self, block: Block) -> None:
+        self._linked_block.append(block)
 
 
 if __name__ == '__main__':

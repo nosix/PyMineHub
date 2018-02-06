@@ -173,6 +173,7 @@ class Space:
                 self._put_block(transaction, position - (0, 1, 0), Face.TOP, attached_block.value, on_ground=True)
             return
         position += face.direction
+        self._link_blocks(position, attached_block)
         chunk, position_in_chunk = self._to_local(position)
         block = attached_block.value
         update = partial(chunk.set_block, position_in_chunk, block)
@@ -188,6 +189,12 @@ class Space:
                     return
                 update = partial(chunk.set_block, position_in_chunk, additional.block)
                 transaction.append(additional_position, additional.block, update)
+
+    def _link_blocks(self, position: Vector3[int], attached_block: CompositeBlock) -> None:
+        for link_target in attached_block.link_target:
+            chunk, position_in_chunk = self._to_local(position + link_target)
+            linking_block = chunk.get_block(position_in_chunk)
+            attached_block.link_with(linking_block)
 
     def revise_position(self, position: Vector3[float]) -> Vector3[float]:
         height = self.get_height(position)
