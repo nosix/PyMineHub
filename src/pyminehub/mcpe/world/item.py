@@ -17,10 +17,6 @@ class ItemSpec:
         self._max_quantity = max_quantity
 
     @property
-    def block_type(self) -> Optional[BlockType]:
-        return self._block_type
-
-    @property
     def max_quantity(self) -> int:
         return self._max_quantity
 
@@ -32,13 +28,17 @@ class ItemSpec:
             click_position: Vector3[float],
             **flags: bool
     ) -> Optional[Block]:
-        if self.block_type is None or not self.is_attachable(attached_face):
+        block_type = self.to_block_type(item_data)
+        if block_type is None or not self.is_attachable(attached_face):
             return None
         block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, click_position)
-        return Block.create(self.block_type, block_data, **flags)
+        return Block.create(block_type, block_data, **flags)
 
     def is_attachable(self, attached_face: Face) -> bool:
         return True
+
+    def to_block_type(self, item_data: int) -> Optional[BlockType]:
+        return self._block_type
 
     def to_block_data(
             self,
@@ -370,6 +370,37 @@ class _DoorItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
+class _BucketItemSpec(ItemSpec):
+
+    _TO_BLOCK_TYPE = {
+        8: BlockType.FLOWING_WATER,
+        10: BlockType.FLOWING_LAVA
+    }
+
+    def __init__(self) -> None:
+        super().__init__(None, 1)
+
+    def to_block_type(self, item_data: int) -> Optional[BlockType]:
+        """
+        >>> spec = _BucketItemSpec()
+        >>> spec.to_block_type(8)
+        <BlockType.FLOWING_WATER: 8>
+        >>> spec.to_block_type(10)
+        <BlockType.FLOWING_LAVA: 10>
+        >>> spec.to_block_type(0)
+        >>> spec.to_block_type(1)
+        """
+        return self._TO_BLOCK_TYPE.get(item_data, None)
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,click_position: Vector3[float]
+    ) -> int:
+        return 0
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -387,6 +418,7 @@ _item_specs = {
     ItemType.TRAPDOOR: _TrapDoorItemSpec(BlockType.TRAPDOOR, 64),
     ItemType.IRON_TRAPDOOR: _TrapDoorItemSpec(BlockType.IRON_TRAPDOOR, 64),
     ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
+    ItemType.BUCKET: _BucketItemSpec(),
 }
 
 _block_items = [

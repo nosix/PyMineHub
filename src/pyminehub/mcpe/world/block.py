@@ -623,6 +623,9 @@ _blocks = [
     BlockType.DOUBLE_STONE_SLAB,
     BlockType.DOUBLE_WOODEN_SLAB,
     BlockType.DOUBLE_STONE_SLAB2,
+
+    BlockType.FLOWING_WATER,
+    BlockType.FLOWING_LAVA,
 ]
 
 _fence_gate_blocks = [
