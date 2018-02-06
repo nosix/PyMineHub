@@ -77,7 +77,7 @@ class _BlockSpec:
         return ()
 
     def get_break_target(self, block: Block) -> Tuple[Vector3[int], ...]:
-        return ()
+        return Vector3(0, 0, 0),
 
     def to_item(self, block_data: int) -> List[Item]:
         return [Item.create(self.item_type, 1, block_data)] if self.item_type is not None else []
@@ -367,7 +367,10 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
         return bool(block.data & self._IS_UPPER_MASK)
 
     def get_break_target(self, block: Block) -> Tuple[Vector3[int], ...]:
-        return () if self._is_upper(block) else (Vector3(0, 1, 0), )
+        if self._is_upper(block):
+            return Vector3(0, 0, 0),
+        else:
+            return Vector3(0, 1, 0), Vector3(0, 0, 0)
 
     def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
         return PlacedBlock(Vector3(0, 1, 0), block.copy(data=self._IS_UPPER_MASK)),
@@ -389,6 +392,8 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
         2: Vector3(0, 0, 1),
         3: Vector3(-1, 0, 0)
     }
+
+    _BREAK_ORDER = (Vector3(0, 1, 0), Vector3(0, 0, 0))
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_switchable=True, is_large=True)
@@ -418,6 +423,10 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
         assert not self._is_upper_part(block)
         left_side = self._LEFT_SIDE[self._get_face(block)]
         return left_side, left_side + (0, 1, 0)
+
+    def get_break_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        dy = -1 if self._is_upper_part(block) else 0
+        return tuple(p + (0, dy, 0) for p in self._BREAK_ORDER)
 
     def get_switch_position(self, block: Block) -> Vector3[int]:
         dy = -1 if self._is_upper_part(block) else 0

@@ -87,14 +87,11 @@ class Space:
         if not broken_block.can_be_broken:
             return [], []
         transaction = _Transaction()
-        update = partial(chunk.set_block, position_in_chunk, BLOCK_AIR)
-        transaction.append(position, BLOCK_AIR, update)
-        if broken_block.is_large:
-            for break_target in broken_block.break_target:
-                additional_position = position + break_target
-                chunk, position_in_chunk = self._to_local(additional_position)
-                update = partial(chunk.set_block, position_in_chunk, BLOCK_AIR)
-                transaction.append(additional_position, BLOCK_AIR, update)
+        for break_target in broken_block.break_target:
+            additional_position = position + break_target
+            chunk, position_in_chunk = self._to_local(additional_position)
+            update = partial(chunk.set_block, position_in_chunk, BLOCK_AIR)
+            transaction.append(additional_position, BLOCK_AIR, update)
         return list(transaction.commit()), broken_block.to_item()
 
     def put_block(
