@@ -268,14 +268,13 @@ class _World(WorldEditor):
             self._notify_event(collision.event)
 
     def _process_break_block(self, action: Action) -> None:
-        items = self._space.break_block(action.position)
-        if items is None:
-            return
-        self._notify_event(event_factory.create(
-            EventType.BLOCK_UPDATED,
-            action.position,
-            Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)
-        ))
+        updated_blocks, items = self._space.break_block(action.position)
+        for updated in updated_blocks:
+            self._notify_event(event_factory.create(
+                EventType.BLOCK_UPDATED,
+                updated.position,
+                updated.block.copy(neighbors=True, network=True, priority=True)
+            ))
         if self._game_mode == GameMode.CREATIVE:
             return
         for item in items:

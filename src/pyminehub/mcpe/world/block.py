@@ -33,12 +33,14 @@ class _BlockSpec:
             self,
             item_type: Optional[ItemType],
             max_layer_num: int=1,
+            can_be_broken: bool=True,
             can_be_attached_on_ground: bool=False,
             is_switchable: bool=False,
             is_large: bool=False
     ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
+        self._can_be_broken = can_be_broken
         self._can_be_attached_on_ground = can_be_attached_on_ground
         self._is_switchable = is_switchable
         self._is_large = is_large
@@ -56,6 +58,10 @@ class _BlockSpec:
         return self._max_layer_num
 
     @property
+    def can_be_broken(self) -> bool:
+        return self._can_be_broken
+
+    @property
     def can_be_attached_on_ground(self) -> bool:
         return self._can_be_attached_on_ground
 
@@ -68,6 +74,9 @@ class _BlockSpec:
         return self._is_large
 
     def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        return ()
+
+    def get_break_target(self, block: Block) -> Tuple[Vector3[int], ...]:
         return ()
 
     def to_item(self, block_data: int) -> List[Item]:
@@ -101,7 +110,7 @@ class _BlockSpec:
 class _AirBlockSpec(_BlockSpec):
 
     def __init__(self) -> None:
-        super().__init__(None)
+        super().__init__(None, can_be_broken=False)
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -349,11 +358,19 @@ class _CarpetBlockSpec(_ToExtendUpwardBlockSpec):
 
 class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
 
+    _IS_UPPER_MASK = 0b1000
+
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_large=True)
 
+    def _is_upper(self, block: Block) -> bool:
+        return bool(block.data & self._IS_UPPER_MASK)
+
+    def get_break_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        return () if self._is_upper(block) else (Vector3(0, 1, 0), )
+
     def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
-        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=8)),
+        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=self._IS_UPPER_MASK)),
 
 
 class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
@@ -422,6 +439,7 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
 
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
+    BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
     BlockType.GRASS: _BlockSpec(ItemType.DIRT),
     BlockType.STONE_SLAB: _SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
     BlockType.WOODEN_SLAB: _SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
@@ -544,7 +562,6 @@ _blocks = [
     BlockType.MOB_SPAWNER,
 
     BlockType.OBSIDIAN,
-    BlockType.BEDROCK,
     BlockType.SOUL_SAND,
     BlockType.NETHERRACK,
     BlockType.MAGMA,
@@ -666,6 +683,10 @@ class CompositeBlock:
         return self._block_spec.has_layer
 
     @property
+    def can_be_broken(self) -> bool:
+        return self._block_spec.can_be_broken
+
+    @property
     def can_be_attached_on_ground(self) -> bool:
         return self._block_spec.can_be_attached_on_ground
 
@@ -688,6 +709,10 @@ class CompositeBlock:
     @property
     def link_target(self) -> Tuple[Vector3[int], ...]:
         return self._block_spec.get_link_target(self._block)
+
+    @property
+    def break_target(self) -> Tuple[Vector3[int], ...]:
+        return self._block_spec.get_break_target(self._block)
 
     def to_item(self) -> List[Item]:
         return self._block_spec.to_item(self._block.data)
