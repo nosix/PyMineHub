@@ -539,7 +539,7 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._move_player(Vector3(x=256, y=63, z=256), 0.0)  # Face.NORTH
         self._put_item(Vector3(x=256, y=62, z=258), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
-        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 8)  # upper flag
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=256, y=63, z=258), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
@@ -550,11 +550,31 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
         self._assert_inventory_updated(item)
 
+        # put on left side
+        self._put_item(Vector3(x=257, y=62, z=258), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
+        self._assert_block_updated(Vector3(x=257, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_inventory_updated(item)
+
+        # put on right side
+        self._put_item(Vector3(x=255, y=62, z=258), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
+        self._assert_block_updated(Vector3(x=255, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 9)  # right flag
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=255, y=63, z=258), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 5)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=255, y=64, z=258), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
+        self._assert_inventory_updated(item)
+
         # put on top (face=EAST, block_pos=(254, 63, 256))
         self._move_player(Vector3(x=256, y=63, z=256), 90.0)  # Face.EAST
         self._put_item(Vector3(x=254, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_block_updated(Vector3(x=254, y=63, z=256), BlockType.WOODEN_DOOR_BLOCK, 2)
-        self._assert_block_updated(Vector3(x=254, y=64, z=256), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_block_updated(Vector3(x=254, y=64, z=256), BlockType.WOODEN_DOOR_BLOCK, 8)  # upper flag
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=254, y=63, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
@@ -565,11 +585,31 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=254, y=63, z=256), BlockType.WOODEN_DOOR_BLOCK, 2)
         self._assert_inventory_updated(item)
 
+        # put on left side
+        self._put_item(Vector3(x=254, y=62, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=254, y=63, z=257), BlockType.WOODEN_DOOR_BLOCK, 2)
+        self._assert_block_updated(Vector3(x=254, y=64, z=257), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_inventory_updated(item)
+
+        # put on right side
+        self._put_item(Vector3(x=254, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=254, y=63, z=255), BlockType.WOODEN_DOOR_BLOCK, 2)
+        self._assert_block_updated(Vector3(x=254, y=64, z=255), BlockType.WOODEN_DOOR_BLOCK, 9)  # right flag
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=254, y=63, z=255), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=254, y=63, z=255), BlockType.WOODEN_DOOR_BLOCK, 6)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=254, y=64, z=255), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=254, y=63, z=255), BlockType.WOODEN_DOOR_BLOCK, 2)
+        self._assert_inventory_updated(item)
+
         # put on top (face=SOUTH, block_pos=(256, 63, 254))
         self._move_player(Vector3(x=256, y=63, z=256), 180.0)  # Face.SOUTH
         self._put_item(Vector3(x=256, y=62, z=254), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_block_updated(Vector3(x=256, y=63, z=254), BlockType.WOODEN_DOOR_BLOCK, 3)
-        self._assert_block_updated(Vector3(x=256, y=64, z=254), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_block_updated(Vector3(x=256, y=64, z=254), BlockType.WOODEN_DOOR_BLOCK, 8)  # upper flag
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=256, y=63, z=254), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
@@ -580,11 +620,23 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=63, z=254), BlockType.WOODEN_DOOR_BLOCK, 3)
         self._assert_inventory_updated(item)
 
+        # put on right side
+        self._put_item(Vector3(x=257, y=62, z=254), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=254), BlockType.WOODEN_DOOR_BLOCK, 3)
+        self._assert_block_updated(Vector3(x=257, y=64, z=254), BlockType.WOODEN_DOOR_BLOCK, 9)  # right flag
+        self._assert_inventory_updated(item)
+
+        # put on left side
+        self._put_item(Vector3(x=255, y=62, z=254), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=254), BlockType.WOODEN_DOOR_BLOCK, 3)
+        self._assert_block_updated(Vector3(x=255, y=64, z=254), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_inventory_updated(item)
+
         # put on top (face=WEST, block_pos=(258, 63, 256))
         self._move_player(Vector3(x=256, y=63, z=256), 270.0)  # Face.WEST
         self._put_item(Vector3(x=258, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_block_updated(Vector3(x=258, y=63, z=256), BlockType.WOODEN_DOOR_BLOCK, 0)
-        self._assert_block_updated(Vector3(x=258, y=64, z=256), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_block_updated(Vector3(x=258, y=64, z=256), BlockType.WOODEN_DOOR_BLOCK, 8)  # upper flag
         self._assert_inventory_updated(item)
 
         self._put_item(Vector3(x=258, y=63, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
@@ -593,6 +645,20 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
 
         self._put_item(Vector3(x=258, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
         self._assert_block_updated(Vector3(x=258, y=63, z=256), BlockType.WOODEN_DOOR_BLOCK, 0)
+        self._assert_inventory_updated(item)
+
+        # put on right side
+        self._move_player(Vector3(x=256, y=63, z=256), 270.0)  # Face.WEST
+        self._put_item(Vector3(x=258, y=62, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=258, y=63, z=257), BlockType.WOODEN_DOOR_BLOCK, 0)
+        self._assert_block_updated(Vector3(x=258, y=64, z=257), BlockType.WOODEN_DOOR_BLOCK, 9)  # right flag
+        self._assert_inventory_updated(item)
+
+        # put on left side
+        self._move_player(Vector3(x=256, y=63, z=255), 270.0)  # Face.WEST
+        self._put_item(Vector3(x=258, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=258, y=63, z=255), BlockType.WOODEN_DOOR_BLOCK, 0)
+        self._assert_block_updated(Vector3(x=258, y=64, z=255), BlockType.WOODEN_DOOR_BLOCK, 8)
         self._assert_inventory_updated(item)
 
 
