@@ -537,8 +537,8 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_inventory_updated(item)
 
         self._break_block(Vector3(x=256, y=63, z=255))
-        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.AIR, 0)
         self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.AIR, 0)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.AIR, 0)
 
         # put on top (face=TOP, block_pos=(256, 63, 255))
         self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
@@ -678,6 +678,32 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=258, y=63, z=255), BlockType.WOODEN_DOOR_BLOCK, 0)
         self._assert_block_updated(Vector3(x=258, y=64, z=255), BlockType.WOODEN_DOOR_BLOCK, 8)
         self._assert_inventory_updated(item)
+
+    def test_break_door(self):
+        self.test_login()
+        item = self._equip(ItemType.WOODEN_DOOR, 0)
+
+        # break lower part
+        self._move_player(Vector3(x=256, y=63, z=256), 0.0)  # Face.NORTH
+        self._put_item(Vector3(x=256, y=62, z=258), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
+        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_inventory_updated(item)
+
+        self._break_block(Vector3(x=256, y=63, z=258))
+        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.AIR, 0)
+        self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.AIR, 0)
+
+        # breap upper part
+        self._move_player(Vector3(x=256, y=63, z=256), 0.0)  # Face.NORTH
+        self._put_item(Vector3(x=256, y=62, z=258), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.WOODEN_DOOR_BLOCK, 1)
+        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.WOODEN_DOOR_BLOCK, 8)
+        self._assert_inventory_updated(item)
+
+        self._break_block(Vector3(x=256, y=64, z=258))
+        self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.AIR, 0)
+        self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.AIR, 0)
 
 
 if __name__ == '__main__':
