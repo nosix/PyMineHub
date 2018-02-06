@@ -97,13 +97,6 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
             entity_runtime_id=1,
             position=position
         )
-        actual_event = self.next_event()
-        expected_event = event_factory.create(
-            EventType.BLOCK_UPDATED,
-            position=position,
-            block=Block(type=BlockType.AIR, aux_value=176)
-        )
-        self.assertEqual(expected_event, actual_event)
 
     def _assert_block_updated(self, position: Vector3[float], block_type: BlockType, block_data: int) -> None:
         actual_event = self.next_event()
@@ -519,6 +512,8 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self.test_login()
         self._put_pole(Vector3(x=256, y=62, z=256), 2)
         self._break_block(Vector3(x=256, y=63, z=256))
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.AIR, 0)
+
         item = self._equip(ItemType.DOUBLE_PLANT, 0)
 
         # put on top (face=TOP, block_pos=(256, 63, 255))
@@ -530,6 +525,29 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         # can not put (face=TOP, block_pos=(256, 63, 256))
         self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
         self._assert_inventory_updated(item)
+
+    def test_break_double_plant(self):
+        self.test_login()
+        item = self._equip(ItemType.DOUBLE_PLANT, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 255))
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.DOUBLE_PLANT, 0)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.DOUBLE_PLANT, 8)
+        self._assert_inventory_updated(item)
+
+        self._break_block(Vector3(x=256, y=63, z=255))
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.AIR, 0)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.AIR, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 255))
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.DOUBLE_PLANT, 0)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.DOUBLE_PLANT, 8)
+        self._assert_inventory_updated(item)
+
+        self._break_block(Vector3(x=256, y=64, z=255))
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.AIR, 0)
 
     def test_put_door(self):
         self.test_login()
