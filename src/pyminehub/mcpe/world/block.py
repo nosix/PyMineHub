@@ -653,8 +653,6 @@ _blocks = [
 
     BlockType.GLOWSTONE,
 
-    BlockType.ANVIL,
-
     BlockType.CHEST,
     BlockType.TRAPPED_CHEST,
     BlockType.ENDER_CHEST,
@@ -712,6 +710,7 @@ _door_blocks = [
 _tool_blocks = [
     BlockType.CRAFTING_TABLE,
     BlockType.FURNACE,
+    BlockType.ANVIL,
     BlockType.ENCHANTING_TABLE,
     BlockType.NOTEBLOCK,
     BlockType.STONECUTTER,

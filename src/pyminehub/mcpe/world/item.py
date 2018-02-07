@@ -411,9 +411,6 @@ class _FurnaceItemSpec(ItemSpec):
         Face.EAST: 5
     }
 
-    def __init__(self) -> None:
-        super().__init__(BlockType.FURNACE, 64)
-
     def to_block_data(
             self,
             item_data: int,
@@ -422,7 +419,7 @@ class _FurnaceItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _FurnaceItemSpec()
+        >>> spec = _FurnaceItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
@@ -436,6 +433,31 @@ class _FurnaceItemSpec(ItemSpec):
         4
         >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
         5
+        """
+        return self._FACE_TO_DATA[horizontal_player_face]
+
+
+class _AnvilItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.WEST: 0,
+        Face.NORTH: 1,
+        Face.EAST: 2,
+        Face.SOUTH: 3
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _AnvilItemSpec(None, 0)
+        >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [0, 1, 2, 3]
         """
         return self._FACE_TO_DATA[horizontal_player_face]
 
@@ -600,7 +622,8 @@ _item_specs = {
     ItemType.IRON_TRAPDOOR: _TrapDoorItemSpec(BlockType.IRON_TRAPDOOR, 64),
     ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
     ItemType.BUCKET: _BucketItemSpec(),
-    ItemType.FURNACE: _FurnaceItemSpec(),
+    ItemType.FURNACE: _FurnaceItemSpec(BlockType.FURNACE, 64),
+    ItemType.ANVIL: _AnvilItemSpec(BlockType.ANVIL, 64),
     ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
     ItemType.END_ROD: _EndRodItemSpec(BlockType.END_ROD, 64),
     ItemType.LEVER: _LeverItemSpec(BlockType.LEVER, 64),
@@ -723,8 +746,6 @@ _block_items = [
     ItemType.GLOWSTONE,
 
     ItemType.CRAFTING_TABLE,
-
-    ItemType.ANVIL,
 
     ItemType.STONECUTTER,
     ItemType.CHEST,
