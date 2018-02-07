@@ -623,6 +623,7 @@ _item_specs = {
     ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
     ItemType.BUCKET: _BucketItemSpec(),
     ItemType.FURNACE: _FurnaceItemSpec(BlockType.FURNACE, 64),
+    ItemType.BREWING_STAND: _DefaultItemSpec(BlockType.BREWING_STAND_BLOCK, 64),
     ItemType.ANVIL: _AnvilItemSpec(BlockType.ANVIL, 64),
     ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
     ItemType.END_ROD: _EndRodItemSpec(BlockType.END_ROD, 64),
