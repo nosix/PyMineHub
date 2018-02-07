@@ -753,6 +753,67 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=63, z=259), BlockType.END_ROD, 2)
         self._assert_inventory_updated(item)
 
+    def test_put_lever(self):
+        self.test_login()
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
+        item = self._equip(ItemType.LEVER, 0)
+
+        # put on SOUTH
+        self._move_player(Vector3(x=256, y=63, z=254), 0.0)  # Face.NORTH
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.LEVER, 5)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.LEVER, 4)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=255), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.LEVER, 12)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=255), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.LEVER, 4)
+        self._assert_inventory_updated(item)
+
+        # put on WEST
+        self._move_player(Vector3(x=258, y=63, z=256), 90.0)  # Face.EAST
+        self._put_item(Vector3(x=257, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=257, y=63, z=256), BlockType.LEVER, 6)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.LEVER, 1)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=257, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.LEVER, 9)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=257, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.LEVER, 1)
+        self._assert_inventory_updated(item)
+
+        # put on NORTH
+        self._move_player(Vector3(x=256, y=63, z=258), 180.0)  # Face.SOUTH
+        self._put_item(Vector3(x=256, y=62, z=257), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.LEVER, 5)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=257), BlockType.LEVER, 3)
+        self._assert_inventory_updated(item)
+
+        # put on EAST
+        self._move_player(Vector3(x=254, y=63, z=256), 270.0)  # Face.WEST
+        self._put_item(Vector3(x=255, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=255, y=63, z=256), BlockType.LEVER, 6)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.LEVER, 2)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
