@@ -650,10 +650,6 @@ _blocks = [
     BlockType.GOLDEN_RAIL,
     BlockType.DETECTOR_RAIL,
     BlockType.ACTIVATOR_RAIL,
-    BlockType.WOODEN_PRESSURE_PLATE,
-    BlockType.STONE_PRESSURE_PLATE,
-    BlockType.LIGHT_WEIGHTED_PRESSURE_PLATE,
-    BlockType.HEAVY_WEIGHTED_PRESSURE_PLATE,
 
     BlockType.TNT,
 
@@ -703,6 +699,13 @@ _tool_blocks = [
     BlockType.STONECUTTER,
 ]
 
+_pressure_plate_blocks = [
+    BlockType.WOODEN_PRESSURE_PLATE,
+    BlockType.STONE_PRESSURE_PLATE,
+    BlockType.LIGHT_WEIGHTED_PRESSURE_PLATE,
+    BlockType.HEAVY_WEIGHTED_PRESSURE_PLATE,
+]
+
 
 for _block_type in _blocks:
     _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
@@ -717,6 +720,9 @@ for _item_type, _block_type in _door_blocks:
     _block_specs[_block_type] = _DoorBlockSpec(_item_type)
 
 for _block_type in _tool_blocks:
+    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
+
+for _block_type in _pressure_plate_blocks:
     _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
 
 
