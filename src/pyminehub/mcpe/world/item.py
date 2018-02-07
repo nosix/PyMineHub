@@ -550,6 +550,38 @@ class _ButtonItemSpec(ItemSpec):
         return attached_face.value
 
 
+class _TripwireHookItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.NORTH: 0,
+        Face.EAST: 1,
+        Face.SOUTH: 2,
+        Face.WEST: 3,
+        Face.TOP: 0,  # not used (because blocks can't be put on this face)
+        Face.BOTTOM: 0  # not used (because blocks can't be put on this face)
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _TripwireHookItemSpec(None, 0)
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        0
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        1
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        2
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        3
+        """
+        return self._FACE_TO_DATA[attached_face]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -574,6 +606,7 @@ _item_specs = {
     ItemType.LEVER: _LeverItemSpec(BlockType.LEVER, 64),
     ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
     ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
+    ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(BlockType.TRIPWIRE_HOOK, 64),
 }
 
 _block_items = [
@@ -710,7 +743,6 @@ _block_items = [
     ItemType.GOLDEN_RAIL,
     ItemType.DETECTOR_RAIL,
     ItemType.ACTIVATOR_RAIL,
-    ItemType.TRIPWIRE_HOOK,
     ItemType.WOODEN_PRESSURE_PLATE,
     ItemType.STONE_PRESSURE_PLATE,
     ItemType.LIGHT_WEIGHTED_PRESSURE_PLATE,

@@ -478,6 +478,15 @@ class _ToggleBlockSpec(_BlockSpec):
         return _CONNECTOR_ALL
 
 
+class _TripwireHookBlockSpec(_BlockSpec):
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_SIDE
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
@@ -497,6 +506,7 @@ _block_specs = {
     BlockType.LEVER: _ToggleBlockSpec(ItemType.LEVER),
     BlockType.WOODEN_BUTTON: _ToggleBlockSpec(ItemType.WOODEN_BUTTON),
     BlockType.STONE_BUTTON: _ToggleBlockSpec(ItemType.STONE_BUTTON),
+    BlockType.TRIPWIRE_HOOK: _TripwireHookBlockSpec(ItemType.TRIPWIRE_HOOK),
 }
 
 
@@ -640,7 +650,6 @@ _blocks = [
     BlockType.GOLDEN_RAIL,
     BlockType.DETECTOR_RAIL,
     BlockType.ACTIVATOR_RAIL,
-    BlockType.TRIPWIRE_HOOK,
     BlockType.WOODEN_PRESSURE_PLATE,
     BlockType.STONE_PRESSURE_PLATE,
     BlockType.LIGHT_WEIGHTED_PRESSURE_PLATE,
