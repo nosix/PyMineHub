@@ -476,6 +476,48 @@ class _EndRodItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
+class _LeverItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.WEST: 1,
+        Face.EAST: 2,
+        Face.NORTH: 3,
+        Face.SOUTH: 4
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _LeverItemSpec(None, 0)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in [Face.EAST, Face.WEST])
+        [0, 0]
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        1
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        2
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        3
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        4
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        [5, 5]
+        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.EAST, Face.WEST])
+        [6, 6]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        [7, 7]
+        """
+        if attached_face is Face.TOP:
+            return 5 if horizontal_player_face.direction.x == 0 else 6
+        if attached_face is Face.BOTTOM:
+            return 7 if horizontal_player_face.direction.x == 0 else 0
+        return self._FACE_TO_DATA[attached_face]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -497,6 +539,7 @@ _item_specs = {
     ItemType.FURNACE: _FurnaceItemSpec(),
     ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
     ItemType.END_ROD: _EndRodItemSpec(BlockType.END_ROD, 64),
+    ItemType.LEVER: _LeverItemSpec(BlockType.LEVER, 64),
 }
 
 _block_items = [
@@ -633,7 +676,6 @@ _block_items = [
     ItemType.GOLDEN_RAIL,
     ItemType.DETECTOR_RAIL,
     ItemType.ACTIVATOR_RAIL,
-    ItemType.LEVER,
     ItemType.WOODEN_BUTTON,
     ItemType.STONE_BUTTON,
     ItemType.TRIPWIRE_HOOK,

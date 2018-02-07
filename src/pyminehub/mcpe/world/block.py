@@ -461,6 +461,23 @@ class _EndRodBlockSpec(_BlockSpec):
         return PlacedBlock(Vector3(0, 0, 0), block),
 
 
+class _LeverBlockSpec(_BlockSpec):
+
+    _TOGGLE_MASK = 0b1000
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, is_switchable=True)
+
+    def switch(self, block: Block) -> Block:
+        return block.copy(data=block.data ^ self._TOGGLE_MASK)
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
@@ -477,6 +494,7 @@ _block_specs = {
     BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
     BlockType.FLOWER_POT_BLOCK: _ToExtendUpwardBlockSpec(ItemType.FLOWER_POT, can_be_attached_on_ground=True),
     BlockType.END_ROD: _EndRodBlockSpec(),
+    BlockType.LEVER: _LeverBlockSpec(ItemType.LEVER),
 }
 
 
@@ -620,7 +638,6 @@ _blocks = [
     BlockType.GOLDEN_RAIL,
     BlockType.DETECTOR_RAIL,
     BlockType.ACTIVATOR_RAIL,
-    BlockType.LEVER,
     BlockType.WOODEN_BUTTON,
     BlockType.STONE_BUTTON,
     BlockType.TRIPWIRE_HOOK,
