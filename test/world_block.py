@@ -705,6 +705,24 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=256, y=64, z=258), BlockType.AIR, 0)
         self._assert_block_updated(Vector3(x=256, y=63, z=258), BlockType.AIR, 0)
 
+    def test_put_flower_pot(self):
+        self.test_login()
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
+        item = self._equip(ItemType.FLOWER_POT, 0)
+
+        # put on top (face=TOP, block_pos=(256, 63, 255))
+        self._put_item(Vector3(x=256, y=62, z=255), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=255), BlockType.FLOWER_POT_BLOCK, 0)
+        self._assert_inventory_updated(item)
+
+        # put on top (face=NORTH, block_pos=(256, 63, 257))
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=257), BlockType.FLOWER_POT_BLOCK, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
