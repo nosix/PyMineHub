@@ -461,7 +461,7 @@ class _EndRodBlockSpec(_BlockSpec):
         return PlacedBlock(Vector3(0, 0, 0), block),
 
 
-class _LeverBlockSpec(_BlockSpec):
+class _ToggleBlockSpec(_BlockSpec):
 
     _TOGGLE_MASK = 0b1000
 
@@ -494,7 +494,9 @@ _block_specs = {
     BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
     BlockType.FLOWER_POT_BLOCK: _ToExtendUpwardBlockSpec(ItemType.FLOWER_POT, can_be_attached_on_ground=True),
     BlockType.END_ROD: _EndRodBlockSpec(),
-    BlockType.LEVER: _LeverBlockSpec(ItemType.LEVER),
+    BlockType.LEVER: _ToggleBlockSpec(ItemType.LEVER),
+    BlockType.WOODEN_BUTTON: _ToggleBlockSpec(ItemType.WOODEN_BUTTON),
+    BlockType.STONE_BUTTON: _ToggleBlockSpec(ItemType.STONE_BUTTON),
 }
 
 
@@ -638,8 +640,6 @@ _blocks = [
     BlockType.GOLDEN_RAIL,
     BlockType.DETECTOR_RAIL,
     BlockType.ACTIVATOR_RAIL,
-    BlockType.WOODEN_BUTTON,
-    BlockType.STONE_BUTTON,
     BlockType.TRIPWIRE_HOOK,
     BlockType.WOODEN_PRESSURE_PLATE,
     BlockType.STONE_PRESSURE_PLATE,
