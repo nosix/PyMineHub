@@ -654,7 +654,7 @@ _door_blocks = [
 
 _tool_blocks = [
     BlockType.CRAFTING_TABLE,
-    BlockType.FURNACE,  # TODO direction
+    BlockType.FURNACE,
     BlockType.ENCHANTING_TABLE,
     BlockType.NOTEBLOCK,
     BlockType.STONECUTTER,
