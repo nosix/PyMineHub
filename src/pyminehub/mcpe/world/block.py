@@ -35,15 +35,13 @@ class _BlockSpec:
             max_layer_num: int=1,
             can_be_broken: bool=True,
             can_be_attached_on_ground: bool=False,
-            is_switchable: bool=False,
-            is_large: bool=False
+            is_switchable: bool=False
     ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
         self._can_be_broken = can_be_broken
         self._can_be_attached_on_ground = can_be_attached_on_ground
         self._is_switchable = is_switchable
-        self._is_large = is_large
 
     @property
     def item_type(self) -> Optional[ItemType]:
@@ -69,10 +67,6 @@ class _BlockSpec:
     def is_switchable(self) -> bool:
         return self._is_switchable
 
-    @property
-    def is_large(self) -> bool:
-        return self._is_large
-
     def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
         return ()
 
@@ -94,8 +88,7 @@ class _BlockSpec:
         return block
 
     def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
-        assert self.is_large
-        return ()
+        return PlacedBlock(Vector3(0, 0, 0), block),
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_ALL
@@ -360,9 +353,6 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
 
     _IS_UPPER_MASK = 0b1000
 
-    def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, is_large=True)
-
     def _is_upper(self, block: Block) -> bool:
         return bool(block.data & self._IS_UPPER_MASK)
 
@@ -373,7 +363,7 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
             return Vector3(0, 1, 0), Vector3(0, 0, 0)
 
     def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
-        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=self._IS_UPPER_MASK)),
+        return PlacedBlock(Vector3(0, 0, 0), block), PlacedBlock(Vector3(0, 1, 0), block.copy(data=self._IS_UPPER_MASK))
 
 
 class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
@@ -396,7 +386,7 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
     _BREAK_ORDER = (Vector3(0, 1, 0), Vector3(0, 0, 0))
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, is_switchable=True, is_large=True)
+        super().__init__(item_type, is_switchable=True)
 
     def _get_face(self, block: Block) -> int:
         return block.data & self._FACE_MASK
@@ -443,7 +433,32 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
             if not self._is_right_side(left_side_upper_block):
                 right_side_mask = self._IS_RIGHT_SIDE_MASK
         data = self._IS_UPPER_MASK | right_side_mask
-        return PlacedBlock(Vector3(0, 1, 0), block.copy(data=data)),
+        return PlacedBlock(Vector3(0, 0, 0), block), PlacedBlock(Vector3(0, 1, 0), block.copy(data=data))
+
+
+class _EndRodBlockSpec(_BlockSpec):
+
+    _BASE_SIDE = {
+        0: Vector3(0, 1, 0),
+        1: Vector3(0, -1, 0),
+        2: Vector3(0, 0, -1),
+        3: Vector3(0, 0, 1),
+        4: Vector3(-1, 0, 0),
+        5: Vector3(1, 0, 0)
+    }
+
+    def __init__(self) -> None:
+        super().__init__(ItemType.END_ROD)
+
+    def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
+        return self._BASE_SIDE[block.data],
+
+    def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
+        assert len(linked_blocks) == 1
+        base_side_block = linked_blocks[0]
+        if base_side_block.type == block.type and base_side_block.data == block.data:
+            block = block.copy(data=block.data ^ 1)
+        return PlacedBlock(Vector3(0, 0, 0), block),
 
 
 _block_specs = {
@@ -461,6 +476,7 @@ _block_specs = {
     BlockType.DOUBLE_PLANT: _DoublePlantBlockSpec(ItemType.DOUBLE_PLANT),
     BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
     BlockType.FLOWER_POT_BLOCK: _ToExtendUpwardBlockSpec(ItemType.FLOWER_POT, can_be_attached_on_ground=True),
+    BlockType.END_ROD: _EndRodBlockSpec(),
 }
 
 
@@ -715,10 +731,6 @@ class FunctionalBlock:
     @property
     def switch_position(self) -> Vector3[int]:
         return self._block_spec.get_switch_position(self._block)
-
-    @property
-    def is_large(self) -> bool:
-        return self._block_spec.is_large
 
     @property
     def link_target(self) -> Tuple[Vector3[int], ...]:

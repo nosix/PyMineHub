@@ -196,15 +196,13 @@ class Space:
             return
 
         position += face.direction
-        self._get_cache(position).put(attached_block.value, transaction)
 
-        if attached_block.is_large:
-            for additional in attached_block.get_additional_blocks(self._get_linked_blocks(position, attached_block)):
-                current_block_cache = self._get_cache(position + additional.position)
-                if current_block_cache.value.type is not BlockType.AIR:
-                    transaction.clear()
-                    return
-                current_block_cache.put(additional.block, transaction)
+        for additional in attached_block.get_additional_blocks(self._get_linked_blocks(position, attached_block)):
+            current_block_cache = self._get_cache(position + additional.position)
+            if current_block_cache.value.type is not BlockType.AIR:
+                transaction.clear()
+                return
+            current_block_cache.put(additional.block, transaction)
 
     def _get_linked_blocks(self, position: Vector3[int], attached_block: FunctionalBlock) -> List[Block]:
         return list(self._get_cache(position + link_target).value for link_target in attached_block.link_target)

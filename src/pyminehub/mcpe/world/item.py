@@ -396,7 +396,8 @@ class _BucketItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,click_position: Vector3[float]
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
     ) -> int:
         return 0
 
@@ -439,6 +440,42 @@ class _FurnaceItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
+class _EndRodItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.BOTTOM: 0,
+        Face.TOP: 1,
+        Face.NORTH: 2,
+        Face.SOUTH: 3,
+        Face.WEST: 4,
+        Face.EAST: 5
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            horizontal_player_face: Face,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _EndRodItemSpec(None, 0)
+        >>> spec.to_block_data(0, Face.BOTTOM, Face.NORTH, Vector3(0.5, 0.0, 0.5))
+        0
+        >>> spec.to_block_data(0, Face.TOP, Face.NORTH, Vector3(0.5, 0.0, 0.5))
+        1
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        2
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        3
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        5
+        """
+        return self._FACE_TO_DATA[attached_face]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -459,6 +496,7 @@ _item_specs = {
     ItemType.BUCKET: _BucketItemSpec(),
     ItemType.FURNACE: _FurnaceItemSpec(),
     ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
+    ItemType.END_ROD: _EndRodItemSpec(BlockType.END_ROD, 64),
 }
 
 _block_items = [

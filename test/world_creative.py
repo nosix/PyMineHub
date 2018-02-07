@@ -221,7 +221,7 @@ class WorldCreativeTestCase(TestCase):
         self.perform_action(
             ActionType.PUT_ITEM,
             entity_runtime_id=1,
-            position=Vector3(x=256, y=61, z=257),
+            position=Vector3(x=256, y=62, z=257),
             click_position=Vector3(0.5, 1.0, 0.5),
             face=Face.TOP,
             hotbar_slot=0,
@@ -231,7 +231,7 @@ class WorldCreativeTestCase(TestCase):
         actual_event = self.next_event()
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
-            position=Vector3(x=256, y=62, z=257),
+            position=Vector3(x=256, y=63, z=257),
             block=Block(type=BlockType.DIRT, aux_value=176)
         )
         self.assertEqual(expected_event, actual_event)
