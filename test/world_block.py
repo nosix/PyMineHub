@@ -900,6 +900,22 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.TRIPWIRE_HOOK, 3)
         self._assert_inventory_updated(item)
 
+    def test_put_daylight_detector(self):
+        self.test_login()
+        item = self._equip(ItemType.DAYLIGHT_DETECTOR, 0)
+
+        self._put_item(Vector3(x=256, y=62, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.DAYLIGHT_DETECTOR, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.DAYLIGHT_DETECTOR_INVERTED, 0)
+        self._assert_inventory_updated(item)
+
+        self._put_item(Vector3(x=256, y=63, z=256), Vector3(0.5, 1.0, 0.5), Face.TOP, item)
+        self._assert_block_updated(Vector3(x=256, y=63, z=256), BlockType.DAYLIGHT_DETECTOR, 0)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
