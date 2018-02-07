@@ -875,6 +875,31 @@ class WorldBlockTestCase(world_creative.WorldCreativeTestCase):
         self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.WOODEN_BUTTON, 4)
         self._assert_inventory_updated(item)
 
+    def test_put_tripwire_hook(self):
+        self.test_login()
+        self._put_pole(Vector3(x=256, y=62, z=256), 2)
+        item = self._equip(ItemType.TRIPWIRE_HOOK, 0)
+
+        # put on NORTH
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 1.0), Face.NORTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=257), BlockType.TRIPWIRE_HOOK, 0)
+        self._assert_inventory_updated(item)
+
+        # put on EAST
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.0, 0.5, 0.5), Face.EAST, item)
+        self._assert_block_updated(Vector3(x=255, y=64, z=256), BlockType.TRIPWIRE_HOOK, 1)
+        self._assert_inventory_updated(item)
+
+        # put on SOUTH
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(0.5, 0.5, 0.0), Face.SOUTH, item)
+        self._assert_block_updated(Vector3(x=256, y=64, z=255), BlockType.TRIPWIRE_HOOK, 2)
+        self._assert_inventory_updated(item)
+
+        # put on WEST
+        self._put_item(Vector3(x=256, y=64, z=256), Vector3(1.0, 0.5, 0.5), Face.WEST, item)
+        self._assert_block_updated(Vector3(x=257, y=64, z=256), BlockType.TRIPWIRE_HOOK, 3)
+        self._assert_inventory_updated(item)
+
 
 if __name__ == '__main__':
     import unittest
