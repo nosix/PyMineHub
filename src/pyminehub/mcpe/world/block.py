@@ -487,6 +487,23 @@ class _TripwireHookBlockSpec(_BlockSpec):
         return _CONNECTOR_SIDE
 
 
+class _DaylightDetectorBlockSpec(_BlockSpec):
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, is_switchable=True)
+
+    def switch(self, block: Block) -> Block:
+        block_type = BlockType.DAYLIGHT_DETECTOR_INVERTED \
+            if block.type is BlockType.DAYLIGHT_DETECTOR else BlockType.DAYLIGHT_DETECTOR
+        return block.copy(block_type=block_type)
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_BOTTOM
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
@@ -507,6 +524,8 @@ _block_specs = {
     BlockType.WOODEN_BUTTON: _ToggleBlockSpec(ItemType.WOODEN_BUTTON),
     BlockType.STONE_BUTTON: _ToggleBlockSpec(ItemType.STONE_BUTTON),
     BlockType.TRIPWIRE_HOOK: _TripwireHookBlockSpec(ItemType.TRIPWIRE_HOOK),
+    BlockType.DAYLIGHT_DETECTOR: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
+    BlockType.DAYLIGHT_DETECTOR_INVERTED: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
 }
 
 
@@ -641,7 +660,6 @@ _blocks = [
     BlockType.ENDER_CHEST,
     BlockType.BOOKSHELF,
 
-    BlockType.DAYLIGHT_DETECTOR,
     BlockType.END_PORTAL_FRAME,
 
     BlockType.GRASS_PATH,

@@ -233,18 +233,22 @@ class Block(NamedTuple('Block', [
         """
         return flags_to_dict(BlockFlag, self.aux_value >> 4)
 
-    def copy(self, data: Optional[int]=None, **flags: bool) -> 'Block':
+    def copy(self, block_type: Optional[BlockType]=None, data: Optional[int]=None, **flags: bool) -> 'Block':
         """
         >>> block = Block.create(BlockType.DIRT, 1, neighbors=True, network=True, priority=True)
-        >>> block = block.copy(data=2, network=False)
+        >>> block = block.copy(block_type=BlockType.GRASS, data=2, network=False)
+        >>> block.type
+        <BlockType.GRASS: 2>
         >>> block.data
         2
         >>> sorted(block.flags.items())
         [('neighbors', True), ('priority', True)]
         """
+        block_type = self.type if block_type is None else block_type
+        data = self.data if data is None else data
         new_flags = self.flags
         new_flags.update(flags)
-        return Block.create(self.type, self.data if data is None else data, **new_flags)
+        return Block.create(block_type, data, **new_flags)
 
 
 if __name__ == '__main__':
