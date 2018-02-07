@@ -458,6 +458,7 @@ _item_specs = {
     ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
     ItemType.BUCKET: _BucketItemSpec(),
     ItemType.FURNACE: _FurnaceItemSpec(),
+    ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
 }
 
 _block_items = [

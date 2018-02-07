@@ -460,6 +460,7 @@ _block_specs = {
     BlockType.CARPET: _CarpetBlockSpec(),
     BlockType.DOUBLE_PLANT: _DoublePlantBlockSpec(ItemType.DOUBLE_PLANT),
     BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
+    BlockType.FLOWER_POT_BLOCK: _ToExtendUpwardBlockSpec(ItemType.FLOWER_POT, can_be_attached_on_ground=True),
 }
 
 
