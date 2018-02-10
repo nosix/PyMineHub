@@ -626,6 +626,9 @@ class _BannerItemSpec(ItemSpec):
         Face.WEST: 5
     }
 
+    def __init__(self) -> None:
+        super().__init__(None, 64)
+
     def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
         if attached_face is Face.BOTTOM:
             return None
@@ -641,7 +644,7 @@ class _BannerItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _BannerItemSpec(None, 0)
+        >>> spec = _BannerItemSpec()
         >>> spec.to_block_data(0, Face.TOP, 180.0, Vector3(0.5, 1.0, 0.5))
         0
         >>> spec.to_block_data(0, Face.TOP, 270.0, Vector3(0.5, 1.0, 0.5))
@@ -693,7 +696,7 @@ _item_specs = {
     ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
     ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
     ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(BlockType.TRIPWIRE_HOOK, 64),
-    ItemType.BANNER: _BannerItemSpec(BlockType.STANDING_BANNER, 64),
+    ItemType.BANNER: _BannerItemSpec(),
 }
 
 _block_items = [
