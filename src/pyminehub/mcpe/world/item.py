@@ -28,7 +28,7 @@ class ItemSpec:
             click_position: Vector3[float],
             **flags: bool
     ) -> Optional[Block]:
-        block_type = self.to_block_type(item_data)
+        block_type = self.to_block_type(item_data, attached_face)
         if block_type is None or not self.is_attachable(attached_face):
             return None
         block_data = self.to_block_data(item_data, attached_face, player_yaw, click_position)
@@ -37,7 +37,7 @@ class ItemSpec:
     def is_attachable(self, attached_face: Face) -> bool:
         return True
 
-    def to_block_type(self, item_data: int) -> Optional[BlockType]:
+    def to_block_type(self, item_data: int, attached_facd: Face) -> Optional[BlockType]:
         return self._block_type
 
     def to_block_data(
@@ -386,15 +386,15 @@ class _BucketItemSpec(ItemSpec):
     def __init__(self) -> None:
         super().__init__(None, 1)
 
-    def to_block_type(self, item_data: int) -> Optional[BlockType]:
+    def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
         """
         >>> spec = _BucketItemSpec()
-        >>> spec.to_block_type(8)
+        >>> spec.to_block_type(8, Face.NONE)
         <BlockType.FLOWING_WATER: 8>
-        >>> spec.to_block_type(10)
+        >>> spec.to_block_type(10, Face.NONE)
         <BlockType.FLOWING_LAVA: 10>
-        >>> spec.to_block_type(0)
-        >>> spec.to_block_type(1)
+        >>> spec.to_block_type(0, Face.NONE)
+        >>> spec.to_block_type(1, Face.NONE)
         """
         return self._TO_BLOCK_TYPE.get(item_data, None)
 
@@ -592,6 +592,8 @@ class _TripwireHookItemSpec(ItemSpec):
         Face.BOTTOM: 0  # not used (because blocks can't be put on this face)
     }
 
+    # TODO add to_block_type
+
     def to_block_data(
             self,
             item_data: int,
@@ -617,6 +619,20 @@ class _BannerItemSpec(ItemSpec):
 
     _ANGLE_UNIT = 360 // 16
 
+    _FACE_TO_DATA = {
+        Face.SOUTH: 2,
+        Face.NORTH: 3,
+        Face.EAST: 4,
+        Face.WEST: 5
+    }
+
+    def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
+        if attached_face is Face.BOTTOM:
+            return None
+        if attached_face is Face.TOP:
+            return BlockType.STANDING_BANNER
+        return BlockType.WALL_BANNER
+
     def to_block_data(
             self,
             item_data: int,
@@ -634,8 +650,20 @@ class _BannerItemSpec(ItemSpec):
         8
         >>> spec.to_block_data(0, Face.TOP, 90.0, Vector3(0.5, 1.0, 0.5))
         12
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
+        2
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
+        3
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(0.0, 0.5, 0.5))
+        5
         """
-        return int(player_yaw + 180) // self._ANGLE_UNIT % 16
+        assert attached_face is not Face.BOTTOM
+        if attached_face is Face.TOP:
+            return int(player_yaw + 180) // self._ANGLE_UNIT % 16
+        else:
+            return self._FACE_TO_DATA[attached_face]
 
 
 _item_specs = {

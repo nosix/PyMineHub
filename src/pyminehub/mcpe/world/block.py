@@ -527,7 +527,8 @@ _block_specs = {
     BlockType.TRIPWIRE_HOOK: _TripwireHookBlockSpec(ItemType.TRIPWIRE_HOOK),
     BlockType.DAYLIGHT_DETECTOR: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
     BlockType.DAYLIGHT_DETECTOR_INVERTED: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
-    BlockType.STANDING_BANNER: _ToExtendUpwardBlockSpec(ItemType.BANNER),
+    BlockType.STANDING_BANNER: _BlockSpec(ItemType.BANNER),
+    BlockType.WALL_BANNER: _BlockSpec(ItemType.BANNER),
 }
 
 
