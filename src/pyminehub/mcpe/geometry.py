@@ -3,7 +3,7 @@ import math
 import operator as _op
 from enum import Enum
 from numbers import Number
-from typing import Generic, Iterator, NamedTuple
+from typing import Generic, Iterator, NamedTuple, Optional
 
 from pyminehub.typevar import NT
 
@@ -167,15 +167,15 @@ class Vector3(NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[
 
 
 class Face(Enum):
-    NONE = (-1, Vector3(0, 0, 0))
-    BOTTOM = (0, Vector3(0, -1, 0))
-    TOP = (1, Vector3(0, 1, 0))
-    SOUTH = (2, Vector3(0, 0, -1))
-    NORTH = (3, Vector3(0, 0, 1))
-    EAST = (4, Vector3(-1, 0, 0))
-    WEST = (5, Vector3(1, 0, 0))
+    NONE = (-1, Vector3(0, 0, 0), None)
+    BOTTOM = (0, Vector3(0, -1, 0), 270.0)
+    TOP = (1, Vector3(0, 1, 0), 90.0)
+    SOUTH = (2, Vector3(0, 0, -1), 180.0)
+    NORTH = (3, Vector3(0, 0, 1), 0.0)
+    EAST = (4, Vector3(-1, 0, 0), 90.0)
+    WEST = (5, Vector3(1, 0, 0), 270.0)
 
-    def __new__(cls, value: int, direction: Vector3[int]) -> 'Face':
+    def __new__(cls, value: int, direction: Vector3[int], yaw: Optional[float]) -> 'Face':
         """
         >>> Face.BOTTOM
         <Face.BOTTOM: 0>
@@ -187,11 +187,16 @@ class Face(Enum):
         obj = object.__new__(cls)
         obj._value_ = value
         obj._direction = direction
+        obj._yaw = yaw
         return obj
 
     @property
     def direction(self) -> Vector3[int]:
         return self._direction
+
+    @property
+    def yaw(self) -> Optional[float]:
+        return self._yaw
 
     @property
     def inverse(self) -> 'Face':

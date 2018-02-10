@@ -24,14 +24,14 @@ class ItemSpec:
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float],
             **flags: bool
     ) -> Optional[Block]:
         block_type = self.to_block_type(item_data)
         if block_type is None or not self.is_attachable(attached_face):
             return None
-        block_data = self.to_block_data(item_data, attached_face, horizontal_player_face, click_position)
+        block_data = self.to_block_data(item_data, attached_face, player_yaw, click_position)
         return Block.create(block_type, block_data, **flags)
 
     def is_attachable(self, attached_face: Face) -> bool:
@@ -44,7 +44,7 @@ class ItemSpec:
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         raise NotImplementedError()
@@ -56,7 +56,7 @@ class _DefaultItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         return item_data
@@ -72,42 +72,42 @@ class _DirectionalItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _DirectionalItemSpec(None, 0, (0, ))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         8
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         8
 
         >>> spec = _DirectionalItemSpec(None, 0, (1, 2))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
-        >>> list(spec.to_block_data(1, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(1, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [1, 1, 1, 1]
-        >>> list(spec.to_block_data(2, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(2, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [2, 2, 2, 2]
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         0
-        >>> spec.to_block_data(1, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(1, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         5
-        >>> spec.to_block_data(2, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(2, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         6
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         0
-        >>> spec.to_block_data(1, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(1, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         9
-        >>> spec.to_block_data(2, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(2, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         10
         """
         if item_data not in self._directional_data:
@@ -125,22 +125,23 @@ class _StairItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _StairItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [4, 5, 6, 7]
-        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.25, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, f.inverse, f.yaw, Vector3(0.5, 0.25, 0.5)) for f in faces)
         [0, 1, 2, 3]
-        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.75, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, f.inverse, f.yaw, Vector3(0.5, 0.75, 0.5)) for f in faces)
         [4, 5, 6, 7]
         """
         assert item_data == 0
+        horizontal_player_face = Face.by_yaw(player_yaw)
         if attached_face is Face.TOP or (attached_face is not Face.BOTTOM and click_position.y < 0.5):
             return Face.WEST.value - horizontal_player_face.value
         else:
@@ -153,28 +154,29 @@ class _TerracottaItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _TerracottaItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
-        >>> list(spec.to_block_data(0, f.inverse, f, Vector3(0.5, 0.5, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, f.inverse, f.yaw, Vector3(0.5, 0.5, 0.5)) for f in faces)
         [2, 3, 4, 5]
-        >>> list(spec.to_block_data(0, Face.WEST, f, Vector3(1.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        >>> list(spec.to_block_data(0, Face.WEST, f.yaw, Vector3(1.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
         [2, 3]
-        >>> list(spec.to_block_data(0, Face.NORTH, f, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
+        >>> list(spec.to_block_data(0, Face.NORTH, f.yaw, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
         [4, 5]
-        >>> list(spec.to_block_data(0, Face.EAST, f, Vector3(0.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        >>> list(spec.to_block_data(0, Face.EAST, f.yaw, Vector3(0.0, 0.5, 0.5)) for f in [Face.NORTH, Face.SOUTH])
         [2, 3]
-        >>> list(spec.to_block_data(0, Face.SOUTH, f, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
+        >>> list(spec.to_block_data(0, Face.SOUTH, f.yaw, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
         [4, 5]
         """
         assert item_data == 0
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return horizontal_player_face.inverse.value
 
 
@@ -191,26 +193,27 @@ class _PumpkinSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _PumpkinSpec(None, 0)
         >>> faces = [Face.SOUTH, Face.WEST, Face.NORTH, Face.EAST]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
-        >>> list(spec.to_block_data(0, Face.EAST, f, Vector3(0.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
+        >>> list(spec.to_block_data(0, Face.EAST, f.yaw, Vector3(0.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
         [0, 2]
-        >>> list(spec.to_block_data(0, Face.WEST, f, Vector3(1.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
+        >>> list(spec.to_block_data(0, Face.WEST, f.yaw, Vector3(1.0, 0.5, 0.5)) for f in [Face.SOUTH, Face.NORTH])
         [0, 2]
-        >>> list(spec.to_block_data(0, Face.SOUTH, f, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
+        >>> list(spec.to_block_data(0, Face.SOUTH, f.yaw, Vector3(0.5, 0.5, 0.0)) for f in [Face.WEST, Face.EAST])
         [1, 3]
-        >>> list(spec.to_block_data(0, Face.NORTH, f, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
+        >>> list(spec.to_block_data(0, Face.NORTH, f.yaw, Vector3(0.5, 0.5, 1.0)) for f in [Face.WEST, Face.EAST])
         [1, 3]
         """
         assert item_data == 0
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
@@ -222,25 +225,25 @@ class _SlabItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _SlabItemSpec(None, 0)
         >>> y_pos = [0.0, 0.5, 1.0]
-        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, y, 0.5)) for y in y_pos)
+        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, y, 0.5)) for y in y_pos)
         [0, 8, 0]
-        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, y, 0.5)) for y in y_pos)
+        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, y, 0.5)) for y in y_pos)
         [0, 8, 0]
-        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, y, 1.0)) for y in y_pos)
+        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, y, 1.0)) for y in y_pos)
         [0, 8, 0]
-        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, y, 0.0)) for y in y_pos)
+        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, y, 0.0)) for y in y_pos)
         [0, 8, 0]
-        >>> list(spec.to_block_data(0, Face.TOP, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.5, 1.0])
+        >>> list(spec.to_block_data(0, Face.TOP, Face.NORTH.yaw, Vector3(0.5, y, 0.5)) for y in [0.5, 1.0])
         [8, 0]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(0, Face.BOTTOM, Face.NORTH.yaw, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
         [8, 0]
-        >>> list(spec.to_block_data(1, Face.BOTTOM, Face.NORTH, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(1, Face.BOTTOM, Face.NORTH.yaw, Vector3(0.5, y, 0.5)) for y in [0.0, 0.5])
         [9, 1]
         """
         assert not (attached_face is Face.TOP and click_position.y == 0.0)
@@ -261,18 +264,18 @@ class _LadderItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _LadderItemSpec(None, 0)
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         2
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         3
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         5
         """
         assert attached_face not in (Face.TOP, Face.BOTTOM)
@@ -292,15 +295,16 @@ class _FenceGateItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _FenceGateItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.EAST, Face.SOUTH, Face.WEST]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
         """
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
@@ -319,27 +323,28 @@ class _TrapDoorItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _TrapDoorItemSpec(None, 0)
         >>> faces = [Face.EAST, Face.WEST, Face.SOUTH, Face.NORTH]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [4, 5, 6, 7]
-        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, y, 0.5)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, y, 0.5)) for y in [0.0, 0.5])
         [0, 4]
-        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, y, 0.5)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, y, 0.5)) for y in [0.0, 0.5])
         [1, 5]
-        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, y, 1.0)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, y, 1.0)) for y in [0.0, 0.5])
         [2, 6]
-        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, y, 0.0)) for y in [0.0, 0.5])
+        >>> list(spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, y, 0.0)) for y in [0.0, 0.5])
         [3, 7]
         """
         assert not (attached_face is Face.TOP and click_position.y == 0.0)
         assert not (attached_face is Face.BOTTOM and click_position.y == 1.0)
+        horizontal_player_face = Face.by_yaw(player_yaw)
         y = click_position.y % 1.0
         is_upper = self._IS_UPPER if y >= 0.5 or attached_face is Face.BOTTOM else 0
         return self._FACE_TO_DATA[horizontal_player_face] | is_upper
@@ -358,15 +363,16 @@ class _DoorItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _DoorItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
         """
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
@@ -396,7 +402,7 @@ class _BucketItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         return 0
@@ -415,25 +421,26 @@ class _FurnaceItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _FurnaceItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         2
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         3
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         5
         """
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
@@ -450,15 +457,16 @@ class _AnvilItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _AnvilItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
         """
+        horizontal_player_face = Face.by_yaw(player_yaw)
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
@@ -477,22 +485,22 @@ class _EndRodItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _EndRodItemSpec(None, 0)
-        >>> spec.to_block_data(0, Face.BOTTOM, Face.NORTH, Vector3(0.5, 0.0, 0.5))
+        >>> spec.to_block_data(0, Face.BOTTOM, Face.NORTH.yaw, Vector3(0.5, 0.0, 0.5))
         0
-        >>> spec.to_block_data(0, Face.TOP, Face.NORTH, Vector3(0.5, 0.0, 0.5))
+        >>> spec.to_block_data(0, Face.TOP, Face.NORTH.yaw, Vector3(0.5, 0.0, 0.5))
         1
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         2
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         3
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         5
         """
         return self._FACE_TO_DATA[attached_face]
@@ -511,28 +519,29 @@ class _LeverItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _LeverItemSpec(None, 0)
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in [Face.EAST, Face.WEST])
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in [Face.EAST, Face.WEST])
         [0, 0]
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         1
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         2
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         3
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         4
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
         [5, 5]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in [Face.EAST, Face.WEST])
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in [Face.EAST, Face.WEST])
         [6, 6]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in [Face.NORTH, Face.SOUTH])
         [7, 7]
         """
+        horizontal_player_face = Face.by_yaw(player_yaw)
         if attached_face is Face.TOP:
             return 5 if horizontal_player_face.direction.x == 0 else 6
         if attached_face is Face.BOTTOM:
@@ -546,23 +555,23 @@ class _ButtonItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _ButtonItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.NORTH]
-        >>> list(spec.to_block_data(0, Face.BOTTOM, f, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
-        >>> list(spec.to_block_data(0, Face.TOP, f, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [1, 1, 1, 1]
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         2
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         3
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         4
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         5
         """
         if attached_face is Face.BOTTOM:
@@ -587,21 +596,46 @@ class _TripwireHookItemSpec(ItemSpec):
             self,
             item_data: int,
             attached_face: Face,
-            horizontal_player_face: Face,
+            player_yaw: float,
             click_position: Vector3[float]
     ) -> int:
         """
         >>> spec = _TripwireHookItemSpec(None, 0)
-        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH, Vector3(0.5, 0.5, 1.0))
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         0
-        >>> spec.to_block_data(0, Face.EAST, Face.WEST, Vector3(0.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
         1
-        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH, Vector3(0.5, 0.5, 0.0))
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         2
-        >>> spec.to_block_data(0, Face.WEST, Face.EAST, Vector3(1.0, 0.5, 0.5))
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         3
         """
         return self._FACE_TO_DATA[attached_face]
+
+
+class _BannerItemSpec(ItemSpec):
+
+    _ANGLE_UNIT = 360 // 16
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            player_yaw: float,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _BannerItemSpec(None, 0)
+        >>> spec.to_block_data(0, Face.TOP, 180.0, Vector3(0.5, 1.0, 0.5))
+        0
+        >>> spec.to_block_data(0, Face.TOP, 270.0, Vector3(0.5, 1.0, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.TOP, 360.0, Vector3(0.5, 1.0, 0.5))
+        8
+        >>> spec.to_block_data(0, Face.TOP, 90.0, Vector3(0.5, 1.0, 0.5))
+        12
+        """
+        return int(player_yaw + 180) // self._ANGLE_UNIT % 16
 
 
 _item_specs = {
@@ -631,6 +665,7 @@ _item_specs = {
     ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
     ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
     ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(BlockType.TRIPWIRE_HOOK, 64),
+    ItemType.BANNER: _BannerItemSpec(BlockType.STANDING_BANNER, 64),
 }
 
 _block_items = [

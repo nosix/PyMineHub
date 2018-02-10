@@ -11,7 +11,7 @@ from pyminehub.mcpe.chunk import encode_chunk
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
-from pyminehub.mcpe.geometry import Vector3, Face, revise_angle
+from pyminehub.mcpe.geometry import Vector3, revise_angle
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.plugin.mob import *
 from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
@@ -303,9 +303,8 @@ class _World(WorldEditor):
             old_slot = player.get_item(inventory_slot)
             new_slot = old_slot
             assert action.item == new_slot, '{}, {}'.format(action.item, new_slot)
-        horizontal_player_face = Face.by_yaw(player.yaw)
         block = get_item_spec(old_slot.type).to_block(
-            old_slot.data, action.face, horizontal_player_face, action.click_position)
+            old_slot.data, action.face, player.yaw, action.click_position)
         if block is not None:
             for updated in self._space.put_block(action.position, action.face, block):
                 self._notify_event(event_factory.create(
