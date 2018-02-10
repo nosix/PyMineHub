@@ -504,6 +504,15 @@ class _DaylightDetectorBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
+class _TorchBlockSpec(_BlockSpec):
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL - _CONNECTOR_TOP
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
@@ -531,6 +540,8 @@ _block_specs = {
     BlockType.WALL_BANNER: _BlockSpec(ItemType.BANNER),
     BlockType.STANDING_SIGN: _BlockSpec(ItemType.SIGN),
     BlockType.WALL_SIGN: _BlockSpec(ItemType.SIGN),
+    BlockType.TORCH: _TorchBlockSpec(ItemType.TORCH),
+    BlockType.REDSTONE_TORCH: _TorchBlockSpec(ItemType.REDSTONE_TORCH),
 }
 
 
@@ -651,8 +662,6 @@ _blocks = [
 
     BlockType.WEB,
 
-    BlockType.TORCH,
-    BlockType.REDSTONE_TORCH,
     BlockType.REDSTONE_LAMP,
     BlockType.SEA_LANTERN,
 

@@ -674,6 +674,43 @@ class _StandingOrWallItemSpec(ItemSpec):
             return self._FACE_TO_DATA[attached_face]
 
 
+class _TorchItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.TOP: 0,
+        Face.WEST: 1,
+        Face.EAST: 2,
+        Face.NORTH: 3,
+        Face.SOUTH: 4
+    }
+
+    def to_block_type(self, item_data: int, attached_facd: Face) -> Optional[BlockType]:
+        return None if attached_facd is Face.BOTTOM else super().to_block_type(item_data, attached_facd)
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            player_yaw: float,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _TorchItemSpec(None, 0)
+        >>> spec.to_block_data(0, Face.TOP, Face.NORTH.yaw, Vector3(0.5, 1.0, 0.5))
+        0
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
+        1
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
+        2
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
+        3
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
+        4
+        """
+        assert attached_face is not Face.BOTTOM
+        return self._FACE_TO_DATA[attached_face]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -703,6 +740,8 @@ _item_specs = {
     ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(),
     ItemType.BANNER: _StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER),
     ItemType.SIGN: _StandingOrWallItemSpec(BlockType.STANDING_SIGN, BlockType.WALL_SIGN),
+    ItemType.TORCH: _TorchItemSpec(BlockType.TORCH, 64),
+    ItemType.REDSTONE_TORCH: _TorchItemSpec(BlockType.REDSTONE_TORCH, 64),
 }
 
 _block_items = [
@@ -811,8 +850,6 @@ _block_items = [
 
     ItemType.WEB,
 
-    ItemType.TORCH,
-    ItemType.REDSTONE_TORCH,
     ItemType.REDSTONE_LAMP,
     ItemType.SEA_LANTERN,
 
