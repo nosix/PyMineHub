@@ -529,6 +529,8 @@ _block_specs = {
     BlockType.DAYLIGHT_DETECTOR_INVERTED: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
     BlockType.STANDING_BANNER: _BlockSpec(ItemType.BANNER),
     BlockType.WALL_BANNER: _BlockSpec(ItemType.BANNER),
+    BlockType.STANDING_SIGN: _BlockSpec(ItemType.SIGN),
+    BlockType.WALL_SIGN: _BlockSpec(ItemType.SIGN),
 }
 
 

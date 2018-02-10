@@ -618,7 +618,7 @@ class _TripwireHookItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
-class _BannerItemSpec(ItemSpec):
+class _StandingOrWallItemSpec(ItemSpec):
 
     _ANGLE_UNIT = 360 // 16
 
@@ -629,15 +629,17 @@ class _BannerItemSpec(ItemSpec):
         Face.WEST: 5
     }
 
-    def __init__(self) -> None:
+    def __init__(self, standing_type: BlockType, wall_type: BlockType) -> None:
         super().__init__(None, 64)
+        self._standing_type = standing_type
+        self._wall_type = wall_type
 
     def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
         if attached_face is Face.BOTTOM:
             return None
         if attached_face is Face.TOP:
-            return BlockType.STANDING_BANNER
-        return BlockType.WALL_BANNER
+            return self._standing_type
+        return self._wall_type
 
     def to_block_data(
             self,
@@ -647,7 +649,7 @@ class _BannerItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _BannerItemSpec()
+        >>> spec = _StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER)
         >>> spec.to_block_data(0, Face.TOP, 180.0, Vector3(0.5, 1.0, 0.5))
         0
         >>> spec.to_block_data(0, Face.TOP, 270.0, Vector3(0.5, 1.0, 0.5))
@@ -699,7 +701,8 @@ _item_specs = {
     ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
     ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
     ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(),
-    ItemType.BANNER: _BannerItemSpec(),
+    ItemType.BANNER: _StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER),
+    ItemType.SIGN: _StandingOrWallItemSpec(BlockType.STANDING_SIGN, BlockType.WALL_SIGN),
 }
 
 _block_items = [
