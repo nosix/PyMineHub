@@ -587,12 +587,14 @@ class _TripwireHookItemSpec(ItemSpec):
         Face.NORTH: 0,
         Face.EAST: 1,
         Face.SOUTH: 2,
-        Face.WEST: 3,
-        Face.TOP: 0,  # not used (because blocks can't be put on this face)
-        Face.BOTTOM: 0  # not used (because blocks can't be put on this face)
+        Face.WEST: 3
     }
 
-    # TODO add to_block_type
+    def __init__(self) -> None:
+        super().__init__(BlockType.TRIPWIRE_HOOK, 64)
+
+    def to_block_type(self, item_data: int, attached_facd: Face) -> Optional[BlockType]:
+        return None if attached_facd in (Face.TOP, Face.BOTTOM) else BlockType.TRIPWIRE_HOOK
 
     def to_block_data(
             self,
@@ -602,7 +604,7 @@ class _TripwireHookItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _TripwireHookItemSpec(None, 0)
+        >>> spec = _TripwireHookItemSpec()
         >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         0
         >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
@@ -612,6 +614,7 @@ class _TripwireHookItemSpec(ItemSpec):
         >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
         3
         """
+        assert attached_face not in (Face.TOP, Face.BOTTOM)
         return self._FACE_TO_DATA[attached_face]
 
 
@@ -695,7 +698,7 @@ _item_specs = {
     ItemType.LEVER: _LeverItemSpec(BlockType.LEVER, 64),
     ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
     ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
-    ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(BlockType.TRIPWIRE_HOOK, 64),
+    ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(),
     ItemType.BANNER: _BannerItemSpec(),
 }
 
