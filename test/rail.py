@@ -70,12 +70,13 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=2)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(1, 1, 0), RAIL.copy(data=1)), blocks.pop(0))
 
-        # linked_blocks = dict(LINKED_BLOCKS)
-        # linked_blocks[Vector3(-1, -1, 0)] = RAIL.copy(data=0)
-        # blocks = self._get_additional_blocks(RAIL, linked_blocks)
-        # self.assertEqual(2, len(blocks))
-        # self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
-        # self.assertEqual(PlacedBlock(Vector3(-1, -1, 0), RAIL.copy(data=2)), blocks.pop(0))
+    def test_neighbour_rail_2(self):
+        linked_blocks = dict(LINKED_BLOCKS)
+        linked_blocks[Vector3(-1, -1, 0)] = RAIL.copy(data=0)
+        blocks = self._get_additional_blocks(RAIL, linked_blocks)
+        self.assertEqual(2, len(blocks))
+        self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
+        self.assertEqual(PlacedBlock(Vector3(-1, -1, 0), RAIL.copy(data=2)), blocks.pop(0))
 
     def test_rail_3(self):
         linked_blocks = dict(LINKED_BLOCKS)
@@ -92,12 +93,13 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=3)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(-1, 1, 0), RAIL.copy(data=1)), blocks.pop(0))
 
-        # linked_blocks = dict(LINKED_BLOCKS)
-        # linked_blocks[Vector3(1, -1, 0)] = RAIL.copy(data=0)
-        # blocks = self._get_additional_blocks(RAIL, linked_blocks)
-        # self.assertEqual(2, len(blocks))
-        # self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
-        # self.assertEqual(PlacedBlock(Vector3(1, -1, 0), RAIL.copy(data=3)), blocks.pop(0))
+    def test_neighbour_rail_3(self):
+        linked_blocks = dict(LINKED_BLOCKS)
+        linked_blocks[Vector3(1, -1, 0)] = RAIL.copy(data=0)
+        blocks = self._get_additional_blocks(RAIL, linked_blocks)
+        self.assertEqual(2, len(blocks))
+        self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
+        self.assertEqual(PlacedBlock(Vector3(1, -1, 0), RAIL.copy(data=3)), blocks.pop(0))
 
     def test_rail_4(self):
         linked_blocks = dict(LINKED_BLOCKS)
@@ -114,12 +116,13 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=4)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(0, 1, -1), RAIL.copy(data=0)), blocks.pop(0))
 
-        # linked_blocks = dict(LINKED_BLOCKS)
-        # linked_blocks[Vector3(0, -1, 1)] = RAIL.copy(data=1)
-        # blocks = self._get_additional_blocks(RAIL, linked_blocks)
-        # self.assertEqual(2, len(blocks))
-        # self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=0)), blocks.pop(0))
-        # self.assertEqual(PlacedBlock(Vector3(0, -1, 1), RAIL.copy(data=4)), blocks.pop(0))
+    def test_neighbour_rail_4(self):
+        linked_blocks = dict(LINKED_BLOCKS)
+        linked_blocks[Vector3(0, -1, 1)] = RAIL.copy(data=1)
+        blocks = self._get_additional_blocks(RAIL, linked_blocks)
+        self.assertEqual(2, len(blocks))
+        self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=0)), blocks.pop(0))
+        self.assertEqual(PlacedBlock(Vector3(0, -1, 1), RAIL.copy(data=4)), blocks.pop(0))
 
     def test_rail_5(self):
         linked_blocks = dict(LINKED_BLOCKS)
@@ -136,12 +139,13 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=5)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(0, 1, 1), RAIL.copy(data=0)), blocks.pop(0))
 
-        # linked_blocks = dict(LINKED_BLOCKS)
-        # linked_blocks[Vector3(0, -1, -1)] = RAIL.copy(data=1)
-        # blocks = self._get_additional_blocks(RAIL, linked_blocks)
-        # self.assertEqual(2, len(blocks))
-        # self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=0)), blocks.pop(0))
-        # self.assertEqual(PlacedBlock(Vector3(0, -1, -1), RAIL.copy(data=5)), blocks.pop(0))
+    def test_neighbour_rail_5(self):
+        linked_blocks = dict(LINKED_BLOCKS)
+        linked_blocks[Vector3(0, -1, -1)] = RAIL.copy(data=1)
+        blocks = self._get_additional_blocks(RAIL, linked_blocks)
+        self.assertEqual(2, len(blocks))
+        self.assertEqual(PlacedBlock(Vector3(0, 0, 0), RAIL.copy(data=0)), blocks.pop(0))
+        self.assertEqual(PlacedBlock(Vector3(0, -1, -1), RAIL.copy(data=5)), blocks.pop(0))
 
     def test_rail_6(self):
         linked_blocks = dict(LINKED_BLOCKS)
@@ -160,6 +164,7 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 1), RAIL.copy(data=0)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(1, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
 
+    def test_neighbour_rail_6(self):
         linked_blocks = dict(LINKED_BLOCKS)
         linked_blocks[Vector3(0, 0, -1)] = RAIL.copy(data=1)
         linked_blocks[Vector3(1, 0, -1)] = RAIL.copy(data=1)
@@ -193,6 +198,7 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, 1), RAIL.copy(data=0)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(-1, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
 
+    def test_neighbour_rail_7(self):
         linked_blocks = dict(LINKED_BLOCKS)
         linked_blocks[Vector3(0, 0, -1)] = RAIL.copy(data=1)
         linked_blocks[Vector3(-1, 0, -1)] = RAIL.copy(data=1)
@@ -226,6 +232,7 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, -1), RAIL.copy(data=0)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(-1, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
 
+    def test_neighbour_rail_8(self):
         linked_blocks = dict(LINKED_BLOCKS)
         linked_blocks[Vector3(0, 0, 1)] = RAIL.copy(data=1)
         linked_blocks[Vector3(-1, 0, 1)] = RAIL.copy(data=1)
@@ -259,6 +266,7 @@ class RailTest(TestCase):
         self.assertEqual(PlacedBlock(Vector3(0, 0, -1), RAIL.copy(data=0)), blocks.pop(0))
         self.assertEqual(PlacedBlock(Vector3(1, 0, 0), RAIL.copy(data=1)), blocks.pop(0))
 
+    def test_neighbour_rail_9(self):
         linked_blocks = dict(LINKED_BLOCKS)
         linked_blocks[Vector3(0, 0, 1)] = RAIL.copy(data=1)
         linked_blocks[Vector3(1, 0, 1)] = RAIL.copy(data=1)

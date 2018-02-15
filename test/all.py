@@ -10,6 +10,7 @@ import geometry
 import protocol_login_logout
 import protocol_play
 import protocol_unconnected
+import rail
 import world_block
 import world_creative
 import world_survival
@@ -29,6 +30,7 @@ def load_tests(loader, tests, pattern):
         protocol_unconnected,
         protocol_login_logout,
         protocol_play,
+        rail,
         world_survival,
         world_creative,
         world_block,
