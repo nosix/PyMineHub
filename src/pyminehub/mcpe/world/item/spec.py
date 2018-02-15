@@ -1,12 +1,31 @@
 from typing import Optional, Tuple
 
-from pyminehub.mcpe.const import ItemType, BlockType
-from pyminehub.mcpe.geometry import Vector3, Face
+from pyminehub.mcpe.const import BlockType
+from pyminehub.mcpe.geometry import Face, Vector3
 from pyminehub.mcpe.value import Block
 
 __all__ = [
     'ItemSpec',
-    'get_item_spec'
+    'DefaultItemSpec',
+    'DirectionalItemSpec',
+    'StairItemSpec',
+    'TerracottaItemSpec',
+    'PumpkinSpec',
+    'SlabItemSpec',
+    'LadderItemSpec',
+    'FenceGateItemSpec',
+    'TrapDoorItemSpec',
+    'DoorItemSpec',
+    'BucketItemSpec',
+    'FurnaceItemSpec',
+    'AnvilItemSpec',
+    'EndRodItemSpec',
+    'LeverItemSpec',
+    'ButtonItemSpec',
+    'TripwireHookItemSpec',
+    'StandingOrWallItemSpec',
+    'TorchItemSpec',
+    'ChestItemSpec'
 ]
 
 
@@ -50,7 +69,7 @@ class ItemSpec:
         raise NotImplementedError()
 
 
-class _DefaultItemSpec(ItemSpec):
+class DefaultItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -62,7 +81,7 @@ class _DefaultItemSpec(ItemSpec):
         return item_data
 
 
-class _DirectionalItemSpec(ItemSpec):
+class DirectionalItemSpec(ItemSpec):
 
     def __init__(self, block_type: Optional[BlockType], max_quantity: int, directional_data: Tuple[int, ...]) -> None:
         super().__init__(block_type, max_quantity)
@@ -76,7 +95,7 @@ class _DirectionalItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _DirectionalItemSpec(None, 0, (0, ))
+        >>> spec = DirectionalItemSpec(None, 0, (0, ))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
@@ -91,7 +110,7 @@ class _DirectionalItemSpec(ItemSpec):
         >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         8
 
-        >>> spec = _DirectionalItemSpec(None, 0, (1, 2))
+        >>> spec = DirectionalItemSpec(None, 0, (1, 2))
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(1, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [1, 1, 1, 1]
@@ -119,7 +138,7 @@ class _DirectionalItemSpec(ItemSpec):
         return item_data
 
 
-class _StairItemSpec(ItemSpec):
+class StairItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -129,7 +148,7 @@ class _StairItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _StairItemSpec(None, 0)
+        >>> spec = StairItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.EAST, Face.NORTH, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -148,7 +167,7 @@ class _StairItemSpec(ItemSpec):
             return 4 + Face.WEST.value - horizontal_player_face.value
 
 
-class _TerracottaItemSpec(ItemSpec):
+class TerracottaItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -158,7 +177,7 @@ class _TerracottaItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _TerracottaItemSpec(None, 0)
+        >>> spec = TerracottaItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
@@ -180,7 +199,7 @@ class _TerracottaItemSpec(ItemSpec):
         return horizontal_player_face.inverse.value
 
 
-class _PumpkinSpec(ItemSpec):
+class PumpkinSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.SOUTH: 0,
@@ -197,7 +216,7 @@ class _PumpkinSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _PumpkinSpec(None, 0)
+        >>> spec = PumpkinSpec(None, 0)
         >>> faces = [Face.SOUTH, Face.WEST, Face.NORTH, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -217,7 +236,7 @@ class _PumpkinSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
-class _SlabItemSpec(ItemSpec):
+class SlabItemSpec(ItemSpec):
 
     _IS_UPPER = 0b1000
 
@@ -229,7 +248,7 @@ class _SlabItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _SlabItemSpec(None, 0)
+        >>> spec = SlabItemSpec(None, 0)
         >>> y_pos = [0.0, 0.5, 1.0]
         >>> list(spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, y, 0.5)) for y in y_pos)
         [0, 8, 0]
@@ -255,7 +274,7 @@ class _SlabItemSpec(ItemSpec):
             return item_data | (self._IS_UPPER if y >= 0.5 else 0)
 
 
-class _LadderItemSpec(ItemSpec):
+class LadderItemSpec(ItemSpec):
 
     def is_attachable(self, attached_face: Face) -> bool:
         return attached_face not in (Face.TOP, Face.BOTTOM)
@@ -268,7 +287,7 @@ class _LadderItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _LadderItemSpec(None, 0)
+        >>> spec = LadderItemSpec(None, 0)
         >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
         2
         >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
@@ -282,7 +301,7 @@ class _LadderItemSpec(ItemSpec):
         return attached_face.value
 
 
-class _FenceGateItemSpec(ItemSpec):
+class FenceGateItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.NORTH: 0,
@@ -299,7 +318,7 @@ class _FenceGateItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _FenceGateItemSpec(None, 0)
+        >>> spec = FenceGateItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.EAST, Face.SOUTH, Face.WEST]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -308,7 +327,7 @@ class _FenceGateItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
-class _TrapDoorItemSpec(ItemSpec):
+class TrapDoorItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.EAST: 0,
@@ -327,7 +346,7 @@ class _TrapDoorItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _TrapDoorItemSpec(None, 0)
+        >>> spec = TrapDoorItemSpec(None, 0)
         >>> faces = [Face.EAST, Face.WEST, Face.SOUTH, Face.NORTH]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -350,7 +369,7 @@ class _TrapDoorItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face] | is_upper
 
 
-class _DoorItemSpec(ItemSpec):
+class DoorItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.WEST: 0,
@@ -367,7 +386,7 @@ class _DoorItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _DoorItemSpec(None, 0)
+        >>> spec = DoorItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -376,7 +395,7 @@ class _DoorItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
-class _BucketItemSpec(ItemSpec):
+class BucketItemSpec(ItemSpec):
 
     _TO_BLOCK_TYPE = {
         8: BlockType.FLOWING_WATER,
@@ -388,7 +407,7 @@ class _BucketItemSpec(ItemSpec):
 
     def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
         """
-        >>> spec = _BucketItemSpec()
+        >>> spec = BucketItemSpec()
         >>> spec.to_block_type(8, Face.NONE)
         <BlockType.FLOWING_WATER: 8>
         >>> spec.to_block_type(10, Face.NONE)
@@ -408,7 +427,7 @@ class _BucketItemSpec(ItemSpec):
         return 0
 
 
-class _FurnaceItemSpec(ItemSpec):
+class FurnaceItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.NORTH: 2,
@@ -425,7 +444,7 @@ class _FurnaceItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _FurnaceItemSpec(None, 0)
+        >>> spec = FurnaceItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
@@ -444,7 +463,7 @@ class _FurnaceItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
-class _AnvilItemSpec(ItemSpec):
+class AnvilItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.WEST: 0,
@@ -461,7 +480,7 @@ class _AnvilItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _AnvilItemSpec(None, 0)
+        >>> spec = AnvilItemSpec(None, 0)
         >>> faces = [Face.WEST, Face.NORTH, Face.EAST, Face.SOUTH]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [0, 1, 2, 3]
@@ -470,7 +489,7 @@ class _AnvilItemSpec(ItemSpec):
         return self._FACE_TO_DATA[horizontal_player_face]
 
 
-class _EndRodItemSpec(ItemSpec):
+class EndRodItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.BOTTOM: 0,
@@ -489,7 +508,7 @@ class _EndRodItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _EndRodItemSpec(None, 0)
+        >>> spec = EndRodItemSpec(None, 0)
         >>> spec.to_block_data(0, Face.BOTTOM, Face.NORTH.yaw, Vector3(0.5, 0.0, 0.5))
         0
         >>> spec.to_block_data(0, Face.TOP, Face.NORTH.yaw, Vector3(0.5, 0.0, 0.5))
@@ -506,7 +525,7 @@ class _EndRodItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
-class _LeverItemSpec(ItemSpec):
+class LeverItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.WEST: 1,
@@ -523,7 +542,7 @@ class _LeverItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _LeverItemSpec(None, 0)
+        >>> spec = LeverItemSpec(None, 0)
         >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in [Face.EAST, Face.WEST])
         [0, 0]
         >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
@@ -549,7 +568,7 @@ class _LeverItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
-class _ButtonItemSpec(ItemSpec):
+class ButtonItemSpec(ItemSpec):
 
     def to_block_data(
             self,
@@ -559,7 +578,7 @@ class _ButtonItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _ButtonItemSpec(None, 0)
+        >>> spec = ButtonItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.NORTH]
         >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
         [0, 0, 0, 0]
@@ -581,7 +600,7 @@ class _ButtonItemSpec(ItemSpec):
         return attached_face.value
 
 
-class _TripwireHookItemSpec(ItemSpec):
+class TripwireHookItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.NORTH: 0,
@@ -604,7 +623,7 @@ class _TripwireHookItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _TripwireHookItemSpec()
+        >>> spec = TripwireHookItemSpec()
         >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
         0
         >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
@@ -618,7 +637,7 @@ class _TripwireHookItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
-class _StandingOrWallItemSpec(ItemSpec):
+class StandingOrWallItemSpec(ItemSpec):
 
     _ANGLE_UNIT = 360 // 16
 
@@ -649,7 +668,7 @@ class _StandingOrWallItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER)
+        >>> spec = StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER)
         >>> spec.to_block_data(0, Face.TOP, 180.0, Vector3(0.5, 1.0, 0.5))
         0
         >>> spec.to_block_data(0, Face.TOP, 270.0, Vector3(0.5, 1.0, 0.5))
@@ -674,7 +693,7 @@ class _StandingOrWallItemSpec(ItemSpec):
             return self._FACE_TO_DATA[attached_face]
 
 
-class _TorchItemSpec(ItemSpec):
+class TorchItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.TOP: 0,
@@ -695,7 +714,7 @@ class _TorchItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _TorchItemSpec(None, 0)
+        >>> spec = TorchItemSpec(None, 0)
         >>> spec.to_block_data(0, Face.TOP, Face.NORTH.yaw, Vector3(0.5, 1.0, 0.5))
         0
         >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
@@ -711,7 +730,7 @@ class _TorchItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
-class _ChestItemSpec(ItemSpec):
+class ChestItemSpec(ItemSpec):
 
     _FACE_TO_DATA = {
         Face.NORTH: 2,
@@ -728,7 +747,7 @@ class _ChestItemSpec(ItemSpec):
             click_position: Vector3[float]
     ) -> int:
         """
-        >>> spec = _ChestItemSpec(None, 0)
+        >>> spec = ChestItemSpec(None, 0)
         >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
         >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
         [2, 3, 4, 5]
@@ -748,253 +767,6 @@ class _ChestItemSpec(ItemSpec):
             return self._FACE_TO_DATA[horizontal_player_face]
         else:
             return self._FACE_TO_DATA[attached_face.inverse]
-
-
-_item_specs = {
-    ItemType.AIR: _DefaultItemSpec(None, 0),
-    ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
-    ItemType.BONE_BLOCK: _DirectionalItemSpec(BlockType.BONE_BLOCK, 64, (0,)),
-    ItemType.QUARTZ_BLOCK: _DirectionalItemSpec(BlockType.QUARTZ_BLOCK, 64, (1, 2)),
-    ItemType.PURPUR_BLOCK: _DirectionalItemSpec(BlockType.PURPUR_BLOCK, 64, (2,)),
-    ItemType.LOG: _DirectionalItemSpec(BlockType.LOG, 64, (0, 1, 2, 3)),
-    ItemType.LOG2: _DirectionalItemSpec(BlockType.LOG2, 64, (0, 1)),
-    ItemType.PUMPKIN: _PumpkinSpec(BlockType.PUMPKIN, 64),
-    ItemType.LIT_PUMPKIN: _PumpkinSpec(BlockType.LIT_PUMPKIN, 64),
-    ItemType.STONE_SLAB: _SlabItemSpec(BlockType.STONE_SLAB, 64),
-    ItemType.WOODEN_SLAB: _SlabItemSpec(BlockType.WOODEN_SLAB, 64),
-    ItemType.STONE_SLAB2: _SlabItemSpec(BlockType.STONE_SLAB2, 64),
-    ItemType.LADDER: _LadderItemSpec(BlockType.LADDER, 64),
-    ItemType.TRAPDOOR: _TrapDoorItemSpec(BlockType.TRAPDOOR, 64),
-    ItemType.IRON_TRAPDOOR: _TrapDoorItemSpec(BlockType.IRON_TRAPDOOR, 64),
-    ItemType.CAKE: _DefaultItemSpec(BlockType.CAKE_BLOCK, 64),
-    ItemType.BUCKET: _BucketItemSpec(),
-    ItemType.FURNACE: _FurnaceItemSpec(BlockType.FURNACE, 64),
-    ItemType.BREWING_STAND: _DefaultItemSpec(BlockType.BREWING_STAND_BLOCK, 64),
-    ItemType.ANVIL: _AnvilItemSpec(BlockType.ANVIL, 64),
-    ItemType.FLOWER_POT: _DefaultItemSpec(BlockType.FLOWER_POT_BLOCK, 64),
-    ItemType.END_ROD: _EndRodItemSpec(BlockType.END_ROD, 64),
-    ItemType.LEVER: _LeverItemSpec(BlockType.LEVER, 64),
-    ItemType.WOODEN_BUTTON: _ButtonItemSpec(BlockType.WOODEN_BUTTON, 64),
-    ItemType.STONE_BUTTON: _ButtonItemSpec(BlockType.STONE_BUTTON, 64),
-    ItemType.TRIPWIRE_HOOK: _TripwireHookItemSpec(),
-    ItemType.BANNER: _StandingOrWallItemSpec(BlockType.STANDING_BANNER, BlockType.WALL_BANNER),
-    ItemType.SIGN: _StandingOrWallItemSpec(BlockType.STANDING_SIGN, BlockType.WALL_SIGN),
-    ItemType.TORCH: _TorchItemSpec(BlockType.TORCH, 64),
-    ItemType.REDSTONE_TORCH: _TorchItemSpec(BlockType.REDSTONE_TORCH, 64),
-    ItemType.CHEST: _ChestItemSpec(BlockType.CHEST, 64),
-    ItemType.TRAPPED_CHEST: _ChestItemSpec(BlockType.TRAPPED_CHEST, 64),
-    ItemType.ENDER_CHEST: _ChestItemSpec(BlockType.ENDER_CHEST, 64),
-}
-
-_block_items = [
-    # Construction
-
-    ItemType.PLANKS,
-
-    ItemType.COBBLESTONE_WALL,
-
-    ItemType.FENCE,
-    ItemType.NETHER_BRICK_FENCE,
-
-    ItemType.IRON_BARS,
-
-    ItemType.GLASS,
-    ItemType.STAINED_GLASS,
-    ItemType.GLASS_PANE,
-    ItemType.STAINED_GLASS_PANE,
-
-    ItemType.BRICK_BLOCK,
-    ItemType.STONE_BRICK,
-    ItemType.END_BRICK,
-    ItemType.PRISMARINE,
-    ItemType.NETHER_BRICK_BLOCK,
-    ItemType.RED_NETHER_BRICK,
-    ItemType.COBBLESTONE,
-    ItemType.MOSSY_COBBLESTONE,
-
-    ItemType.SANDSTONE,
-    ItemType.RED_SANDSTONE,
-    ItemType.COAL_BLOCK,
-    ItemType.REDSTONE_BLOCK,
-    ItemType.GOLD_BLOCK,
-    ItemType.IRON_BLOCK,
-    ItemType.EMERALD_BLOCK,
-    ItemType.DIAMOND_BLOCK,
-    ItemType.LAPIS_BLOCK,
-    ItemType.NETHER_WART_BLOCK,
-
-    ItemType.WOOL,
-
-    ItemType.CARPET,
-
-    ItemType.CONCRETE_POWDER,
-    ItemType.CONCRETE,
-
-    ItemType.CLAY,
-    ItemType.HARDENED_CLAY,
-    ItemType.STAINED_HARDENED_CLAY,
-
-    # Nature
-
-    ItemType.DIRT,
-    ItemType.GRASS,
-    ItemType.PODZOL,
-    ItemType.MYCELIUM,
-    ItemType.STONE,
-    ItemType.IRON_ORE,
-    ItemType.GOLD_ORE,
-    ItemType.DIAMOND_ORE,
-    ItemType.LAPIS_ORE,
-    ItemType.REDSTONE_ORE,
-    ItemType.COAL_ORE,
-    ItemType.EMERALD_ORE,
-    ItemType.QUARTZ_ORE,
-    ItemType.GRAVEL,
-
-    ItemType.SAND,
-    ItemType.CACTUS,
-
-    ItemType.LEAVES,
-    ItemType.LEAVES2,
-
-    ItemType.SAPLING,
-
-    ItemType.MELON_BLOCK,
-
-    ItemType.TALLGRASS,
-    ItemType.DOUBLE_PLANT,
-    ItemType.YELLOW_FLOWER,
-    ItemType.FLOWER,
-
-    ItemType.VINE,
-    ItemType.LILY_PAD,
-    ItemType.DEAD_BUSH,
-
-    ItemType.SNOW,
-    ItemType.ICE,
-    ItemType.PACKED_ICE,
-    ItemType.SNOW_LAYER,
-
-    ItemType.BROWN_MUSHROOM,
-    ItemType.RED_MUSHROOM,
-    ItemType.BROWN_MUSHROOM_BLOCK,
-    ItemType.RED_MUSHROOM_BLOCK,
-
-    ItemType.MOB_SPAWNER,
-
-    ItemType.OBSIDIAN,
-    ItemType.BEDROCK,
-    ItemType.SOUL_SAND,
-    ItemType.NETHERRACK,
-    ItemType.MAGMA,
-    ItemType.END_STONE,
-    ItemType.SPONGE,
-
-    ItemType.WEB,
-
-    ItemType.REDSTONE_LAMP,
-    ItemType.SEA_LANTERN,
-
-    ItemType.GLOWSTONE,
-
-    ItemType.CRAFTING_TABLE,
-
-    ItemType.STONECUTTER,
-    ItemType.BOOKSHELF,
-    ItemType.ENCHANTING_TABLE,
-    ItemType.NOTEBLOCK,
-
-    ItemType.DAYLIGHT_DETECTOR,
-    ItemType.END_PORTAL_FRAME,
-
-    ItemType.GRASS_PATH,
-
-    ItemType.RAIL,
-    ItemType.GOLDEN_RAIL,
-    ItemType.DETECTOR_RAIL,
-    ItemType.ACTIVATOR_RAIL,
-    ItemType.WOODEN_PRESSURE_PLATE,
-    ItemType.STONE_PRESSURE_PLATE,
-    ItemType.LIGHT_WEIGHTED_PRESSURE_PLATE,
-    ItemType.HEAVY_WEIGHTED_PRESSURE_PLATE,
-
-    ItemType.TNT,
-]
-
-_stairs_block_items = [
-    ItemType.STONE_STAIRS,
-    ItemType.OAK_STAIRS,
-    ItemType.SPRUCE_STAIRS,
-    ItemType.BIRCH_STAIRS,
-    ItemType.JUNGLE_STAIRS,
-    ItemType.ACACIA_STAIRS,
-    ItemType.DARK_OAK_STAIRS,
-    ItemType.BRICK_STAIRS,
-    ItemType.STONE_BRICK_STAIRS,
-    ItemType.NETHER_BRICK_STAIRS,
-    ItemType.SANDSTONE_STAIRS,
-    ItemType.RED_SANDSTONE_STAIRS,
-    ItemType.QUARTZ_STAIRS,
-    ItemType.PURPUR_STAIRS,
-]
-
-_terracotta_block_items = [
-    ItemType.WHITE_GLAZED_TERRACOTTA,
-    ItemType.SILVER_GLAZED_TERRACOTTA,
-    ItemType.GRAY_GLAZED_TERRACOTTA,
-    ItemType.BLACK_GLAZED_TERRACOTTA,
-    ItemType.BROWN_GLAZED_TERRACOTTA,
-    ItemType.RED_GLAZED_TERRACOTTA,
-    ItemType.ORANGE_GLAZED_TERRACOTTA,
-    ItemType.YELLOW_GLAZED_TERRACOTTA,
-    ItemType.LIME_GLAZED_TERRACOTTA,
-    ItemType.GREEN_GLAZED_TERRACOTTA,
-    ItemType.CYAN_GLAZED_TERRACOTTA,
-    ItemType.LIGHT_BLUE_GLAZED_TERRACOTTA,
-    ItemType.BLUE_GLAZED_TERRACOTTA,
-    ItemType.PURPLE_GLAZED_TERRACOTTA,
-    ItemType.MAGENTA_GLAZED_TERRACOTTA,
-    ItemType.PINK_GLAZED_TERRACOTTA,
-]
-
-_fence_gate_block_items = [
-    ItemType.FENCE_GATE,
-    ItemType.SPRUCE_FENCE_GATE,
-    ItemType.BIRCH_FENCE_GATE,
-    ItemType.JUNGLE_FENCE_GATE,
-    ItemType.ACACIA_FENCE_GATE,
-    ItemType.DARK_OAK_FENCE_GATE,
-]
-
-_door_items = [
-    (ItemType.WOODEN_DOOR, BlockType.WOODEN_DOOR_BLOCK),
-    (ItemType.IRON_DOOR, BlockType.IRON_DOOR_BLOCK),
-    (ItemType.SPRUCE_DOOR, BlockType.SPRUCE_DOOR_BLOCK),
-    (ItemType.BIRCH_DOOR, BlockType.BIRCH_DOOR_BLOCK),
-    (ItemType.JUNGLE_DOOR, BlockType.JUNGLE_DOOR_BLOCK),
-    (ItemType.ACACIA_DOOR, BlockType.ACACIA_DOOR_BLOCK),
-    (ItemType.DARK_OAK_DOOR, BlockType.DARK_OAK_DOOR_BLOCK),
-]
-
-
-for _item_type in _block_items:
-    _item_specs[_item_type] = _DefaultItemSpec(BlockType(_item_type.value), 64)
-
-for _item_type in _stairs_block_items:
-    _item_specs[_item_type] = _StairItemSpec(BlockType(_item_type.value), 64)
-
-for _item_type in _terracotta_block_items:
-    _item_specs[_item_type] = _TerracottaItemSpec(BlockType(_item_type.value), 64)
-
-for _item_type in _fence_gate_block_items:
-    _item_specs[_item_type] = _FenceGateItemSpec(BlockType(_item_type.value), 64)
-
-for _item_type, _block_type in _door_items:
-    _item_specs[_item_type] = _DoorItemSpec(_block_type, 64)
-
-
-def get_item_spec(item_type: ItemType) -> ItemSpec:
-    return _item_specs[item_type]
 
 
 if __name__ == '__main__':

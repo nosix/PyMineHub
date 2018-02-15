@@ -22,7 +22,7 @@ class DocTestCase(unittest.TestCase):
             'pyminehub/mcpe/command/annotation',
             'pyminehub/mcpe/command/api',
             'pyminehub/mcpe/plugin/loader',
-            'pyminehub/mcpe/world/item',
+            'pyminehub/mcpe/world/item/spec',
             'pyminehub/mcpe/world/block',
             'pyminehub/mcpe/network/codec/connection',
         ]
