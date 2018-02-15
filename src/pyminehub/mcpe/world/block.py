@@ -1,3 +1,4 @@
+from itertools import combinations
 from typing import List, Optional, FrozenSet, NamedTuple, Sequence, Tuple
 
 from pyminehub.mcpe.const import BlockType, ItemType
@@ -623,62 +624,23 @@ class _RailBlockSpec(_BlockSpec):
     def _get_block_data(self, network: _RailNetwork) -> int:
         if not network.has_rail_by_neighbour:
             return 0
-        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
-            return 9
-        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
-            return 9
-        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
-            return 9
-        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
-            return 9
-        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
-            return 8
-        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
-            return 8
-        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
-            return 8
-        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
-            return 8
-        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
-            return 7
-        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
-            return 7
-        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
-            return 7
-        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
-            return 7
-        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
-            return 6
-        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
-            return 6
-        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
-            return 6
-        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
-            return 6
-        if network.has_connectable_rail_at(Vector3(0, 1, 1)):
-            return 5
-        if network.has_connectable_rail_at(Vector3(0, 1, -1)):
-            return 4
-        if network.has_connectable_rail_at(Vector3(-1, 1, 0)):
-            return 3
-        if network.has_connectable_rail_at(Vector3(1, 1, 0)):
-            return 2
-        if network.has_connectable_rail_at(Vector3(-1, 0, 0)):
-            return 1
-        if network.has_connectable_rail_at(Vector3(1, 0, 0)):
-            return 1
-        if network.has_connectable_rail_at(Vector3(-1, -1, 0)):
-            return 1
-        if network.has_connectable_rail_at(Vector3(1, -1, 0)):
-            return 1
-        if network.has_connectable_rail_at(Vector3(0, 0, -1)):
-            return 0
-        if network.has_connectable_rail_at(Vector3(0, 0, 1)):
-            return 0
-        if network.has_connectable_rail_at(Vector3(0, -1, -1)):
-            return 0
-        if network.has_connectable_rail_at(Vector3(0, -1, 1)):
-            return 0
+        for data in (9, 8, 7, 6):
+            connector = _RAIL_TYPE[data].connector
+            for c1, c2 in combinations(connector + tuple(c + (0, -1, 0) for c in connector), 2):
+                if network.has_connectable_rail_at(c1) and network.has_connectable_rail_at(c2):
+                    return data
+        for data in (5, 4, 3, 2):
+            connector = tuple(filter(lambda c: c.y == 1, _RAIL_TYPE[data].connector))
+            assert len(connector) == 1
+            if network.has_connectable_rail_at(connector[0]):
+                return data
+        for data in (1, 0):
+            connector = _RAIL_TYPE[data].connector
+            for c in connector:
+                if network.has_connectable_rail_at(c):
+                    return data
+                if network.has_connectable_rail_at(c + (0, -1, 0)):
+                    return data
         return 0
 
     def _update_neighbour(self, network: _RailNetwork, position: Vector3[int]) -> Optional[PlacedBlock]:
