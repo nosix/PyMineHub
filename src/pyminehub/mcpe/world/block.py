@@ -643,16 +643,27 @@ class _RailBlockSpec(_BlockSpec):
             return 1
         if network.has_connectable_rail_at(Vector3(1, 0, 0)):
             return 1
+        if network.has_connectable_rail_at(Vector3(-1, -1, 0)):
+            return 1
+        if network.has_connectable_rail_at(Vector3(1, -1, 0)):
+            return 1
         if network.has_connectable_rail_at(Vector3(0, 0, -1)):
             return 0
         if network.has_connectable_rail_at(Vector3(0, 0, 1)):
+            return 0
+        if network.has_connectable_rail_at(Vector3(0, -1, -1)):
+            return 0
+        if network.has_connectable_rail_at(Vector3(0, -1, 1)):
             return 0
         return 0
 
     def _update_neighbour(self, network: _RailNetwork, position: Vector3[int]) -> Optional[PlacedBlock]:
         block = network.get_block(position)
         if block.type is not self._block_type:
-            return None
+            position += (0, -1, 0)
+            block = network.get_block(position)
+            if block.type is not self._block_type:
+                return None
         if - position in _RAIL_TYPE[block.data].connector:
             return None
         connected_connector = network.get_conntected_connector(position)
@@ -661,15 +672,17 @@ class _RailBlockSpec(_BlockSpec):
         if len(connected_connector) > 0:
             assert len(connected_connector) == 1
             connected_connector = connected_connector[0]
+            c = - position if position.y != 1 else position * (-1, 0, -1)
             for data, connector in _RAIL_TYPE.values():
                 if connected_connector not in connector:
                     continue
-                if position * (-1, 0, -1) in connector:
+                if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
             raise AssertionError()
         else:
+            c = - position if position.y != 1 else position * (-1, 0, -1)
             for data, connector in _RAIL_TYPE.values():
-                if position * (-1, 0, -1) in connector:
+                if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
             raise AssertionError()
 
