@@ -549,11 +549,17 @@ _RAIL_TYPE = {
     9: _RailType(9, (Vector3(0, 0, -1), Vector3(1, 0, 0))),
 }
 
+_RAIL_BLOCK_TYPES = (
+    BlockType.RAIL,
+    BlockType.GOLDEN_RAIL,
+    BlockType.DETECTOR_RAIL,
+    BlockType.DETECTOR_RAIL
+)
+
 
 class _RailNetwork:
 
-    def __init__(self, block_type: BlockType, linked_blocks: Iterator[Tuple[Vector3[int], Block]]) -> None:
-        self._block_type = block_type
+    def __init__(self, linked_blocks: Iterator[Tuple[Vector3[int], Block]]) -> None:
         self._blocks = dict((position, block) for position, block in linked_blocks)
         self._rail_positions = self.get_rail_positions_by_neighbour(Vector3(0, 0, 0))
 
@@ -566,7 +572,7 @@ class _RailNetwork:
 
     def get_rail_positions_by_neighbour(self, center: Vector3[int]) -> FrozenSet[Vector3[int]]:
         neighbour = _get_neighbour_position(center)
-        return frozenset(position for position in neighbour if self._blocks[position].type is self._block_type)
+        return frozenset(position for position in neighbour if self._blocks[position].type in _RAIL_BLOCK_TYPES)
 
     def has_connectable_rail_at(self, position: Vector3[int]) -> bool:
         if position not in self._rail_positions:
@@ -584,12 +590,12 @@ class _RailNetwork:
         for connector in rail_type.connector:
             block = self._blocks[position + connector]
             c = connector
-            if block.type is not self._block_type:
+            if block.type not in _RAIL_BLOCK_TYPES:
                 if connector.y != 0:
                     continue
                 c = connector + (0, -1, 0)
                 block = self._blocks[position + c]
-                if block.type is not self._block_type:
+                if block.type not in _RAIL_BLOCK_TYPES:
                     continue
             rail_type = _RAIL_TYPE[self._blocks[position + c].data]
             if -c not in rail_type.connector:
@@ -600,19 +606,18 @@ class _RailNetwork:
 
 class _RailBlockSpec(_BlockSpec):
 
-    def __init__(self, block_type: BlockType, item_type: Optional[ItemType]) -> None:
+    def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True)
-        self._block_type = block_type
 
     def can_be_overridden_by(self, block: Block) -> bool:
-        return block.type is self._block_type
+        return block.type in _RAIL_BLOCK_TYPES
 
     def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
         return _SURROUNDING
 
     def get_additional_blocks(self, block: Block, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
-        network = _RailNetwork(self._block_type, zip(_SURROUNDING, linked_blocks))
-        data = self._get_block_data(network)
+        network = _RailNetwork(zip(_SURROUNDING, linked_blocks))
+        data = self._get_block_data(network, block.type == BlockType.RAIL)
         blocks = [PlacedBlock(Vector3(0, 0, 0), block.copy(data=data))]
         rail_type = _RAIL_TYPE[data]
         for connector in rail_type.connector:
@@ -622,10 +627,10 @@ class _RailBlockSpec(_BlockSpec):
         return tuple(blocks)
 
     @staticmethod
-    def _get_block_data(network: _RailNetwork) -> int:
+    def _get_block_data(network: _RailNetwork, has_corner: bool) -> int:
         if not network.has_rail_by_neighbour:
             return 0
-        for data in (9, 8, 7, 6):
+        for data in (9, 8, 7, 6) if has_corner else ():
             connector = _RAIL_TYPE[data].connector
             for c1, c2 in combinations(connector + tuple(c + (0, -1, 0) for c in connector), 2):
                 if network.has_connectable_rail_at(c1) and network.has_connectable_rail_at(c2):
@@ -646,32 +651,37 @@ class _RailBlockSpec(_BlockSpec):
 
     def _update_neighbour(self, network: _RailNetwork, position: Vector3[int]) -> Optional[PlacedBlock]:
         block = network.get_block(position)
-        if block.type is not self._block_type:
+        if block.type not in _RAIL_BLOCK_TYPES:
             position += (0, -1, 0)
             block = network.get_block(position)
-            if block.type is not self._block_type:
+            if block.type not in _RAIL_BLOCK_TYPES:
                 return None
         if - position in _RAIL_TYPE[block.data].connector:
             return None
         connected_connector = network.get_conntected_connector(position)
         if len(connected_connector) == 2:
             return None
+        has_corner = block.type == BlockType.RAIL
         if len(connected_connector) > 0:
             assert len(connected_connector) == 1
             connected_connector = connected_connector[0]
             c = - position if position.y != 1 else position * (-1, 0, -1)
-            for data, connector in _RAIL_TYPE.values():
+            for data in range(10) if has_corner else range(6):
+                data, connector = _RAIL_TYPE[data]
                 if connected_connector not in connector:
                     continue
                 if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
-            raise AssertionError()
+            assert not has_corner
+            return None
         else:
             c = - position if position.y != 1 else position * (-1, 0, -1)
-            for data, connector in _RAIL_TYPE.values():
+            for data in range(10) if has_corner else range(6):
+                data, connector = _RAIL_TYPE[data]
                 if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
-            raise AssertionError()
+            assert not has_corner
+            return None
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -709,10 +719,10 @@ _block_specs = {
     BlockType.WALL_SIGN: _BlockSpec(ItemType.SIGN),
     BlockType.TORCH: _TorchBlockSpec(ItemType.TORCH),
     BlockType.REDSTONE_TORCH: _TorchBlockSpec(ItemType.REDSTONE_TORCH),
-    BlockType.RAIL: _RailBlockSpec(BlockType.RAIL, ItemType.RAIL),
-    BlockType.GOLDEN_RAIL: _RailBlockSpec(BlockType.GOLDEN_RAIL, ItemType.GOLDEN_RAIL),
-    BlockType.DETECTOR_RAIL: _RailBlockSpec(BlockType.DETECTOR_RAIL, ItemType.DETECTOR_RAIL),
-    BlockType.ACTIVATOR_RAIL: _RailBlockSpec(BlockType.ACTIVATOR_RAIL, ItemType.ACTIVATOR_RAIL),
+    BlockType.RAIL: _RailBlockSpec(ItemType.RAIL),
+    BlockType.GOLDEN_RAIL: _RailBlockSpec(ItemType.GOLDEN_RAIL),
+    BlockType.DETECTOR_RAIL: _RailBlockSpec(ItemType.DETECTOR_RAIL),
+    BlockType.ACTIVATOR_RAIL: _RailBlockSpec(ItemType.ACTIVATOR_RAIL),
 }
 
 
