@@ -51,6 +51,13 @@ class Vector3(NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[
                 return Vector3(f(self.x, value[0]), self.y, f(self.z, value[1]))
         return NotImplemented
 
+    def __neg__(self) -> 'Vector3':
+        """
+        >>> - Vector3(0, 1, -2)
+        Vector3(x=0, y=-1, z=2)
+        """
+        return self * -1
+
     def __add__(self, value) -> 'Vector3':
         """
         >>> Vector3(1, 2, 3) + Vector3(4, 5, 6)

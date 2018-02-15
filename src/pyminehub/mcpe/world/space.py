@@ -199,7 +199,7 @@ class Space:
 
         for additional in attached_block.get_additional_blocks(self._get_linked_blocks(position, attached_block)):
             current_block_cache = self._get_cache(position + additional.position)
-            if current_block_cache.value.type is not BlockType.AIR:
+            if not current_block_cache.give_function().can_be_overridden_by(additional.block):
                 transaction.clear()
                 return
             current_block_cache.put(additional.block, transaction)
