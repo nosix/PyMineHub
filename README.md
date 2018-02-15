@@ -96,7 +96,10 @@ mcpe
     - item
       - spec -> mcpe.[const, geometry, value]
       - catalog -> mcpe.[const], .[spec]
-    - block -> mcpe.[const, geometry, value]
+    - block
+      - spec -> mcpe.[const, geometry, value]
+      - catalog -> mcpe.[const, geometry, value] .[spec]
+      - functional -> mcpe.[const, geometry, value] .[catalog, spec]
     - generator -> mcpe.[chunk, datastore, geometry], mcpe.plugin.[generator]
     - inventory -> .[const, value], .[item]
     - space -> mcpe.[chunk, const, datastore, geometry, value], .[block, generator]

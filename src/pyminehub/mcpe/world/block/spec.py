@@ -1,13 +1,30 @@
 from itertools import combinations
-from typing import Iterator, List, Optional, FrozenSet, NamedTuple, Sequence, Tuple
+from typing import NamedTuple, FrozenSet, Optional, Tuple, List, Sequence, Iterator
 
-from pyminehub.mcpe.const import BlockType, ItemType
+from pyminehub.mcpe.const import ItemType, BlockType
 from pyminehub.mcpe.geometry import Vector3, Face
-from pyminehub.mcpe.value import Item, Block
+from pyminehub.mcpe.value import Block, Item
 
 __all__ = [
-    'FunctionalBlock',
-    'PlacedBlock'
+    'PlacedBlock',
+    'BlockSpec',
+    'AirBlockSpec',
+    'ToExtendUpwardBlockSpec',
+    'SlabBlockSpec',
+    'SnowLayerBlockSpec',
+    'LadderBlockSpec',
+    'FenceGateBlockSpec',
+    'TrapDoorBlockSpec',
+    'CarpetBlockSpec',
+    'DoublePlantBlockSpec',
+    'DoorBlockSpec',
+    'EndRodBlockSpec',
+    'ToggleBlockSpec',
+    'TripwireHookBlockSpec',
+    'DaylightDetectorBlockSpec',
+    'TorchBlockSpec',
+    'RailBlockSpec',
+    'ChestBlockSpec'
 ]
 
 PlacedBlock = NamedTuple('PlacedBlock', [
@@ -28,7 +45,7 @@ _CONNECTOR_SIDE = frozenset([Face.SOUTH, Face.NORTH, Face.EAST, Face.WEST])
 _CONNECTOR_ALL = frozenset([Face.BOTTOM, Face.TOP, Face.SOUTH, Face.NORTH, Face.EAST, Face.WEST])
 
 
-class _BlockSpec:
+class BlockSpec:
 
     def __init__(
             self,
@@ -104,7 +121,7 @@ class _BlockSpec:
         return True
 
 
-class _AirBlockSpec(_BlockSpec):
+class AirBlockSpec(BlockSpec):
 
     def __init__(self) -> None:
         super().__init__(None, can_be_broken=False)
@@ -119,7 +136,7 @@ class _AirBlockSpec(_BlockSpec):
         return _CONNECTOR_NONE
 
 
-class _ToExtendUpwardBlockSpec(_BlockSpec):
+class ToExtendUpwardBlockSpec(BlockSpec):
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -128,7 +145,7 @@ class _ToExtendUpwardBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
-class _SlabBlockSpec(_BlockSpec):
+class SlabBlockSpec(BlockSpec):
 
     _SLAB_TYPE_MASK = 0b111
     _IS_UPPER_MASK = 0b1000
@@ -139,7 +156,7 @@ class _SlabBlockSpec(_BlockSpec):
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
-        >>> spec = _SlabBlockSpec(None, BlockType.DOUBLE_WOODEN_SLAB)
+        >>> spec = SlabBlockSpec(None, BlockType.DOUBLE_WOODEN_SLAB)
         >>> block_type = BlockType.WOODEN_SLAB
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 8), Face.TOP)
         Block(type=<BlockType.DOUBLE_WOODEN_SLAB: 157>, aux_value=0)
@@ -178,14 +195,14 @@ class _SlabBlockSpec(_BlockSpec):
             return _CONNECTOR_ALL - _CONNECTOR_TOP
 
 
-class _SnowLayerBlockSpec(_ToExtendUpwardBlockSpec):
+class SnowLayerBlockSpec(ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
         super().__init__(None, max_layer_num=8, can_be_attached_on_ground=True)
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
-        >>> spec = _SnowLayerBlockSpec()
+        >>> spec = SnowLayerBlockSpec()
         >>> block_type = BlockType.SNOW_LAYER
         >>> spec.stack_layer(Block.create(block_type, 0), Block.create(block_type, 0), Face.TOP)
         Block(type=<BlockType.SNOW_LAYER: 78>, aux_value=1)
@@ -203,7 +220,7 @@ class _SnowLayerBlockSpec(_ToExtendUpwardBlockSpec):
             return Block.create(BlockType.SNOW, 0, **stacked_block.flags)
 
 
-class _LadderBlockSpec(_BlockSpec):
+class LadderBlockSpec(BlockSpec):
 
     _CAN_BE_ATTACHED = (
         BlockType.PLANKS,
@@ -322,7 +339,7 @@ class _LadderBlockSpec(_BlockSpec):
         return block.type in self._CAN_BE_ATTACHED
 
 
-class _FenceGateBlockSpec(_ToExtendUpwardBlockSpec):
+class FenceGateBlockSpec(ToExtendUpwardBlockSpec):
 
     _DOES_OPEN_MASK = 0b100
 
@@ -333,7 +350,7 @@ class _FenceGateBlockSpec(_ToExtendUpwardBlockSpec):
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
 
-class _TrapDoorBlockSpec(_BlockSpec):
+class TrapDoorBlockSpec(BlockSpec):
 
     _DOES_OPEN_MASK = 0b1000
 
@@ -350,13 +367,13 @@ class _TrapDoorBlockSpec(_BlockSpec):
         return _CONNECTOR_ALL
 
 
-class _CarpetBlockSpec(_ToExtendUpwardBlockSpec):
+class CarpetBlockSpec(ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
         super().__init__(ItemType.CARPET, can_be_attached_on_ground=True)
 
 
-class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
+class DoublePlantBlockSpec(ToExtendUpwardBlockSpec):
 
     _IS_UPPER_MASK = 0b1000
 
@@ -373,7 +390,7 @@ class _DoublePlantBlockSpec(_ToExtendUpwardBlockSpec):
         return PlacedBlock(Vector3(0, 0, 0), block), PlacedBlock(Vector3(0, 1, 0), block.copy(data=self._IS_UPPER_MASK))
 
 
-class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
+class DoorBlockSpec(ToExtendUpwardBlockSpec):
 
     # set to the upper part
     _IS_UPPER_MASK = 0b1000
@@ -407,7 +424,7 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
 
     def get_link_target(self, block: Block) -> Tuple[Vector3[int], ...]:
         """
-        >>> spec = _DoorBlockSpec(None)
+        >>> spec = DoorBlockSpec(None)
         >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 0))
         (Vector3(x=0, y=0, z=-1), Vector3(x=0, y=1, z=-1))
         >>> spec.get_link_target(Block.create(BlockType.WOODEN_DOOR_BLOCK, 1))
@@ -443,7 +460,7 @@ class _DoorBlockSpec(_ToExtendUpwardBlockSpec):
         return PlacedBlock(Vector3(0, 0, 0), block), PlacedBlock(Vector3(0, 1, 0), block.copy(data=data))
 
 
-class _EndRodBlockSpec(_BlockSpec):
+class EndRodBlockSpec(BlockSpec):
 
     _BASE_SIDE = {
         0: Vector3(0, 1, 0),
@@ -468,7 +485,7 @@ class _EndRodBlockSpec(_BlockSpec):
         return PlacedBlock(Vector3(0, 0, 0), block),
 
 
-class _ToggleBlockSpec(_BlockSpec):
+class ToggleBlockSpec(BlockSpec):
 
     _TOGGLE_MASK = 0b1000
 
@@ -485,7 +502,7 @@ class _ToggleBlockSpec(_BlockSpec):
         return _CONNECTOR_ALL
 
 
-class _TripwireHookBlockSpec(_BlockSpec):
+class TripwireHookBlockSpec(BlockSpec):
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -494,7 +511,7 @@ class _TripwireHookBlockSpec(_BlockSpec):
         return _CONNECTOR_SIDE
 
 
-class _DaylightDetectorBlockSpec(_BlockSpec):
+class DaylightDetectorBlockSpec(BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_switchable=True)
@@ -511,7 +528,7 @@ class _DaylightDetectorBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
-class _TorchBlockSpec(_BlockSpec):
+class TorchBlockSpec(BlockSpec):
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -604,7 +621,7 @@ class _RailNetwork:
         return connected
 
 
-class _RailBlockSpec(_BlockSpec):
+class RailBlockSpec(BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True)
@@ -688,326 +705,13 @@ class _RailBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
-class _ChestBlockSpec(_BlockSpec):
+class ChestBlockSpec(BlockSpec):
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
 
     def male_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_ALL
-
-
-_block_specs = {
-    BlockType.AIR: _AirBlockSpec(),
-    BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
-    BlockType.GRASS: _BlockSpec(ItemType.DIRT),
-    BlockType.STONE_SLAB: _SlabBlockSpec(ItemType.STONE_SLAB, BlockType.DOUBLE_STONE_SLAB),
-    BlockType.WOODEN_SLAB: _SlabBlockSpec(ItemType.WOODEN_SLAB, BlockType.DOUBLE_WOODEN_SLAB),
-    BlockType.STONE_SLAB2: _SlabBlockSpec(ItemType.STONE_SLAB2, BlockType.DOUBLE_STONE_SLAB2),
-    BlockType.SNOW_LAYER: _SnowLayerBlockSpec(),
-    BlockType.LADDER: _LadderBlockSpec(),
-    BlockType.TRAPDOOR: _TrapDoorBlockSpec(ItemType.TRAPDOOR),
-    BlockType.IRON_TRAPDOOR: _TrapDoorBlockSpec(ItemType.IRON_TRAPDOOR),
-    BlockType.CARPET: _CarpetBlockSpec(),
-    BlockType.DOUBLE_PLANT: _DoublePlantBlockSpec(ItemType.DOUBLE_PLANT),
-    BlockType.CAKE_BLOCK: _ToExtendUpwardBlockSpec(ItemType.CAKE),
-    BlockType.BREWING_STAND_BLOCK: _ToExtendUpwardBlockSpec(ItemType.BREWING_STAND),
-    BlockType.FLOWER_POT_BLOCK: _ToExtendUpwardBlockSpec(ItemType.FLOWER_POT, can_be_attached_on_ground=True),
-    BlockType.END_ROD: _EndRodBlockSpec(),
-    BlockType.LEVER: _ToggleBlockSpec(ItemType.LEVER),
-    BlockType.WOODEN_BUTTON: _ToggleBlockSpec(ItemType.WOODEN_BUTTON),
-    BlockType.STONE_BUTTON: _ToggleBlockSpec(ItemType.STONE_BUTTON),
-    BlockType.TRIPWIRE_HOOK: _TripwireHookBlockSpec(ItemType.TRIPWIRE_HOOK),
-    BlockType.DAYLIGHT_DETECTOR: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
-    BlockType.DAYLIGHT_DETECTOR_INVERTED: _DaylightDetectorBlockSpec(ItemType.DAYLIGHT_DETECTOR),
-    BlockType.STANDING_BANNER: _BlockSpec(ItemType.BANNER),
-    BlockType.WALL_BANNER: _BlockSpec(ItemType.BANNER),
-    BlockType.STANDING_SIGN: _BlockSpec(ItemType.SIGN),
-    BlockType.WALL_SIGN: _BlockSpec(ItemType.SIGN),
-    BlockType.TORCH: _TorchBlockSpec(ItemType.TORCH),
-    BlockType.REDSTONE_TORCH: _TorchBlockSpec(ItemType.REDSTONE_TORCH),
-    BlockType.RAIL: _RailBlockSpec(ItemType.RAIL),
-    BlockType.GOLDEN_RAIL: _RailBlockSpec(ItemType.GOLDEN_RAIL),
-    BlockType.DETECTOR_RAIL: _RailBlockSpec(ItemType.DETECTOR_RAIL),
-    BlockType.ACTIVATOR_RAIL: _RailBlockSpec(ItemType.ACTIVATOR_RAIL),
-    BlockType.CHEST: _ChestBlockSpec(ItemType.CHEST),
-    BlockType.TRAPPED_CHEST: _ChestBlockSpec(ItemType.TRAPPED_CHEST),
-    BlockType.ENDER_CHEST: _ChestBlockSpec(ItemType.ENDER_CHEST),
-}
-
-
-_blocks = [
-    BlockType.PLANKS,
-
-    BlockType.COBBLESTONE_WALL,
-
-    BlockType.FENCE,
-    BlockType.NETHER_BRICK_FENCE,
-
-    BlockType.STONE_STAIRS,
-    BlockType.OAK_STAIRS,
-    BlockType.SPRUCE_STAIRS,
-    BlockType.BIRCH_STAIRS,
-    BlockType.JUNGLE_STAIRS,
-    BlockType.ACACIA_STAIRS,
-    BlockType.DARK_OAK_STAIRS,
-    BlockType.BRICK_STAIRS,
-    BlockType.STONE_BRICK_STAIRS,
-    BlockType.NETHER_BRICK_STAIRS,
-    BlockType.SANDSTONE_STAIRS,
-    BlockType.RED_SANDSTONE_STAIRS,
-    BlockType.QUARTZ_STAIRS,
-    BlockType.PURPUR_STAIRS,
-
-    BlockType.IRON_BARS,
-
-    BlockType.GLASS,
-    BlockType.STAINED_GLASS,
-    BlockType.GLASS_PANE,
-    BlockType.STAINED_GLASS_PANE,
-
-    BlockType.BRICK_BLOCK,
-    BlockType.STONE_BRICK,
-    BlockType.END_BRICK,
-    BlockType.PRISMARINE,
-    BlockType.NETHER_BRICK_BLOCK,
-    BlockType.RED_NETHER_BRICK,
-    BlockType.COBBLESTONE,
-    BlockType.MOSSY_COBBLESTONE,
-
-    BlockType.SANDSTONE,
-    BlockType.RED_SANDSTONE,
-    BlockType.COAL_BLOCK,
-    BlockType.REDSTONE_BLOCK,
-    BlockType.GOLD_BLOCK,
-    BlockType.IRON_BLOCK,
-    BlockType.EMERALD_BLOCK,
-    BlockType.DIAMOND_BLOCK,
-    BlockType.LAPIS_BLOCK,
-    BlockType.QUARTZ_BLOCK,
-    BlockType.HAY_BLOCK,
-    BlockType.BONE_BLOCK,
-    BlockType.NETHER_WART_BLOCK,
-    BlockType.WOOL,
-
-    BlockType.CONCRETE_POWDER,
-    BlockType.CONCRETE,
-    BlockType.CLAY,
-    BlockType.HARDENED_CLAY,
-    BlockType.STAINED_HARDENED_CLAY,
-    BlockType.WHITE_GLAZED_TERRACOTTA,
-    BlockType.SILVER_GLAZED_TERRACOTTA,
-    BlockType.GRAY_GLAZED_TERRACOTTA,
-    BlockType.BLACK_GLAZED_TERRACOTTA,
-    BlockType.BROWN_GLAZED_TERRACOTTA,
-    BlockType.RED_GLAZED_TERRACOTTA,
-    BlockType.ORANGE_GLAZED_TERRACOTTA,
-    BlockType.YELLOW_GLAZED_TERRACOTTA,
-    BlockType.LIME_GLAZED_TERRACOTTA,
-    BlockType.GREEN_GLAZED_TERRACOTTA,
-    BlockType.CYAN_GLAZED_TERRACOTTA,
-    BlockType.LIGHT_BLUE_GLAZED_TERRACOTTA,
-    BlockType.BLUE_GLAZED_TERRACOTTA,
-    BlockType.PURPLE_GLAZED_TERRACOTTA,
-    BlockType.MAGENTA_GLAZED_TERRACOTTA,
-    BlockType.PINK_GLAZED_TERRACOTTA,
-    BlockType.PURPUR_BLOCK,
-    BlockType.DIRT,
-    BlockType.PODZOL,
-    BlockType.MYCELIUM,
-    BlockType.STONE,
-    BlockType.IRON_ORE,
-    BlockType.GOLD_ORE,
-    BlockType.DIAMOND_ORE,
-    BlockType.LAPIS_ORE,
-    BlockType.REDSTONE_ORE,
-    BlockType.COAL_ORE,
-    BlockType.EMERALD_ORE,
-    BlockType.QUARTZ_ORE,
-    BlockType.GRAVEL,
-    BlockType.SAND,
-    BlockType.CACTUS,
-    BlockType.LOG,
-    BlockType.LOG2,
-    BlockType.LEAVES,
-    BlockType.LEAVES2,
-
-    BlockType.MELON_BLOCK,
-    BlockType.PUMPKIN,
-    BlockType.LIT_PUMPKIN,
-
-    BlockType.VINE,
-
-    BlockType.SNOW,
-    BlockType.ICE,
-    BlockType.PACKED_ICE,
-
-    BlockType.MOB_SPAWNER,
-
-    BlockType.OBSIDIAN,
-    BlockType.SOUL_SAND,
-    BlockType.NETHERRACK,
-    BlockType.MAGMA,
-    BlockType.END_STONE,
-    BlockType.SPONGE,
-
-    BlockType.WEB,
-
-    BlockType.REDSTONE_LAMP,
-    BlockType.SEA_LANTERN,
-
-    BlockType.GLOWSTONE,
-
-    BlockType.BOOKSHELF,
-
-    BlockType.END_PORTAL_FRAME,
-
-    BlockType.GRASS_PATH,
-
-    BlockType.TNT,
-
-    BlockType.DOUBLE_STONE_SLAB,
-    BlockType.DOUBLE_WOODEN_SLAB,
-    BlockType.DOUBLE_STONE_SLAB2,
-
-    BlockType.FLOWING_WATER,
-    BlockType.FLOWING_LAVA,
-]
-
-_fence_gate_blocks = [
-    BlockType.FENCE_GATE,
-    BlockType.SPRUCE_FENCE_GATE,
-    BlockType.BIRCH_FENCE_GATE,
-    BlockType.JUNGLE_FENCE_GATE,
-    BlockType.ACACIA_FENCE_GATE,
-    BlockType.DARK_OAK_FENCE_GATE,
-]
-
-_plant_blocks = [
-    BlockType.SAPLING,
-    BlockType.TALLGRASS,
-    BlockType.YELLOW_FLOWER,
-    BlockType.FLOWER,
-    BlockType.LILY_PAD,
-    BlockType.DEAD_BUSH,
-    BlockType.BROWN_MUSHROOM,
-    BlockType.RED_MUSHROOM,
-]
-
-_door_blocks = [
-    (ItemType.WOODEN_DOOR, BlockType.WOODEN_DOOR_BLOCK),
-    (ItemType.IRON_DOOR, BlockType.IRON_DOOR_BLOCK),
-    (ItemType.SPRUCE_DOOR, BlockType.SPRUCE_DOOR_BLOCK),
-    (ItemType.BIRCH_DOOR, BlockType.BIRCH_DOOR_BLOCK),
-    (ItemType.JUNGLE_DOOR, BlockType.JUNGLE_DOOR_BLOCK),
-    (ItemType.ACACIA_DOOR, BlockType.ACACIA_DOOR_BLOCK),
-    (ItemType.DARK_OAK_DOOR, BlockType.DARK_OAK_DOOR_BLOCK),
-]
-
-_tool_blocks = [
-    BlockType.CRAFTING_TABLE,
-    BlockType.FURNACE,
-    BlockType.ANVIL,
-    BlockType.ENCHANTING_TABLE,
-    BlockType.NOTEBLOCK,
-    BlockType.STONECUTTER,
-]
-
-_pressure_plate_blocks = [
-    BlockType.WOODEN_PRESSURE_PLATE,
-    BlockType.STONE_PRESSURE_PLATE,
-    BlockType.LIGHT_WEIGHTED_PRESSURE_PLATE,
-    BlockType.HEAVY_WEIGHTED_PRESSURE_PLATE,
-]
-
-
-for _block_type in _blocks:
-    _block_specs[_block_type] = _BlockSpec(ItemType(_block_type.value))
-
-for _block_type in _fence_gate_blocks:
-    _block_specs[_block_type] = _FenceGateBlockSpec(ItemType(_block_type.value))
-
-for _block_type in _plant_blocks:
-    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
-
-for _item_type, _block_type in _door_blocks:
-    _block_specs[_block_type] = _DoorBlockSpec(_item_type)
-
-for _block_type in _tool_blocks:
-    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
-
-for _block_type in _pressure_plate_blocks:
-    _block_specs[_block_type] = _ToExtendUpwardBlockSpec(ItemType(_block_type.value))
-
-
-class FunctionalBlock:
-    """Functional block joins block value and block specification"""
-
-    def __init__(self, block: Block) -> None:
-        self._block = block
-        self._block_spec = _block_specs[block.type]
-
-    def __str__(self) -> str:
-        return str(self._block)
-
-    @property
-    def type(self) -> BlockType:
-        return self._block.type
-
-    @property
-    def value(self) -> Block:
-        return self._block
-
-    @property
-    def has_layer(self) -> bool:
-        return self._block_spec.has_layer
-
-    @property
-    def can_be_broken(self) -> bool:
-        return self._block_spec.can_be_broken
-
-    @property
-    def can_be_attached_on_ground(self) -> bool:
-        return self._block_spec.can_be_attached_on_ground
-
-    @property
-    def is_switchable(self) -> bool:
-        return self._block_spec.is_switchable
-
-    @property
-    def switch_position(self) -> Vector3[int]:
-        return self._block_spec.get_switch_position(self._block)
-
-    @property
-    def link_target(self) -> Tuple[Vector3[int], ...]:
-        return self._block_spec.get_link_target(self._block)
-
-    @property
-    def break_target(self) -> Tuple[Vector3[int], ...]:
-        return self._block_spec.get_break_target(self._block)
-
-    def to_item(self) -> List[Item]:
-        return self._block_spec.to_item(self._block.data)
-
-    def stack_on(self, base_block: Block, face: Face) -> Optional[Block]:
-        return self._block_spec.stack_layer(base_block, self._block, face)
-
-    def switch(self) -> Block:
-        return self._block_spec.switch(self._block)
-
-    def can_be_attached_on(self, base_block: Block, face: Face) -> bool:
-        if face.inverse not in self._block_spec.male_connector(self._block):
-            return False
-        base_block_spec = _block_specs[base_block.type]
-        if face not in base_block_spec.female_connector(base_block):
-            return False
-        return self._block_spec.can_be_attached_on(base_block)
-
-    def get_additional_blocks(self, linked_blocks: Sequence[Block]) -> Tuple[PlacedBlock, ...]:
-        return self._block_spec.get_additional_blocks(self._block, linked_blocks)
-
-    def can_be_overridden_by(self, block: Block) -> bool:
-        return self._block_spec.can_be_overridden_by(block)
 
 
 if __name__ == '__main__':

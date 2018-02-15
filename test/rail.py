@@ -5,7 +5,7 @@ from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.value import Block
 # noinspection PyProtectedMember
-from pyminehub.mcpe.world.block import _RailBlockSpec, _SURROUNDING, PlacedBlock
+from pyminehub.mcpe.world.block.spec import RailBlockSpec, _SURROUNDING, PlacedBlock
 
 AIR = Block.create(BlockType.AIR, 0)
 RAIL = Block.create(BlockType.RAIL, 0)
@@ -17,7 +17,7 @@ LINKED_BLOCKS = tuple((position, AIR) for position in _SURROUNDING)
 class RailTest(TestCase):
 
     def setUp(self):
-        self.spec = _RailBlockSpec(None)
+        self.spec = RailBlockSpec(None)
 
     def _get_additional_blocks(self, block: Block, linked_blocks: Dict[Vector3[int], Block]) -> List[PlacedBlock]:
         linked_blocks = tuple(linked_blocks[p] for p in _SURROUNDING)
