@@ -598,7 +598,7 @@ class _RailNetwork:
                 if block.type not in _RAIL_BLOCK_TYPES:
                     continue
             rail_type = _RAIL_TYPE[self._blocks[position + c].data]
-            if -c not in rail_type.connector:
+            if - (c if c.y != 1 else c * (1, 0, 1)) not in rail_type.connector:
                 continue
             connected.append(connector)
         return connected
@@ -630,17 +630,17 @@ class _RailBlockSpec(_BlockSpec):
     def _get_block_data(network: _RailNetwork, has_corner: bool) -> int:
         if not network.has_rail_by_neighbour:
             return 0
-        for data in (9, 8, 7, 6) if has_corner else ():
+        for data in (6, 7, 8, 9) if has_corner else ():
             connector = _RAIL_TYPE[data].connector
             for c1, c2 in combinations(connector + tuple(c + (0, -1, 0) for c in connector), 2):
                 if network.has_connectable_rail_at(c1) and network.has_connectable_rail_at(c2):
                     return data
-        for data in (5, 4, 3, 2):
+        for data in (2, 3, 4, 5):
             connector = tuple(filter(lambda c: c.y == 1, _RAIL_TYPE[data].connector))
             assert len(connector) == 1
             if network.has_connectable_rail_at(connector[0]):
                 return data
-        for data in (1, 0):
+        for data in (0, 1):
             connector = _RAIL_TYPE[data].connector
             for c in connector:
                 if network.has_connectable_rail_at(c):
@@ -672,7 +672,6 @@ class _RailBlockSpec(_BlockSpec):
                     continue
                 if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
-            assert not has_corner
             return None
         else:
             c = - position if position.y != 1 else position * (-1, 0, -1)
@@ -680,7 +679,6 @@ class _RailBlockSpec(_BlockSpec):
                 data, connector = _RAIL_TYPE[data]
                 if c in connector:
                     return PlacedBlock(position, block.copy(data=data))
-            assert not has_corner
             return None
 
     def female_connector(self, block: Block) -> _Connector:
