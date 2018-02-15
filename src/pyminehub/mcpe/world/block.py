@@ -1,5 +1,5 @@
 from itertools import combinations
-from typing import List, Optional, FrozenSet, NamedTuple, Sequence, Tuple
+from typing import Iterator, List, Optional, FrozenSet, NamedTuple, Sequence, Tuple
 
 from pyminehub.mcpe.const import BlockType, ItemType
 from pyminehub.mcpe.geometry import Vector3, Face
@@ -552,7 +552,7 @@ _RAIL_TYPE = {
 
 class _RailNetwork:
 
-    def __init__(self, block_type: BlockType, linked_blocks: Sequence[Tuple[Vector3[int], Block]]) -> None:
+    def __init__(self, block_type: BlockType, linked_blocks: Iterator[Tuple[Vector3[int], Block]]) -> None:
         self._block_type = block_type
         self._blocks = dict((position, block) for position, block in linked_blocks)
         self._rail_positions = self.get_rail_positions_by_neighbour(Vector3(0, 0, 0))
@@ -621,7 +621,8 @@ class _RailBlockSpec(_BlockSpec):
                 blocks.append(updated)
         return tuple(blocks)
 
-    def _get_block_data(self, network: _RailNetwork) -> int:
+    @staticmethod
+    def _get_block_data(network: _RailNetwork) -> int:
         if not network.has_rail_by_neighbour:
             return 0
         for data in (9, 8, 7, 6):
