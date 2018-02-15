@@ -688,6 +688,15 @@ class _RailBlockSpec(_BlockSpec):
         return _CONNECTOR_BOTTOM
 
 
+class _ChestBlockSpec(_BlockSpec):
+
+    def female_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_NONE
+
+    def male_connector(self, block: Block) -> _Connector:
+        return _CONNECTOR_ALL
+
+
 _block_specs = {
     BlockType.AIR: _AirBlockSpec(),
     BlockType.BEDROCK: _BlockSpec(None, can_be_broken=False),
@@ -721,6 +730,9 @@ _block_specs = {
     BlockType.GOLDEN_RAIL: _RailBlockSpec(ItemType.GOLDEN_RAIL),
     BlockType.DETECTOR_RAIL: _RailBlockSpec(ItemType.DETECTOR_RAIL),
     BlockType.ACTIVATOR_RAIL: _RailBlockSpec(ItemType.ACTIVATOR_RAIL),
+    BlockType.CHEST: _ChestBlockSpec(ItemType.CHEST),
+    BlockType.TRAPPED_CHEST: _ChestBlockSpec(ItemType.TRAPPED_CHEST),
+    BlockType.ENDER_CHEST: _ChestBlockSpec(ItemType.ENDER_CHEST),
 }
 
 
@@ -846,9 +858,6 @@ _blocks = [
 
     BlockType.GLOWSTONE,
 
-    BlockType.CHEST,
-    BlockType.TRAPPED_CHEST,
-    BlockType.ENDER_CHEST,
     BlockType.BOOKSHELF,
 
     BlockType.END_PORTAL_FRAME,

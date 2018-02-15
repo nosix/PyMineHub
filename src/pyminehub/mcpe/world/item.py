@@ -593,8 +593,8 @@ class _TripwireHookItemSpec(ItemSpec):
     def __init__(self) -> None:
         super().__init__(BlockType.TRIPWIRE_HOOK, 64)
 
-    def to_block_type(self, item_data: int, attached_facd: Face) -> Optional[BlockType]:
-        return None if attached_facd in (Face.TOP, Face.BOTTOM) else BlockType.TRIPWIRE_HOOK
+    def to_block_type(self, item_data: int, attached_face: Face) -> Optional[BlockType]:
+        return None if attached_face in (Face.TOP, Face.BOTTOM) else BlockType.TRIPWIRE_HOOK
 
     def to_block_data(
             self,
@@ -711,6 +711,45 @@ class _TorchItemSpec(ItemSpec):
         return self._FACE_TO_DATA[attached_face]
 
 
+class _ChestItemSpec(ItemSpec):
+
+    _FACE_TO_DATA = {
+        Face.NORTH: 2,
+        Face.SOUTH: 3,
+        Face.WEST: 4,
+        Face.EAST: 5
+    }
+
+    def to_block_data(
+            self,
+            item_data: int,
+            attached_face: Face,
+            player_yaw: float,
+            click_position: Vector3[float]
+    ) -> int:
+        """
+        >>> spec = _ChestItemSpec(None, 0)
+        >>> faces = [Face.NORTH, Face.SOUTH, Face.WEST, Face.EAST]
+        >>> list(spec.to_block_data(0, Face.TOP, f.yaw, Vector3(0.5, 1.0, 0.5)) for f in faces)
+        [2, 3, 4, 5]
+        >>> list(spec.to_block_data(0, Face.BOTTOM, f.yaw, Vector3(0.5, 0.0, 0.5)) for f in faces)
+        [2, 3, 4, 5]
+        >>> spec.to_block_data(0, Face.SOUTH, Face.NORTH.yaw, Vector3(0.5, 0.5, 0.0))
+        2
+        >>> spec.to_block_data(0, Face.NORTH, Face.SOUTH.yaw, Vector3(0.5, 0.5, 1.0))
+        3
+        >>> spec.to_block_data(0, Face.EAST, Face.WEST.yaw, Vector3(0.0, 0.5, 0.5))
+        4
+        >>> spec.to_block_data(0, Face.WEST, Face.EAST.yaw, Vector3(1.0, 0.5, 0.5))
+        5
+        """
+        horizontal_player_face = Face.by_yaw(player_yaw)
+        if attached_face in (Face.TOP, Face.BOTTOM):
+            return self._FACE_TO_DATA[horizontal_player_face]
+        else:
+            return self._FACE_TO_DATA[attached_face.inverse]
+
+
 _item_specs = {
     ItemType.AIR: _DefaultItemSpec(None, 0),
     ItemType.HAY_BLOCK: _DirectionalItemSpec(BlockType.HAY_BLOCK, 64, (0,)),
@@ -742,6 +781,9 @@ _item_specs = {
     ItemType.SIGN: _StandingOrWallItemSpec(BlockType.STANDING_SIGN, BlockType.WALL_SIGN),
     ItemType.TORCH: _TorchItemSpec(BlockType.TORCH, 64),
     ItemType.REDSTONE_TORCH: _TorchItemSpec(BlockType.REDSTONE_TORCH, 64),
+    ItemType.CHEST: _ChestItemSpec(BlockType.CHEST, 64),
+    ItemType.TRAPPED_CHEST: _ChestItemSpec(BlockType.TRAPPED_CHEST, 64),
+    ItemType.ENDER_CHEST: _ChestItemSpec(BlockType.ENDER_CHEST, 64),
 }
 
 _block_items = [
@@ -858,9 +900,6 @@ _block_items = [
     ItemType.CRAFTING_TABLE,
 
     ItemType.STONECUTTER,
-    ItemType.CHEST,
-    ItemType.TRAPPED_CHEST,
-    ItemType.ENDER_CHEST,
     ItemType.BOOKSHELF,
     ItemType.ENCHANTING_TABLE,
     ItemType.NOTEBLOCK,
