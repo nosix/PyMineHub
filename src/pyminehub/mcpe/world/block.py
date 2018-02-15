@@ -625,11 +625,35 @@ class _RailBlockSpec(_BlockSpec):
             return 0
         if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
             return 9
+        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
+            return 9
+        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
+            return 9
+        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
+            return 9
         if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
+            return 8
+        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
+            return 8
+        if network.has_connectable_rail_at(Vector3(0, 0, -1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
+            return 8
+        if network.has_connectable_rail_at(Vector3(0, -1, -1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
             return 8
         if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
             return 7
+        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(-1, 0, 0)):
+            return 7
+        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
+            return 7
+        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(-1, -1, 0)):
+            return 7
         if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
+            return 6
+        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(1, 0, 0)):
+            return 6
+        if network.has_connectable_rail_at(Vector3(0, 0, 1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
+            return 6
+        if network.has_connectable_rail_at(Vector3(0, -1, 1)) and network.has_connectable_rail_at(Vector3(1, -1, 0)):
             return 6
         if network.has_connectable_rail_at(Vector3(0, 1, 1)):
             return 5
