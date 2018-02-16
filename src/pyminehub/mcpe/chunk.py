@@ -1,4 +1,5 @@
-from typing import Callable, List, Sequence
+from itertools import islice
+from typing import Callable, Iterator, List, Sequence
 
 from pyminehub.binutil.composite import CompositeCodec, VarListData, CompositeData
 from pyminehub.binutil.converter import RawData
@@ -22,6 +23,15 @@ _layout = {
     'sub_chunk_block_data': ChunkGeometry.Sub.SHAPE.volume // 2,
     'chunk_height_map': ChunkGeometry.SHAPE.area * 2,
     'chunk_biome_id': ChunkGeometry.SHAPE.area
+}
+
+_legacy_layout = {
+    'chunk_block_id': ChunkGeometry.SHAPE.volume,
+    'chunk_block_data': ChunkGeometry.SHAPE.volume // 2,
+    'chunk_sky_light': ChunkGeometry.SHAPE.volume // 2,
+    'chunk_block_light': ChunkGeometry.SHAPE.volume // 2,
+    'chunk_height_map': ChunkGeometry.SHAPE.area,
+    'chunk_biome_data': ChunkGeometry.SHAPE.area * 4
 }
 
 _EMPTY_HEADER = b'\00'
@@ -183,8 +193,46 @@ _chunk_codec_spec = (
     VarListData(VAR_INT_DATA, FALSE_DATA)  # TODO change FALSE_DATA
 )
 
+_legacy_chunk_codec_spec = (
+    RawData(_legacy_layout['chunk_block_id']),
+    RawData(_legacy_layout['chunk_block_data']),
+    RawData(_legacy_layout['chunk_sky_light']),
+    RawData(_legacy_layout['chunk_block_light']),
+    RawData(_legacy_layout['chunk_height_map']),
+    RawData(_legacy_layout['chunk_biome_data']),
+)
 
 _chunk_codec = CompositeCodec(_chunk_codec_spec)
+_legacy_chunk_codec = CompositeCodec(_legacy_chunk_codec_spec)
+
+
+def _divide_to_sub_chunk(block_id: bytes, block_data: bytes) -> Iterator[_SubChunk]:
+    block_id_iter = _divide_data(block_id, _layout['sub_chunk_block_id'])
+    block_data_iter = _divide_data(block_data, _layout['sub_chunk_block_data'])
+    for sub_block_id, sub_block_data in zip(block_id_iter, block_data_iter):
+        yield _SubChunk(_EMPTY_HEADER, sub_block_id, sub_block_data)
+
+
+def _divide_data(data: bytes, size: int) -> Iterator[bytes]:
+    legacy_unit_size = len(data) // ChunkGeometry.SHAPE.area
+    unit_size = size // ChunkGeometry.SHAPE.area
+    for i in range(len(data) // size):
+        buffer = bytearray()
+        for area_index in range(ChunkGeometry.SHAPE.area):
+            start = area_index * legacy_unit_size + i * unit_size
+            buffer += data[start:start + unit_size]
+        yield bytes(buffer)
+
+
+def _from_legacy_height_map(height_map: bytes) -> Iterator[int]:
+    for value in height_map:
+        yield value
+        yield 0
+
+
+def _from_legacy_biome_id(biome_id: bytes) -> Iterator[int]:
+    for value in islice(biome_id, 0, None, 4):
+        yield value
 
 
 def create_empty_chunk() -> Chunk:
@@ -195,8 +243,15 @@ def encode_chunk(chunk: Chunk) -> bytes:
     return _chunk_codec.encode(*chunk)
 
 
-def decode_chunk(data: bytes) -> Chunk:
-    return Chunk(*_chunk_codec.decode(data))
+def decode_chunk(data: bytes, is_legacy=False) -> Chunk:
+    if is_legacy:
+        parts = _legacy_chunk_codec.decode(data)
+        block_id, block_data = parts[0:2]
+        height_map = bytes(_from_legacy_height_map(parts[4]))
+        biome_id = bytes(_from_legacy_biome_id(parts[5]))
+        return Chunk(tuple(_divide_to_sub_chunk(block_id, block_data)), height_map, biome_id, tuple(), tuple())
+    else:
+        return Chunk(*_chunk_codec.decode(data))
 
 
 def foreach_xz(func: Callable[[int, int], None]) -> None:

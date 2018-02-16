@@ -44,6 +44,9 @@ class ConfigKey(Enum):
     SPAWN_MOB = 306
     CLOCK_TIME = 307
     CLOCK_TICK_TIME = 308
+    SPACE_SIZE = 309
+    PLAYER_SPAWN_POSITION = 310
+    GENERATE_SPACE_ON_DEMAND = 311
     # raknet and mcpe.world
     WORLD_NAME = 401
     GAME_MODE = 402
@@ -66,6 +69,9 @@ __default_config = (
     (ConfigKey.SPAWN_MOB, True),
     (ConfigKey.CLOCK_TIME, None),  # None is dynamic clock, it does not sync time by negative value
     (ConfigKey.CLOCK_TICK_TIME, 10.0),  # seconds
+    (ConfigKey.SPACE_SIZE, (32, 32, 32)),
+    (ConfigKey.PLAYER_SPAWN_POSITION, (256, 56, 256)),
+    (ConfigKey.GENERATE_SPACE_ON_DEMAND, False),
     (ConfigKey.WORLD_NAME, 'PyMineHub'),
     (ConfigKey.GAME_MODE, 'SURVIVAL'),  # see mcpe.const.GameMode
 )

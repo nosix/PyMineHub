@@ -457,9 +457,11 @@ class _WorldProxyImpl(WorldProxy):
 
 
 def run(store: DataStore, plugin: PluginLoader) -> WorldProxy:
-    from pyminehub.mcpe.world.generator import BatchSpaceGenerator
+    from pyminehub.mcpe.world.generator import BatchSpaceGenerator, OnDemandSpaceGenerator
+    generator = OnDemandSpaceGenerator(plugin.generator, store) if get_value(ConfigKey.GENERATE_SPACE_ON_DEMAND) \
+        else BatchSpaceGenerator(plugin.generator, store)
     world = _WorldProxyImpl(
-        BatchSpaceGenerator(plugin.generator, store),
+        generator,
         store,
         plugin.mob_processor,
         plugin.player_config

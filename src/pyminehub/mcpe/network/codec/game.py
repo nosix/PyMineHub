@@ -27,9 +27,9 @@ _HEADER_EXTRA_DATA = RawData(2)
 
 
 _INT_VECTOR3_DATA = CompositeData(Vector3, (
+    VAR_SIGNED_INT_DATA,
     VAR_INT_DATA,
-    VAR_INT_DATA,
-    VAR_INT_DATA
+    VAR_SIGNED_INT_DATA
 ))
 
 _FLOAT_VECTOR3_DATA = CompositeData(Vector3, (

@@ -809,6 +809,8 @@ class VarIntData(DataCodec[int]):
     def write(self, data: bytearray, value: int, context: DataCodecContext) -> None:
         if not self._unsigned:
             value = self._exchange_for_writing(value)
+        else:
+            assert value >= 0, value
         while True:
             d = value & 0x7f
             value >>= 7

@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType, EntityType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
@@ -21,7 +22,7 @@ class Entity:
         self._spec = spec
         self._entity_unique_id = entity_unique_id
         self._entity_runtime_id = entity_runtime_id
-        self._spawn_position = Vector3(256, 56, 256)
+        self._spawn_position = Vector3(*get_value(ConfigKey.PLAYER_SPAWN_POSITION))
         self._position = None
         self._pitch = 0.0
         self._yaw = 0.0

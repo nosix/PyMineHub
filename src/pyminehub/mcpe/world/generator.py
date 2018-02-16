@@ -7,7 +7,8 @@ from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 
 __all__ = [
     'SpaceGenerator',
-    'BatchSpaceGenerator'
+    'BatchSpaceGenerator',
+    'OnDemandSpaceGenerator',
 ]
 
 
@@ -44,3 +45,20 @@ class BatchSpaceGenerator(SpaceGenerator):
     def generate_chunk(self, request: ChunkPositionWithDistance) -> Chunk:
         position = request.position % (self._x_length, self._z_length)
         return self._store.load_chunk(position)
+
+
+class OnDemandSpaceGenerator(SpaceGenerator):
+
+    def __init__(self, generator_plugin: ChunkGeneratorPlugin, store: DataStore) -> None:
+        self._store = store
+        self._x_length = 0
+        self._z_length = 0
+        self._generator_plugin = generator_plugin
+
+    def generate_space(self, x_length: int, z_length: int) -> None:
+        self._x_length = x_length
+        self._z_length = z_length
+
+    def generate_chunk(self, request: ChunkPositionWithDistance) -> Chunk:
+        position = request.position % (self._x_length, self._z_length)
+        return self._generator_plugin.create(position)

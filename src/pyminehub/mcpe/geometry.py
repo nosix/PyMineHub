@@ -306,7 +306,12 @@ class OrientedBoundingBox(NamedTuple('OrientedBoundingBox', [
 
 
 class ChunkGeometry:
-
+    """
+    >>> ChunkGeometry.SHAPE.area
+    256
+    >>> ChunkGeometry.SHAPE.volume
+    32768
+    """
     SHAPE = Vector3(16, 128, 16)
 
     class Sub:
@@ -316,7 +321,6 @@ class ChunkGeometry:
         >>> ChunkGeometry.Sub.SHAPE.volume
         4096
         """
-
         SHAPE = Vector3(16, 16, 16)
 
 
