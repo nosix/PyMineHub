@@ -1,11 +1,10 @@
 from functools import partial
 from typing import Callable, Dict, Iterator, List, NamedTuple, Tuple
 
-from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
-from pyminehub.mcpe.geometry import Vector3, Face, ChunkPositionWithDistance, ChunkPosition, to_local_position
+from pyminehub.mcpe.geometry import *
 from pyminehub.mcpe.value import Item, Block
 from pyminehub.mcpe.world.block import FunctionalBlock, PlacedBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
@@ -73,11 +72,10 @@ class Space:
     def __init__(self, generator: SpaceGenerator, store: DataStore) -> None:
         self._store = store
         self._generator = generator
-        self._size = Vector3(*get_value(ConfigKey.SPACE_SIZE))
         self._cache = {}  # type: Dict[ChunkPosition, Chunk]
 
     def init_space(self) -> None:
-        self._generator.generate_space(self._size.x, self._size.z)
+        self._generator.generate_space()
 
     def save(self) -> None:
         for position, chunk in self._cache.items():
