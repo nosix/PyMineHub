@@ -67,9 +67,9 @@ class MCPEServerHandler(MCPEDataHandler):
         for addr, p in self._session_manager.excluding(player):
             self.send_game_packet(packet, addr, immediately=False)
 
-    def _broadcast(self, packet: GamePacket) -> None:
+    def _broadcast(self, packet: GamePacket, immediately=True) -> None:
         for addr in self._session_manager.addresses:
-            self.send_game_packet(packet, addr)
+            self.send_game_packet(packet, addr, immediately)
 
     @staticmethod
     def _to_internal_format_hotbar(inventory_slot: int) -> Optional[int]:
@@ -379,13 +379,15 @@ class MCPEServerHandler(MCPEDataHandler):
                     self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
 
     def _process_event_block_updated(self, event: Event) -> None:
-        res_packet = game_packet_factory.create(
-            GamePacketType.UPDATE_BLOCK,
-            EXTRA_DATA,
-            event.position,
-            event.block
-        )
-        self._broadcast(res_packet)
+        for updated in event.updated:
+            res_packet = game_packet_factory.create(
+                GamePacketType.UPDATE_BLOCK,
+                EXTRA_DATA,
+                updated.position,
+                updated.block.copy(neighbors=True, network=True, priority=True)
+            )
+            self._broadcast(res_packet, immediately=False)
+        self.send_waiting_game_packet()
 
     def _process_event_item_spawned(self, event: Event) -> None:
         res_packet = game_packet_factory.create(

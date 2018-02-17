@@ -85,8 +85,7 @@ _event_specs = {
     ],
     EventType.BLOCK_UPDATED: [
         ('type', EventType),
-        ('position', Vector3[int]),
-        ('block', Block)
+        ('updated', Tuple[PlacedBlock, ...])
     ],
     EventType.ITEM_SPAWNED: [
         ('type', EventType),

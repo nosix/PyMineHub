@@ -3,9 +3,9 @@ from unittest import TestCase
 
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.value import Block
+from pyminehub.mcpe.value import Block, PlacedBlock
 # noinspection PyProtectedMember
-from pyminehub.mcpe.world.block.spec import RailBlockSpec, _SURROUNDING, PlacedBlock
+from pyminehub.mcpe.world.block.spec import RailBlockSpec, _SURROUNDING
 
 AIR = Block.create(BlockType.AIR, 0)
 RAIL = Block.create(BlockType.RAIL, 0)

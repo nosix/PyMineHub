@@ -2,9 +2,8 @@ from typing import List, Optional, Sequence, Tuple
 
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.geometry import Vector3, Face
-from pyminehub.mcpe.value import Item, Block
+from pyminehub.mcpe.value import Item, Block, PlacedBlock
 from pyminehub.mcpe.world.block.catalog import block_specs
-from pyminehub.mcpe.world.block.spec import PlacedBlock
 
 __all__ = [
     'FunctionalBlock'

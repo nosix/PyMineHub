@@ -28,6 +28,7 @@ __all__ = [
     'Recipe',
     'InventoryAction',
     'Block',
+    'PlacedBlock',
 ]
 
 
@@ -249,6 +250,12 @@ class Block(NamedTuple('Block', [
         new_flags = self.flags
         new_flags.update(flags)
         return Block.create(block_type, data, **new_flags)
+
+
+PlacedBlock = NamedTuple('PlacedBlock', [
+    ('position', Vector3[int]),
+    ('block', Block)
+])
 
 
 if __name__ == '__main__':

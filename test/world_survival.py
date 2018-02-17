@@ -173,8 +173,11 @@ class WorldSurvivalTestCase(TestCase):
         actual_event = self.next_event()
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
-            position=Vector3(x=256, y=62, z=257),
-            block=Block(type=BlockType.AIR, aux_value=176)
+            (
+                PlacedBlock(
+                    Vector3(x=256, y=62, z=257),
+                    Block(type=BlockType.AIR, aux_value=0)),
+            )
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -320,8 +323,11 @@ class WorldSurvivalTestCase(TestCase):
         actual_event = self.next_event()
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
-            position=Vector3(x=256, y=62, z=257),
-            block=Block(type=BlockType.DIRT, aux_value=176)
+            (
+                PlacedBlock(
+                    Vector3(x=256, y=62, z=257),
+                    Block(type=BlockType.DIRT, aux_value=0)),
+            )
         )
         self.assertEqual(expected_event, actual_event)
 
@@ -457,8 +463,11 @@ class WorldSurvivalTestCase(TestCase):
             actual_event = self.next_event()
             expected_event = event_factory.create(
                 EventType.BLOCK_UPDATED,
-                position=Vector3(x=x, y=62, z=257),
-                block=Block(type=BlockType.AIR, aux_value=176)
+                (
+                    PlacedBlock(
+                        Vector3(x=x, y=62, z=257),
+                        Block(type=BlockType.AIR, aux_value=0)),
+                )
             )
             self.assertEqual(expected_event, actual_event)
 
@@ -558,8 +567,11 @@ class WorldSurvivalTestCase(TestCase):
         actual_event = self.next_event()
         expected_event = event_factory.create(
             EventType.BLOCK_UPDATED,
-            position=Vector3(x=x, y=62, z=257),
-            block=Block(type=BlockType.AIR, aux_value=176)
+            (
+                PlacedBlock(
+                    Vector3(x=x, y=62, z=257),
+                    Block(type=BlockType.AIR, aux_value=0)),
+            )
         )
         self.assertEqual(expected_event, actual_event)
 

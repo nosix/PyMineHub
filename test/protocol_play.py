@@ -120,8 +120,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
             (
                 event_factory.create(
                     EventType.BLOCK_UPDATED,
-                    Vector3(x=256, y=62, z=258),
-                    Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)
+                    (
+                        PlacedBlock(
+                            Vector3(x=256, y=62, z=258),
+                            Block.create(BlockType.AIR, 0, neighbors=True, network=True, priority=True)),
+                    )
                 ),
                 event_factory.create(
                     EventType.ITEM_SPAWNED,
@@ -556,8 +559,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
             (
                 event_factory.create(
                     EventType.BLOCK_UPDATED,
-                    position=Vector3(x=256, y=62, z=258),
-                    block=Block.create(BlockType.DIRT, 0, neighbors=True, network=True, priority=True)
+                    (
+                        PlacedBlock(
+                            Vector3(x=256, y=62, z=258),
+                            Block.create(BlockType.DIRT, 0, neighbors=True, network=True, priority=True)),
+                    )
                 ),
                 event_factory.create(
                     EventType.INVENTORY_UPDATED,

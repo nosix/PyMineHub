@@ -5,8 +5,8 @@ from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import *
-from pyminehub.mcpe.value import Item, Block
-from pyminehub.mcpe.world.block import FunctionalBlock, PlacedBlock
+from pyminehub.mcpe.value import Item, Block, PlacedBlock
+from pyminehub.mcpe.world.block import FunctionalBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [

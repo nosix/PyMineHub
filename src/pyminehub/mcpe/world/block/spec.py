@@ -3,10 +3,9 @@ from typing import NamedTuple, FrozenSet, Optional, Tuple, List, Sequence, Itera
 
 from pyminehub.mcpe.const import ItemType, BlockType
 from pyminehub.mcpe.geometry import Vector3, Face
-from pyminehub.mcpe.value import Block, Item
+from pyminehub.mcpe.value import Item, Block, PlacedBlock
 
 __all__ = [
-    'PlacedBlock',
     'BlockSpec',
     'AirBlockSpec',
     'ToExtendUpwardBlockSpec',
@@ -26,11 +25,6 @@ __all__ = [
     'RailBlockSpec',
     'ChestBlockSpec'
 ]
-
-PlacedBlock = NamedTuple('PlacedBlock', [
-    ('position', Vector3[int]),
-    ('block', Block)
-])
 
 _Connector = FrozenSet[Face]
 

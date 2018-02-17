@@ -269,11 +269,10 @@ class _World(WorldEditor):
 
     def _process_break_block(self, action: Action) -> None:
         updated_blocks, items = self._space.break_block(action.position)
-        for updated in updated_blocks:
+        if len(updated_blocks) > 0:
             self._notify_event(event_factory.create(
                 EventType.BLOCK_UPDATED,
-                updated.position,
-                updated.block.copy(neighbors=True, network=True, priority=True)
+                tuple(updated_blocks)
             ))
         if self._game_mode == GameMode.CREATIVE:
             return
@@ -306,11 +305,11 @@ class _World(WorldEditor):
         block = get_item_spec(old_slot.type).to_block(
             old_slot.data, action.face, player.yaw, action.click_position)
         if block is not None:
-            for updated in self._space.put_block(action.position, action.face, block):
+            updated = self._space.put_block(action.position, action.face, block)
+            if len(updated) > 0:
                 self._notify_event(event_factory.create(
                     EventType.BLOCK_UPDATED,
-                    updated.position,
-                    updated.block.copy(neighbors=True, network=True, priority=True)
+                    tuple(updated)
                 ))
         self._notify_event(event_factory.create(
             EventType.INVENTORY_UPDATED,
