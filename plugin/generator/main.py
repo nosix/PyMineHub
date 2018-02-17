@@ -1,4 +1,9 @@
-import leveldb
+try:
+    # noinspection PyUnresolvedReferences
+    import leveldb
+except ModuleNotFoundError:
+    from generator import mock as leveldb
+
 from enum import Enum
 from pathlib import Path
 
