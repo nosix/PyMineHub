@@ -235,57 +235,57 @@ def _spawn_player(
         GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.PLAYER_SPAWN)
     send(res_packet, addr)
 
-    if player.invisible:
-        return
+    if not player.invisible:
+        text_packet = game_packet_factory.create(
+            GamePacketType.TEXT,
+            EXTRA_DATA,
+            TextType.TRANSLATION,
+            False,
+            None,
+            EscapeSequence.YELLOW.value + '%multiplayer.player.joined',
+            (player.name, ),
+            ''
+        )
 
-    text_packet = game_packet_factory.create(
-        GamePacketType.TEXT,
-        EXTRA_DATA,
-        TextType.TRANSLATION,
-        False,
-        None,
-        EscapeSequence.YELLOW.value + '%multiplayer.player.joined',
-        (player.name, ),
-        ''
-    )
+        for other_player_addr, p in session:
+            send(text_packet, other_player_addr)
 
-    for other_player_addr, p in session:
-        send(text_packet, other_player_addr)
-
-    new_player_packet = game_packet_factory.create(
-        GamePacketType.ADD_PLAYER,
-        EXTRA_DATA,
-        player.id,
-        player.name,
-        player.entity_unique_id,
-        player.entity_runtime_id,
-        player.bottom_position,
-        Vector3(0.0, 0.0, 0.0),
-        0.0, player.yaw, 0.0,
-        player.equipped_item,
-        player.metadata,
-        0, 0, 0, 0, 0,
-        0,
-        tuple()
-    )
-
-    for other_player_addr, p in session.excluding(player):
-        send(new_player_packet, other_player_addr)
-
-        other_player_packet = game_packet_factory.create(
+        new_player_packet = game_packet_factory.create(
             GamePacketType.ADD_PLAYER,
             EXTRA_DATA,
-            p.id,
-            p.name,
-            p.entity_unique_id,
-            p.entity_runtime_id,
-            p.bottom_position,
+            player.id,
+            player.name,
+            player.entity_unique_id,
+            player.entity_runtime_id,
+            player.bottom_position,
             Vector3(0.0, 0.0, 0.0),
-            0.0, p.yaw, 0.0,
-            p.equipped_item,
-            p.metadata,
+            0.0, player.yaw, 0.0,
+            player.equipped_item,
+            player.metadata,
             0, 0, 0, 0, 0,
             0,
             tuple()
         )
-        send(other_player_packet, addr)
+
+        for other_player_addr, p in session.excluding(player):
+            send(new_player_packet, other_player_addr)
+
+    for other_player_addr, p in session.excluding(player):
+        if not p.invisible:
+            other_player_packet = game_packet_factory.create(
+                GamePacketType.ADD_PLAYER,
+                EXTRA_DATA,
+                p.id,
+                p.name,
+                p.entity_unique_id,
+                p.entity_runtime_id,
+                p.bottom_position,
+                Vector3(0.0, 0.0, 0.0),
+                0.0, p.yaw, 0.0,
+                p.equipped_item,
+                p.metadata,
+                0, 0, 0, 0, 0,
+                0,
+                tuple()
+            )
+            send(other_player_packet, addr)

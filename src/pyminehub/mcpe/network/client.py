@@ -2,12 +2,14 @@ import asyncio
 import uuid
 from logging import getLogger
 from random import randrange
-from typing import List, Optional
+from typing import Dict, List, NamedTuple, Optional, Tuple
 
 from pyminehub.mcpe.command.api import to_signature
 from pyminehub.mcpe.command.const import CommandOriginDataType
 from pyminehub.mcpe.command.value import CommandOriginData
+from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus
+from pyminehub.mcpe.network.const import PlayerListType
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
@@ -18,11 +20,39 @@ from pyminehub.network.address import Address, to_packet_format
 from pyminehub.raknet import AbstractClient
 
 __all__ = [
-    'MCPEClient'
+    'MCPEClient',
+    'EntityInfo'
 ]
 
 
 _logger = getLogger(__name__)
+
+
+EntityInfo = NamedTuple('EntityInfo', [
+    ('entity_runtime_id', EntityRuntimeID),
+    ('name', str),
+    ('position', Vector3[float])
+])
+
+
+class _MutableEntityInfo:
+
+    def __init__(self, entity_runtime_id: EntityRuntimeID, name: str) -> None:
+        self._entity_runtime_id = entity_runtime_id
+        self._name = name
+        self._position = Vector3(0, 0, 0)
+
+    @property
+    def value(self) -> EntityInfo:
+        return EntityInfo(self._entity_runtime_id, self._name, self._position)
+
+    @property
+    def position(self) -> Vector3[float]:
+        return self._position
+
+    @position.setter
+    def position(self, value: Vector3[float]) -> None:
+        self._position = value
 
 
 class _MCPEClientHandler(MCPEDataHandler):
@@ -37,6 +67,7 @@ class _MCPEClientHandler(MCPEDataHandler):
         self._is_active = asyncio.Event()
         self._entity_runtime_id = None  # type: EntityRuntimeID
         self._command_usage = []  # type: List[str]
+        self._entities = {}  # type: Dict[EntityRuntimeID, _MutableEntityInfo]
 
     # GameDataHandler interface methods
 
@@ -66,6 +97,13 @@ class _MCPEClientHandler(MCPEDataHandler):
     @property
     def command_usage(self) -> str:
         return '\n'.join(self._command_usage)
+
+    @property
+    def entities(self) -> Tuple[EntityInfo, ...]:
+        return tuple(entity.value for entity in self._entities.values())
+
+    def get_entity(self, entity_runtime_id: EntityRuntimeID) -> Optional[EntityInfo]:
+        return self._entities[entity_runtime_id].value if entity_runtime_id in self._entities else None
 
     async def start(self, server_addr: Address, player_name: str, locale: str) -> None:
         assert not self._is_active.is_set()
@@ -191,15 +229,16 @@ class _MCPEClientHandler(MCPEDataHandler):
 
     def _process_player_list(self, packet: GamePacket, addr: Address) -> None:
         _logger.info('%s %s: %d player', packet.type.name, packet.list_type.name, len(packet.entries))
-        for player in packet.entries:
-            _logger.info('[%d] %s', player.entity_unique_id, player.user_name)
-        if not self._is_active.is_set():
-            send_packet = game_packet_factory.create(
-                GamePacketType.REQUEST_CHUNK_RADIUS,
-                EXTRA_DATA,
-                8
-            )
-            self.send_game_packet(send_packet, addr)
+        if packet.list_type is PlayerListType.ADD:
+            for player in packet.entries:
+                _logger.info('[%d] %s', player.entity_unique_id, player.user_name)
+            if not self._is_active.is_set():
+                send_packet = game_packet_factory.create(
+                    GamePacketType.REQUEST_CHUNK_RADIUS,
+                    EXTRA_DATA,
+                    8
+                )
+                self.send_game_packet(send_packet, addr)
 
     def _process_chunk_radius_updated(self, packet: GamePacket, addr: Address) -> None:
         pass
@@ -207,8 +246,16 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_full_chunk_data(self, packet: GamePacket, addr: Address) -> None:
         pass
 
+    # noinspection PyUnusedLocal
     def _process_add_player(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        entity = _MutableEntityInfo(packet.entity_runtime_id, packet.user_name)
+        entity.position = packet.position
+        self._entities[packet.entity_runtime_id] = entity
+
+    # noinspection PyUnusedLocal
+    def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
+        entity = self._entities[packet.entity_runtime_id]
+        entity.position = packet.position
 
     # noinspection PyUnusedLocal
     def _process_text(self, packet: GamePacket, addr: Address) -> None:
@@ -223,6 +270,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     # noinspection PyUnusedLocal
     def _process_add_entity(self, packet: GamePacket, addr: Address) -> None:
         self._queue.put_nowait(packet)
+
+    def _process_remove_entity(self, packet: GamePacket, addr: Address) -> None:
+        pass
 
     # noinspection PyUnusedLocal
     def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
@@ -278,6 +328,13 @@ class MCPEClient(AbstractClient):
     @property
     def command_usage(self) -> str:
         return self._handler.command_usage
+
+    @property
+    def entities(self) -> Tuple[EntityInfo, ...]:
+        return self._handler.entities
+
+    def get_entity(self, entity_runtime_id: EntityRuntimeID) -> Optional[EntityInfo]:
+        return self._handler.get_entity(entity_runtime_id)
 
     def execute_command(self, command: str) -> None:
         asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self.server_addr, command))
