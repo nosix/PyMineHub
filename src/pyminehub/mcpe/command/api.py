@@ -11,6 +11,7 @@ from pyminehub.mcpe.command.value import CommandEnum, CommandParameter, CommandD
 from pyminehub.typevar import ET
 
 __all__ = [
+    'to_signature',
     'GameEventType',
     'CommandContext',
     'DuplicateDefinitionError',
@@ -21,6 +22,7 @@ __all__ = [
 _FLAG_STATIC_TYPE = 0x100000
 _FLAG_ENUM_TYPE = 0x200000
 _FLAG_DYNAMIC_TYPE = 0x1000000
+_MASK_TYPE_DATA = 0xfffff
 
 _BASIC_TYPES = {
     Int: CommandArgType.INT.value,
@@ -34,6 +36,47 @@ _BASIC_TYPES = {
     JSON: CommandArgType.JSON.value,
     Command: CommandArgType.COMMAND.value
 }
+
+
+def to_signature(command_data: CommandData, enums: Tuple[CommandEnum, ...]) -> Tuple[str, ...]:
+    """
+    >>> enums = (CommandEnum('EventType', (0, 1)),)
+    >>> to_signature(\
+        CommandData(name='entity_event', description='Generate a entity event.', flags=0, permission=0, aliases=-1,\
+            overloads=((\
+                CommandParameter(name='event_type', type=3145728, is_optional=False),\
+                CommandParameter(name='eid', type=1048577, is_optional=False),\
+                CommandParameter(name='data', type=1048577, is_optional=False)),)), enums)
+    ('/entity_event event_type:EventType eid:int data:int',)
+    """
+    signatures = []
+    for overload in command_data.overloads:
+        param = ' '.join('{}:{}'.format(
+            param.name, _type_to_str(param.type, param.is_optional, enums)) for param in overload)
+        signatures.append('/{} {}'.format(command_data.name, param))
+    return tuple(signatures)
+
+
+def _type_to_str(type_value: int, is_optional: bool, enums: Tuple[CommandEnum, ...]) -> str:
+    """
+    >>> enums = (CommandEnum('EventType', (0, 1)),)
+    >>> _type_to_str(3145728, False, enums)
+    'EventType'
+    >>> _type_to_str(1048577, False, enums)
+    'int'
+    >>> _type_to_str(1048577, True, enums)
+    'Optional[int]'
+    """
+    def to_optional(base_type: str) -> str:
+        return 'Optional[{}]'.format(base_type) if is_optional else base_type
+    type_data = type_value & _MASK_TYPE_DATA
+    if type_value & _FLAG_STATIC_TYPE:
+        if type_value & _FLAG_ENUM_TYPE:
+            return to_optional(enums[type_data].name)
+        else:
+            return to_optional(CommandArgType(type_data).name.lower())
+    else:
+        raise NotImplementedError()
 
 
 class GameEventType(Enum):

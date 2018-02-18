@@ -2,8 +2,9 @@ import asyncio
 import uuid
 from logging import getLogger
 from random import randrange
-from typing import Optional
+from typing import List, Optional
 
+from pyminehub.mcpe.command.api import to_signature
 from pyminehub.mcpe.command.const import CommandOriginDataType
 from pyminehub.mcpe.command.value import CommandOriginData
 from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus
@@ -35,6 +36,7 @@ class _MCPEClientHandler(MCPEDataHandler):
         self._request_time = None
         self._is_active = asyncio.Event()
         self._entity_runtime_id = None  # type: EntityRuntimeID
+        self._command_usage = []  # type: List[str]
 
     # GameDataHandler interface methods
 
@@ -60,6 +62,10 @@ class _MCPEClientHandler(MCPEDataHandler):
             self._connecting.set()
 
     # local methods
+
+    @property
+    def command_usage(self) -> str:
+        return '\n'.join(self._command_usage)
 
     async def start(self, server_addr: Address, player_name: str, locale: str) -> None:
         assert not self._is_active.is_set()
@@ -160,8 +166,13 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_set_entity_data(self, packet: GamePacket, addr: Address) -> None:
         pass
 
+    # noinspection PyUnusedLocal
     def _process_available_commands(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        indent = '  '
+        for command_data in packet.command_data:
+            self._command_usage.append(command_data.description)
+            for signature in to_signature(command_data, packet.enums):
+                self._command_usage.append(indent + signature)
 
     def _process_adventure_settings(self, packet: GamePacket, addr: Address) -> None:
         pass
@@ -263,6 +274,10 @@ class MCPEClient(AbstractClient):
             return asyncio.get_event_loop().run_until_complete(asyncio.gather(*futures))[0]
         except asyncio.CancelledError:
             return None
+
+    @property
+    def command_usage(self) -> str:
+        return self._handler.command_usage
 
     def execute_command(self, command: str) -> None:
         asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self.server_addr, command))

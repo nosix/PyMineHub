@@ -3,6 +3,7 @@ from pickle import dumps, loads
 from typing import Any, Optional, Union
 
 from pyminehub.mcpe.action import Action, ActionType, action_factory
+from pyminehub.mcpe.command.annotation import String
 from pyminehub.mcpe.command.api import *
 from pyminehub.mcpe.const import MoveMode, ItemType, EntityType, EntityMetaDataKey
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition, ChunkPositionWithDistance
@@ -18,7 +19,11 @@ class ActionCommandProcessor:
     @command
     def perform(self, context: CommandContext, args: str) -> None:
         """Perform action in the world."""
-        action = loads(unhexlify(args))
+        self._perform(context, String(args))
+
+    @perform.overload
+    def _perform(self, context: CommandContext, data: String) -> None:
+        action = loads(unhexlify(data))
         context.perform_action(action)
 
 
