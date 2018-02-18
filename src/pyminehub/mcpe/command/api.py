@@ -11,6 +11,7 @@ from pyminehub.mcpe.command.value import CommandEnum, CommandParameter, CommandD
 from pyminehub.typevar import ET
 
 __all__ = [
+    'GameEventType',
     'CommandContext',
     'DuplicateDefinitionError',
     'command',
@@ -35,12 +36,22 @@ _BASIC_TYPES = {
 }
 
 
+class GameEventType(Enum):
+    SOUND = 0
+    SPACE = 1
+    BLOCK = 2
+    ENTITY = 3
+
+
 class CommandContext:
 
     def get_enum_value(self, name: str) -> Union[ET, Callable]:
         raise NotImplementedError()
 
     def send_text(self, text: str, broadcast: bool=False) -> None:
+        raise NotImplementedError()
+
+    def generate_event(self, event_type: GameEventType, *args, **kwargs) -> None:
         raise NotImplementedError()
 
     def perform_action(self, action: Action) -> None:

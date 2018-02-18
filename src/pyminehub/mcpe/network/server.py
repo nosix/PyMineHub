@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import ActionType, action_factory
-from pyminehub.mcpe.command.api import CommandRegistry
+from pyminehub.mcpe.command.api import GameEventType, CommandRegistry
 from pyminehub.mcpe.command.impl import CommandContextImpl
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.event import EventType, Event
@@ -30,6 +30,13 @@ _logger = getLogger(__name__)
 
 
 _NONE_INVENTORY_SLOT = 255
+
+_GAME_EVENT_TYPES = {
+    GameEventType.SOUND: GamePacketType.SOUND_EVENT,
+    GameEventType.SPACE: GamePacketType.SPACE_EVENT,
+    GameEventType.BLOCK: GamePacketType.BLOCK_EVENT,
+    GameEventType.ENTITY: GamePacketType.ENTITY_EVENT
+}
 
 
 class MCPEServerHandler(MCPEDataHandler):
@@ -289,9 +296,13 @@ class MCPEServerHandler(MCPEDataHandler):
             else:
                 self.send_game_packet(text_packet, addr, immediately=False)
 
-        command_name, args = packet.command[1:].partition(' ')[0:3:2]
-        context = CommandContextImpl(self._command, send_text, self._world.perform)
-        self._command.execute_command(context, command_name, args)
+        def generate_event(event_type: GameEventType, *args, **kwargs):
+            event_packet = game_packet_factory.create(_GAME_EVENT_TYPES[event_type], EXTRA_DATA, *args, **kwargs)
+            self._broadcast(event_packet)
+
+        command_name, arg = packet.command[1:].partition(' ')[0:3:2]
+        context = CommandContextImpl(self._command, send_text, generate_event, self._world.perform)
+        self._command.execute_command(context, command_name, arg)
 
     # event handling methods
 
