@@ -248,6 +248,7 @@ class _MCPEClientHandler(MCPEDataHandler):
 
     # noinspection PyUnusedLocal
     def _process_add_player(self, packet: GamePacket, addr: Address) -> None:
+        assert packet.entity_runtime_id == packet.entity_unique_id
         entity = _MutableEntityInfo(packet.entity_runtime_id, packet.user_name)
         entity.position = packet.position
         self._entities[packet.entity_runtime_id] = entity
@@ -271,8 +272,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_add_entity(self, packet: GamePacket, addr: Address) -> None:
         self._queue.put_nowait(packet)
 
+    # noinspection PyUnusedLocal
     def _process_remove_entity(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        del self._entities[packet.entity_unique_id]  # TODO map unique_id to runtime_id
 
     # noinspection PyUnusedLocal
     def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
