@@ -47,6 +47,10 @@ class _MutableEntityInfo:
         return EntityInfo(self._entity_runtime_id, self._name, self._position)
 
     @property
+    def entity_runtime_id(self) -> EntityRuntimeID:
+        return self._entity_runtime_id
+
+    @property
     def position(self) -> Vector3[float]:
         return self._position
 
@@ -66,8 +70,11 @@ class _MCPEClientHandler(MCPEDataHandler):
         self._request_time = None
         self._is_active = asyncio.Event()
         self._entity_runtime_id = None  # type: EntityRuntimeID
+        self._player_name = None  # type: str
         self._command_usage = []  # type: List[str]
         self._entities = {}  # type: Dict[EntityRuntimeID, _MutableEntityInfo]
+        self._messages = []  # type: List[str]
+        self._processed = asyncio.Event()
 
     # GameDataHandler interface methods
 
@@ -75,10 +82,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     def guid(self) -> int:
         return self._guid
 
-    @property
-    def entity_runtime_id(self) -> EntityRuntimeID:
-        assert self._entity_runtime_id is not None
-        return self._entity_runtime_id
+    def data_received(self, data: bytes, addr: Address) -> None:
+        super().data_received(data, addr)
+        self._processed.set()
 
     async def update(self) -> None:
         await asyncio.Event().wait()
@@ -95,6 +101,11 @@ class _MCPEClientHandler(MCPEDataHandler):
     # local methods
 
     @property
+    def entity_runtime_id(self) -> EntityRuntimeID:
+        assert self._entity_runtime_id is not None
+        return self._entity_runtime_id
+
+    @property
     def command_usage(self) -> str:
         return '\n'.join(self._command_usage)
 
@@ -105,9 +116,13 @@ class _MCPEClientHandler(MCPEDataHandler):
     def get_entity(self, entity_runtime_id: EntityRuntimeID) -> Optional[EntityInfo]:
         return self._entities[entity_runtime_id].value if entity_runtime_id in self._entities else None
 
+    def next_message(self) -> Optional[str]:
+        return self._messages.pop(0) if len(self._messages) > 0 else None
+
     async def start(self, server_addr: Address, player_name: str, locale: str) -> None:
         assert not self._is_active.is_set()
         self._request_time = self.get_current_time()
+        self._player_name = player_name
         send_packet = connection_packet_factory.create(
             ConnectionPacketType.CONNECTION_REQUEST, self.guid, self._request_time, False)
         self.send_connection_packet(send_packet, server_addr, RELIABLE)
@@ -154,8 +169,9 @@ class _MCPEClientHandler(MCPEDataHandler):
         self.send_game_packet(send_packet, server_addr, DEFAULT_CHANEL)
         await asyncio.sleep(0.1)  # execute the send task
 
-    async def wait_response(self) -> GamePacket:
-        return await self._queue.get()
+    async def wait_response(self) -> None:
+        await self._processed.wait()
+        self._processed.clear()
 
     def _process_connection_request_accepted(self, packet: ConnectionPacket, addr: Address) -> None:
         if packet.client_time_since_start != self._request_time:
@@ -194,6 +210,8 @@ class _MCPEClientHandler(MCPEDataHandler):
     # noinspection PyUnusedLocal
     def _process_start_game(self, packet: GamePacket, addr: Address) -> None:
         self._entity_runtime_id = packet.entity_runtime_id
+        entity = _MutableEntityInfo(packet.entity_runtime_id, self._player_name)
+        self._entities[entity.entity_runtime_id] = entity
 
     def _process_set_time(self, packet: GamePacket, addr: Address) -> None:
         pass
@@ -251,7 +269,7 @@ class _MCPEClientHandler(MCPEDataHandler):
         assert packet.entity_runtime_id == packet.entity_unique_id
         entity = _MutableEntityInfo(packet.entity_runtime_id, packet.user_name)
         entity.position = packet.position
-        self._entities[packet.entity_runtime_id] = entity
+        self._entities[entity.entity_runtime_id] = entity
 
     # noinspection PyUnusedLocal
     def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
@@ -262,15 +280,15 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_text(self, packet: GamePacket, addr: Address) -> None:
         # TODO check text_type and needs_translation
         parameters = tuple(str(p) for p in packet.parameters)
-        if len(parameters) > 0:
-            _logger.info('%s: %s (%s)', packet.type.name, packet.message, ', '.join(parameters))
-        else:
-            _logger.info('%s: %s', packet.type.name, packet.message)
-        self._queue.put_nowait(packet)
+        message = '{} ({})'.format(packet.message, ', '.join(parameters)) if len(parameters) > 0 else packet.message
+        _logger.info('%s: %s', packet.type.name, message)
+        self._messages.append(message)
 
     # noinspection PyUnusedLocal
     def _process_add_entity(self, packet: GamePacket, addr: Address) -> None:
-        self._queue.put_nowait(packet)
+        entity = _MutableEntityInfo(packet.entity_runtime_id, packet.entity_type.name)
+        entity.position = packet.position
+        self._entities[entity.entity_runtime_id] = entity
 
     # noinspection PyUnusedLocal
     def _process_remove_entity(self, packet: GamePacket, addr: Address) -> None:
@@ -278,7 +296,8 @@ class _MCPEClientHandler(MCPEDataHandler):
 
     # noinspection PyUnusedLocal
     def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
-        self._queue.put_nowait(packet)
+        entity = self._entities[packet.entity_runtime_id]
+        entity.position = packet.position
 
     async def stop(self, server_addr: Address) -> None:
         send_packet = connection_packet_factory.create(
@@ -312,10 +331,10 @@ class MCPEClient(AbstractClient):
         await asyncio.sleep(time)
         future.cancel()
 
-    def wait_response(self, timeout: float=0) -> Optional[GamePacket]:
+    def wait_response(self, timeout: float=0) -> bool:
         """Wait until it receives a packet
         :param timeout: seconds. If it is 0 then timeout does not occur.
-        :return: None if timeout occurred.
+        :return: False if timeout occurred.
         """
         wait_future = asyncio.ensure_future(self._handler.wait_response())
         futures = [wait_future]
@@ -323,9 +342,14 @@ class MCPEClient(AbstractClient):
             timeout_future = asyncio.ensure_future(self._timeout(wait_future, timeout))
             futures.append(timeout_future)
         try:
-            return asyncio.get_event_loop().run_until_complete(asyncio.gather(*futures))[0]
+            asyncio.get_event_loop().run_until_complete(asyncio.gather(*futures))
+            return True
         except asyncio.CancelledError:
-            return None
+            return False
+
+    @property
+    def entity_runtime_id(self) -> EntityRuntimeID:
+        return self._handler.entity_runtime_id
 
     @property
     def command_usage(self) -> str:
@@ -337,6 +361,9 @@ class MCPEClient(AbstractClient):
 
     def get_entity(self, entity_runtime_id: EntityRuntimeID) -> Optional[EntityInfo]:
         return self._handler.get_entity(entity_runtime_id)
+
+    def next_message(self) -> Optional[str]:
+        return self._handler.next_message()
 
     def execute_command(self, command: str) -> None:
         asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self.server_addr, command))

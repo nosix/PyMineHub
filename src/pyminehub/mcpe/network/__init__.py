@@ -1,7 +1,8 @@
-from .client import MCPEClient
+from .client import MCPEClient, EntityInfo
 from .server import MCPEServerHandler
 
 __all__ = [
     'MCPEServerHandler',
-    'MCPEClient'
+    'MCPEClient',
+    'EntityInfo'
 ]

@@ -186,7 +186,7 @@ def login_sequence(
                 user_name=p.name,
                 skin=p.skin,
                 xbox_user_id='')
-            for _, p in session.excluding(player)))
+            for _, p in session.excluding(player) if not p.invisible))
     send(res_packet, addr)
 
     _notify_new_player(player, session, send)

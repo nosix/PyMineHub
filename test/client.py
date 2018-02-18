@@ -9,8 +9,7 @@ from pyminehub.mcpe.command.api import CommandRegistry, CommandContext, command
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3
 from pyminehub.mcpe.main.client import connect
-from pyminehub.mcpe.network import MCPEServerHandler, MCPEClient
-from pyminehub.mcpe.network.packet import EXTRA_DATA, GamePacketType, game_packet_factory
+from pyminehub.mcpe.network import MCPEServerHandler, MCPEClient, EntityInfo
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.world import run as run_world
 from pyminehub.raknet import raknet_server
@@ -58,29 +57,32 @@ class ClientTestCase(TestCase):
     def test_command_request(self):
         with raknet_server(self._handler) as server:
             with connect('127.0.0.1', player_name='Taro') as client:
-                packet = client.wait_response(1)
-                self.assertEqual(GamePacketType.TEXT, packet.type)
+                self.assertEqual('§e%multiplayer.player.joined (Taro)', client.next_message())
+                self.assertEqual(1, client.entity_runtime_id)
+
+                expected_entities = (
+                    EntityInfo(entity_runtime_id=1, name='Taro', position=Vector3(0, 0, 0)),
+                )
+                self.assertEqual(expected_entities, client.entities)
 
                 client.execute_command('/ban taro')
-                actual_packet = client.wait_response(1)
-                expected_packet = game_packet_factory.create(
-                    GamePacketType.TEXT,
-                    EXTRA_DATA,
-                    text_type=TextType.TRANSLATION,
-                    needs_translation=False,
-                    source=None,
-                    message='ban taro',
-                    parameters=(),
-                    xbox_user_id=''
-                )
-                self.assertEqual(expected_packet, actual_packet)
+                client.wait_response(1)
+                self.assertEqual('ban taro', client.next_message())
             server.stop()
 
     def test_perform_action(self):
         with raknet_server(self._handler) as server:
             with connect('127.0.0.1', player_name='Taro') as client:
-                packet = client.wait_response(1)
-                self.assertEqual(GamePacketType.TEXT, packet.type)
+                self.assertEqual('§e%multiplayer.player.joined (Taro)', client.next_message())
+                self.assertEqual(1, client.entity_runtime_id)
+
+                expected_entities = (
+                    EntityInfo(
+                        entity_runtime_id=1,
+                        name='Taro',
+                        position=Vector3(0, 0, 0)),
+                )
+                self.assertEqual(expected_entities, client.entities)
 
                 _perform_action(client, action_factory.create(
                     ActionType.SPAWN_MOB,
@@ -92,22 +94,18 @@ class ClientTestCase(TestCase):
                     None
                 ))
 
-                actual_packet = client.wait_response(1)
-                expected_packet = game_packet_factory.create(
-                    GamePacketType.ADD_ENTITY,
-                    EXTRA_DATA,
-                    entity_unique_id=2,
-                    entity_runtime_id=2,
-                    entity_type=EntityType.CHICKEN,
-                    position=Vector3(256.0, 63.0, 256.0),  # height is adjusted
-                    motion=Vector3(0.0, 0.0, 0.0),
-                    pitch=0.0,
-                    yaw=0.0,
-                    attributes=(),
-                    metadata=(),
-                    links=()
+                client.wait_response(1)
+                expected_entities = (
+                    EntityInfo(
+                        entity_runtime_id=1,
+                        name='Taro',
+                        position=Vector3(0, 0, 0)),
+                    EntityInfo(
+                        entity_runtime_id=2,
+                        name='CHICKEN',
+                        position=Vector3(256.0, 63.0, 256.0))  # height is adjusted
                 )
-                self.assertEqual(expected_packet, actual_packet)
+                self.assertEqual(expected_entities, client.entities)
 
                 _perform_action(client, action_factory.create(
                     ActionType.MOVE_MOB,
@@ -117,19 +115,9 @@ class ClientTestCase(TestCase):
                     90.0
                 ))
 
-                actual_packet = client.wait_response(1)
-                expected_packet = game_packet_factory.create(
-                    GamePacketType.MOVE_ENTITY,
-                    EXTRA_DATA,
-                    entity_runtime_id=2,
-                    position=Vector3(257.0, 63.0, 254.0),
-                    pitch=45.0,
-                    head_yaw=0.0,
-                    yaw=90.0,
-                    on_ground=True,
-                    teleported=False
-                )
-                self.assertEqual(expected_packet, actual_packet)
+                client.wait_response(1)
+                expected_entity = EntityInfo(entity_runtime_id=2, name='CHICKEN', position=Vector3(257.0, 63.0, 254.0))
+                self.assertEqual(expected_entity, client.get_entity(2))
             server.stop()
 
 
