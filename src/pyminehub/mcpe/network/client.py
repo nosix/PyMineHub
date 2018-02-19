@@ -329,7 +329,6 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
         entity = self._entities[packet.entity_runtime_id]
         entity.position = packet.position
-        print(packet.position)
 
     # noinspection PyUnusedLocal
     def _process_text(self, packet: GamePacket, addr: Address) -> None:
