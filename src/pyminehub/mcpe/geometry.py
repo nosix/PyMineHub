@@ -3,7 +3,7 @@ import math
 import operator as _op
 from enum import Enum
 from numbers import Number
-from typing import Generic, Iterator, NamedTuple, Optional
+from typing import Generic, Iterator, NamedTuple, Optional, Tuple
 
 from pyminehub.typevar import NT
 
@@ -94,6 +94,13 @@ class Vector3(NamedTuple('Vector3', [('x', NT), ('y', NT), ('z', NT)]), Generic[
 
     def __rmul__(self, value) -> 'Vector3':
         return self._calc(_op.mul, value)
+
+    def to_2d(self) -> Tuple[NT, NT]:
+        """
+        >>> Vector3(1, 2, 3).to_2d()
+        (1, 3)
+        """
+        return self.x, self.z
 
     def astype(self, cls: type) -> 'Vector3':
         """

@@ -42,7 +42,7 @@ class CommandProcessor:
 class ClientTestCase(TestCase):
 
     def setUp(self):
-        set_config(spawn_mob=False)
+        set_config(spawn_mob=False, player_spawn_position=(0, 0, 0))
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         registry = CommandRegistry()
@@ -61,7 +61,12 @@ class ClientTestCase(TestCase):
                 self.assertEqual(1, client.entity_runtime_id)
 
                 expected_entities = (
-                    EntityInfo(entity_runtime_id=1, name='Taro', position=Vector3(0, 0, 0)),
+                    EntityInfo(
+                        entity_runtime_id=1,
+                        name='Taro',
+                        position=Vector3(0.5, 64.625, 0.5),
+                        owner_runtime_id=None
+                    ),
                 )
                 self.assertEqual(expected_entities, client.entities)
 
@@ -80,7 +85,9 @@ class ClientTestCase(TestCase):
                     EntityInfo(
                         entity_runtime_id=1,
                         name='Taro',
-                        position=Vector3(0, 0, 0)),
+                        position=Vector3(0.5, 64.625, 0.5),
+                        owner_runtime_id=None
+                    ),
                 )
                 self.assertEqual(expected_entities, client.entities)
 
@@ -91,7 +98,7 @@ class ClientTestCase(TestCase):
                     0.0,
                     0.0,
                     None,
-                    None
+                    1
                 ))
 
                 client.wait_response(1)
@@ -99,11 +106,15 @@ class ClientTestCase(TestCase):
                     EntityInfo(
                         entity_runtime_id=1,
                         name='Taro',
-                        position=Vector3(0, 0, 0)),
+                        position=Vector3(0.5, 64.625, 0.5),
+                        owner_runtime_id=None
+                    ),
                     EntityInfo(
                         entity_runtime_id=2,
-                        name='CHICKEN',
-                        position=Vector3(256.0, 63.0, 256.0))  # height is adjusted
+                        name='anonymous:CHICKEN',
+                        position=Vector3(256.0, 63.0, 256.0),  # height is adjusted
+                        owner_runtime_id=1
+                    )
                 )
                 self.assertEqual(expected_entities, client.entities)
 
@@ -116,7 +127,12 @@ class ClientTestCase(TestCase):
                 ))
 
                 client.wait_response(1)
-                expected_entity = EntityInfo(entity_runtime_id=2, name='CHICKEN', position=Vector3(257.0, 63.0, 254.0))
+                expected_entity = EntityInfo(
+                    entity_runtime_id=2,
+                    name='anonymous:CHICKEN',
+                    position=Vector3(257.0, 63.0, 254.0),
+                    owner_runtime_id=1
+                )
                 self.assertEqual(expected_entity, client.get_entity(2))
             server.stop()
 

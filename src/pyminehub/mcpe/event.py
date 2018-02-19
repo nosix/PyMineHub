@@ -65,7 +65,8 @@ _event_specs = {
     EventType.FULL_CHUNK_LOADED: [
         ('type', EventType),
         ('position', ChunkPosition),
-        ('data', bytes)
+        ('data', bytes),
+        ('player_runtime_id', Optional[EntityRuntimeID])
     ],
     EventType.ENTITY_LOADED: [
         ('type', EventType),

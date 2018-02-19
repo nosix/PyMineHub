@@ -6,9 +6,16 @@ from pyminehub.value import ValueObject
 
 
 __all__ = [
+    'PacketCodecError',
     'PacketCodec',
     'ADDRESS_DATA'
 ]
+
+
+class PacketCodecError(Exception):
+
+    def __init__(self, packet_type_name: str, data) -> None:
+        super().__init__('{} {}'.format(packet_type_name, data))
 
 
 class PacketCodec:
@@ -44,8 +51,11 @@ class PacketCodec:
         id_encoder.write(data, packet_id.value, context)
         context.append_value(packet_id)
         for (value, encoder) in zip(packet[1:], self._data_codecs[packet_id]):
-            encoder.write(data, value, context)
-            context.append_value(value)
+            try:
+                encoder.write(data, value, context)
+                context.append_value(value)
+            except Exception as exc:
+                raise PacketCodecError(packet_id.name, value) from exc
         context.pop_stack()
         return bytes(data)
 
@@ -74,7 +84,10 @@ class PacketCodec:
         context.append_value(packet_id)
         try:
             for decoder in self._data_codecs[packet_id]:
-                context.append_value(decoder.read(buffer, context))
+                try:
+                    context.append_value(decoder.read(buffer, context))
+                except Exception as exc:
+                    raise PacketCodecError(packet_id.name, buffer.hex()) from exc
         except KeyError as exc:
             exc.args = ("{}, when decode '{}'".format(exc.args[0], data.hex()), )
         context.pop_stack()

@@ -591,10 +591,11 @@ class ProtocolLoginLogoutTestCase(ProtocolUnconnectedTestCase):
                 event_factory.create(
                     EventType.FULL_CHUNK_LOADED,
                     position,
-                    CHUNK_DATA
+                    CHUNK_DATA,
+                    None
                 )
                 for position in expected_chunk_pos
-            )
+            ),
         )
         self.proxy.push_event(
             ActionType.REQUEST_ENTITY,

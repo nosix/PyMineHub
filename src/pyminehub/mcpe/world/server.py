@@ -209,7 +209,7 @@ class _World(WorldEditor):
         for request in action.positions:
             chunk = self._space.get_chunk(request)
             self._notify_event(event_factory.create(
-                EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk)))
+                EventType.FULL_CHUNK_LOADED, request.position, encode_chunk(chunk), action.player_runtime_id))
 
     def _process_request_entity(self, action: Action) -> None:
         player = self._entity.get_player(action.player_runtime_id)
@@ -252,6 +252,7 @@ class _World(WorldEditor):
         for collision in collisions:
             collision.update(self)
 
+        # TODO change to player attribute and revise position
         self._notify_event(event_factory.create(
             EventType.PLAYER_MOVED,
             action.entity_runtime_id,
@@ -292,6 +293,30 @@ class _World(WorldEditor):
                 tuple()
             ))
 
+    def _process_set_inventory(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        inventory_slot = action.inventory_slot
+        player.set_item(inventory_slot, action.item)
+        self._notify_event(event_factory.create(
+            EventType.INVENTORY_UPDATED,
+            player.player_id,
+            inventory_slot,
+            player.get_item(inventory_slot)
+        ))
+
+    def _process_equip(self, action: Action) -> None:
+        player = self._entity.get_player(action.entity_runtime_id)
+        player.equip(action.hotbar_slot, action.inventory_slot)
+        if self._game_mode != GameMode.CREATIVE:
+            assert action.item == player.equipped_item, '{}, {}'.format(action.item, player.equipped_item)
+        self._notify_event(event_factory.create(
+            EventType.EQUIPMENT_UPDATED,
+            player.entity_runtime_id,
+            player.get_inventory_slot(player.hotbar_slot),
+            action.hotbar_slot,
+            action.item
+        ))
+
     def _process_put_item(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
         inventory_slot = player.get_inventory_slot(action.hotbar_slot)
@@ -316,19 +341,6 @@ class _World(WorldEditor):
             player.player_id,
             inventory_slot,
             new_slot
-        ))
-
-    def _process_equip(self, action: Action) -> None:
-        player = self._entity.get_player(action.entity_runtime_id)
-        player.equip(action.hotbar_slot, action.inventory_slot)
-        if self._game_mode != GameMode.CREATIVE:
-            assert action.item == player.equipped_item, '{}, {}'.format(action.item, player.equipped_item)
-        self._notify_event(event_factory.create(
-            EventType.EQUIPMENT_UPDATED,
-            player.entity_runtime_id,
-            player.get_inventory_slot(player.hotbar_slot),
-            action.hotbar_slot,
-            action.item
         ))
 
     def _process_set_hotbar(self, action: Action) -> None:
@@ -370,17 +382,6 @@ class _World(WorldEditor):
             mob.pitch,
             mob.yaw,
             mob.on_ground
-        ))
-
-    def _process_set_inventory(self, action: Action) -> None:
-        player = self._entity.get_player(action.entity_runtime_id)
-        inventory_slot = action.inventory_slot
-        player.set_item(inventory_slot, action.item)
-        self._notify_event(event_factory.create(
-            EventType.INVENTORY_UPDATED,
-            player.player_id,
-            inventory_slot,
-            player.get_item(inventory_slot)
         ))
 
     # mob action handle methods

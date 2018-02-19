@@ -37,7 +37,8 @@ _action_specs = {
     ],
     ActionType.REQUEST_CHUNK: [
         ('type', ActionType),
-        ('positions', Tuple[ChunkPositionWithDistance, ...])
+        ('positions', Tuple[ChunkPositionWithDistance, ...]),
+        ('player_runtime_id', Optional[EntityRuntimeID])
     ],
     ActionType.REQUEST_ENTITY: [
         ('type', ActionType),
@@ -59,19 +60,25 @@ _action_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[int])
     ],
-    ActionType.PUT_ITEM: [
+    ActionType.SET_INVENTORY: [
         ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
-        ('position', Vector3[int]),
-        ('click_position', Vector3[float]),  # [0.0, 1.0]
-        ('face', Face),
-        ('hotbar_slot', int),
+        ('inventory_slot', int),
         ('item', Item)
     ],
     ActionType.EQUIP: [
         ('type', ActionType),
         ('entity_runtime_id', EntityRuntimeID),
         ('inventory_slot', Optional[int]),
+        ('hotbar_slot', int),
+        ('item', Item)
+    ],
+    ActionType.PUT_ITEM: [
+        ('type', ActionType),
+        ('entity_runtime_id', EntityRuntimeID),
+        ('position', Vector3[int]),
+        ('click_position', Vector3[float]),  # [0.0, 1.0]
+        ('face', Face),
         ('hotbar_slot', int),
         ('item', Item)
     ],
@@ -101,12 +108,6 @@ _action_specs = {
         ('pitch', float),
         ('yaw', float)
     ],
-    ActionType.SET_INVENTORY: [
-        ('type', ActionType),
-        ('entity_runtime_id', EntityRuntimeID),
-        ('inventory_slot', int),
-        ('item', Item)
-    ]
 }
 
 

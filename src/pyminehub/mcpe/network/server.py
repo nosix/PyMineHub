@@ -182,7 +182,7 @@ class MCPEServerHandler(MCPEDataHandler):
         player.update_required_chunk(packet.radius)
         required_chunk = player.next_required_chunk()
         if len(required_chunk) > 0:
-            self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
+            self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk, None))
         res_packet = game_packet_factory.create(GamePacketType.CHUNK_RADIUS_UPDATED, EXTRA_DATA, packet.radius)
         self.send_game_packet(res_packet, addr)
 
@@ -330,6 +330,8 @@ class MCPEServerHandler(MCPEDataHandler):
                         ActionType.REQUEST_ENTITY,
                         player.entity_runtime_id
                     ))
+            elif player.entity_runtime_id == event.player_runtime_id:
+                self.send_game_packet(res_packet, addr)
 
     def _process_event_entity_loaded(self, event: Event) -> None:
         addr = self._session_manager.get_address(event.player_id)
@@ -380,6 +382,7 @@ class MCPEServerHandler(MCPEDataHandler):
             None
         )
         for addr, player in self._session_manager:
+            # TODO send to all players
             if player.entity_runtime_id != event.entity_runtime_id:
                 self.send_game_packet(res_packet, addr)
             else:
@@ -387,7 +390,7 @@ class MCPEServerHandler(MCPEDataHandler):
                 player.yaw = event.yaw
                 required_chunk = player.next_required_chunk()
                 if len(required_chunk) > 0:
-                    self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk))
+                    self._world.perform(action_factory.create(ActionType.REQUEST_CHUNK, required_chunk, None))
 
     def _process_event_block_updated(self, event: Event) -> None:
         for updated in event.updated:
