@@ -1,5 +1,6 @@
 import random
 import time
+from concurrent.futures import ProcessPoolExecutor
 from typing import Callable, NamedTuple, Tuple
 
 from action import ActionCommandMixin
@@ -136,6 +137,13 @@ def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
             act.callable(client)
 
 
+def run_multiplay(max_workers: int, session_num: int, ave_lifespan: float, acts: Tuple[Act, ...]):
+    with ProcessPoolExecutor(max_workers=max_workers) as e:
+        for i in range(session_num):
+            lifespan = random.normalvariate(ave_lifespan, 10)
+            e.submit(run_client, 'Player-{}'.format(i), lifespan, acts)
+
+
 if __name__ == '__main__':
     _acts = (
         Act(move_player, 40),
@@ -144,4 +152,4 @@ if __name__ == '__main__':
         Act(spawn_mob, 5),
         Act(move_mob, 30),
     )
-    run_client('Player-1', 120, _acts)
+    run_multiplay(20, 100, 60, _acts)
