@@ -82,7 +82,8 @@ _event_specs = {
         ('head_yaw', float),
         ('mode', MoveMode),
         ('on_ground', bool),
-        ('riding_eid', EntityRuntimeID)
+        ('riding_eid', EntityRuntimeID),
+        ('need_response', bool)
     ],
     EventType.BLOCK_UPDATED: [
         ('type', EventType),

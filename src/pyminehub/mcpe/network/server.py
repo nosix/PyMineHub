@@ -198,7 +198,8 @@ class MCPEServerHandler(MCPEDataHandler):
             packet.head_yaw,
             packet.mode,
             packet.on_ground,
-            packet.riding_eid
+            packet.riding_eid,
+            False
         ))
 
     def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
@@ -382,10 +383,11 @@ class MCPEServerHandler(MCPEDataHandler):
             0 if event.mode is MoveMode.TELEPORT else None   # TODO set value
         )
         for addr, player in self._session_manager:
-            # TODO send to all players
             if player.entity_runtime_id != event.entity_runtime_id:
                 self.send_game_packet(res_packet, addr)
             else:
+                if event.need_response:
+                    self.send_game_packet(res_packet, addr)
                 player.position = event.position
                 player.yaw = event.yaw
                 required_chunk = player.next_required_chunk()

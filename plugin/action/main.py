@@ -103,7 +103,8 @@ class ActionCommandMixin:
             pitch, yaw, head_yaw,
             MoveMode.TELEPORT if is_teleport else MoveMode.NORMAL,
             True,
-            0
+            0,
+            True
         )
 
     def break_block(

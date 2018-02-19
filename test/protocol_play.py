@@ -277,7 +277,8 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                     pitch=30.126800537109375, yaw=-1.44427490234375, head_yaw=-1.44427490234375,
                     mode=MoveMode.NORMAL,
                     on_ground=True,
-                    riding_eid=0
+                    riding_eid=0,
+                    need_response=False
                 ),
                 event_factory.create(
                     EventType.INVENTORY_UPDATED,
@@ -425,7 +426,8 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                     pitch=30.126800537109375, yaw=-1.44427490234375, head_yaw=-1.44427490234375,
                     mode=MoveMode.NORMAL,
                     on_ground=True,
-                    riding_eid=0
+                    riding_eid=0,
+                    need_response=False
                 ),
             )
         )
@@ -527,7 +529,8 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                     pitch=30.126800537109375, yaw=-1.44427490234375, head_yaw=-1.44427490234375,
                     mode=MoveMode.NORMAL,
                     on_ground=True,
-                    riding_eid=0
+                    riding_eid=0,
+                    need_response=False
                 ),
             )
         )

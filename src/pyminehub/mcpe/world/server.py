@@ -262,7 +262,8 @@ class _World(WorldEditor):
             action.head_yaw,
             action.mode,
             action.on_ground,
-            action.riding_eid
+            action.riding_eid,
+            action.need_response
         ))
 
         for collision in collisions:

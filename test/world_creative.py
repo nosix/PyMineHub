@@ -148,7 +148,8 @@ class WorldCreativeTestCase(TestCase):
             head_yaw=30.0,
             mode=MoveMode.NORMAL,
             on_ground=True,
-            riding_eid=0
+            riding_eid=0,
+            need_response=False
         )
 
         actual_event = self.next_event()
@@ -161,7 +162,8 @@ class WorldCreativeTestCase(TestCase):
             head_yaw=30.0,
             mode=MoveMode.NORMAL,
             on_ground=True,
-            riding_eid=0
+            riding_eid=0,
+            need_response=False
         )
         self.assertEqual(expected_event, actual_event)
 

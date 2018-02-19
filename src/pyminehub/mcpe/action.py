@@ -53,7 +53,8 @@ _action_specs = {
         ('head_yaw', float),
         ('mode', MoveMode),
         ('on_ground', bool),
-        ('riding_eid', EntityRuntimeID)
+        ('riding_eid', EntityRuntimeID),
+        ('need_response', bool)
     ],
     ActionType.BREAK_BLOCK: [
         ('type', ActionType),
