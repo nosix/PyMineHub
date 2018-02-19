@@ -8,10 +8,10 @@ from pyminehub.mcpe.command.annotation import String
 from pyminehub.mcpe.command.api import *
 from pyminehub.mcpe.const import MoveMode, ItemType, EntityType
 from pyminehub.mcpe.geometry import Vector3, Face, ChunkPosition, ChunkPositionWithDistance, to_local_position
+from pyminehub.mcpe.main.client import connect
 from pyminehub.mcpe.network import MCPEClient, EntityInfo, EntityEvent
 from pyminehub.mcpe.plugin.command import *
 from pyminehub.mcpe.value import *
-from pyminehub.raknet import ClientConnection, connect_raknet
 
 
 class ActionCommandProcessor:
@@ -34,16 +34,20 @@ class ActionCommandPlugin(ExtraCommandPlugin):
         return ActionCommandProcessor()
 
 
-class ActionCommandClient(MCPEClient):
+class ActionCommandMixin:
+
+    @property
+    def client(self) -> MCPEClient:
+        raise NotImplementedError()
 
     def _player_eid(self, player_eid: Optional[EntityRuntimeID]=None) -> EntityRuntimeID:
-        return player_eid if player_eid is not None else self.handler.entity_runtime_id
+        return player_eid if player_eid is not None else self.client.entity_runtime_id
 
     def perform_action(self, action_or_type: Union[Action, ActionType], *args, **kwargs) -> None:
         action = action_factory.create(action_or_type, *args, **kwargs) \
             if isinstance(action_or_type, ActionType) else action_or_type
         data = hexlify(dumps(action)).decode()
-        self.execute_command('/perform {}'.format(data))
+        self.client.execute_command('/perform {}'.format(data))
 
     def request_full_chunk(self, east: float, south: float):
         self.perform_action(
@@ -74,16 +78,16 @@ class ActionCommandClient(MCPEClient):
         position = Vector3(east, height, south).astype(int)
         position_in_chunk = to_local_position(position)
         if self._sync_chunk_by_position(position, timeout):
-            return self.latest_chunk.chunk, position_in_chunk
+            return self.client.latest_chunk.chunk, position_in_chunk
         else:
             return None, position_in_chunk
 
     def _sync_chunk_by_position(self, position: Vector3[int], timeout: float=0) -> bool:
         chunk_position = ChunkPosition.at(position)
-        if self.latest_chunk.position != chunk_position:
+        if self.client.latest_chunk.position != chunk_position:
             self.request_full_chunk(*position.to_2d())
-            self.wait_response(timeout)
-        return self.latest_chunk.position == chunk_position
+            self.client.wait_response(timeout)
+        return self.client.latest_chunk.position == chunk_position
 
     def move_player(
             self,
@@ -197,24 +201,15 @@ class ActionCommandClient(MCPEClient):
         )
 
 
-def connect(
-        server_host: str,
-        port: int=None,
-        player_name: str= '',
-        locale: str='ja_JP'
-) -> ClientConnection[ActionCommandClient]:
-    """Connect to PyMineHub server.
+class ActionCommandClient(MCPEClient, ActionCommandMixin):
 
-    :param server_host: IP address that PyMineHub server listen
-    :param port: port number that PyMineHub server listen
-    :param player_name: if player name is empty string then player is invisible
-    :param locale: locale in application
-    """
-    return connect_raknet(ActionCommandClient(player_name, locale), server_host, port)
+    @property
+    def client(self) -> MCPEClient:
+        return self
 
 
 if __name__ == '__main__':
-    with connect('127.0.0.1', player_name='Taro') as _client:
+    with connect('127.0.0.1', player_name='Taro', client_factory=ActionCommandClient) as _client:
         print('Number of entities', len(_client.entities))
 
         _client.move_player(10.0, 0.0, 10.0, is_teleport=True)
