@@ -378,8 +378,8 @@ class MCPEServerHandler(MCPEDataHandler):
             event.mode,
             event.on_ground,
             event.riding_eid,
-            None,
-            None
+            0 if event.mode is MoveMode.TELEPORT else None,  # TODO set value
+            0 if event.mode is MoveMode.TELEPORT else None   # TODO set value
         )
         for addr, player in self._session_manager:
             # TODO send to all players
