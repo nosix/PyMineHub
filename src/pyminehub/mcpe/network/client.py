@@ -367,6 +367,15 @@ class _MCPEClientHandler(MCPEDataHandler):
             position_in_chunk = to_local_position(packet.position)
             self._latest_chunk.chunk.set_block(position_in_chunk, packet.block)
 
+    def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
+    def _process_space_event(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
+    def _process_entity_event(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
     async def stop(self, server_addr: Address) -> None:
         send_packet = connection_packet_factory.create(
             ConnectionPacketType.DISCONNECTION_NOTIFICATION)

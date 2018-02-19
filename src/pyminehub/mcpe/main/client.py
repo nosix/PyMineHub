@@ -1,11 +1,14 @@
-from typing import Callable
+from typing import Callable, TypeVar
 
 from pyminehub.mcpe.network import MCPEClient
-from pyminehub.raknet import Client, ClientConnection
+from pyminehub.raknet import ClientConnection
 
 __all__ = [
     'connect'
 ]
+
+
+Client = TypeVar('Client', bound=MCPEClient)
 
 
 def connect(
@@ -14,7 +17,7 @@ def connect(
         player_name: str='',
         locale: str='ja_JP',
         client_factory: Callable[[str, str], Client]=MCPEClient
-) -> ClientConnection[MCPEClient]:
+) -> ClientConnection[Client]:
     """Connect to PyMineHub server.
 
     :param server_host: IP address that PyMineHub server listen
@@ -28,7 +31,6 @@ def connect(
 
 
 if __name__ == '__main__':
-    from pyminehub.mcpe.network import MCPEClient
     with connect('127.0.0.1') as client:  # type: MCPEClient
         client.execute_command('/about 1')
         client.wait_response(1)
