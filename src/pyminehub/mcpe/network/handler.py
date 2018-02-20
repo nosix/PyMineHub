@@ -83,10 +83,8 @@ class MCPEDataHandler(GameDataHandler):
                 packet = game_packet_codec.decode(data)
                 _logger.debug('> %s', LogString(packet))
                 getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
-            except AttributeError as exc:
+            except Exception as exc:
                 _logger.exception('%s', exc)
-            except KeyError as exc:
-                _logger.exception('%s is not supported in batch processing.', exc)
         self.send_waiting_game_packet()
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
