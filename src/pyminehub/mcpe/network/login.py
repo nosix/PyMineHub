@@ -191,7 +191,7 @@ def login_sequence(
 
     _notify_new_player(player, session, send)
 
-    while not player.is_ready():
+    while not player.is_ready:
         event = yield
         assert event.type == EventType.FULL_CHUNK_LOADED
 
@@ -203,7 +203,7 @@ def _notify_new_player(
         session: SessionManager,
         send: Callable[[GamePacket, Address], None]
 ) -> None:
-    assert player.has_identity()
+    assert player.has_identity
 
     if player.invisible:
         return

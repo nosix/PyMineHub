@@ -118,6 +118,19 @@ class Player:
     def metadata(self, value: Tuple[EntityMetaData, ...]) -> None:
         self._metadata = value
 
+    @property
+    def has_identity(self) -> bool:
+        return self._entity_runtime_id != 0 and self._entity_runtime_id != 0
+
+    @property
+    def is_ready(self) -> bool:
+        return len(self._near_chunk_position) > 0 and \
+               len(self._requested_chunk_position & self._near_chunk_position) == 0
+
+    @property
+    def is_living(self) -> bool:
+        return self._is_living
+
     def next_required_chunk(self) -> Tuple[ChunkPositionWithDistance, ...]:
         if ChunkPosition.at(self._position) not in self._near_chunk_position:
             request = tuple(to_chunk_area(self._position, self._chunk_radius))
@@ -138,16 +151,6 @@ class Player:
 
     def discard_chunk_request(self, position: ChunkPosition) -> None:
         self._requested_chunk_position.discard(position)
-
-    def has_identity(self) -> bool:
-        return self._entity_runtime_id != 0 and self._entity_runtime_id != 0
-
-    def is_ready(self) -> bool:
-        return len(self._near_chunk_position) > 0 and \
-               len(self._requested_chunk_position & self._near_chunk_position) == 0
-
-    def is_living(self) -> bool:
-        return self._is_living
 
     def next_login_sequence(self, event: Event) -> bool:
         """

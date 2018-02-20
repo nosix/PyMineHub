@@ -27,10 +27,10 @@ class SessionManager:
         return iter(self._players.keys())
 
     def __iter__(self) -> Iterator[Tuple[Address, Player]]:
-        return iter((addr, player) for addr, player in self._players.items() if player.has_identity())
+        return iter((addr, player) for addr, player in self._players.items() if player.has_identity)
 
     def excluding(self, player: Player) -> Iterator[Tuple[Address, Player]]:
-        return iter((addr, p) for addr, p in self._players.items() if p.has_identity() and p != player)
+        return iter((addr, p) for addr, p in self._players.items() if p.has_identity and p != player)
 
     def __contains__(self, key: Union[PlayerID, Address]) -> bool:
         if isinstance(key, PlayerID):
