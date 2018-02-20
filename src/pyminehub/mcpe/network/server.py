@@ -146,7 +146,7 @@ class MCPEServerHandler(MCPEDataHandler):
             PlayerListType.REMOVE,
             (PlayerListEntry(player.id, None, None, None, None), )
         )
-        for addr, player in self._session_manager.filter(lambda p: p.is_living):
+        for addr, player in self._session_manager.find(lambda p: p.is_living):
             self.send_game_packet(text_packet, addr)
             self.send_game_packet(remove_entity_packet, addr)
             self.send_game_packet(remove_player_packet, addr)
@@ -382,7 +382,7 @@ class MCPEServerHandler(MCPEDataHandler):
             0 if event.mode is MoveMode.TELEPORT else None,  # TODO set value
             0 if event.mode is MoveMode.TELEPORT else None   # TODO set value
         )
-        for addr, player in self._session_manager.filter(lambda p: p.is_living):
+        for addr, player in self._session_manager.find(lambda p: p.is_living):
             if player.entity_runtime_id != event.entity_runtime_id:
                 self.send_game_packet(res_packet, addr)
             else:
@@ -491,7 +491,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        for addr, player in self._session_manager.filter(lambda p: p.is_living):
+        for addr, player in self._session_manager.find(lambda p: p.is_living):
             self.send_game_packet(res_packet, addr)
 
     def _process_event_time_updated(self, event: Event) -> None:

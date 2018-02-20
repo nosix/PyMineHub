@@ -32,7 +32,7 @@ class SessionManager:
     def excluding(self, player: Player) -> Iterator[Tuple[Address, Player]]:
         return iter((addr, p) for addr, p in self._players.items() if p.has_identity and p != player)
 
-    def filter(self, func: Callable[[Player], bool]) -> Iterator[Tuple[Address, Player]]:
+    def find(self, func: Callable[[Player], bool]) -> Iterator[Tuple[Address, Player]]:
         return iter((addr, p) for addr, p in self._players.items() if p.has_identity and func(p))
 
     def __contains__(self, key: Union[PlayerID, Address]) -> bool:
