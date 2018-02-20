@@ -146,7 +146,7 @@ class MCPEServerHandler(MCPEDataHandler):
             PlayerListType.REMOVE,
             (PlayerListEntry(player.id, None, None, None, None), )
         )
-        for addr in self._session_manager.addresses:
+        for addr, player in self._session_manager.filter(lambda p: p.is_living):
             self.send_game_packet(text_packet, addr)
             self.send_game_packet(remove_entity_packet, addr)
             self.send_game_packet(remove_player_packet, addr)
