@@ -362,6 +362,8 @@ class _MCPEClientHandler(MCPEDataHandler):
 
     # noinspection PyUnusedLocal
     def _process_update_block(self, packet: GamePacket, addr: Address) -> None:
+        if self._latest_chunk is None:
+            return
         if self._latest_chunk.position == ChunkPosition.at(packet.position):
             position_in_chunk = to_local_position(packet.position)
             self._latest_chunk.chunk.set_block(position_in_chunk, packet.block)
