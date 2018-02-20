@@ -382,9 +382,7 @@ class MCPEServerHandler(MCPEDataHandler):
             0 if event.mode is MoveMode.TELEPORT else None,  # TODO set value
             0 if event.mode is MoveMode.TELEPORT else None   # TODO set value
         )
-        for addr, player in self._session_manager:
-            if not player.is_living:
-                continue
+        for addr, player in self._session_manager.filter(lambda p: p.is_living):
             if player.entity_runtime_id != event.entity_runtime_id:
                 self.send_game_packet(res_packet, addr)
             else:
@@ -493,7 +491,8 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        self._broadcast(res_packet)
+        for addr, player in self._session_manager.filter(lambda p: p.is_living):
+            self.send_game_packet(res_packet, addr)
 
     def _process_event_time_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(

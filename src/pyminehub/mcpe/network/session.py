@@ -1,4 +1,4 @@
-from typing import Dict, Iterator, Tuple, Union
+from typing import Callable, Dict, Iterator, Tuple, Union
 
 from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.value import PlayerID
@@ -31,6 +31,9 @@ class SessionManager:
 
     def excluding(self, player: Player) -> Iterator[Tuple[Address, Player]]:
         return iter((addr, p) for addr, p in self._players.items() if p.has_identity and p != player)
+
+    def filter(self, func: Callable[[Player], bool]) -> Iterator[Tuple[Address, Player]]:
+        return iter((addr, p) for addr, p in self._players.items() if p.has_identity and func(p))
 
     def __contains__(self, key: Union[PlayerID, Address]) -> bool:
         if isinstance(key, PlayerID):
