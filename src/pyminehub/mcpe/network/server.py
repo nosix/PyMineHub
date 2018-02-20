@@ -383,6 +383,8 @@ class MCPEServerHandler(MCPEDataHandler):
             0 if event.mode is MoveMode.TELEPORT else None   # TODO set value
         )
         for addr, player in self._session_manager:
+            if not player.is_living:
+                continue
             if player.entity_runtime_id != event.entity_runtime_id:
                 self.send_game_packet(res_packet, addr)
             else:
