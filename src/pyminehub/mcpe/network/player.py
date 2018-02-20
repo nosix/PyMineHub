@@ -120,15 +120,18 @@ class Player:
 
     @property
     def has_identity(self) -> bool:
+        """True if login sequence is started"""
         return self._entity_runtime_id != 0 and self._entity_runtime_id != 0
 
     @property
     def is_ready(self) -> bool:
+        """True if the surrounding chunks are complete"""
         return len(self._near_chunk_position) > 0 and \
-               len(self._requested_chunk_position & self._near_chunk_position) == 0
+            len(self._requested_chunk_position & self._near_chunk_position) == 0
 
     @property
     def is_living(self) -> bool:
+        """True if login sequence is finished"""
         return self._is_living
 
     def next_required_chunk(self) -> Tuple[ChunkPositionWithDistance, ...]:
