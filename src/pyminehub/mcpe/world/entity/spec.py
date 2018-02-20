@@ -25,6 +25,8 @@ _entity_specs = {
     EntityType.CHICKEN: EntitySpec(Vector3(0.3, 0.7, 0.3), 0.35)
 }
 
+_unsupported_entity_spec = EntitySpec(Vector3(1.0, 1.0, 1.0), 0.5)
+
 
 def get_spec(entity_type: EntityType) -> EntitySpec:
-    return _entity_specs[entity_type]
+    return _entity_specs.get(entity_type, _unsupported_entity_spec)
