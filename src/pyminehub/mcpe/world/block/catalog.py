@@ -45,6 +45,8 @@ block_specs = {
 
 
 _blocks = [
+    # Construnction
+
     BlockType.PLANKS,
 
     BlockType.COBBLESTONE_WALL,
@@ -96,6 +98,7 @@ _blocks = [
     BlockType.HAY_BLOCK,
     BlockType.BONE_BLOCK,
     BlockType.NETHER_WART_BLOCK,
+
     BlockType.WOOL,
 
     BlockType.CONCRETE_POWDER,
@@ -120,6 +123,13 @@ _blocks = [
     BlockType.MAGENTA_GLAZED_TERRACOTTA,
     BlockType.PINK_GLAZED_TERRACOTTA,
     BlockType.PURPUR_BLOCK,
+
+    BlockType.DOUBLE_STONE_SLAB,
+    BlockType.DOUBLE_WOODEN_SLAB,
+    BlockType.DOUBLE_STONE_SLAB2,
+
+    # Nature
+
     BlockType.DIRT,
     BlockType.PODZOL,
     BlockType.MYCELIUM,
@@ -133,8 +143,10 @@ _blocks = [
     BlockType.EMERALD_ORE,
     BlockType.QUARTZ_ORE,
     BlockType.GRAVEL,
+
     BlockType.SAND,
     BlockType.CACTUS,
+
     BlockType.LOG,
     BlockType.LOG2,
     BlockType.LEAVES,
@@ -150,6 +162,9 @@ _blocks = [
     BlockType.ICE,
     BlockType.PACKED_ICE,
 
+    BlockType.BROWN_MUSHROOM_BLOCK,
+    BlockType.RED_MUSHROOM_BLOCK,
+
     BlockType.MOB_SPAWNER,
 
     BlockType.OBSIDIAN,
@@ -160,6 +175,8 @@ _blocks = [
     BlockType.SPONGE,
 
     BlockType.WEB,
+
+    # Items
 
     BlockType.REDSTONE_LAMP,
     BlockType.SEA_LANTERN,
@@ -174,9 +191,7 @@ _blocks = [
 
     BlockType.TNT,
 
-    BlockType.DOUBLE_STONE_SLAB,
-    BlockType.DOUBLE_WOODEN_SLAB,
-    BlockType.DOUBLE_STONE_SLAB2,
+    # Equipment
 
     BlockType.FLOWING_WATER,
     BlockType.FLOWING_LAVA,

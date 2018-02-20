@@ -147,6 +147,8 @@ _block_items = [
 
     ItemType.WEB,
 
+    # Items
+
     ItemType.REDSTONE_LAMP,
     ItemType.SEA_LANTERN,
 
