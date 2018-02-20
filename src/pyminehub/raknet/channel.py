@@ -22,7 +22,9 @@ class Channel:
             yield self._cache.pop(self._index)
             self._index += 1
         if len(self._cache) > 0:
-            _logger.info('Channel is cashing packets. The ordering index %d is missing.', self._index)
+            _logger.info(
+                'Channel (%s) is cashing packets. The ordering index %d is missing.',
+                id(self), self._index)
 
     def append(self, frame: RakNetFrame) -> None:
         if frame.message_ordering_index >= self._index:
