@@ -7,7 +7,7 @@ from pyminehub.mcpe.network.packet import ConnectionPacket, GamePacket, Connecti
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE
 from pyminehub.network.address import Address, to_packet_format, get_unspecified_address
-from pyminehub.raknet import GameDataHandler, Reliability
+from pyminehub.raknet import GameDataHandler, Reliability, SessionNotFound
 from pyminehub.value import LogString
 
 __all__ = [
@@ -83,6 +83,8 @@ class MCPEDataHandler(GameDataHandler):
                 packet = game_packet_codec.decode(data)
                 _logger.debug('> %s', LogString(packet))
                 getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
+            except SessionNotFound:
+                raise
             except Exception as exc:
                 _logger.exception('%s', exc)
         self.send_waiting_game_packet()
