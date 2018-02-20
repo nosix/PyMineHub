@@ -120,18 +120,24 @@ class ClientConnection(Generic[Client]):
     def __init__(
             self,
             client: Client,
-            server_addr: Address
+            server_addr: Address,
+            timeout: float
     ) -> None:
         self._client = client
         self._server_addr = server_addr
+        self._timeout = timeout
 
     def __enter__(self) -> Client:
         loop = asyncio.get_event_loop()
-        connect = loop.create_datagram_endpoint(
+        endpoint = loop.create_datagram_endpoint(
             lambda: _RakNetClientProtocol(self._client.handler),
             remote_addr=self._server_addr)
-        transport, protocol = loop.run_until_complete(connect)
-        loop.run_until_complete(self._client.connect(self._server_addr, transport, protocol))
+        transport, protocol = loop.run_until_complete(endpoint)
+        connect = self._client.connect(self._server_addr, transport, protocol)
+        if self._timeout > 0:
+            connect = asyncio.ensure_future(connect)
+            asyncio.ensure_future(self._wait_timeout(connect))
+        loop.run_until_complete(connect)
         # noinspection PyTypeChecker
         return self._client  # FIXME why is type check fail?
 
@@ -146,14 +152,20 @@ class ClientConnection(Generic[Client]):
     def close(self) -> None:
         self.__exit__(None, None, None)
 
+    async def _wait_timeout(self, future: asyncio.Future):
+        await asyncio.sleep(self._timeout)
+        future.cancel()
+        _logger.info('timeout to connect server')
+
 
 def connect_raknet(
         client: Client,
         server_host: str,
-        port: Optional[int]=None
+        port: Optional[int]=None,
+        timeout: float=0
 ) -> ClientConnection[Client]:
     server_address = (server_host, get_value(ConfigKey.SERVER_PORT) if port is None else port)
-    return ClientConnection(client, server_address)
+    return ClientConnection(client, server_address, timeout)
 
 
 if __name__ == '__main__':

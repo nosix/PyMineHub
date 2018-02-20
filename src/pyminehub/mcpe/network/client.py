@@ -141,6 +141,10 @@ class _MCPEClientHandler(MCPEDataHandler):
     # local methods
 
     @property
+    def is_active(self) -> bool:
+        return self._is_active.is_set()
+
+    @property
     def entity_runtime_id(self) -> EntityRuntimeID:
         assert self._entity_runtime_id is not None
         return self._entity_runtime_id
@@ -236,6 +240,10 @@ class _MCPEClientHandler(MCPEDataHandler):
         self.send_connection_packet(send_packet, addr, RELIABLE)
 
         self.send_ping(addr)
+
+    # noinspection PyUnusedLocal
+    def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
+        self._is_active.clear()
 
     # noinspection PyUnusedLocal
     def _process_resource_packs_info(self, packet: GamePacket, addr: Address) -> None:
@@ -377,6 +385,12 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_entity_event(self, packet: GamePacket, addr: Address) -> None:
         pass
 
+    def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
+    def _process_animate(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
     async def stop(self, server_addr: Address) -> None:
         send_packet = connection_packet_factory.create(
             ConnectionPacketType.DISCONNECTION_NOTIFICATION)
@@ -424,6 +438,10 @@ class MCPEClient(AbstractClient):
             return True
         except asyncio.CancelledError:
             return False
+
+    @property
+    def is_active(self) -> bool:
+        return self._handler.is_active
 
     @property
     def entity_runtime_id(self) -> EntityRuntimeID:

@@ -131,8 +131,8 @@ def select(acts: Tuple[Act, ...]) -> Act:
 
 def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
     start_time = time.time()
-    with connect('127.0.0.1', player_name=name, client_factory=_Client) as client:
-        while time.time() - start_time < lifespan:
+    with connect('127.0.0.1', player_name=name, client_factory=_Client, timeout=30) as client:
+        while client.is_active and time.time() - start_time < lifespan:
             act = select(acts)
             act.callable(client)
 
