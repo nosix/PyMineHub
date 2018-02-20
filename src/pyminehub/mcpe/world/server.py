@@ -319,6 +319,8 @@ class _World(WorldEditor):
         ))
 
     def _process_put_item(self, action: Action) -> None:
+        if action.item.type is ItemType.AIR:
+            return
         player = self._entity.get_player(action.entity_runtime_id)
         inventory_slot = player.get_inventory_slot(action.hotbar_slot)
         assert inventory_slot is not None
