@@ -161,7 +161,7 @@ class ActionCommandMixin:
             pitch,
             yaw,
             name,
-            self.handler.entity_runtime_id
+            self.client.entity_runtime_id
         )
 
     def move_mob(
@@ -177,6 +177,9 @@ class ActionCommandMixin:
             pitch,
             yaw
         )
+
+    def remove_mob(self, mob_eid: EntityRuntimeID):
+        self.perform_action(ActionType.REMOVE_MOB, mob_eid)
 
 
 class ActionCommandClient(MCPEClient, ActionCommandMixin):
@@ -246,3 +249,7 @@ if __name__ == '__main__':
         _client.move_mob(_mob_eid, 5.0, 63.0, 1.0)
         _client.wait_response(timeout=1)
         print(_client.get_entity(_mob_eid))
+
+        _client.remove_mob(_mob_eid)
+        _client.wait_response(timeout=1)
+        print(_client.entities)

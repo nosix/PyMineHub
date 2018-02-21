@@ -28,6 +28,7 @@ class ActionType(ValueType):
     SPAWN_MOB = 9
     MOVE_MOB = 10
     SET_INVENTORY = 11
+    REMOVE_MOB = 12
 
 
 _action_specs = {
@@ -108,6 +109,10 @@ _action_specs = {
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float)
+    ],
+    ActionType.REMOVE_MOB: [
+        ('type', ActionType),
+        ('entity_runtime_id', EntityRuntimeID)
     ],
 }
 

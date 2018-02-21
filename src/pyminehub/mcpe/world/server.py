@@ -387,6 +387,13 @@ class _World(WorldEditor):
             mob.on_ground
         ))
 
+    def _process_remove_mob(self, action: Action) -> None:
+        self._entity.remove(action.entity_runtime_id)
+        self._notify_event(event_factory.create(
+            EventType.ENTITY_REMOVED,
+            action.entity_runtime_id
+        ))
+
     # mob action handle methods
 
     def _process_mob_spawn(self, action: MobSpawn) -> None:

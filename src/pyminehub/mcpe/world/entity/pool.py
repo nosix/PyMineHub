@@ -95,6 +95,8 @@ class EntityPool:
         return self._mobs[entity_runtime_id]
 
     def remove(self, entity_runtime_id: EntityRuntimeID) -> None:
+        if entity_runtime_id in self._mobs:
+            del self._mobs[entity_runtime_id]
         if entity_runtime_id in self._items:
             del self._items[entity_runtime_id]
         if entity_runtime_id in self._players:
