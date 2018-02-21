@@ -46,12 +46,14 @@ class BlockSpec:
             item_type: Optional[ItemType],
             max_layer_num: int=1,
             can_be_broken: bool=True,
+            can_pass: bool=False,
             can_be_attached_on_ground: bool=False,
             is_switchable: bool=False
     ) -> None:
         self._item_type = item_type
         self._max_layer_num = max_layer_num
         self._can_be_broken = can_be_broken
+        self._can_pass = can_pass
         self._can_be_attached_on_ground = can_be_attached_on_ground
         self._is_switchable = is_switchable
 
@@ -78,6 +80,9 @@ class BlockSpec:
     @property
     def is_switchable(self) -> bool:
         return self._is_switchable
+
+    def can_pass(self, block: Block) -> bool:
+        return self._can_pass
 
     def can_be_overridden_by(self, block: Block) -> bool:
         return False
@@ -118,7 +123,7 @@ class BlockSpec:
 class AirBlockSpec(BlockSpec):
 
     def __init__(self) -> None:
-        super().__init__(None, can_be_broken=False)
+        super().__init__(None, can_be_broken=False, can_pass=True)
 
     def can_be_overridden_by(self, block: Block) -> bool:
         return True
@@ -192,7 +197,7 @@ class SlabBlockSpec(BlockSpec):
 class SnowLayerBlockSpec(ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
-        super().__init__(None, max_layer_num=8, can_be_attached_on_ground=True)
+        super().__init__(None, max_layer_num=8, can_pass=True, can_be_attached_on_ground=True)
 
     def stack_layer(self, base_block: Block, stacked_block: Block, face: Face) -> Optional[Block]:
         """
@@ -321,7 +326,7 @@ class LadderBlockSpec(BlockSpec):
     }
 
     def __init__(self) -> None:
-        super().__init__(ItemType.LADDER)
+        super().__init__(ItemType.LADDER, can_pass=True)
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -340,6 +345,9 @@ class FenceGateBlockSpec(ToExtendUpwardBlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True, is_switchable=True)
 
+    def can_pass(self, block: Block) -> bool:
+        return bool(block.data ^ self._DOES_OPEN_MASK)
+
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
 
@@ -349,7 +357,7 @@ class TrapDoorBlockSpec(BlockSpec):
     _DOES_OPEN_MASK = 0b1000
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, is_switchable=True)
+        super().__init__(item_type, can_pass=True, is_switchable=True)
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
@@ -364,7 +372,7 @@ class TrapDoorBlockSpec(BlockSpec):
 class CarpetBlockSpec(ToExtendUpwardBlockSpec):
 
     def __init__(self) -> None:
-        super().__init__(ItemType.CARPET, can_be_attached_on_ground=True)
+        super().__init__(ItemType.CARPET, can_pass=True, can_be_attached_on_ground=True)
 
 
 class DoublePlantBlockSpec(ToExtendUpwardBlockSpec):
@@ -404,7 +412,7 @@ class DoorBlockSpec(ToExtendUpwardBlockSpec):
     _BREAK_ORDER = (Vector3(0, 1, 0), Vector3(0, 0, 0))
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, is_switchable=True)
+        super().__init__(item_type, can_pass=True, is_switchable=True)
 
     def _get_face(self, block: Block) -> int:
         return block.data & self._FACE_MASK
@@ -484,7 +492,7 @@ class ToggleBlockSpec(BlockSpec):
     _TOGGLE_MASK = 0b1000
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, is_switchable=True)
+        super().__init__(item_type, can_pass=True, is_switchable=True)
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._TOGGLE_MASK)
@@ -497,6 +505,9 @@ class ToggleBlockSpec(BlockSpec):
 
 
 class TripwireHookBlockSpec(BlockSpec):
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, can_pass=True)
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -523,6 +534,9 @@ class DaylightDetectorBlockSpec(BlockSpec):
 
 
 class TorchBlockSpec(BlockSpec):
+
+    def __init__(self, item_type: Optional[ItemType]) -> None:
+        super().__init__(item_type, can_pass=True)
 
     def female_connector(self, block: Block) -> _Connector:
         return _CONNECTOR_NONE
@@ -618,7 +632,7 @@ class _RailNetwork:
 class RailBlockSpec(BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
-        super().__init__(item_type, can_be_attached_on_ground=True)
+        super().__init__(item_type, can_pass=True, can_be_attached_on_ground=True)
 
     def can_be_overridden_by(self, block: Block) -> bool:
         return block.type in _RAIL_BLOCK_TYPES

@@ -41,6 +41,9 @@ block_specs = {
     BlockType.CHEST: ChestBlockSpec(ItemType.CHEST),
     BlockType.TRAPPED_CHEST: ChestBlockSpec(ItemType.TRAPPED_CHEST),
     BlockType.ENDER_CHEST: ChestBlockSpec(ItemType.ENDER_CHEST),
+    BlockType.WEB: BlockSpec(ItemType.WEB, can_pass=True),
+    BlockType.FLOWING_WATER: BlockSpec(None, can_pass=True, can_be_broken=False),
+    BlockType.FLOWING_LAVA: BlockSpec(None, can_pass=True, can_be_broken=False),
 }
 
 
@@ -174,8 +177,6 @@ _blocks = [
     BlockType.END_STONE,
     BlockType.SPONGE,
 
-    BlockType.WEB,
-
     # Items
 
     BlockType.REDSTONE_LAMP,
@@ -190,11 +191,6 @@ _blocks = [
     BlockType.GRASS_PATH,
 
     BlockType.TNT,
-
-    # Equipment
-
-    BlockType.FLOWING_WATER,
-    BlockType.FLOWING_LAVA,
 ]
 
 _fence_gate_blocks = [
@@ -251,7 +247,7 @@ for _block_type in _fence_gate_blocks:
     block_specs[_block_type] = FenceGateBlockSpec(ItemType(_block_type.value))
 
 for _block_type in _plant_blocks:
-    block_specs[_block_type] = ToExtendUpwardBlockSpec(ItemType(_block_type.value))
+    block_specs[_block_type] = ToExtendUpwardBlockSpec(ItemType(_block_type.value), can_pass=True)
 
 for _item_type, _block_type in _door_blocks:
     block_specs[_block_type] = DoorBlockSpec(_item_type)

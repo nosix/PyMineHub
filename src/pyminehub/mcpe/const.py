@@ -1215,7 +1215,7 @@ class EntityType(Enum):
     WITHER_SKELETON = 48
     GUARDIAN = 49
     ELDER_GUARDIAN = 50
-    NPC = 51
+    NPC = 51  # NOTE does not move
     WITHER = 52
     ENDER_DRAGON = 53
     SHULKER = 54

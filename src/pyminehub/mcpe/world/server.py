@@ -242,11 +242,11 @@ class _World(WorldEditor):
 
     def _process_move_player(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
-        player.position = action.position
         player.pitch = revise_angle(action.pitch)
         player.yaw = revise_angle(action.yaw)
         player.head_yaw = revise_angle(action.head_yaw)
         player.on_ground = action.on_ground
+        player.move(action.position, self._space.revise_position)
 
         collisions = self._entity.detect_collision(player.entity_runtime_id)
         for collision in collisions:
@@ -256,12 +256,12 @@ class _World(WorldEditor):
         self._notify_event(event_factory.create(
             EventType.PLAYER_MOVED,
             action.entity_runtime_id,
-            action.position,
+            player.position,
             action.pitch,
             action.yaw,
             action.head_yaw,
             action.mode,
-            action.on_ground,
+            player.on_ground,
             action.riding_eid,
             action.need_response
         ))
@@ -357,9 +357,9 @@ class _World(WorldEditor):
             self._mob_id_to_entity_id[mob_id] = entity_runtime_id
         mob = self._entity.get_mob(entity_runtime_id)
         mob.name = action.name
-        mob.position = self._space.revise_position(action.position)
         mob.pitch = revise_angle(action.pitch)
         mob.yaw = revise_angle(action.yaw)
+        mob.move(action.position, self._space.revise_position)
         # TODO set monitor_nearby_chunks
         self._notify_event(event_factory.create(
             EventType.MOB_SPAWNED,
@@ -375,9 +375,9 @@ class _World(WorldEditor):
 
     def _process_move_mob(self, action: Action) -> None:
         mob = self._entity.get_mob(action.entity_runtime_id)
-        mob.position = self._space.revise_position(action.position)
         mob.pitch = revise_angle(action.pitch)
         mob.yaw = revise_angle(action.yaw)
+        mob.move(action.position, self._space.revise_position)
         self._notify_event(event_factory.create(
             EventType.MOB_MOVED,
             mob.entity_runtime_id,

@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType, EntityType
@@ -34,7 +34,7 @@ class Entity:
         y = self._spawn_position.y if self._spawn_position.y > block_height else block_height
         self.position = self._spawn_position.copy(
             x=self._spawn_position.x + 0.5,
-            y=y + self._spec.eye_height,
+            y=y + self._spec.position_height,
             z=self._spawn_position.z + 0.5
         )
 
@@ -101,13 +101,25 @@ class Entity:
     @property
     def obb(self) -> OrientedBoundingBox:
         return OrientedBoundingBox.create(
-            self.position.copy(y=self.position.y - self._spec.eye_height),
+            self.position - (0, self._spec.position_height, 0),
             self._spec.size,
             self._yaw
         )
 
     def is_hit_by(self, other: 'Entity') -> bool:
         return self.obb.has_collision(other.obb)
+
+    def move(
+            self,
+            position: Vector3[float],
+            revise_position: Callable[[OrientedBoundingBox, bool], Vector3[float]]
+    ) -> None:
+        oob = OrientedBoundingBox.create(
+            position - (0, self._spec.position_height, 0),
+            self._spec.size,
+            self._yaw
+        )
+        self.position = revise_position(oob, self.on_ground) + (0, self._spec.position_height, 0)
 
 
 class PlayerEntity(Entity):

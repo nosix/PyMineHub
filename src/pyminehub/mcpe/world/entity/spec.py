@@ -13,7 +13,7 @@ __all__ = [
 
 EntitySpec = NamedTuple('EntitySpec', [
     ('size', Vector3[float]),
-    ('eye_height', float),
+    ('position_height', float),
 ])
 
 
@@ -22,7 +22,7 @@ ITEM_ENTITY_SPEC = EntitySpec(Vector3(0.5, 0.5, 0.5), 0.25)
 
 
 _entity_specs = {
-    EntityType.CHICKEN: EntitySpec(Vector3(0.3, 0.7, 0.3), 0.35)
+    EntityType.CHICKEN: EntitySpec(Vector3(0.3, 0.7, 0.3), 0.0)
 }
 
 _unsupported_entity_spec = EntitySpec(Vector3(1.0, 1.0, 1.0), 0.5)

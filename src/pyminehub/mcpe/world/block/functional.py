@@ -33,6 +33,10 @@ class FunctionalBlock:
         return self._block_spec.has_layer
 
     @property
+    def can_pass(self) -> bool:
+        return self._block_spec.can_pass(self._block)
+
+    @property
     def can_be_broken(self) -> bool:
         return self._block_spec.can_be_broken
 

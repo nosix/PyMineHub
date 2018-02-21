@@ -290,6 +290,21 @@ class OrientedBoundingBox(NamedTuple('OrientedBoundingBox', [
         upward = Vector3(0.0, half.y, 0.0)
         return OrientedBoundingBox(origin, forward, right, upward)
 
+    @property
+    def center_bottom(self) -> Vector3[float]:
+        return self.origin.copy(y=self.bottom)
+
+    @property
+    def top(self) -> float:
+        return self.origin.y + self.upward.y
+
+    @property
+    def bottom(self) -> float:
+        return self.origin.y - self.upward.y
+
+    def move(self, dx: float=0, dy: float=0, dz: float=0) -> 'OrientedBoundingBox':
+        return OrientedBoundingBox(self.origin + (dx, dy, dz), self.forward, self.right, self.upward)
+
     @staticmethod
     def _has_collision_xz(origin, vec_a1, vec_a2, vec_b1, vec_b2) -> bool:
         vec_l = vec_a1.norm_2d()

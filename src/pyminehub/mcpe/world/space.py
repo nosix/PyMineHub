@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Callable, Dict, Iterator, List, NamedTuple, Tuple
+from typing import Callable, Dict, Iterator, List, NamedTuple, Optional, Tuple
 
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
@@ -101,8 +101,39 @@ class Space:
         return _BlockCache(position, self._to_local)
 
     def get_height(self, position: Vector3) -> int:
+        """Get height by block position"""
         chunk, position_in_chunk = self._to_local(position)
         return chunk.get_height(position_in_chunk.x, position_in_chunk.z)
+
+    def get_ceiling(self, position: Vector3) -> Optional[float]:
+        """Get ceiling height by coordinate
+
+        It search in the upward direction, when block can be passed through.
+        It return height of position, when block can not be passed through.
+        It return None, if there is not ceiling.
+        """
+        chunk, position_in_chunk = self._to_local(position)
+        height = chunk.get_height(position_in_chunk.x, position_in_chunk.z)
+        y = position_in_chunk.y
+        while y < height:
+            if not FunctionalBlock(chunk.get_block(position_in_chunk.copy(y=y))).can_pass:
+                return y
+            y += 1
+        return None
+
+    def get_floor(self, position: Vector3) -> float:
+        """Get floor height by coordinate
+
+        It search in the upward direction, when block can not be passed through.
+        It search in the downward direction, when block can be passed through.
+        """
+        chunk, position_in_chunk = self._to_local(position)
+        y = position_in_chunk.y
+        while not FunctionalBlock(chunk.get_block(position_in_chunk.copy(y=y))).can_pass:
+            y += 1
+        while FunctionalBlock(chunk.get_block(position_in_chunk.copy(y=y))).can_pass:
+            y -= 1
+        return y + 1
 
     def break_block(self, position: Vector3[int]) -> Tuple[List[PlacedBlock], List[Item]]:
         """
@@ -206,6 +237,11 @@ class Space:
     def _get_linked_blocks(self, position: Vector3[int], attached_block: FunctionalBlock) -> List[Block]:
         return list(self._get_cache(position + link_target).value for link_target in attached_block.link_target)
 
-    def revise_position(self, position: Vector3[float]) -> Vector3[float]:
-        height = self.get_height(position)
-        return position.copy(y=height)
+    def revise_position(self, oob: OrientedBoundingBox, on_ground: bool) -> Vector3[float]:
+        while True:
+            floor = self.get_floor(oob.origin.copy(y=oob.bottom))
+            oob = oob.move(dy=floor - oob.bottom)
+            ceiling = self.get_ceiling(oob.origin.copy(y=oob.top))
+            if ceiling is None or oob.top <= ceiling:
+                return oob.center_bottom
+            oob = oob.move(dy=ceiling - oob.bottom)

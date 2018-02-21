@@ -230,7 +230,7 @@ class WorldSurvivalTestCase(TestCase):
         expected_event = event_factory.create(
             EventType.PLAYER_MOVED,
             entity_runtime_id=1,
-            position=Vector3(x=256.54833984375, y=63.85153579711914, z=257.70001220703125),
+            position=Vector3(x=256.54833984375, y=63.625, z=257.70001220703125),
             pitch=54.88166809082031,
             yaw=-1.9647674560546875,
             head_yaw=-1.9647674560546875,
