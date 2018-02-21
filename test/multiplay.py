@@ -90,12 +90,14 @@ def spawn_mob(client: _Client):
     client.set_entity_event_listener(entity_updated)
 
     position = _move_position(client.get_entity().position)
-    client.spawn_mob(
-        random.choice(list(EntityType)),
-        *position,
-        random.uniform(-180, 180),
-        random.uniform(-180, 180)
-    )
+    mob_type = random.choice(list(EntityType))
+    if mob_type.value <= 57:
+        client.spawn_mob(
+            mob_type,
+            *position,
+            random.uniform(-180, 180),
+            random.uniform(-180, 180)
+        )
 
 
 def move_mob(client: _Client):
