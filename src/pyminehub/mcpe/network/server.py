@@ -13,6 +13,7 @@ from pyminehub.mcpe.network.const import *
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.login import login_sequence
 from pyminehub.mcpe.network.packet import *
+from pyminehub.mcpe.network.player import Player
 from pyminehub.mcpe.network.reliability import DEFAULT_CHANEL
 from pyminehub.mcpe.network.session import SessionManager
 from pyminehub.mcpe.network.value import PlayerListEntry
@@ -115,7 +116,6 @@ class MCPEServerHandler(MCPEDataHandler):
             return
 
         self.send_ping(addr)
-        self._session_manager.append(addr)
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
         player = self._session_manager[addr]
@@ -153,14 +153,14 @@ class MCPEServerHandler(MCPEDataHandler):
         raise SessionNotFound(addr)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:
-        player = self._session_manager[addr]
         player_data = packet.connection_request.player_data
         client_data = packet.connection_request.client_data
         # TODO check the logged-in player and log out the same player
-        player.login(
-            packet.protocol, player_data, client_data,
-            login_sequence(player, addr, self._session_manager, self._world, self._command, self.send_game_packet))
-        self._session_manager.bind(player.id, addr)
+        player = Player(packet.protocol, player_data, client_data)
+        self._session_manager.append(player, addr)
+
+        player.login(login_sequence(
+            player, addr, self._session_manager, self._world, self._command, self.send_game_packet))
 
         res_packet = game_packet_factory.create(GamePacketType.PLAY_STATUS, EXTRA_DATA, PlayStatus.LOGIN_SUCCESS)
         self.send_game_packet(res_packet, addr)

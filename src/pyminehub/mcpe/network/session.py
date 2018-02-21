@@ -16,11 +16,15 @@ class SessionManager:
         self._players = {}  # type: Dict[Address, Player]
         self._address = {}  # type: Dict[PlayerID, Address]
 
-    def append(self, addr: Address) -> None:
-        self._players[addr] = Player()
+    def __str__(self) -> str:
+        return '\n'.join(
+            '{} {} {}'.format(addr, player.entity_runtime_id, player.name)
+            if player.has_identity else '{}'.format(addr)
+            for addr, player in self._players.items())
 
-    def bind(self, player_id: PlayerID, addr: Address) -> None:
-        self._address[player_id] = addr
+    def append(self, player: Player, addr: Address) -> None:
+        self._players[addr] = player
+        self._address[player.id] = addr
 
     @property
     def addresses(self) -> Iterator[Address]:
@@ -44,8 +48,6 @@ class SessionManager:
     def __getitem__(self, key: Union[PlayerID, Address]) -> Player:
         addr = self.get_address(key) if isinstance(key, PlayerID) else key
         if addr not in self._players:
-            if isinstance(key, PlayerID):
-                del self._address[key]
             raise SessionNotFound(addr)
         return self._players[addr]
 
@@ -56,4 +58,6 @@ class SessionManager:
 
     def __delitem__(self, key: Address) -> None:
         if key in self._players:
+            player = self._players[key]
             del self._players[key]
+            del self._address[player.id]

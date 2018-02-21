@@ -16,10 +16,10 @@ _NEAR_CHUNK_RADIUS = 2
 
 class Player:
 
-    def __init__(self) -> None:
-        self._protocol = None
-        self._player_data = None
-        self._client_data = None
+    def __init__(self, protocol: int, player_data: PlayerData, client_data: ClientData) -> None:
+        self._protocol = protocol
+        self._player_data = player_data
+        self._client_data = client_data
         self._entity_unique_id = 0
         self._entity_runtime_id = 0
         self._position = Vector3(0.0, 0.0, 0.0)
@@ -37,16 +37,7 @@ class Player:
         assert isinstance(other, Player), type(other)
         return self.id == other.id
 
-    def login(
-            self,
-            protocol: int,
-            player_data: PlayerData,
-            client_data: ClientData,
-            login_sequence: Generator[None, Event, None]
-    ) -> None:
-        self._protocol = protocol
-        self._player_data = player_data
-        self._client_data = client_data
+    def login(self, login_sequence: Generator[None, Event, None]) -> None:
         self._login_sequence = login_sequence
         login_sequence.send(None)
 
@@ -60,12 +51,10 @@ class Player:
 
     @property
     def name(self) -> str:
-        assert self._player_data
         return self._player_data.display_name
 
     @property
     def skin(self) -> Skin:
-        assert self._client_data
         return self._client_data.skin
 
     @property
