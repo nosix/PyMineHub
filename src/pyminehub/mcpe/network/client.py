@@ -429,12 +429,10 @@ class MCPEClient(AbstractClient):
         :return: False if timeout occurred.
         """
         wait_future = asyncio.ensure_future(self._handler.wait_response())
-        futures = [wait_future]
         if timeout > 0:
-            timeout_future = asyncio.ensure_future(self._timeout(wait_future, timeout))
-            futures.append(timeout_future)
+            asyncio.ensure_future(self._timeout(wait_future, timeout))
         try:
-            asyncio.get_event_loop().run_until_complete(asyncio.gather(*futures))
+            asyncio.get_event_loop().run_until_complete(wait_future)
             return True
         except asyncio.CancelledError:
             return False
