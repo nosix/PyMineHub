@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.action import ActionType, action_factory
@@ -75,8 +75,9 @@ class MCPEServerHandler(MCPEDataHandler):
         for addr, p in self._session_manager.excluding(player):
             self.send_game_packet(packet, addr, immediately=False)
 
-    def _broadcast(self, packet: GamePacket, immediately=True) -> None:
-        for addr in self._session_manager.addresses:
+    def _broadcast(self, packet: GamePacket, filter_func: Callable[[Player], bool]=None, immediately=True) -> None:
+        sessions = iter(self._session_manager) if filter_func is None else self._session_manager.find(filter_func)
+        for addr, _ in sessions:
             self.send_game_packet(packet, addr, immediately)
 
     @staticmethod
@@ -146,7 +147,7 @@ class MCPEServerHandler(MCPEDataHandler):
             PlayerListType.REMOVE,
             (PlayerListEntry(player.id, None, None, None, None), )
         )
-        for addr, player in self._session_manager.find(lambda p: p.is_living):
+        for addr, _ in self._session_manager.find(lambda p: p.is_living):
             self.send_game_packet(text_packet, addr)
             self.send_game_packet(remove_entity_packet, addr)
             self.send_game_packet(remove_player_packet, addr)
@@ -299,7 +300,7 @@ class MCPEServerHandler(MCPEDataHandler):
 
         def generate_event(event_type: GameEventType, *args, **kwargs):
             event_packet = game_packet_factory.create(_GAME_EVENT_TYPES[event_type], EXTRA_DATA, *args, **kwargs)
-            self._broadcast(event_packet)
+            self._broadcast(event_packet, lambda p: p.is_living)
 
         command_name, arg = packet.command[1:].partition(' ')[0:3:2]
         context = CommandContextImpl(self._command, send_text, generate_event, self._world.perform)
@@ -402,7 +403,7 @@ class MCPEServerHandler(MCPEDataHandler):
                 updated.position,
                 updated.block.copy(neighbors=True, network=True, priority=True)
             )
-            self._broadcast(res_packet, immediately=False)
+            self._broadcast(res_packet, lambda p: p.is_ready, immediately=False)
         self.send_waiting_game_packet()
 
     def _process_event_item_spawned(self, event: Event) -> None:
@@ -416,7 +417,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.motion,
             event.metadata
         )
-        self._broadcast(res_packet)
+        self._broadcast(res_packet, lambda p: p.is_living)
 
     def _process_event_item_taken(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -425,8 +426,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.item_runtime_id,
             event.player_runtime_id
         )
-        for addr, player in self._session_manager:
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet, lambda p: p.is_living)
 
     def _process_event_inventory_updated(self, event: Event) -> None:
         addr = self._session_manager.get_address(event.player_id)
@@ -445,7 +445,7 @@ class MCPEServerHandler(MCPEDataHandler):
             EXTRA_DATA,
             event.entity_runtime_id
         )
-        self._broadcast(res_packet)
+        self._broadcast(res_packet, lambda p: p.is_living)
 
     def _process_event_equipment_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -477,7 +477,7 @@ class MCPEServerHandler(MCPEDataHandler):
             self._mob_spawned_event_to_metadata(event),
             tuple()
         )
-        self._broadcast(res_packet)
+        self._broadcast(res_packet, lambda p: p.is_living)
 
     def _process_event_mob_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -491,8 +491,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        for addr, player in self._session_manager.find(lambda p: p.is_living):
-            self.send_game_packet(res_packet, addr)
+        self._broadcast(res_packet, lambda p: p.is_living)
 
     def _process_event_time_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -500,4 +499,4 @@ class MCPEServerHandler(MCPEDataHandler):
             EXTRA_DATA,
             event.time
         )
-        self._broadcast(res_packet)
+        self._broadcast(res_packet, lambda p: p.is_living)
