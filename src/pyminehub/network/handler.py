@@ -36,14 +36,6 @@ class GameDataHandler:
         """Return long (64 bits int) value."""
         raise NotImplementedError()
 
-    def register_protocol(self, protocol: Protocol) -> None:
-        """The protocol object registers itself.
-
-        Don't override and/or call this method.
-        """
-        # noinspection PyAttributeOutsideInit
-        self._protocol = protocol
-
     def sendto(self, data: bytes, addr: Address, reliability: Reliability) -> None:
         """Send data to protocol object.
 
@@ -53,7 +45,21 @@ class GameDataHandler:
         :param addr: the data is sent to the addr
         :param reliability: reliability of the sending
         """
-        self._protocol.game_data_received(data, addr, reliability)
+        self.get_protocol(addr).game_data_received(data, addr, reliability)
+
+    def register_protocol(self, protocol: Protocol, addr: Optional[Address]=None) -> None:
+        """Register the protocol used for communication with the specified address
+
+        :param protocol: registered protocol (register as default if addr is None)
+        :param addr: communication destination
+        """
+        raise NotImplementedError()
+
+    def remove_protocol(self, addr: Address) -> None:
+        raise NotImplementedError()
+
+    def get_protocol(self, addr: Address) -> Protocol:
+        raise NotImplementedError()
 
     def data_received(self, data: bytes, addr: Address) -> None:
         """Handle data.

@@ -74,7 +74,7 @@ class _RakNetServer(Server):
     def terminate(self) -> None:
         self._protocol.terminate()
 
-    def close(self) -> None:
+    async def close(self) -> None:
         self._transport.close()
 
 
@@ -84,11 +84,26 @@ def raknet_server(handler: GameDataHandler) -> Server:
 
 
 if __name__ == '__main__':
+    from typing import Optional
+    from pyminehub.network.handler import Protocol
+
     class MockHandler(GameDataHandler):
+
+        def __init__(self) -> None:
+            self._protocol = None
 
         @property
         def guid(self) -> int:
             return 0
+
+        def register_protocol(self, protocol: Protocol, addr: Optional[Address] = None) -> None:
+            self._protocol = protocol
+
+        def remove_protocol(self, addr: Address) -> None:
+            pass
+
+        def get_protocol(self, addr: Address) -> Protocol:
+            return self._protocol
 
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))

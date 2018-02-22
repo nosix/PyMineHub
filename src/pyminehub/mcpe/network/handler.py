@@ -1,13 +1,13 @@
 import time
 from logging import getLogger
-from typing import Dict
+from typing import Dict, Optional
 
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacket, GamePacket, ConnectionPacketType, connection_packet_factory
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE
 from pyminehub.network.address import Address, to_packet_format, get_unspecified_address
-from pyminehub.network.handler import GameDataHandler, SessionNotFound, Reliability
+from pyminehub.network.handler import GameDataHandler, SessionNotFound, Reliability, Protocol
 from pyminehub.value import LogString
 
 __all__ = [
@@ -26,12 +26,26 @@ class MCPEDataHandler(GameDataHandler):
         self.__start_time = time.time()
         self.__ping_time = {}  # type: Dict[Address, int]
         self.__queue = GamePacketQueue(self.send_connection_packet)
+        self.__protocol_map = {}  # type: Dict[Address, Protocol]
+        self.__default_protocol = None
 
     # GameDataHandler interface methods
 
     @property
     def guid(self) -> int:
         raise NotImplementedError()
+
+    def register_protocol(self, protocol: Protocol, addr: Optional[Address]=None) -> None:
+        if addr is None:
+            self.__default_protocol = protocol
+        else:
+            self.__protocol_map[addr] = protocol
+
+    def remove_protocol(self, addr: Address) -> None:
+        del self.__protocol_map[addr]
+
+    def get_protocol(self, addr: Address) -> Protocol:
+        return self.__protocol_map.get(addr, self.__default_protocol)
 
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
