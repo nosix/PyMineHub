@@ -115,6 +115,12 @@ def move_mob(client: _Client):
     )
 
 
+def remove_all_mob(client: _Client):
+    mob_id_list = tuple(e.entity_runtime_id for e in client.entities if e.owner_runtime_id == client.entity_runtime_id)
+    for mob_id in mob_id_list:
+        client.remove_mob(mob_id)
+
+
 Act = NamedTuple('Act', [
     ('callable', Callable[[_Client], None]),
     ('rate', int),
@@ -133,10 +139,11 @@ def select(acts: Tuple[Act, ...]) -> Act:
 
 def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
     start_time = time.time()
-    with connect('127.0.0.1', player_name=name, client_factory=_Client, timeout=30) as client:
+    with connect('127.0.0.1', player_name=name, client_factory=_Client, timeout=30, raknet=True) as client:
         while client.is_active and time.time() - start_time < lifespan:
             act = select(acts)
             act.callable(client)
+        remove_all_mob(client)
 
 
 def run_multiplay(max_workers: int, session_num: int, ave_lifespan: float, acts: Tuple[Act, ...]):
