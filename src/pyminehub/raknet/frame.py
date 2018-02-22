@@ -5,19 +5,14 @@ and message in Wireshark and http://www.raknet.net/raknet/manual/systemoverview.
 
 Attributes of each frame is named from name used by Wireshark.
 """
-from typing import NamedTuple, Optional
 
 from pyminehub.value import ValueType, ValueObject, ValueObjectFactory
 
 __all__ = [
-    'Reliability',
     'RakNetFrame',
     'RakNetFrameType',
     'raknet_frame_factory'
 ]
-
-
-Reliability = NamedTuple('Reliability', [('reliable', bool), ('channel', Optional[int])])
 
 RakNetFrame = ValueObject
 

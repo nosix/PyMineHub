@@ -7,7 +7,7 @@ from pyminehub.mcpe.network.packet import ConnectionPacket, GamePacket, Connecti
 from pyminehub.mcpe.network.queue import GamePacketQueue
 from pyminehub.mcpe.network.reliability import UNRELIABLE
 from pyminehub.network.address import Address, to_packet_format, get_unspecified_address
-from pyminehub.raknet import GameDataHandler, Reliability, SessionNotFound
+from pyminehub.network.handler import GameDataHandler, SessionNotFound, Reliability
 from pyminehub.value import LogString
 
 __all__ = [

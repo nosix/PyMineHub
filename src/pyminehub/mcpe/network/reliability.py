@@ -2,7 +2,7 @@ from collections import defaultdict
 from typing import Dict
 
 from pyminehub.mcpe.network.packet import GamePacketType
-from pyminehub.raknet import Reliability
+from pyminehub.network.handler import Reliability
 
 __all__ = [
     'UNRELIABLE',

@@ -4,10 +4,11 @@ from logging import getLogger
 from typing import Callable, Dict, List, Set, Tuple
 
 from pyminehub.network.const import PACKET_HEADER_SIZE, RAKNET_WEIRD
+from pyminehub.network.handler import Reliability
 from pyminehub.raknet.channel import Channel
 from pyminehub.raknet.codec import raknet_packet_codec
 from pyminehub.raknet.fragment import Fragment
-from pyminehub.raknet.frame import Reliability, RakNetFrame
+from pyminehub.raknet.frame import RakNetFrame
 from pyminehub.raknet.packet import RakNetPacketType, RakNetPacket, raknet_packet_factory
 from pyminehub.raknet.sending import SendQueue
 from pyminehub.value import LogString

@@ -4,7 +4,7 @@ from typing import Generic, Optional, TypeVar
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.raknet.handler import GameDataHandler, SessionNotFound
+from pyminehub.network.handler import GameDataHandler, SessionNotFound
 from pyminehub.raknet.packet import RakNetPacket, RakNetPacketType, raknet_packet_factory
 from pyminehub.raknet.protocol import AbstractRakNetProtocol
 from pyminehub.raknet.session import Session

@@ -1,13 +1,16 @@
-from typing import Optional
+from typing import Optional, NamedTuple
 
 from pyminehub.network.address import Address
-from pyminehub.raknet.frame import Reliability
 
 __all__ = [
+    'GameDataHandler',
+    'Protocol',
     'SessionNotFound',
-    'RakNetProtocol',
-    'GameDataHandler'
+    'Reliability'
 ]
+
+
+Reliability = NamedTuple('Reliability', [('reliable', bool), ('channel', Optional[int])])
 
 
 class SessionNotFound(Exception):
@@ -20,7 +23,7 @@ class SessionNotFound(Exception):
         return self.args[0]
 
 
-class RakNetProtocol:
+class Protocol:
 
     def game_data_received(self, data: bytes, addr: Address, reliability: Reliability) -> None:
         raise NotImplementedError()
@@ -33,7 +36,7 @@ class GameDataHandler:
         """Return long (64 bits int) value."""
         raise NotImplementedError()
 
-    def register_protocol(self, protocol: RakNetProtocol) -> None:
+    def register_protocol(self, protocol: Protocol) -> None:
         """The protocol object registers itself.
 
         Don't override and/or call this method.

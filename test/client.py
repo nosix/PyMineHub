@@ -8,10 +8,11 @@ from pyminehub.mcpe.action import action_factory, Action, ActionType
 from pyminehub.mcpe.command.api import CommandRegistry, CommandContext, command
 from pyminehub.mcpe.const import *
 from pyminehub.mcpe.geometry import Vector3
-from pyminehub.mcpe.main.client import connect
+from pyminehub.mcpe.main.client import connect, Client
 from pyminehub.mcpe.network import MCPEServerHandler, MCPEClient, EntityInfo
 from pyminehub.mcpe.plugin.loader import PluginLoader
 from pyminehub.mcpe.world import run as run_world
+from pyminehub.network.server import ServerProcess
 from pyminehub.raknet import raknet_server
 from util.mock import MockDataStore
 
@@ -55,8 +56,8 @@ class ClientTestCase(TestCase):
         asyncio.get_event_loop().close()
 
     def test_command_request(self):
-        with raknet_server(self._handler) as server:
-            with connect('127.0.0.1', player_name='Taro') as client:
+        with ServerProcess(self._handler, raknet_server(self._handler)) as server:
+            with connect('127.0.0.1', player_name='Taro') as client:  # type: Client
                 self.assertEqual('§e%multiplayer.player.joined (Taro)', client.next_message())
                 self.assertEqual(1, client.entity_runtime_id)
 
@@ -76,8 +77,8 @@ class ClientTestCase(TestCase):
             server.stop()
 
     def test_perform_action(self):
-        with raknet_server(self._handler) as server:
-            with connect('127.0.0.1', player_name='Taro') as client:
+        with ServerProcess(self._handler, raknet_server(self._handler)) as server:
+            with connect('127.0.0.1', player_name='Taro') as client:  # type: Client
                 self.assertEqual('§e%multiplayer.player.joined (Taro)', client.next_message())
                 self.assertEqual(1, client.entity_runtime_id)
 

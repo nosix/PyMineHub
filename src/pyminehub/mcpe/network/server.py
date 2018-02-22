@@ -20,7 +20,7 @@ from pyminehub.mcpe.network.value import PlayerListEntry
 from pyminehub.mcpe.value import EntityMetaData, EntityMetaDataFlagValue
 from pyminehub.mcpe.world import WorldProxy
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.raknet import SessionNotFound
+from pyminehub.network.handler import SessionNotFound
 
 __all__ = [
     'MCPEServerHandler'

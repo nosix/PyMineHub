@@ -6,7 +6,7 @@ from pyminehub.mcpe.network.codec import game_packet_codec
 from pyminehub.mcpe.network.packet import GamePacket, ConnectionPacket, ConnectionPacketType, connection_packet_factory
 from pyminehub.mcpe.network.reliability import RELIABILITY_DICT
 from pyminehub.network.address import Address
-from pyminehub.raknet import Reliability
+from pyminehub.network.handler import Reliability
 from pyminehub.value import LogString
 
 __all__ = [

@@ -6,9 +6,10 @@ from queue import Empty
 from typing import Callable, Dict, Generator, Tuple
 
 from pyminehub.config import ConfigKey, get_value
+from pyminehub.network.handler import Reliability
 from pyminehub.queue import UpdatablePriorityQueue
 from pyminehub.raknet.codec import raknet_frame_codec
-from pyminehub.raknet.frame import Reliability, RakNetFrameType, RakNetFrame, raknet_frame_factory
+from pyminehub.raknet.frame import RakNetFrameType, RakNetFrame, raknet_frame_factory
 from pyminehub.value import LogString
 
 __all__ = [

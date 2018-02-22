@@ -2,9 +2,8 @@ import asyncio
 from logging import getLogger
 
 from pyminehub.network.address import Address
+from pyminehub.network.handler import GameDataHandler, Protocol, SessionNotFound, Reliability
 from pyminehub.raknet.codec import raknet_packet_codec, split_frame_set
-from pyminehub.raknet.frame import Reliability
-from pyminehub.raknet.handler import RakNetProtocol, GameDataHandler, SessionNotFound
 from pyminehub.raknet.packet import RakNetPacket
 from pyminehub.raknet.session import Session
 from pyminehub.value import LogString
@@ -17,7 +16,7 @@ __all__ = [
 _logger = getLogger(__name__)
 
 
-class AbstractRakNetProtocol(asyncio.DatagramProtocol, RakNetProtocol):
+class AbstractRakNetProtocol(asyncio.DatagramProtocol, Protocol):
 
     def __init__(self, handler: GameDataHandler) -> None:
         """
