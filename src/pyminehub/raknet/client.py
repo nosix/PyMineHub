@@ -1,18 +1,16 @@
 import asyncio
 from logging import getLogger
-from typing import Generic, Optional, TypeVar
+from typing import Optional
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import Address, to_packet_format
+from pyminehub.network.client import AbstractClient, Client, ClientConnection
 from pyminehub.network.handler import GameDataHandler, SessionNotFound
 from pyminehub.raknet.packet import RakNetPacket, RakNetPacketType, raknet_packet_factory
 from pyminehub.raknet.protocol import AbstractRakNetProtocol
 from pyminehub.raknet.session import Session
 
 __all__ = [
-    'AbstractClient',
-    'Client',
-    'ClientConnection',
     'connect_raknet'
 ]
 
@@ -66,56 +64,7 @@ class _RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         self._connected.set()
 
 
-class AbstractClient:
-
-    @property
-    def handler(self) -> GameDataHandler:
-        raise NotImplementedError()
-
-    @property
-    def server_addr(self) -> Address:
-        return self.__server_addr
-
-    async def start(self) -> None:
-        """Start client
-
-        This method is called when connection started.
-        """
-        raise NotImplementedError()
-
-    async def finished(self) -> None:
-        """Callback when client finish
-
-        This method is called when client finish.
-        """
-        raise NotImplementedError()
-
-    # noinspection PyAttributeOutsideInit
-    async def connect(self, server_addr: Address, transport: asyncio.Transport, protocol: _RakNetClientProtocol) -> None:
-        """Connect RakNet server
-
-        Don't override this method.
-        """
-        self.__server_addr = server_addr
-        self.__transport = transport
-        self.__protocol = protocol
-        await self.__protocol.connect_raknet(server_addr)
-        await self.start()
-
-    async def terminate(self) -> None:
-        """Terminate connection
-
-        Call this method if this method is overridden.
-        """
-        await self.finished()
-        self.__protocol.terminate()
-        self.__transport.close()
-
-
-Client = TypeVar('Client', bound=AbstractClient)
-
-
-class ClientConnection(Generic[Client]):
+class _RakNetClientConnection(ClientConnection):
 
     def __init__(
             self,
@@ -126,14 +75,16 @@ class ClientConnection(Generic[Client]):
         self._client = client
         self._server_addr = server_addr
         self._timeout = timeout
+        self._transport = None
+        self._protocol = None
 
     def __enter__(self) -> Client:
         loop = asyncio.get_event_loop()
         endpoint = loop.create_datagram_endpoint(
             lambda: _RakNetClientProtocol(self._client.handler),
             remote_addr=self._server_addr)
-        transport, protocol = loop.run_until_complete(endpoint)
-        connect = self._client.connect(self._server_addr, transport, protocol)
+        self._transport, self._protocol = loop.run_until_complete(endpoint)
+        connect = self._connect()
         if self._timeout > 0:
             connect = asyncio.ensure_future(connect)
             asyncio.ensure_future(self._wait_timeout(connect))
@@ -143,19 +94,21 @@ class ClientConnection(Generic[Client]):
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(self._client.terminate())
-
-    def start(self) -> Client:
-        # noinspection PyTypeChecker
-        return self.__enter__()  # FIXME why is type check fail?
-
-    def close(self) -> None:
-        self.__exit__(None, None, None)
+        loop.run_until_complete(self._terminate())
 
     async def _wait_timeout(self, future: asyncio.Future):
         await asyncio.sleep(self._timeout)
         future.cancel()
         _logger.info('timeout to connect server')
+
+    async def _connect(self) -> None:
+        await self._protocol.connect_raknet(self._server_addr)
+        await self._client.start(self._server_addr)
+
+    async def _terminate(self) -> None:
+        await self._client.finished()
+        self._protocol.terminate()
+        self._transport.close()
 
 
 def connect_raknet(
@@ -165,15 +118,26 @@ def connect_raknet(
         timeout: float=0
 ) -> ClientConnection[Client]:
     server_address = (server_host, get_value(ConfigKey.SERVER_PORT) if port is None else port)
-    return ClientConnection(client, server_address, timeout)
+    return _RakNetClientConnection(client, server_address, timeout)
 
 
 if __name__ == '__main__':
+    from pyminehub.network.handler import Protocol
+
     class MockHandler(GameDataHandler):
 
         @property
         def guid(self) -> int:
             return 0
+
+        def register_protocol(self, protocol: Protocol, addr: Optional[Address] = None) -> None:
+            pass
+
+        def remove_protocol(self, addr: Address) -> None:
+            pass
+
+        def get_protocol(self, addr: Address) -> Protocol:
+            pass
 
         def data_received(self, data: bytes, addr: Address) -> None:
             print('{} {}'.format(addr, data.hex()))
@@ -193,7 +157,7 @@ if __name__ == '__main__':
         def handler(self) -> GameDataHandler:
             return self._handler
 
-        async def start(self) -> None:
+        async def start(self, server_addr: Address) -> None:
             print('Client session started.')
 
         async def finished(self) -> None:

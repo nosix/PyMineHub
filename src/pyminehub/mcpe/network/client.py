@@ -403,6 +403,7 @@ class MCPEClient(AbstractClient):
         self._handler = _MCPEClientHandler()
         self._player_name = player_name
         self._locale = locale
+        self._server_addr = None
 
     # AbstractClient methods
 
@@ -410,11 +411,12 @@ class MCPEClient(AbstractClient):
     def handler(self) -> _MCPEClientHandler:
         return self._handler
 
-    async def start(self) -> None:
-        await self._handler.start(self.server_addr, self._player_name, self._locale)
+    async def start(self, server_addr: Address) -> None:
+        self._server_addr = server_addr
+        await self._handler.start(self._server_addr, self._player_name, self._locale)
 
     async def finished(self) -> None:
-        await self._handler.stop(self.server_addr)
+        await self._handler.stop(self._server_addr)
 
     # local methods
 
@@ -467,4 +469,4 @@ class MCPEClient(AbstractClient):
         self._handler.set_entity_event_listener(listener)
 
     def execute_command(self, command: str) -> None:
-        asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self.server_addr, command))
+        asyncio.get_event_loop().run_until_complete(self._handler.send_command_request(self._server_addr, command))
