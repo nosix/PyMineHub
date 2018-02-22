@@ -57,8 +57,16 @@ class _ProtocolProxy:
         asyncio.set_event_loop(loop)
         self._proxy = MockWorldProxy()
         self._command = CommandRegistry()
-        self._protocol = _RakNetServerProtocol(MCPEServerHandler(self._proxy, self._command))
+        self._handler = MCPEServerHandler(self._proxy, self._command)
+        self._protocol = _RakNetServerProtocol(self._handler)
         self._protocol.connection_made(_ProtocolMockTransport(self._queue))
+        self._update_task = self._start_loop_to_update()
+
+    def _start_loop_to_update(self) -> asyncio.Task:
+        async def loop_to_update():
+            while True:
+                await self._handler.update()
+        return asyncio.ensure_future(loop_to_update())
 
     @staticmethod
     def close() -> None:

@@ -20,7 +20,7 @@ from pyminehub.mcpe.network.skin import *
 from pyminehub.mcpe.network.value import ConnectionRequest
 from pyminehub.mcpe.value import EntityRuntimeID, EntityMetaData
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.raknet import AbstractClient
+from pyminehub.network.client import AbstractClient
 
 __all__ = [
     'MCPEClient',

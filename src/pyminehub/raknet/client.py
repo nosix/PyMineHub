@@ -4,7 +4,7 @@ from typing import Optional
 
 from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import Address, to_packet_format
-from pyminehub.network.client import AbstractClient, Client, ClientConnection
+from pyminehub.network.client import Client, ClientConnection
 from pyminehub.network.handler import GameDataHandler, SessionNotFound
 from pyminehub.raknet.packet import RakNetPacket, RakNetPacketType, raknet_packet_factory
 from pyminehub.raknet.protocol import AbstractRakNetProtocol
@@ -36,10 +36,13 @@ class _RakNetClientProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         if self._session is not None:
             self._session.close()
 
-    def remove_session(self, addr: Address) -> None:
+    def remove_session(self, addr: Address) -> bool:
         if self._session is not None:
             self._session.close()
             self._session = None
+            return True
+        else:
+            return False
 
     def get_session(self, addr: Address) -> Session:
         if self._session is not None:
@@ -81,8 +84,7 @@ class _RakNetClientConnection(ClientConnection):
     def __enter__(self) -> Client:
         loop = asyncio.get_event_loop()
         endpoint = loop.create_datagram_endpoint(
-            lambda: _RakNetClientProtocol(self._client.handler),
-            remote_addr=self._server_addr)
+            lambda: _RakNetClientProtocol(self._client.handler), remote_addr=self._server_addr)
         self._transport, self._protocol = loop.run_until_complete(endpoint)
         connect = self._connect()
         if self._timeout > 0:
@@ -122,6 +124,7 @@ def connect_raknet(
 
 
 if __name__ == '__main__':
+    from pyminehub.network.client import AbstractClient
     from pyminehub.network.handler import Protocol
 
     class MockHandler(GameDataHandler):

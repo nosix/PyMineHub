@@ -29,10 +29,13 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         for session in self._sessions.values():
             session.close()
 
-    def remove_session(self, addr: Address) -> None:
+    def remove_session(self, addr: Address) -> bool:
         if addr in self._sessions:
             self._sessions[addr].close()
             del self._sessions[addr]
+            return True
+        else:
+            return False
 
     def get_session(self, addr: Address) -> Session:
         try:
@@ -76,6 +79,9 @@ class _RakNetServer(Server):
 
     async def close(self) -> None:
         self._transport.close()
+
+    def remove_session(self, addr: Address) -> bool:
+        return self._protocol.remove_session(addr)
 
 
 def raknet_server(handler: GameDataHandler) -> Server:

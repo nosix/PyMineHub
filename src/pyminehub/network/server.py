@@ -1,11 +1,16 @@
 import asyncio
+import logging
 
-from pyminehub.network.handler import GameDataHandler
+from pyminehub.network.address import Address
+from pyminehub.network.handler import GameDataHandler, SessionNotFound
 
 __all__ = [
     'Server',
     'ServerProcess'
 ]
+
+
+_logger = logging.getLogger(__name__)
 
 
 class Server:
@@ -16,7 +21,15 @@ class Server:
     def terminate(self) -> None:
         raise NotImplementedError()
 
-    def close(self) -> None:
+    async def close(self) -> None:
+        raise NotImplementedError()
+
+    def remove_session(self, addr: Address) -> bool:
+        """Remove the session with the specified address
+
+        :param addr: target address
+        :return: True if session is removed
+        """
         raise NotImplementedError()
 
 
@@ -26,11 +39,29 @@ class ServerProcess:
         self._handler = handler
         self._servers = servers
         self._stopped = False
+        self._update_task = None
 
     def __enter__(self) -> 'ServerProcess':
         for server in self._servers:
             server.start()
+        self._update_task = self._start_loop_to_update()
         return self
+
+    def _start_loop_to_update(self) -> asyncio.Task:
+        async def loop_to_update():
+            while True:
+                await self._next_moment()
+        return asyncio.ensure_future(loop_to_update())
+
+    async def _next_moment(self) -> None:
+        try:
+            await self._handler.update()
+        except SessionNotFound as exc:
+            if exc.addr is not None:
+                _logger.info('%s session is not found.', exc.addr)
+                for server in self._servers:
+                    if server.remove_session(exc.addr):
+                        break
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         loop = asyncio.get_event_loop()
@@ -41,6 +72,7 @@ class ServerProcess:
             pass
         finally:
             self._handler.terminate()
+            self._update_task.cancel()
             for server in self._servers:
                 server.terminate()
             pending = asyncio.Task.all_tasks()
@@ -53,7 +85,7 @@ class ServerProcess:
 
     async def _close(self) -> None:
         for server in self._servers:
-            server.close()
+            await server.close()
 
     def start(self) -> None:
         self.__enter__()

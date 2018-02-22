@@ -25,20 +25,13 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, Protocol):
         handler.register_protocol(self)
         self.__handler = handler
         self.__transport = None
-        self.__update_task = self._start_loop_to_update()
 
     @property
     def guid(self) -> int:
         return self.__handler.guid
 
-    def _start_loop_to_update(self) -> asyncio.Task:
-        async def loop_to_update():
-            while True:
-                await self._next_moment()
-        return asyncio.ensure_future(loop_to_update())
-
     def terminate(self) -> None:
-        self.__update_task.cancel()
+        pass
 
     def connection_made(self, transport: asyncio.transports.DatagramTransport) -> None:
         self.__transport = transport
@@ -67,21 +60,13 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, Protocol):
         _logger.debug('%s < %s', addr, data.hex())
         self.__transport.sendto(data, addr)
 
-    async def _next_moment(self) -> None:
-        try:
-            await self.__handler.update()
-        except SessionNotFound as exc:
-            if exc.addr is not None:
-                _logger.info('%s session is not found.', exc.addr)
-                self.remove_session(exc.addr)
-
     def create_session(self, mtu_size: int, addr: Address) -> Session:
         return Session(
             mtu_size,
             lambda _data: self.__handler.data_received(_data, addr),
             lambda _packet: self.send_to_remote(_packet, addr))
 
-    def remove_session(self, addr: Address) -> None:
+    def remove_session(self, addr: Address) -> bool:
         raise NotImplementedError()
 
     def get_session(self, addr: Address) -> Session:
