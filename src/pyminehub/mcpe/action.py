@@ -108,7 +108,8 @@ _action_specs = {
         ('entity_runtime_id', EntityRuntimeID),
         ('position', Vector3[float]),
         ('pitch', float),
-        ('yaw', float)
+        ('yaw', float),
+        ('on_ground', bool)
     ],
     ActionType.REMOVE_MOB: [
         ('type', ActionType),

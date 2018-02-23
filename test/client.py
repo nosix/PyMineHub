@@ -144,7 +144,8 @@ class ClientTestCase(TestCase):
             2,
             Vector3(257.0, 63.0, 254.0),
             45.0,
-            90.0
+            90.0,
+            True
         ))
 
         client.wait_response(1)

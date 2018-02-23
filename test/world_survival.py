@@ -205,7 +205,7 @@ class WorldSurvivalTestCase(TestCase):
             yaw=-1.9647674560546875,
             head_yaw=-1.9647674560546875,
             mode=MoveMode.NORMAL,
-            on_ground=False,
+            on_ground=True,
             riding_eid=0,
             need_response=False
         )
@@ -235,7 +235,7 @@ class WorldSurvivalTestCase(TestCase):
             yaw=-1.9647674560546875,
             head_yaw=-1.9647674560546875,
             mode=MoveMode.NORMAL,
-            on_ground=False,
+            on_ground=True,
             riding_eid=0,
             need_response=False
         )

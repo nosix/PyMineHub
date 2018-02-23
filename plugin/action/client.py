@@ -70,6 +70,7 @@ class ActionCommandMixin:
             self,
             east: float, height: float, south: float,
             pitch: float=0.0, yaw: float=0.0, head_yaw: float=0.0,
+            on_ground: bool=True,
             is_teleport: bool=False,
             player_eid: Optional[EntityRuntimeID]=None
     ):
@@ -79,7 +80,7 @@ class ActionCommandMixin:
             Vector3(east, height, south),
             pitch, yaw, head_yaw,
             MoveMode.TELEPORT if is_teleport else MoveMode.NORMAL,
-            True,
+            on_ground,
             0,
             True
         )
@@ -168,14 +169,16 @@ class ActionCommandMixin:
             self,
             mob_eid: EntityRuntimeID,
             east: float, height: float, south: float,
-            pitch: float=0.0, yaw: float=0.0
+            pitch: float=0.0, yaw: float=0.0,
+            on_ground: bool=True
     ):
         self.perform_action(
             ActionType.MOVE_MOB,
             mob_eid,
             Vector3(east, height, south),
             pitch,
-            yaw
+            yaw,
+            on_ground
         )
 
     def remove_mob(self, mob_eid: EntityRuntimeID):

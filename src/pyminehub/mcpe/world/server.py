@@ -377,6 +377,7 @@ class _World(WorldEditor):
         mob = self._entity.get_mob(action.entity_runtime_id)
         mob.pitch = revise_angle(action.pitch)
         mob.yaw = revise_angle(action.yaw)
+        mob.on_ground = action.on_ground
         mob.move(action.position, self._space.revise_position)
         self._notify_event(event_factory.create(
             EventType.MOB_MOVED,
@@ -419,7 +420,8 @@ class _World(WorldEditor):
                 entity_runtime_id,
                 action.position,
                 action.pitch,
-                action.yaw
+                action.yaw,
+                True  # TODO set value
             )
         )
 

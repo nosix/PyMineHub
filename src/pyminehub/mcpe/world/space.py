@@ -238,9 +238,12 @@ class Space:
         return list(self._get_cache(position + link_target).value for link_target in attached_block.link_target)
 
     def revise_position(self, oob: OrientedBoundingBox, on_ground: bool) -> Vector3[float]:
+        if not on_ground and oob.bottom >= self.get_height(oob.origin):
+            return oob.center_bottom
         while True:
-            floor = self.get_floor(oob.origin.copy(y=oob.bottom))
-            oob = oob.move(dy=floor - oob.bottom)
+            floor = self.get_floor(oob.origin.copy(y=oob.top))
+            if oob.bottom < floor or on_ground:
+                oob = oob.move(dy=floor - oob.bottom)
             ceiling = self.get_ceiling(oob.origin.copy(y=oob.top))
             if ceiling is None or oob.top <= ceiling:
                 return oob.center_bottom
