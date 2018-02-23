@@ -1,6 +1,6 @@
 import time
 from logging import getLogger
-from typing import Dict, Optional
+from typing import Dict, NamedTuple, Optional
 
 from pyminehub.mcpe.network.codec import connection_packet_codec, game_packet_codec
 from pyminehub.mcpe.network.packet import ConnectionPacket, GamePacket, ConnectionPacketType, connection_packet_factory
@@ -18,6 +18,12 @@ __all__ = [
 _logger = getLogger(__name__)
 
 
+_ProtocolEntry = NamedTuple('ProtocolEntry', [
+    ('protocol', Protocol),
+    ('queue', GamePacketQueue)
+])
+
+
 class MCPEDataHandler(GameDataHandler):
 
     INTERNAL_ADDRESSES = tuple(to_packet_format((get_unspecified_address(), 0)) for _ in range(20))
@@ -25,8 +31,7 @@ class MCPEDataHandler(GameDataHandler):
     def __init__(self) -> None:
         self.__start_time = time.time()
         self.__ping_time = {}  # type: Dict[Address, int]
-        self.__queue = GamePacketQueue(self.send_connection_packet)
-        self.__protocol_map = {}  # type: Dict[Address, Protocol]
+        self.__protocol_map = {}  # type: Dict[Address, _ProtocolEntry]
         self.__default_protocol = None
 
     # GameDataHandler interface methods
@@ -36,16 +41,17 @@ class MCPEDataHandler(GameDataHandler):
         raise NotImplementedError()
 
     def register_protocol(self, protocol: Protocol, addr: Optional[Address]=None) -> None:
+        entry = _ProtocolEntry(protocol, GamePacketQueue(self.send_connection_packet))
         if addr is None:
-            self.__default_protocol = protocol
+            self.__default_protocol = entry
         else:
-            self.__protocol_map[addr] = protocol
+            self.__protocol_map[addr] = entry
 
     def remove_protocol(self, addr: Address) -> None:
         del self.__protocol_map[addr]
 
     def get_protocol(self, addr: Address) -> Protocol:
-        return self.__protocol_map.get(addr, self.__default_protocol)
+        return self.__protocol_map.get(addr, self.__default_protocol).protocol
 
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
@@ -75,12 +81,15 @@ class MCPEDataHandler(GameDataHandler):
 
     def send_game_packet(self, packet: GamePacket, addr: Address, immediately=True) -> None:
         if immediately:
-            self.__queue.send_immediately(packet, addr)
+            self._get_queue(addr).send_immediately(packet, addr)
         else:
-            self.__queue.append(packet, addr)
+            self._get_queue(addr).append(packet, addr)
 
-    def send_waiting_game_packet(self) -> None:
-        self.__queue.send()
+    def send_waiting_game_packet(self, addr: Address) -> None:
+        self._get_queue(addr).send()
+
+    def _get_queue(self, addr: Address) -> GamePacketQueue:
+        return self.__protocol_map.get(addr, self.__default_protocol).queue
 
     def send_ping(self, addr: Address) -> None:
         self.__ping_time[addr] = self.get_current_time()
@@ -101,7 +110,7 @@ class MCPEDataHandler(GameDataHandler):
                 raise
             except Exception as exc:
                 _logger.exception('%s', exc)
-        self.send_waiting_game_packet()
+        self.send_waiting_game_packet(addr)
 
     def _process_connected_ping(self, packet: ConnectionPacket, addr: Address) -> None:
         res_packet = connection_packet_factory.create(

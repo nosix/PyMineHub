@@ -374,7 +374,7 @@ class MCPEServerHandler(MCPEDataHandler):
                     tuple()
                 )
                 self.send_game_packet(res_packet, addr, immediately=False)
-        self.send_waiting_game_packet()
+        self.send_waiting_game_packet(addr)
 
     def _process_event_player_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -393,7 +393,8 @@ class MCPEServerHandler(MCPEDataHandler):
         )
         for addr, player in self._session_manager.find(lambda p: p.is_living):
             if player.entity_runtime_id != event.entity_runtime_id:
-                self.send_game_packet(res_packet, addr)
+                if player.does_monitor(event.entity_runtime_id):
+                    self.send_game_packet(res_packet, addr)
             else:
                 if event.need_response:
                     self.send_game_packet(res_packet, addr)
@@ -412,7 +413,8 @@ class MCPEServerHandler(MCPEDataHandler):
                 updated.block.copy(neighbors=True, network=True, priority=True)
             )
             self._broadcast(res_packet, lambda p: p.is_ready, immediately=False)
-        self.send_waiting_game_packet()
+        for addr, _ in self._session_manager.find(lambda p: p.is_ready):
+            self.send_waiting_game_packet(addr)
 
     def _process_event_item_spawned(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
