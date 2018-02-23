@@ -288,7 +288,7 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                 ),
                 event_factory.create(
                     EventType.ENTITY_REMOVED,
-                    entity_runtime_id=3
+                    entity_runtime_id=2
                 ),
                 event_factory.create(
                     EventType.ITEM_TAKEN,
@@ -383,7 +383,7 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                             Batch().that_has(
                                 GamePacket(
                                     GamePacketType.REMOVE_ENTITY,
-                                    entity_unique_id=3
+                                    entity_unique_id=2
                                 )
                             )
                         ),

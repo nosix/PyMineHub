@@ -268,9 +268,10 @@ def _spawn_player(
         )
 
         for other_player_addr, p in session.excluding(player):
+            p.monitor_entity(player.entity_runtime_id)
             send(new_player_packet, other_player_addr)
 
-    for other_player_addr, p in session.excluding(player):
+    for _, p in session.excluding(player):
         if not p.invisible:
             other_player_packet = game_packet_factory.create(
                 GamePacketType.ADD_PLAYER,
@@ -288,4 +289,5 @@ def _spawn_player(
                 0,
                 tuple()
             )
+            player.monitor_entity(p.entity_runtime_id)
             send(other_player_packet, addr)

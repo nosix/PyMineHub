@@ -337,7 +337,9 @@ class MCPEServerHandler(MCPEDataHandler):
 
     def _process_event_entity_loaded(self, event: Event) -> None:
         addr = self._session_manager.get_address(event.player_id)
+        player = self._session_manager[addr]
         for e in event.spawn_events:
+            player.monitor_entity(e.entity_runtime_id)
             if e.type == EventType.ITEM_SPAWNED:
                 res_packet = game_packet_factory.create(
                     GamePacketType.ADD_ITEM_ENTITY,
@@ -417,7 +419,9 @@ class MCPEServerHandler(MCPEDataHandler):
             event.motion,
             event.metadata
         )
-        self._broadcast(res_packet, lambda p: p.is_living)
+        for addr, player in self._session_manager.find(lambda p: p.is_living):
+            player.monitor_entity(event.entity_runtime_id)
+            self.send_game_packet(res_packet, addr)
 
     def _process_event_item_taken(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -445,7 +449,9 @@ class MCPEServerHandler(MCPEDataHandler):
             EXTRA_DATA,
             event.entity_runtime_id
         )
-        self._broadcast(res_packet, lambda p: p.is_living)
+        for addr, player in self._session_manager.find(lambda p: p.does_monitor(event.entity_runtime_id)):
+            player.removed_monitored(event.entity_runtime_id)
+            self.send_game_packet(res_packet, addr)
 
     def _process_event_equipment_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -477,7 +483,9 @@ class MCPEServerHandler(MCPEDataHandler):
             self._mob_spawned_event_to_metadata(event),
             tuple()
         )
-        self._broadcast(res_packet, lambda p: p.is_living)
+        for addr, player in self._session_manager.find(lambda p: p.is_living):
+            player.monitor_entity(event.entity_runtime_id)
+            self.send_game_packet(res_packet, addr)
 
     def _process_event_mob_moved(self, event: Event) -> None:
         res_packet = game_packet_factory.create(
@@ -491,7 +499,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        self._broadcast(res_packet, lambda p: p.is_living)
+        self._broadcast(res_packet, lambda p: p.does_monitor(event.entity_runtime_id))
 
     def _process_event_time_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(

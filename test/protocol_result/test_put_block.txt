@@ -423,7 +423,7 @@ PacketInventorySlot(type=<GamePacketType.INVENTORY_SLOT: 50>, extra=b'\x00\x00',
 PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads='[mask]')
 FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length='[mask]', reliable_message_num=112, message_ordering_index=95, message_ordering_chanel=0, payload='[mask]')
 PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=103, payload='[mask]')
-PacketRemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=3)
+PacketRemoveEntity(type=<GamePacketType.REMOVE_ENTITY: 14>, extra=b'\x00\x00', entity_unique_id=2)
 PacketBatch(type=<ConnectionPacketType.BATCH: 254>, payloads='[mask]')
 FrameReliableOrdered(type=<RakNetFrameType.RELIABLE_ORDERED: 96>, payload_length='[mask]', reliable_message_num=113, message_ordering_index=96, message_ordering_chanel=0, payload='[mask]')
 PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=104, payload='[mask]')

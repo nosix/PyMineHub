@@ -32,6 +32,7 @@ class Player:
         self._near_chunk_position = set()  # type: Set[ChunkPosition]
         self._is_living = False
         self._login_sequence = None
+        self._monitored_entities = set()  # type: Set[EntityRuntimeID]
 
     def __eq__(self, other: 'Player') -> bool:
         assert isinstance(other, Player), type(other)
@@ -158,3 +159,12 @@ class Player:
             self._is_living = True
             self._login_sequence = None
             return True
+
+    def monitor_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
+        self._monitored_entities.add(entity_runtime_id)
+
+    def does_monitor(self, entity_runtime_id: EntityRuntimeID) -> bool:
+        return entity_runtime_id in self._monitored_entities
+
+    def removed_monitored(self, entity_runtime_id: EntityRuntimeID) -> None:
+        self._monitored_entities.discard(entity_runtime_id)
