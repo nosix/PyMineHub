@@ -375,6 +375,16 @@ class _MCPEClientHandler(MCPEDataHandler):
             position_in_chunk = to_local_position(packet.position)
             self._latest_chunk.chunk.set_block(position_in_chunk, packet.block)
 
+    # noinspection PyUnusedLocal
+    def _process_add_item_entity(self, packet: GamePacket, addr: Address) -> None:
+        entity = _MutableEntityInfo(packet.entity_runtime_id, packet.item.type.name)
+        entity.position = packet.position
+        entity.metadata = packet.metadata
+        self._entities[entity.entity_runtime_id] = entity
+
+    def _process_take_item_entity(self, packet: GamePacket, addr: Address) -> None:
+        pass
+
     def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
         pass
 
