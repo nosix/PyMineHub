@@ -147,10 +147,10 @@ class MCPEServerHandler(MCPEDataHandler):
             PlayerListType.REMOVE,
             (PlayerListEntry(player.id, None, None, None, None), )
         )
-        for addr, _ in self._session_manager.find(lambda p: p.is_living):
-            self.send_game_packet(text_packet, addr)
-            self.send_game_packet(remove_entity_packet, addr)
-            self.send_game_packet(remove_player_packet, addr)
+        for dest_addr, _ in self._session_manager.find(lambda p: p.is_living):
+            self.send_game_packet(text_packet, dest_addr)
+            self.send_game_packet(remove_entity_packet, dest_addr)
+            self.send_game_packet(remove_player_packet, dest_addr)
         raise SessionNotFound(addr)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:

@@ -35,7 +35,7 @@ class TcpProtocol(asyncio.Protocol, Protocol):
         self._handler.register_protocol(self, self._dest_addr)
 
     def connection_lost(self, exc: Exception) -> None:
-        _logger.info('TCP connection lost. (exception=%s)', exc)
+        _logger.info('%s TCP connection lost. (exception=%s)', self._dest_addr, exc)
         self._handler.remove_protocol(self._dest_addr)
         self._transport = None
 
@@ -52,10 +52,11 @@ class TcpProtocol(asyncio.Protocol, Protocol):
             if len(self._buffer) >= self._length:
                 try:
                     self._handler.data_received(pop_first(self._buffer, self._length), self._dest_addr)
+                    self._length = None
                 except SessionNotFound as exc:
-                    assert exc.addr == self._dest_addr  # FIXME may be other address
+                    assert exc.addr == self._dest_addr, '{} != {}'.format(exc.addr, self._dest_addr)
                     self._transport.write_eof()
-                self._length = None
+                    break
 
     # Protocol methods
 

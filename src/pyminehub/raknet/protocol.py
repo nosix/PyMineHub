@@ -46,7 +46,8 @@ class AbstractRakNetProtocol(asyncio.DatagramProtocol, Protocol):
         _logger.debug('> %s', LogString(packet))
         try:
             getattr(self, '_process_' + packet.type.name.lower())(packet, addr)
-        except SessionNotFound:
+        except SessionNotFound as exc:
+            assert exc.addr == addr, '{} != {}'.format(exc.addr, addr)
             _logger.info('%s session is not found.', addr)
             self.remove_session(addr)
 
