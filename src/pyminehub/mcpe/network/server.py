@@ -120,12 +120,15 @@ class MCPEServerHandler(MCPEDataHandler):
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
         player = self._session_manager[addr]
-        self._world.perform(action_factory.create(
-            ActionType.LOGOUT_PLAYER,
-            player.entity_runtime_id
-        ))
-        del self._session_manager[addr]
+
+        if player.has_identity:
+            self._world.perform(action_factory.create(
+                ActionType.LOGOUT_PLAYER,
+                player.entity_runtime_id
+            ))
+
         self.send_connection_packet(packet, addr, DEFAULT_CHANEL)
+
         text_packet = game_packet_factory.create(
             GamePacketType.TEXT,
             EXTRA_DATA,
@@ -147,10 +150,13 @@ class MCPEServerHandler(MCPEDataHandler):
             PlayerListType.REMOVE,
             (PlayerListEntry(player.id, None, None, None, None), )
         )
+
         for dest_addr, _ in self._session_manager.find(lambda p: p.is_living):
             self.send_game_packet(text_packet, dest_addr)
             self.send_game_packet(remove_entity_packet, dest_addr)
             self.send_game_packet(remove_player_packet, dest_addr)
+
+        del self._session_manager[addr]
         raise SessionNotFound(addr)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:
