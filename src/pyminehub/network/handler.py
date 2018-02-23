@@ -36,17 +36,6 @@ class GameDataHandler:
         """Return long (64 bits int) value."""
         raise NotImplementedError()
 
-    def sendto(self, data: bytes, addr: Address, reliability: Reliability) -> None:
-        """Send data to protocol object.
-
-        Don't override this method. Other overridden methods call this method.
-
-        :param data: sent data
-        :param addr: the data is sent to the addr
-        :param reliability: reliability of the sending
-        """
-        self.get_protocol(addr).game_data_received(data, addr, reliability)
-
     def register_protocol(self, protocol: Protocol, addr: Optional[Address]=None) -> None:
         """Register the protocol used for communication with the specified address
 
@@ -56,9 +45,6 @@ class GameDataHandler:
         raise NotImplementedError()
 
     def remove_protocol(self, addr: Address) -> None:
-        raise NotImplementedError()
-
-    def get_protocol(self, addr: Address) -> Protocol:
         raise NotImplementedError()
 
     def data_received(self, data: bytes, addr: Address) -> None:

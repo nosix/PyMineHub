@@ -50,9 +50,6 @@ class MCPEDataHandler(GameDataHandler):
     def remove_protocol(self, addr: Address) -> None:
         del self.__protocol_map[addr]
 
-    def get_protocol(self, addr: Address) -> Protocol:
-        return self.__protocol_map.get(addr, self.__default_protocol).protocol
-
     def data_received(self, data: bytes, addr: Address) -> None:
         packet = connection_packet_codec.decode(data)
         _logger.debug('> %s', LogString(packet))
@@ -69,6 +66,12 @@ class MCPEDataHandler(GameDataHandler):
     def update_status(self, addr: Address, is_connecting: bool) -> None:
         raise NotImplementedError()
 
+    def _get_protocol(self, addr: Address) -> Protocol:
+        return self.__protocol_map.get(addr, self.__default_protocol).protocol
+
+    def _get_queue(self, addr: Address) -> GamePacketQueue:
+        return self.__protocol_map.get(addr, self.__default_protocol).queue
+
     def send_connection_packet(self, packet: ConnectionPacket, addr: Address, reliability: Reliability) -> None:
         """Send connection packet to specified address.
 
@@ -77,7 +80,8 @@ class MCPEDataHandler(GameDataHandler):
         :param reliability: frame reliability
         """
         _logger.debug('< %s', LogString(packet))
-        self.sendto(connection_packet_codec.encode(packet), addr, reliability)
+        self._get_protocol(addr).game_data_received(
+            connection_packet_codec.encode(packet), addr, reliability)
 
     def send_game_packet(self, packet: GamePacket, addr: Address, immediately=True) -> None:
         if immediately:
@@ -87,9 +91,6 @@ class MCPEDataHandler(GameDataHandler):
 
     def send_waiting_game_packet(self, addr: Address) -> None:
         self._get_queue(addr).send()
-
-    def _get_queue(self, addr: Address) -> GamePacketQueue:
-        return self.__protocol_map.get(addr, self.__default_protocol).queue
 
     def send_ping(self, addr: Address) -> None:
         self.__ping_time[addr] = self.get_current_time()
