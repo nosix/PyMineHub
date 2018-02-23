@@ -145,7 +145,7 @@ class _World(WorldEditor):
     # action handling methods
 
     def _process_login_player(self, action: Action) -> None:
-        entity_runtime_id = self._entity.load_player(action.player_id)
+        entity_runtime_id = self._entity.load_player(action.player_id, action.is_guest)
         entity = self._entity.get_player(entity_runtime_id)
         height = self._space.get_height(entity.spawn_position)
         if not entity.is_living:

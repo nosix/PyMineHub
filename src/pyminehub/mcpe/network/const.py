@@ -2,6 +2,7 @@ from enum import Enum
 
 
 __all__ = [
+    'GUEST_XUID',
     'PlayStatus',
     'ResourcePackStatus',
     'PlayerListType',
@@ -10,6 +11,9 @@ __all__ = [
     'UseItemOnEntityActionType',
     'ReleaseItemActionType',
 ]
+
+
+GUEST_XUID = ':GUEST:'
 
 
 class PlayStatus(Enum):

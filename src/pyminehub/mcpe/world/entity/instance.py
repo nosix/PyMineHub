@@ -128,10 +128,12 @@ class PlayerEntity(Entity):
             self,
             player_id: PlayerID,
             entity_unique_id: EntityUniqueID,
-            entity_runtime_id: EntityRuntimeID
+            entity_runtime_id: EntityRuntimeID,
+            is_guest: bool
     ) -> None:
         super().__init__(PLAYER_ENTITY_SPEC, entity_unique_id, entity_runtime_id)
         self._player_id = player_id
+        self._is_guest = is_guest
         self._health = 20.0
         self._hunger = 20.0
         self._air = 0.0
@@ -143,6 +145,10 @@ class PlayerEntity(Entity):
     @property
     def player_id(self) -> PlayerID:
         return self._player_id
+
+    @property
+    def is_guest(self) -> bool:
+        return self._is_guest
 
     @property
     def health(self) -> float:

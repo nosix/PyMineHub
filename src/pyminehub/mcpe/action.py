@@ -34,7 +34,8 @@ class ActionType(ValueType):
 _action_specs = {
     ActionType.LOGIN_PLAYER: [
         ('type', ActionType),
-        ('player_id', PlayerID)
+        ('player_id', PlayerID),
+        ('is_guest', bool)
     ],
     ActionType.REQUEST_CHUNK: [
         ('type', ActionType),

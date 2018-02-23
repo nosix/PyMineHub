@@ -36,13 +36,13 @@ class EntityPool:
         self._last_entity_id += 1
         return self._last_entity_id, self._last_entity_id
 
-    def load_player(self, player_id: PlayerID) -> EntityRuntimeID:
+    def load_player(self, player_id: PlayerID, is_guest: bool) -> EntityRuntimeID:
         for entity_runtime_id, entity in self._players.items():
             if entity.player_id == player_id:
                 return entity_runtime_id
         entity_unique_id, entity_runtime_id = self._next_entity_id()
-        entity = PlayerEntity(player_id, entity_unique_id, entity_runtime_id)
-        player = self._store.load_player(str(player_id))
+        entity = PlayerEntity(player_id, entity_unique_id, entity_runtime_id, is_guest)
+        player = self._store.load_player(str(player_id)) if not is_guest else None
         if player is not None:
             entity.spawn_position = player.spawn_position
             entity.position = player.position
@@ -58,6 +58,8 @@ class EntityPool:
 
     def _save_player(self, entity_runtime_id: EntityRuntimeID) -> None:
         player = self._players[entity_runtime_id]
+        if player.is_guest:
+            return
         self._store.save_player(
             str(player.player_id),
             PlayerState(

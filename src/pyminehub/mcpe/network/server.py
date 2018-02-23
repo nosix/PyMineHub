@@ -182,7 +182,7 @@ class MCPEServerHandler(MCPEDataHandler):
             self.send_game_packet(res_packet, addr)
         elif packet.status == ResourcePackStatus.COMPLETED:
             player = self._session_manager[addr]
-            self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id))
+            self._world.perform(action_factory.create(ActionType.LOGIN_PLAYER, player.id, player.xuid == GUEST_XUID))
 
     def _process_request_chunk_radius(self, packet: GamePacket, addr: Address) -> None:
         player = self._session_manager[addr]

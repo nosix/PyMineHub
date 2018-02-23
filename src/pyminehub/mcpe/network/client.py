@@ -11,8 +11,7 @@ from pyminehub.mcpe.command.const import CommandOriginDataType
 from pyminehub.mcpe.command.value import CommandOriginData
 from pyminehub.mcpe.const import EntityMetaDataKey
 from pyminehub.mcpe.geometry import Vector3, ChunkPosition, to_local_position
-from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus
-from pyminehub.mcpe.network.const import PlayerListType
+from pyminehub.mcpe.network.const import PlayStatus, ResourcePackStatus, PlayerListType, GUEST_XUID
 from pyminehub.mcpe.network.handler import MCPEDataHandler
 from pyminehub.mcpe.network.packet import *
 from pyminehub.mcpe.network.reliability import RELIABLE, DEFAULT_CHANEL
@@ -187,7 +186,7 @@ class _MCPEClientHandler(MCPEDataHandler):
                 chain=(
                     {
                         'extraData': {
-                            'XUID': '',
+                            'XUID': GUEST_XUID,
                             'identity': str(uuid.uuid4()),
                             'displayName': player_name,
                         },

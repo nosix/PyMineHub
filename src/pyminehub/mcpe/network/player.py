@@ -51,6 +51,10 @@ class Player:
         return self._player_data.identity
 
     @property
+    def xuid(self) -> str:
+        return self._player_data.xuid
+
+    @property
     def name(self) -> str:
         return self._player_data.display_name
 

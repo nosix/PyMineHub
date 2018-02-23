@@ -50,7 +50,7 @@ class WorldCreativeTestCase(TestCase):
 
     def test_login(self):
         self._create_player(1)
-        self.perform_action(ActionType.LOGIN_PLAYER, self.get_player_id(0))
+        self.perform_action(ActionType.LOGIN_PLAYER, self.get_player_id(0), is_guest=False)
 
         actual_event = self.next_event()
         expected_event = event_factory.create(
@@ -257,7 +257,7 @@ class WorldCreativeTestCase(TestCase):
         self.test_move_player()
 
         self.perform_action(ActionType.LOGOUT_PLAYER, 1)
-        self.perform_action(ActionType.LOGIN_PLAYER, self.get_player_id(0))
+        self.perform_action(ActionType.LOGIN_PLAYER, self.get_player_id(0), is_guest=False)
 
         actual_event = self.next_event()
         expected_event = event_factory.create(
