@@ -9,6 +9,8 @@ from pyminehub.mcpe.network.value import TransactionToUseItem
 from pyminehub.mcpe.value import *
 from testcase.protocol import *
 
+FULL_CHUNK_NUM = 289
+
 
 class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
 
@@ -192,10 +194,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
                     )
                 ),
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=101).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=28 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=110, message_ordering_index=93, message_ordering_chanel=0
+                            reliable_message_num=37 + FULL_CHUNK_NUM,
+                            message_ordering_index=20 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -216,10 +219,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=102).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=29 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=111, message_ordering_index=94, message_ordering_chanel=0
+                            reliable_message_num=38 + FULL_CHUNK_NUM,
+                            message_ordering_index=21 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -350,10 +354,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=103).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=30 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=112, message_ordering_index=95, message_ordering_chanel=0
+                            reliable_message_num=39 + FULL_CHUNK_NUM,
+                            message_ordering_index=22 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -375,10 +380,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=104).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=31 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=113, message_ordering_index=96, message_ordering_chanel=0
+                            reliable_message_num=40 + FULL_CHUNK_NUM,
+                            message_ordering_index=23 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -398,10 +404,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=105).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=32 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=114, message_ordering_index=97, message_ordering_chanel=0
+                            reliable_message_num=41 + FULL_CHUNK_NUM,
+                            message_ordering_index=24 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -495,10 +502,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=106).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=33 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=115, message_ordering_index=98, message_ordering_chanel=0
+                            reliable_message_num=42 + FULL_CHUNK_NUM,
+                            message_ordering_index=25 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -661,10 +669,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=107).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=34 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=116, message_ordering_index=99, message_ordering_chanel=0
+                            reliable_message_num=43 + FULL_CHUNK_NUM,
+                            message_ordering_index=26 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -685,10 +694,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=108).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=35 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=117, message_ordering_index=100, message_ordering_chanel=0
+                            reliable_message_num=44 + FULL_CHUNK_NUM,
+                            message_ordering_index=27 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(
@@ -710,10 +720,11 @@ class ProtocolPlayTestCase(ProtocolLoginLogoutTestCase):
         self.assert_that(received_data, {
             self._CLIENT_ADDRESS[0]: [
                 EncodedData(self.data.created).is_(
-                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=109).that_has(
+                    RakNetPacket(RakNetPacketType.FRAME_SET_4, packet_sequence_num=36 + FULL_CHUNK_NUM).that_has(
                         RakNetFrame(
                             RakNetFrameType.RELIABLE_ORDERED,
-                            reliable_message_num=118, message_ordering_index=101, message_ordering_chanel=0
+                            reliable_message_num=45 + FULL_CHUNK_NUM,
+                            message_ordering_index=28 + FULL_CHUNK_NUM, message_ordering_chanel=0
                         ).that_has(
                             Batch().that_has(
                                 GamePacket(

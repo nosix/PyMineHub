@@ -373,22 +373,53 @@ class ChunkPosition(NamedTuple('ChunkPosition', [('x', int), ('z', int)])):
 
 ChunkPositionWithDistance = NamedTuple('ChunkPositionWithDistance', [('distance', int), ('position', ChunkPosition)])
 
+_move = ((0, -1), (-1, 0), (0, 1), (1, 0))
+
 
 def to_chunk_area(center: Vector3, radius: int) -> Iterator[ChunkPositionWithDistance]:
     """
+    Example:
+        center = (8,8)
+        return =
+            d -> p
+            0 -> (8,8)
+            1 -> (9,9),(9,8)
+                 (9,7),(8,7)
+                 (7,7),(7,8)
+                 (7,9),(8,9)
+            2 -> (10,10),(10, 9),(10, 8),(10, 7)
+                 (10, 6),( 9, 6),( 8, 6),( 7, 6)
+                 ( 6, 6),( 6, 7),( 6, 8),( 6, 9)
+                 ( 6,10),( 7,10),( 8,10),( 9,10)
+
+    >>> for p in to_chunk_area(Vector3(256.0, 57.625, 256.0), 0):
+    ...     print(p)
+    ChunkPositionWithDistance(distance=0, position=ChunkPosition(x=16, z=16))
+    >>> for p in to_chunk_area(Vector3(256.0, 57.625, 256.0), 1):
+    ...     print(p)
+    ChunkPositionWithDistance(distance=0, position=ChunkPosition(x=16, z=16))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=17, z=17))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=17, z=16))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=17, z=15))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=16, z=15))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=15, z=15))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=15, z=16))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=15, z=17))
+    ChunkPositionWithDistance(distance=1, position=ChunkPosition(x=16, z=17))
+    >>> len(list(to_chunk_area(Vector3(256.0, 57.625, 256.0), 2)))
+    25
     >>> len(list(to_chunk_area(Vector3(256.0, 57.625, 256.0), 8)))
-    73
+    289
     """
     p = ChunkPosition.at(center)
     yield ChunkPositionWithDistance(0, p)
-    for l in range(1, radius + 1):
-        s = 2 * (l & 1) - 1
-        for _ in range(l):
-            p += (s, 0)
-            yield ChunkPositionWithDistance(l, p)
-        for _ in range(l):
-            p += (0, s)
-            yield ChunkPositionWithDistance(l, p)
+    for distance in range(1, radius + 1):
+        p += (1, 1)
+        for m in _move:
+            for _ in range(2 * distance):
+                yield ChunkPositionWithDistance(distance, p)
+                p += m
+            # invariant: p is corner
 
 
 def to_local_position(position: Vector3) -> Vector3[int]:
