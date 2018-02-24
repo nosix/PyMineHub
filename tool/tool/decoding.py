@@ -5,9 +5,9 @@ When debugging, execute `from tool.decoding import *` in REPL.
 
 >>> decode('840200000000480000000000003d3810')
 [0] 840200000000480000000000003d3810
-[1] FrameSet4(id=132, packet_sequence_num=2, payload=b'\\x00\\x00H\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
-[2] Unreliable(id=0, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
-[3] ConnectedPing(id=0, ping_time_since_start=4012048)
+[1] PacketFrameSet4(type=<RakNetPacketType.FRAME_SET_4: 132>, packet_sequence_num=2, payload=b'\\x00\\x00H\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
+[2] FrameUnreliable(type=<RakNetFrameType.UNRELIABLE: 0>, payload_length=72, payload=b'\\x00\\x00\\x00\\x00\\x00\\x00=8\\x10')
+[3] PacketConnectedPing(type=<ConnectionPacketType.CONNECTED_PING: 0>, ping_time_since_start=4012048)
 >>> len(extract_chunk(load_packets('mppm_login_logout.txt')))
 224
 """
@@ -34,19 +34,40 @@ _BYTES_REGEXP_FOR_SINGLE_QUOTE = re.compile(
     r"(b'[{}\-\\\]]*?')".format(''.join(chr(c) for c in _ASCII_CHARS_FOR_SINGLE_QUOTE)))
 
 
-def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) -> str:
-    if bytes_mask_threshold is not None:
-        def _summarize_bytes(m: re.match) -> str:
-            bytes_data = eval(m.group(1))  # type: bytes
-            length = len(bytes_data)
-            return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
+def _replace_bytes(s: str, bytes_mask_threshold: int) -> str:
+    """
+    >>> b = b"'\\xb8|T\\xfb'\\xb8\\xa8\\xfd+9'</\\xe8\\x0b"
+    >>> _replace_bytes(str(b), 0)
+    '[16 bytes]'
+    >>> _replace_bytes(str(b) + str(b), 0)
+    '[16 bytes][16 bytes]'
+    >>> _replace_bytes("name='PyMineHub', value='something'", 0)  # FIXME
+    "name='PyMineHub', value='something'"
+    """
+    def _summarize_bytes(bytes_str: str) -> str:
+        bytes_data = eval(bytes_str)  # type: bytes
+        length = len(bytes_data)
+        return repr(bytes_data) if length <= bytes_mask_threshold else '[{} bytes]'.format(length)
 
-        packet_str = str(packet).replace(r'\"', r'\x22').replace(r"\'", r'\x27')
-        packet_str = _BYTES_REGEXP_FOR_SINGLE_QUOTE.sub(_summarize_bytes, packet_str)
-        packet_str = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.sub(_summarize_bytes, packet_str)
-    else:
-        packet_str = str(packet)
-    return packet_str
+    s = s.replace(r'\"', r'\x22').replace(r"\'", r'\x27')
+
+    start = 0
+    while True:
+        d_match = _BYTES_REGEXP_FOR_DOUBLE_QUOTE.search(s, start)
+        s_match = _BYTES_REGEXP_FOR_SINGLE_QUOTE.search(s, start)
+        d_start = len(s) if d_match is None else d_match.start()
+        s_start = len(s) if s_match is None else s_match.start()
+        if d_start == s_start:
+            break
+        match = d_match if d_start < s_start else s_match
+        summarized_bytes_str = _summarize_bytes(s[match.start():match.end()])
+        s = s[0:match.start()] + summarized_bytes_str + s[match.end():]
+        start = match.start() + len(summarized_bytes_str)
+    return s
+
+
+def get_packet_str(packet: ValueObject, bytes_mask_threshold: Optional[int]=16) -> str:
+    return str(packet) if bytes_mask_threshold is None else _replace_bytes(str(packet), bytes_mask_threshold)
 
 
 _TaggedData = _NamedTuple('TaggedData', [('tag', str), ('data', str)])
@@ -228,7 +249,7 @@ def load_packets(raknet_raw_file_name: str) -> DecodeAgent:
 def extract_chunk(packet_list: Iterator[ValueObject]) -> List[Chunk]:
     def generate_chunk() -> Iterator[Chunk]:
         for packet in packet_list:
-            if packet.__class__.__name__ == 'FullChunkData':
+            if packet.__class__.__name__ == 'PacketFullChunkData':
                 yield decode_chunk(packet.data)
     return list(generate_chunk())
 
