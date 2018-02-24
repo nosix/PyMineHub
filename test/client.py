@@ -113,6 +113,28 @@ class ClientTestCase(TestCase):
         self.assertEqual(expected_entities, client.entities)
 
         _perform_action(client, action_factory.create(
+            ActionType.MOVE_PLAYER,
+            1,
+            Vector3(256.0, 65.0, 256.0),
+            0.0,
+            0.0,
+            0.0,
+            MoveMode.NORMAL,
+            True,
+            0,
+            True
+        ))
+
+        client.wait_response(1)
+        expected_entity = EntityInfo(
+            entity_runtime_id=1,
+            name='Taro',
+            position=Vector3(256.0, 64.625, 256.0),
+            owner_runtime_id=None
+        )
+        self.assertEqual(expected_entity, client.get_entity(1))
+
+        _perform_action(client, action_factory.create(
             ActionType.SPAWN_MOB,
             EntityType.CHICKEN,
             Vector3(256.0, 65.0, 256.0),
@@ -127,7 +149,7 @@ class ClientTestCase(TestCase):
             EntityInfo(
                 entity_runtime_id=1,
                 name='Taro',
-                position=Vector3(0.5, 64.625, 0.5),
+                position=Vector3(256.0, 64.625, 256.0),
                 owner_runtime_id=None
             ),
             EntityInfo(

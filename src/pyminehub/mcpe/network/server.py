@@ -393,7 +393,7 @@ class MCPEServerHandler(MCPEDataHandler):
         )
         for addr, player in self._session_manager.find(lambda p: p.is_living):
             if player.entity_runtime_id != event.entity_runtime_id:
-                if player.does_monitor(event.entity_runtime_id):
+                if player.does_monitor(event.entity_runtime_id, event.position):
                     self.send_game_packet(res_packet, addr)
             else:
                 if event.need_response:
@@ -507,7 +507,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.on_ground,
             False
         )
-        self._broadcast(res_packet, lambda p: p.does_monitor(event.entity_runtime_id))
+        self._broadcast(res_packet, lambda p: p.does_monitor(event.entity_runtime_id, event.position))
 
     def _process_event_time_updated(self, event: Event) -> None:
         res_packet = game_packet_factory.create(

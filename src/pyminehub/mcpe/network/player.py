@@ -1,4 +1,4 @@
-from typing import Generator, Set, Tuple
+from typing import Generator, Optional, Set, Tuple
 
 from pyminehub.mcpe.const import PLAYER_EYE_HEIGHT, ItemType
 from pyminehub.mcpe.event import Event
@@ -167,8 +167,11 @@ class Player:
     def monitor_entity(self, entity_runtime_id: EntityRuntimeID) -> None:
         self._monitored_entities.add(entity_runtime_id)
 
-    def does_monitor(self, entity_runtime_id: EntityRuntimeID) -> bool:
-        return entity_runtime_id in self._monitored_entities
+    def does_monitor(self, entity_runtime_id: EntityRuntimeID, position: Optional[Vector3[float]]=None) -> bool:
+        if entity_runtime_id in self._monitored_entities:
+            return True if position is None else (ChunkPosition.at(position) in self._near_chunk_position)
+        else:
+            return False
 
     def removed_monitored(self, entity_runtime_id: EntityRuntimeID) -> None:
         self._monitored_entities.discard(entity_runtime_id)
