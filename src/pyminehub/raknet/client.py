@@ -119,7 +119,7 @@ def connect_raknet(
         port: Optional[int]=None,
         timeout: float=0
 ) -> ClientConnection[Client]:
-    server_address = (server_host, get_value(ConfigKey.SERVER_PORT) if port is None else port)
+    server_address = (server_host, get_value(ConfigKey.RAKNET_SERVER_PORT) if port is None else port)
     return _RakNetClientConnection(client, server_address, timeout)
 
 

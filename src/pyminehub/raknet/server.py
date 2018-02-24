@@ -85,7 +85,7 @@ class _RakNetServer(Server):
 
 
 def raknet_server(handler: GameDataHandler) -> Server:
-    server_address = (get_unspecified_address(), get_value(ConfigKey.SERVER_PORT))
+    server_address = (get_unspecified_address(), get_value(ConfigKey.RAKNET_SERVER_PORT))
     return _RakNetServer(handler, server_address)
 
 
@@ -108,6 +108,7 @@ if __name__ == '__main__':
         def remove_protocol(self, addr: Address) -> None:
             pass
 
+        # noinspection PyUnusedLocal
         def get_protocol(self, addr: Address) -> Protocol:
             return self._protocol
 

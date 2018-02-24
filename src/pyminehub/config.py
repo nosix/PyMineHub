@@ -30,8 +30,9 @@ _logger = getLogger(__name__)
 class ConfigKey(Enum):
     # system
     IP_VERSION = 101
-    SERVER_PORT = 102
-    MAX_LOG_LENGTH = 103
+    RAKNET_SERVER_PORT = 102
+    TCP_SERVER_PORT = 103
+    MAX_LOG_LENGTH = 104
     # raknet
     SERVER_GUID = 201
     RESEND_TIME = 202
@@ -55,7 +56,8 @@ class ConfigKey(Enum):
 
 __default_config = (
     (ConfigKey.IP_VERSION, 4),
-    (ConfigKey.SERVER_PORT, 19132),
+    (ConfigKey.RAKNET_SERVER_PORT, 19132),
+    (ConfigKey.TCP_SERVER_PORT, 19142),
     (ConfigKey.MAX_LOG_LENGTH, 100),  # cut log string. don't cut if value is None
     (ConfigKey.SERVER_GUID, None),  # use random value if value is None
     (ConfigKey.RESEND_TIME, 500),  # ms, interval that is greater than interval of ACK/NCK arrives

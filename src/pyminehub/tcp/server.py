@@ -1,7 +1,8 @@
 import asyncio
 from typing import Dict
 
-from pyminehub.network.address import Address
+from pyminehub.config import ConfigKey, get_value
+from pyminehub.network.address import Address, get_unspecified_address
 from pyminehub.network.handler import GameDataHandler
 from pyminehub.network.server import Server
 from pyminehub.tcp.protocol import TcpProtocol
@@ -58,5 +59,5 @@ class _TcpServer(Server):
 
 
 def tcp_server(handler: GameDataHandler) -> Server:
-    server_address = ('127.0.0.1', 19232)
+    server_address = (get_unspecified_address(), get_value(ConfigKey.TCP_SERVER_PORT))
     return _TcpServer(handler, server_address)

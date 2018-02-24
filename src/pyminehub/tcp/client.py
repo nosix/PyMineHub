@@ -2,6 +2,7 @@ import asyncio
 from logging import getLogger
 from typing import Optional
 
+from pyminehub.config import ConfigKey, get_value
 from pyminehub.network.address import Address
 from pyminehub.network.client import Client, ClientConnection
 from pyminehub.network.handler import GameDataHandler
@@ -65,7 +66,7 @@ def connect_tcp(
         port: Optional[int]=None,
         timeout: float=0
 ) -> ClientConnection[Client]:
-    server_address = (server_host, 19232 if port is None else port)
+    server_address = (server_host, get_value(ConfigKey.TCP_SERVER_PORT) if port is None else port)
     return _TcpClientConnection(client, server_address, timeout)
 
 
