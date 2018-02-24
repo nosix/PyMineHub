@@ -121,10 +121,6 @@ class _MCPEClientHandler(MCPEDataHandler):
     def guid(self) -> int:
         return self._guid
 
-    def data_received(self, data: bytes, addr: Address) -> None:
-        super().data_received(data, addr)
-        self._processed.set()
-
     async def update(self) -> None:
         await asyncio.Event().wait()
 
@@ -217,6 +213,7 @@ class _MCPEClientHandler(MCPEDataHandler):
             True
         )
         self.send_game_packet(send_packet, server_addr, DEFAULT_CHANEL)
+        self._processed.clear()
         await asyncio.sleep(0.1)  # execute the send task
 
     async def wait_response(self) -> None:
@@ -336,6 +333,7 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
         entity = self._entities[packet.entity_runtime_id]
         entity.position = packet.position
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_text(self, packet: GamePacket, addr: Address) -> None:
@@ -354,6 +352,7 @@ class _MCPEClientHandler(MCPEDataHandler):
         self._entities[entity.entity_runtime_id] = entity
         if self._listener is not None:
             self._listener(EntityEvent.ADDED, entity.value)
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_remove_entity(self, packet: GamePacket, addr: Address) -> None:
@@ -361,19 +360,20 @@ class _MCPEClientHandler(MCPEDataHandler):
         del self._entities[packet.entity_unique_id]  # TODO map unique_id to runtime_id
         if self._listener is not None:
             self._listener(EntityEvent.REMOVED, entity.value)
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
         entity = self._entities[packet.entity_runtime_id]
         entity.position = packet.position
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_update_block(self, packet: GamePacket, addr: Address) -> None:
-        if self._latest_chunk is None:
-            return
-        if self._latest_chunk.position == ChunkPosition.at(packet.position):
+        if self._latest_chunk is not None and self._latest_chunk.position == ChunkPosition.at(packet.position):
             position_in_chunk = to_local_position(packet.position)
             self._latest_chunk.chunk.set_block(position_in_chunk, packet.block)
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_add_item_entity(self, packet: GamePacket, addr: Address) -> None:
@@ -381,18 +381,22 @@ class _MCPEClientHandler(MCPEDataHandler):
         entity.position = packet.position
         entity.metadata = packet.metadata
         self._entities[entity.entity_runtime_id] = entity
+        self._processed.set()
 
     def _process_take_item_entity(self, packet: GamePacket, addr: Address) -> None:
         pass
 
+    # noinspection PyUnusedLocal
     def _process_sound_event(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        self._processed.set()
 
+    # noinspection PyUnusedLocal
     def _process_space_event(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        self._processed.set()
 
+    # noinspection PyUnusedLocal
     def _process_entity_event(self, packet: GamePacket, addr: Address) -> None:
-        pass
+        self._processed.set()
 
     def _process_player_action(self, packet: GamePacket, addr: Address) -> None:
         pass
