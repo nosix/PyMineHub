@@ -45,6 +45,13 @@ class GameDataHandler:
         raise NotImplementedError()
 
     def remove_protocol(self, addr: Address) -> None:
+        """It is called when handler raised SessionNotFound.
+
+        The protocol start disconnection process when it caught SessionNotFound.
+        The disconnection process is finished, then this method is called.
+
+        If the connection is disconnected, it will be called after `disconnect` method.
+        """
         raise NotImplementedError()
 
     def data_received(self, data: bytes, addr: Address) -> None:
@@ -61,6 +68,9 @@ class GameDataHandler:
 
         :raises SessionNotFound: if player session is lost (But, there may be something else to do)
         """
+        raise NotImplementedError()
+
+    def disconnect(self, addr: Address) -> None:
         raise NotImplementedError()
 
     def terminate(self) -> None:

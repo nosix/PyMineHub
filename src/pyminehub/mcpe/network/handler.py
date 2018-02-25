@@ -58,6 +58,9 @@ class MCPEDataHandler(GameDataHandler):
     async def update(self) -> None:
         raise NotImplementedError()
 
+    def disconnect(self, addr: Address) -> None:
+        raise NotImplementedError()
+
     def terminate(self) -> None:
         raise NotImplementedError()
 

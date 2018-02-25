@@ -36,6 +36,11 @@ class TcpProtocol(asyncio.Protocol, Protocol):
 
     def connection_lost(self, exc: Exception) -> None:
         _logger.info('%s TCP connection lost. (exception=%s)', self._dest_addr, exc)
+        if exc is not None:
+            try:
+                self._handler.disconnect(self._dest_addr)
+            except SessionNotFound as exc:
+                assert exc.addr == self._dest_addr, '{} != {}'.format(exc.addr, self._dest_addr)
         self._handler.remove_protocol(self._dest_addr)
         self._transport = None
 
@@ -55,7 +60,8 @@ class TcpProtocol(asyncio.Protocol, Protocol):
                     self._length = None
                 except SessionNotFound as exc:
                     assert exc.addr == self._dest_addr, '{} != {}'.format(exc.addr, self._dest_addr)
-                    self._transport.write_eof()
+                    if not self._transport.is_closing():
+                        self._transport.write_eof()
                     break
 
     # Protocol methods

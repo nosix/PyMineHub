@@ -62,6 +62,43 @@ class MCPEServerHandler(MCPEDataHandler):
         event = await self._world.next_event()
         getattr(self, '_process_event_' + event.type.name.lower())(event)
 
+    def disconnect(self, addr: Address) -> None:
+        player = self._session_manager[addr]
+        del self._session_manager[addr]
+
+        if player.has_identity:
+            self._world.perform(action_factory.create(
+                ActionType.LOGOUT_PLAYER,
+                player.entity_runtime_id
+            ))
+
+        text_packet = game_packet_factory.create(
+            GamePacketType.TEXT,
+            EXTRA_DATA,
+            TextType.TRANSLATION,
+            False,
+            None,
+            EscapeSequence.YELLOW.value + '%multiplayer.player.left',
+            (player.name, ),
+            ''
+        )
+        remove_entity_packet = game_packet_factory.create(
+            GamePacketType.REMOVE_ENTITY,
+            EXTRA_DATA,
+            player.entity_unique_id
+        )
+        remove_player_packet = game_packet_factory.create(
+            GamePacketType.PLAYER_LIST,
+            EXTRA_DATA,
+            PlayerListType.REMOVE,
+            (PlayerListEntry(player.id, None, None, None, None), )
+        )
+
+        for dest_addr, _ in self._session_manager.find(lambda p: p.is_living):
+            self.send_game_packet(text_packet, dest_addr)
+            self.send_game_packet(remove_entity_packet, dest_addr)
+            self.send_game_packet(remove_player_packet, dest_addr)
+
     def terminate(self) -> None:
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
         for addr in self._session_manager.addresses:
@@ -122,44 +159,8 @@ class MCPEServerHandler(MCPEDataHandler):
         self.send_ping(addr)
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:
-        player = self._session_manager[addr]
-
-        if player.has_identity:
-            self._world.perform(action_factory.create(
-                ActionType.LOGOUT_PLAYER,
-                player.entity_runtime_id
-            ))
-
         self.send_connection_packet(packet, addr, DEFAULT_CHANEL)
-
-        text_packet = game_packet_factory.create(
-            GamePacketType.TEXT,
-            EXTRA_DATA,
-            TextType.TRANSLATION,
-            False,
-            None,
-            EscapeSequence.YELLOW.value + '%multiplayer.player.left',
-            (player.name, ),
-            ''
-        )
-        remove_entity_packet = game_packet_factory.create(
-            GamePacketType.REMOVE_ENTITY,
-            EXTRA_DATA,
-            player.entity_unique_id
-        )
-        remove_player_packet = game_packet_factory.create(
-            GamePacketType.PLAYER_LIST,
-            EXTRA_DATA,
-            PlayerListType.REMOVE,
-            (PlayerListEntry(player.id, None, None, None, None), )
-        )
-
-        for dest_addr, _ in self._session_manager.find(lambda p: p.is_living):
-            self.send_game_packet(text_packet, dest_addr)
-            self.send_game_packet(remove_entity_packet, dest_addr)
-            self.send_game_packet(remove_player_packet, dest_addr)
-
-        del self._session_manager[addr]
+        self.disconnect(addr)
         raise SessionNotFound(addr)
 
     def _process_login(self, packet: GamePacket, addr: Address) -> None:

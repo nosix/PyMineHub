@@ -124,6 +124,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     async def update(self) -> None:
         await asyncio.Event().wait()
 
+    def disconnect(self, addr: Address) -> None:
+        pass  # TODO implement
+
     def terminate(self) -> None:
         pass
 
