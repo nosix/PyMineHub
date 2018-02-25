@@ -66,4 +66,5 @@ class TcpProtocol(asyncio.Protocol, Protocol):
         context = DataCodecContext()
         B_INT_DATA.write(buffer, len(data), context)
         buffer += data
-        self._transport.write(buffer)
+        if not self._transport.is_closing():
+            self._transport.write(buffer)

@@ -50,7 +50,15 @@ class ServerProcess:
     def _start_loop_to_update(self) -> asyncio.Task:
         async def loop_to_update():
             while True:
-                await self._next_moment()
+                try:
+                    await self._next_moment()
+                except asyncio.CancelledError:
+                    break
+                except KeyboardInterrupt:
+                    _logger.debug('Server process caught KeyboardInterrupt.')
+                    self.stop()
+                except Exception as exc:
+                    _logger.exception(exc)
         return asyncio.ensure_future(loop_to_update())
 
     async def _next_moment(self) -> None:
@@ -67,7 +75,10 @@ class ServerProcess:
         loop = asyncio.get_event_loop()
         try:
             if exc_type is None and not self._stopped:
-                loop.run_forever()  # blocking
+                tasks = asyncio.Task.all_tasks()
+                loop.run_until_complete(asyncio.gather(*tasks))  # blocking
+        except asyncio.CancelledError:
+            pass
         except KeyboardInterrupt:
             pass
         finally:
@@ -75,10 +86,12 @@ class ServerProcess:
             self._update_task.cancel()
             for server in self._servers:
                 server.terminate()
-            pending = asyncio.Task.all_tasks()
             try:
+                pending = asyncio.Task.all_tasks()
                 loop.run_until_complete(asyncio.gather(*pending))
             except asyncio.CancelledError:
+                pass
+            except KeyboardInterrupt:
                 pass
             finally:
                 loop.run_until_complete(self._close())  # sock.close() is called with loop.call_soon()
@@ -94,6 +107,7 @@ class ServerProcess:
         self.__exit__(None, None, None)
 
     def stop(self) -> None:
+        _logger.info('Shutdown process is running. Please wait...')
         self._stopped = True
         for task in asyncio.Task.all_tasks():
             task.cancel()

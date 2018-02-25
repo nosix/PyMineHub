@@ -48,6 +48,7 @@ class MCPEServerHandler(MCPEDataHandler):
         self._command = command
         self._accepted_time = {}  # type: Dict[Address, int]
         self._session_manager = SessionManager()
+        self._is_interrupted = False
 
     # GameDataHandler interface methods
 
@@ -56,6 +57,8 @@ class MCPEServerHandler(MCPEDataHandler):
         return get_value(ConfigKey.SERVER_GUID)
 
     async def update(self) -> None:
+        if self._is_interrupted:
+            raise KeyboardInterrupt()
         event = await self._world.next_event()
         getattr(self, '_process_event_' + event.type.name.lower())(event)
 
@@ -516,3 +519,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.time
         )
         self._broadcast(res_packet, lambda p: p.is_living)
+
+    # noinspection PyUnusedLocal
+    def _process_event_world_terminated(self, event: Event) -> None:
+        self._is_interrupted = True

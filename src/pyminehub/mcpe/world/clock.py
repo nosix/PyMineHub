@@ -86,15 +86,20 @@ class Clock:
     def time(self) -> int:
         return self._logic.time
 
-    async def run_loop(self) -> None:
-        if self._notify_time is None:
-            await asyncio.Event().wait()  # wait cancel
-            return
-        while True:
-            start_time = time.time()
-            self._logic.update()
-            self._notify_time(self._logic.time)
-            run_time = time.time() - start_time
-            tick_time = get_value(ConfigKey.CLOCK_TICK_TIME)
-            if run_time < tick_time:
-                await asyncio.sleep(tick_time - run_time)
+    async def run_loop(self, interrupted: Callable[[], None]) -> None:
+        try:
+            if self._notify_time is None:
+                await asyncio.Event().wait()  # wait cancel
+                return
+            while True:
+                start_time = time.time()
+                self._logic.update()
+                self._notify_time(self._logic.time)
+                run_time = time.time() - start_time
+                tick_time = get_value(ConfigKey.CLOCK_TICK_TIME)
+                if run_time < tick_time:
+                    await asyncio.sleep(tick_time - run_time)
+        except asyncio.CancelledError:
+            pass
+        except KeyboardInterrupt:
+            interrupted()

@@ -31,6 +31,7 @@ class EventType(ValueType):
     MOB_MOVED = 14
     ENTITY_LOADED = 15
     TIME_UPDATED = 16
+    WORLD_TERMINATED = 99
 
 
 _event_specs = {
@@ -142,6 +143,9 @@ _event_specs = {
     EventType.TIME_UPDATED: [
         ('type', EventType),
         ('time', int)
+    ],
+    EventType.WORLD_TERMINATED: [
+        ('type', EventType)
     ]
 }
 

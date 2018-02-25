@@ -62,11 +62,22 @@ class _World(WorldEditor):
     def _start_loop_to_update(self) -> asyncio.Task:
         async def loop_to_update():
             while True:
-                await self._next_moment()
+                try:
+                    await self._next_moment()
+                except asyncio.CancelledError:
+                    break
+                except KeyboardInterrupt:
+                    self._interrupted()
+                except Exception as exc:
+                    _logger.exception(exc)
         return asyncio.ensure_future(loop_to_update())
 
     def _start_clock(self) -> asyncio.Task:
-        return asyncio.ensure_future(self._clock.run_loop())
+        return asyncio.ensure_future(self._clock.run_loop(self._interrupted))
+
+    def _interrupted(self) -> None:
+        _logger.debug('World caught KeyboardInterrupt.')
+        self._notify_event(event_factory.create(EventType.WORLD_TERMINATED))
 
     # WorldProxy methods
 
