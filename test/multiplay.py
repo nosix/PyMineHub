@@ -28,7 +28,8 @@ def move_player(client: _Client):
         *position,
         random.uniform(-180, 180),
         random.uniform(-180, 180),
-        random.uniform(-180, 180)
+        random.uniform(-180, 180),
+        on_ground=True
     )
 
 
@@ -111,7 +112,8 @@ def move_mob(client: _Client):
         mob_id,
         *position,
         random.uniform(-180, 180),
-        random.uniform(-180, 180)
+        random.uniform(-180, 180),
+        on_ground=True
     )
 
 
