@@ -77,11 +77,13 @@ def run() -> None:
     from pyminehub.config import ConfigKey, print_config
 
     print_config(
-        ConfigKey.SERVER_PORT,
-        ConfigKey.SEED,
-        ConfigKey.SPAWN_MOB,
+        ConfigKey.RAKNET_SERVER_PORT,
+        ConfigKey.TCP_SERVER_PORT,
         ConfigKey.WORLD_NAME,
         ConfigKey.GAME_MODE,
+        ConfigKey.SPAWN_MOB,
+        ConfigKey.INIT_SPACE,
+        ConfigKey.PLAYER_SPAWN_POSITION,
     )
 
     loop = asyncio.get_event_loop()
