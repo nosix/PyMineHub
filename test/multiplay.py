@@ -41,6 +41,8 @@ def put_item(client: _Client):
     if block_position == position:
         return
     item_type = random.choice(list(ItemType))
+    if item_type is ItemType.AIR:
+        return
     client.equip(
         item_type, 0,
         0
