@@ -1,6 +1,7 @@
+import multiprocessing
 import random
+import signal
 import time
-from concurrent.futures import ProcessPoolExecutor
 from typing import Callable, NamedTuple, Tuple
 
 from action import ActionCommandMixin
@@ -149,10 +150,20 @@ def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
 
 
 def run_multiplay(max_workers: int, session_num: int, ave_lifespan: float, acts: Tuple[Act, ...]):
-    with ProcessPoolExecutor(max_workers=max_workers) as e:
-        for i in range(session_num):
-            lifespan = random.normalvariate(ave_lifespan, 10)
-            e.submit(run_client, 'Player-{}'.format(i), lifespan, acts)
+    def init_worker():
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    def start_task(i: int):
+        lifespan = random.normalvariate(ave_lifespan, 10)
+        return pool.apply_async(run_client, ('Player-{}'.format(i), lifespan, acts))
+
+    with multiprocessing.Pool(max_workers, init_worker) as pool:
+        tasks = tuple(start_task(i) for i in range(session_num))
+        try:
+            for task in tasks:
+                task.wait()
+        except KeyboardInterrupt:
+            pass
 
 
 if __name__ == '__main__':
