@@ -1,6 +1,5 @@
 import multiprocessing
 import random
-import signal
 import time
 from typing import Callable, NamedTuple, Tuple
 
@@ -142,22 +141,24 @@ def select(acts: Tuple[Act, ...]) -> Act:
 
 def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
     start_time = time.time()
-    with connect('127.0.0.1', player_name=name, client_factory=_Client, timeout=30) as client:
-        while client.is_active and time.time() - start_time < lifespan:
-            act = select(acts)
-            act.callable(client)
-        remove_all_mob(client)
+    try:
+        with connect('127.0.0.1', player_name=name, client_factory=_Client, timeout=30) as client:
+            try:
+                while client.is_active and time.time() - start_time < lifespan:
+                    act = select(acts)
+                    act.callable(client)
+            finally:
+                remove_all_mob(client)
+    except KeyboardInterrupt:
+        pass
 
 
 def run_multiplay(max_workers: int, session_num: int, ave_lifespan: float, acts: Tuple[Act, ...]):
-    def init_worker():
-        signal.signal(signal.SIGINT, signal.SIG_IGN)
-
     def start_task(i: int):
         lifespan = random.normalvariate(ave_lifespan, 10)
         return pool.apply_async(run_client, ('Player-{}'.format(i), lifespan, acts))
 
-    with multiprocessing.Pool(max_workers, init_worker) as pool:
+    with multiprocessing.Pool(max_workers) as pool:
         tasks = tuple(start_task(i) for i in range(session_num))
         try:
             for task in tasks:
