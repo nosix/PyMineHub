@@ -94,10 +94,11 @@ class MCPEServerHandler(MCPEDataHandler):
             (PlayerListEntry(player.id, None, None, None, None), )
         )
 
-        for dest_addr, _ in self._session_manager.find(lambda p: p.is_living):
-            self.send_game_packet(text_packet, dest_addr)
-            self.send_game_packet(remove_entity_packet, dest_addr)
-            self.send_game_packet(remove_player_packet, dest_addr)
+        for other_player_addr, other_player in self._session_manager.find(lambda p: p.is_living):
+            other_player.removed_monitored(player.entity_runtime_id)
+            self.send_game_packet(text_packet, other_player_addr)
+            self.send_game_packet(remove_entity_packet, other_player_addr)
+            self.send_game_packet(remove_player_packet, other_player_addr)
 
     def terminate(self) -> None:
         res_packet = connection_packet_factory.create(ConnectionPacketType.DISCONNECTION_NOTIFICATION)
