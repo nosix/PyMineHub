@@ -13,9 +13,25 @@ from pyminehub.mcpe.network import MCPEClient, EntityEvent, EntityInfo
 
 class _Client(MCPEClient, ActionCommandMixin, GameEventCommandMixin):
 
+    def __init__(self, player_name: str, locale: str) -> None:
+        super().__init__(player_name, locale)
+        self.set_entity_event_listener(self._entity_updated)
+        self._num_of_waiting = 0
+
     @property
     def client(self) -> MCPEClient:
         return self
+
+    @property
+    def num_of_waiting(self) -> int:
+        return self._num_of_waiting
+
+    def _entity_updated(self, event: EntityEvent, entity: EntityInfo) -> None:
+        if event is EntityEvent.ADDED and entity.owner_runtime_id == self.entity_runtime_id:
+            self._num_of_waiting -= 1
+
+    def increment_waiting(self) -> None:
+        self._num_of_waiting += 1
 
 
 def _move_position(position: Vector3[float]) -> Vector3[float]:
@@ -86,15 +102,11 @@ def _find_block(
 
 
 def spawn_mob(client: _Client):
-    def entity_updated(event: EntityEvent, entity: EntityInfo) -> None:
-        if event is EntityEvent.ADDED and entity.owner_runtime_id == client.entity_runtime_id:
-            client.set_entity_event_listener(None)
-
-    client.set_entity_event_listener(entity_updated)
-
-    position = _move_position(client.get_entity().position)
     mob_type = random.choice(list(EntityType))
     if mob_type.value <= 57:
+        client.increment_waiting()
+
+        position = _move_position(client.get_entity().position)
         client.spawn_mob(
             mob_type,
             *position,
@@ -119,7 +131,17 @@ def move_mob(client: _Client):
     )
 
 
-def remove_all_mob(client: _Client):
+def remove_all_mobs(client: _Client):
+    retry = 0
+    while client.num_of_waiting > 0:
+        before = client.num_of_waiting
+        client.wait_response()
+        if retry % 100 == 0 and retry != 0:
+            print('Waited response', retry, 'times to remove all mobs.')
+        if client.num_of_waiting == before:
+            retry += 1
+        else:
+            retry = 0
     mob_id_list = tuple(e.entity_runtime_id for e in client.entities if e.owner_runtime_id == client.entity_runtime_id)
     for mob_id in mob_id_list:
         client.remove_mob(mob_id)
@@ -150,7 +172,7 @@ def run_client(name: str, lifespan: float, acts: Tuple[Act, ...]):
                     act = select(acts)
                     act.callable(client)
             finally:
-                remove_all_mob(client)
+                remove_all_mobs(client)
     except KeyboardInterrupt:
         pass
 
