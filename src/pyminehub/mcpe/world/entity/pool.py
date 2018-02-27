@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Optional, Tuple
 
 from pyminehub.mcpe.const import WindowType, EntityType
 from pyminehub.mcpe.datastore import DataStore
@@ -75,8 +75,8 @@ class EntityPool:
             )
         )
 
-    def get_player(self, entity_runtime_id: EntityRuntimeID) -> PlayerEntity:
-        return self._players[entity_runtime_id]
+    def get_player(self, entity_runtime_id: EntityRuntimeID) -> Optional[PlayerEntity]:
+        return self._players.get(entity_runtime_id, None)
 
     def create_item(self, item: Item) -> EntityRuntimeID:
         entity_unique_id, entity_runtime_id = self._next_entity_id()
@@ -84,8 +84,8 @@ class EntityPool:
         self._items[entity_runtime_id] = entity
         return entity_runtime_id
 
-    def get_item(self, entity_runtime_id: EntityRuntimeID) -> ItemEntity:
-        return self._items[entity_runtime_id]
+    def get_item(self, entity_runtime_id: EntityRuntimeID) -> Optional[ItemEntity]:
+        return self._items.get(entity_runtime_id, None)
 
     def create_mob(self, entity_type: EntityType) -> EntityRuntimeID:
         entity_unique_id, entity_runtime_id = self._next_entity_id()
@@ -93,8 +93,8 @@ class EntityPool:
         self._mobs[entity_runtime_id] = entity
         return entity_runtime_id
 
-    def get_mob(self, entity_runtime_id: EntityRuntimeID) -> MobEntity:
-        return self._mobs[entity_runtime_id]
+    def get_mob(self, entity_runtime_id: EntityRuntimeID) -> Optional[MobEntity]:
+        return self._mobs.get(entity_runtime_id, None)
 
     def remove(self, entity_runtime_id: EntityRuntimeID) -> None:
         if entity_runtime_id in self._mobs:

@@ -66,7 +66,7 @@ __default_config = (
     (ConfigKey.DIFFICULTY, 'NORMAL'),  # see mcpe.const.Difficulty
     (ConfigKey.RAIN_LEVEL, 0.0),
     (ConfigKey.LIGHTNING_LEVEL, 0.0),
-    (ConfigKey.WORLD_TICK_TIME, 0.5),  # seconds
+    (ConfigKey.WORLD_TICK_TIME, 0.1),  # seconds
     (ConfigKey.SPAWN_MOB, True),
     (ConfigKey.CLOCK_TIME, None),  # None is dynamic clock, it does not sync time by negative value
     (ConfigKey.CLOCK_TICK_TIME, 10.0),  # seconds

@@ -153,6 +153,65 @@ class _World(WorldEditor):
             MobInfo(mob_id, self._entity.get_mob(entity_runtime_id).position, tuple())  # TODO pass chunk data
             for mob_id, entity_runtime_id in self._mob_id_to_entity_id.items())
 
+    def _move_player(self, player_runtime_id: EntityRuntimeID) -> None:
+        player = self._entity.get_player(player_runtime_id)
+        if player is None:
+            return
+
+        while player.has_move_action:
+            action = player.pop_move_action()
+
+            player.pitch = revise_angle(action.pitch)
+            player.yaw = revise_angle(action.yaw)
+            player.head_yaw = revise_angle(action.head_yaw)
+            player.on_ground = action.on_ground
+            player.move(action.position, self._space.revise_position)
+
+            collisions = self._entity.detect_collision(player.entity_runtime_id)
+            for collision in collisions:
+                collision.update(self)
+
+            if not player.has_move_action:
+                # TODO change to player attribute and revise position
+                self._notify_event(event_factory.create(
+                    EventType.PLAYER_MOVED,
+                    action.entity_runtime_id,
+                    player.position,
+                    action.pitch,
+                    action.yaw,
+                    action.head_yaw,
+                    action.mode,
+                    player.on_ground,
+                    action.riding_eid,
+                    action.need_response
+                ))
+
+            for collision in collisions:
+                self._notify_event(collision.event)
+
+    def _move_mob(self, entity_runtime_id: EntityRuntimeID) -> None:
+        mob = self._entity.get_mob(entity_runtime_id)
+        if mob is None:
+            return
+
+        while mob.has_move_action:
+            action = mob.pop_move_action()
+
+            mob.pitch = revise_angle(action.pitch)
+            mob.yaw = revise_angle(action.yaw)
+            mob.on_ground = action.on_ground
+            mob.move(action.position, self._space.revise_position)
+
+            if not mob.has_move_action:
+                self._notify_event(event_factory.create(
+                    EventType.MOB_MOVED,
+                    mob.entity_runtime_id,
+                    mob.position,
+                    mob.pitch,
+                    mob.yaw,
+                    mob.on_ground
+                ))
+
     # action handling methods
 
     def _process_login_player(self, action: Action) -> None:
@@ -253,32 +312,10 @@ class _World(WorldEditor):
 
     def _process_move_player(self, action: Action) -> None:
         player = self._entity.get_player(action.entity_runtime_id)
-        player.pitch = revise_angle(action.pitch)
-        player.yaw = revise_angle(action.yaw)
-        player.head_yaw = revise_angle(action.head_yaw)
-        player.on_ground = action.on_ground
-        player.move(action.position, self._space.revise_position)
-
-        collisions = self._entity.detect_collision(player.entity_runtime_id)
-        for collision in collisions:
-            collision.update(self)
-
-        # TODO change to player attribute and revise position
-        self._notify_event(event_factory.create(
-            EventType.PLAYER_MOVED,
-            action.entity_runtime_id,
-            player.position,
-            action.pitch,
-            action.yaw,
-            action.head_yaw,
-            action.mode,
-            player.on_ground,
-            action.riding_eid,
-            action.need_response
-        ))
-
-        for collision in collisions:
-            self._notify_event(collision.event)
+        if not player.has_move_action:
+            asyncio.get_event_loop().call_later(
+                get_value(ConfigKey.WORLD_TICK_TIME), self._move_player, action.entity_runtime_id)
+        player.push_move_action(action)
 
     def _process_break_block(self, action: Action) -> None:
         updated_blocks, items = self._space.break_block(action.position)
@@ -386,18 +423,10 @@ class _World(WorldEditor):
 
     def _process_move_mob(self, action: Action) -> None:
         mob = self._entity.get_mob(action.entity_runtime_id)
-        mob.pitch = revise_angle(action.pitch)
-        mob.yaw = revise_angle(action.yaw)
-        mob.on_ground = action.on_ground
-        mob.move(action.position, self._space.revise_position)
-        self._notify_event(event_factory.create(
-            EventType.MOB_MOVED,
-            mob.entity_runtime_id,
-            mob.position,
-            mob.pitch,
-            mob.yaw,
-            mob.on_ground
-        ))
+        if not mob.has_move_action:
+            asyncio.get_event_loop().call_later(
+                get_value(ConfigKey.WORLD_TICK_TIME), self._move_mob, action.entity_runtime_id)
+        mob.push_move_action(action)
 
     def _process_remove_mob(self, action: Action) -> None:
         self._entity.remove(action.entity_runtime_id)

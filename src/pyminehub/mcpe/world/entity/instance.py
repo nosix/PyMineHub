@@ -1,6 +1,7 @@
 from typing import Callable, List, Optional, Tuple
 
 from pyminehub.config import ConfigKey, get_value
+from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.const import HOTBAR_SIZE, WindowType, EntityType
 from pyminehub.mcpe.geometry import Vector3, OrientedBoundingBox
 from pyminehub.mcpe.resource import INVENTORY_CONTENT_ITEMS121
@@ -28,6 +29,7 @@ class Entity:
         self._yaw = 0.0
         self._head_yaw = 0.0
         self._on_ground = True
+        self._move_actions = []  # type: List[Action]
 
     def spawn(self, block_height: int) -> None:
         assert self._position is None
@@ -105,6 +107,16 @@ class Entity:
             self._spec.size,
             self._yaw
         )
+
+    @property
+    def has_move_action(self) -> bool:
+        return len(self._move_actions) > 0
+
+    def push_move_action(self, action: Action) -> None:
+        self._move_actions.append(action)
+
+    def pop_move_action(self) -> Action:
+        return self._move_actions.pop(0)
 
     def is_hit_by(self, other: 'Entity') -> bool:
         return self.obb.has_collision(other.obb)
