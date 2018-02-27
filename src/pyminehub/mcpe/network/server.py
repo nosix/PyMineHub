@@ -157,8 +157,6 @@ class MCPEServerHandler(MCPEDataHandler):
             _logger.warning(
                 'The packet of new incoming connection has invalid time. (expected: %d, actual: %d)',
                 self._accepted_time[addr], packet.server_time_since_start)
-            return
-
         self.send_ping(addr)
 
     def _process_disconnection_notification(self, packet: ConnectionPacket, addr: Address) -> None:

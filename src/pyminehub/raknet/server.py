@@ -49,15 +49,21 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
         self.send_to_remote(res_packet, addr)
 
     def _process_open_connection_request1(self, packet: RakNetPacket, addr: Address) -> None:
+        if addr in self._sessions and self._sessions[addr].is_closed:
+            return  # wait for session closing
         res_packet = raknet_packet_factory.create(
             RakNetPacketType.OPEN_CONNECTION_REPLY1, True, self.guid, False, packet.mtu_size)
         self.send_to_remote(res_packet, addr)
+        if addr not in self._sessions:
+            self._sessions[addr] = self.create_session(packet.mtu_size, addr)
+        else:
+            assert not self._sessions[addr].is_closed
 
     def _process_open_connection_request2(self, packet: RakNetPacket, addr: Address) -> None:
         res_packet = raknet_packet_factory.create(
             RakNetPacketType.OPEN_CONNECTION_REPLY2, True, self.guid, to_packet_format(addr), packet.mtu_size, False)
         self.send_to_remote(res_packet, addr)
-        self._sessions[addr] = self.create_session(packet.mtu_size, addr)
+        self._sessions[addr].reset(packet.mtu_size)
 
 
 class _RakNetServer(Server):
@@ -117,6 +123,9 @@ if __name__ == '__main__':
 
         async def update(self) -> None:
             await asyncio.sleep(1)
+
+        def disconnect(self, addr: Address) -> None:
+            pass
 
         def terminate(self) -> None:
             pass

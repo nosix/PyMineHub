@@ -47,18 +47,34 @@ class Session:
         self._sequence_num = 0  # type: int  # next sequence number for send packet
         self._send_queue = SendQueue(mtu_size - _ALL_HEADER_SIZE, self._send_frame_set)
         self._sendable = asyncio.Event()
+        self._closed = False
         self._sending_task = self._start_loop_to_send()
 
     def _start_loop_to_send(self) -> asyncio.Task:
         async def loop_to_send():
-            while True:
+            while not self._closed:
                 await self._sendable.wait()
                 self._send_waiting_packets()
                 self._sendable.clear()
         return asyncio.ensure_future(loop_to_send())
 
+    @property
+    def is_closed(self) -> bool:
+        return self._closed
+
+    def reset(self, mtu_size: int) -> None:
+        self._expected_sequence_num = 0
+        self._ack_set.clear()
+        self._nck_set.clear()
+        self._resend_candidates.clear()
+        self._channels.clear()
+        self._fragment = Fragment()
+        self._sequence_num = 0
+        self._send_queue = SendQueue(mtu_size - _ALL_HEADER_SIZE, self._send_frame_set)
+        self._sendable.clear()
+
     def close(self):
-        self._sending_task.cancel()
+        self._closed = True
         self._send_waiting_packets()
 
     def frame_received(self, packet_sequence_num: int, frames: List[RakNetFrame]) -> None:
