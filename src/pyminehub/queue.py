@@ -21,9 +21,12 @@ class UpdatablePriorityQueue(Generic[_UPPT, _UPKT, _UPTT]):
         self._heap_queue = []  # type: List[List[_UPPT, int, _UPTT]]
         self._entry_finder = {}  # type: Dict[_UPKT, _UPTT]
         self._counter = itertools.count()
-    
+        self._max_num = 0
+
     def __str__(self) -> str:
-        return '{}(num={})'.format(type(self), len(self._entry_finder))
+        num = len(self._entry_finder)
+        self._max_num = max(self._max_num, num)
+        return '{}(num={}, max={})'.format(type(self), num, self._max_num)
 
     def pop(self, key: _UPKT) -> _UPTT:
         """Remove a task of the specified key from this queue and get the task."""
