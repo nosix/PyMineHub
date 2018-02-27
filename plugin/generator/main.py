@@ -1,7 +1,7 @@
 try:
     # noinspection PyUnresolvedReferences
     import leveldb
-except ModuleNotFoundError:
+except ImportError:
     from generator import mock as leveldb
 
 from enum import Enum

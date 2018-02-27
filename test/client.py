@@ -95,7 +95,7 @@ class ClientTestCase(TestCase):
         self.assertEqual(expected_entities, client.entities)
 
         client.execute_command('/ban taro')
-        client.wait_response(1)
+        client.wait_response(60)
         self.assertEqual('ban taro', client.next_message())
 
     def _test_perform_action(self, client: Client):
@@ -125,7 +125,7 @@ class ClientTestCase(TestCase):
             True
         ))
 
-        client.wait_response(1)
+        client.wait_response(60)
         expected_entity = EntityInfo(
             entity_runtime_id=1,
             name='Taro',
@@ -144,7 +144,7 @@ class ClientTestCase(TestCase):
             1
         ))
 
-        client.wait_response(1)
+        client.wait_response(60)
         expected_entities = (
             EntityInfo(
                 entity_runtime_id=1,
@@ -170,7 +170,7 @@ class ClientTestCase(TestCase):
             True
         ))
 
-        client.wait_response(1)
+        client.wait_response(60)
         expected_entity = EntityInfo(
             entity_runtime_id=2,
             name='anonymous:CHICKEN',

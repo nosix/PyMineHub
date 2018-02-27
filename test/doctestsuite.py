@@ -1,14 +1,14 @@
 import inspect
 import runpy
 import unittest
-from os.path import dirname
+from os.path import dirname, abspath
 
 
 class DocTestCase(unittest.TestCase):
 
     def test_doctest(self):
         module_file_name = inspect.getmodule(self).__file__
-        test_dir = dirname(module_file_name)
+        test_dir = abspath(dirname(module_file_name))
         module_path = [
             'pyminehub/config',
             'pyminehub/value',

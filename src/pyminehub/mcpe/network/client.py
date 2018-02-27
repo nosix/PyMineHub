@@ -345,6 +345,7 @@ class _MCPEClientHandler(MCPEDataHandler):
         message = '{} ({})'.format(packet.message, ', '.join(parameters)) if len(parameters) > 0 else packet.message
         _logger.info('%s: %s', packet.type.name, message)
         self._messages.append(message)
+        self._processed.set()
 
     # noinspection PyUnusedLocal
     def _process_add_entity(self, packet: GamePacket, addr: Address) -> None:
