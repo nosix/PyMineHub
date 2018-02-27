@@ -71,6 +71,10 @@ class SendQueue:
         self._ordering_index = defaultdict(lambda: 0)  # type: Dict[int, int]  # for send reliable ordered packet
         self._split_packet_id = 0  # next split_packet_id
 
+    def __str__(self) -> str:
+        return '{}(queue={}, message={}, ordering={}, split={})'.format(
+            type(self), str(self._queue), self._message_num, self._ordering_index, self._split_packet_id)
+
     @staticmethod
     def _get_current_time() -> float:
         return time.time()
