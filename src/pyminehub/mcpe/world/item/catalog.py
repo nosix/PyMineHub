@@ -250,7 +250,7 @@ for _item_type, _block_type in _door_items:
     _item_specs[_item_type] = DoorItemSpec(_block_type, 64)
 
 
-_unsupported_item_spec = DefaultItemSpec(None, 0)
+_unsupported_item_spec = DefaultItemSpec(None, 1)
 
 
 def get_item_spec(item_type: ItemType) -> ItemSpec:
