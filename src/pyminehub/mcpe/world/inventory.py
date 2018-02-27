@@ -42,7 +42,7 @@ class MutableSlot:
     @property
     def is_full(self) -> bool:
         max_quantity = get_item_spec(self._type).max_quantity
-        assert 0 <= self._quantity <= max_quantity
+        assert 0 <= self._quantity <= max_quantity, '0 <= {} <= {}'.format(self._quantity, max_quantity)
         return self._quantity == max_quantity
 
     def set(self, item: Item) -> None:
