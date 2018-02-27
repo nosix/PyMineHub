@@ -52,6 +52,7 @@ class ConfigKey(Enum):
     GAME_MODE = 402
     # mcpe.network
     BATCH_COMPRESS_THRESHOLD = 501
+    ROUGH_MOVE = 502
 
 
 __default_config = (
@@ -61,7 +62,6 @@ __default_config = (
     (ConfigKey.MAX_LOG_LENGTH, 100),  # cut log string. don't cut if value is None
     (ConfigKey.SERVER_GUID, None),  # use random value if value is None
     (ConfigKey.RESEND_TIME, 500),  # ms, interval that is greater than interval of ACK/NCK arrives
-    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes, compress if exceeded
     (ConfigKey.SEED, 0),
     (ConfigKey.DIFFICULTY, 'NORMAL'),  # see mcpe.const.Difficulty
     (ConfigKey.RAIN_LEVEL, 0.0),
@@ -74,6 +74,8 @@ __default_config = (
     (ConfigKey.PLAYER_SPAWN_POSITION, (256, 56, 256)),
     (ConfigKey.WORLD_NAME, 'PyMineHub'),
     (ConfigKey.GAME_MODE, 'SURVIVAL'),  # see mcpe.const.GameMode
+    (ConfigKey.BATCH_COMPRESS_THRESHOLD, 256),  # bytes, compress if exceeded
+    (ConfigKey.ROUGH_MOVE, True),  # don't resend move packets
 )
 
 _config = dict(__default_config)  # type: Dict[ConfigKey, Any]

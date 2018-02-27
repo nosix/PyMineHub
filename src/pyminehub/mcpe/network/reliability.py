@@ -1,6 +1,7 @@
 from collections import defaultdict
 from typing import Dict
 
+from pyminehub.config import ConfigKey, get_value
 from pyminehub.mcpe.network.packet import GamePacketType
 from pyminehub.network.handler import Reliability
 
@@ -23,4 +24,9 @@ def _init_reliability(reliabilities: Dict[GamePacketType, Reliability]) -> Dict[
     return d
 
 
-RELIABILITY_DICT = _init_reliability({})
+RELIABILITY_DICT = _init_reliability(
+    {
+        GamePacketType.MOVE_PLAYER: UNRELIABLE,
+        GamePacketType.MOVE_ENTITY: UNRELIABLE,
+    }
+    if get_value(ConfigKey.ROUGH_MOVE) else {})
