@@ -1,4 +1,4 @@
-# PyMineHub
+# PyMineHub (PMH)
 
 Multiplay server of Minecraft Pocket Edition
 
@@ -20,6 +20,8 @@ This project will assume that MineCraft is used as an environment of creation, n
   - Raspbian stretch lite 2017-09-07
 
 ## Trial
+
+First, get the source code and start the server.
 
 ```
 $ git clone https://github.com/nosix/PyMineHub.git
@@ -44,7 +46,8 @@ Sign-in from Friends tab on MineCraft.
 PyMineHub support MineCraft version 1.2.7 (maybe, later versions as well) and protocol version 160.
 We have confirmed working at version 1.2.10.
 
-A world of only water is generated. And, birds move randomly.
+When you start the game, a world of only water is generated.
+And, birds move randomly.
 If you want to change the generated world and mob movements, use the plugin.
 By default, the source code under the `plugin` directory in the current directory is loaded.
 If you want to change the plugin directory, specify the directory in the `MPH_PLUGIN_ROOT` environment variable.
@@ -69,15 +72,16 @@ INFO:pyminehub.mcpe.plugin.loader:Plugin is disabled.
 `PyMineHub-p0.db` is a data file.
 Currently SQLite DB is used, but we might change it (the timing is undecided).
 If `INIT_SPACE` is specified,
-it creates chunks in the area specified at startup and duplicates chunks in this area to other area.
+it creates chunks (parts of terrain data) in the area specified at startup
+and duplicates chunks in this area to other area.
 If `INIT_SPACE` is `None`, chunks are generated when they are needed.
 This is a feature to lower the CPU load during play.
 
 Again, sign-in from Friends tab on MineCraft.
-A world of only grass is generated. And, birds move randomly. 
-The plugin directories are not loaded and the default plugins are used.
+When you start the game, a world of only grass is generated. And, birds move randomly. 
+In this example, the plugin directories are not loaded and the default plugins are used.
 The default plugins are in `src/pyminehub/mcpe/plugin/default`.
-The interface of the plugins are defined in `src/pyminehub/mcpe/plugin`.
+Then, the interface of the plugins are defined in `src/pyminehub/mcpe/plugin`.
 
 - `ChunkGeneratorPlugin`
   - override
@@ -90,13 +94,15 @@ The interface of the plugins are defined in `src/pyminehub/mcpe/plugin`.
 
 When running `run.sh` without the `-d` option (first example),
 `LevelDBChunkGeneratorPlugin` in `plugin` directory override the default plugin.
-But, more than one `ExtraCommandPlugin` will be added.
+In the case of overloading, the last loaded plugin is enabled.
+On the other hand, more than one `ExtraCommandPlugin` will be added, all loaded plugins are enabled.
 
 ## Plugin
 
 ### ExtraCommandPlugin
 
 This plugin enables the use of the command.
+Commands allow you to operate the server.
 The plugin return a command processor.
 When the client executes the command, the method of the command processor is executed.
 
@@ -126,12 +132,12 @@ The command name `perform` is named from method name `perform`.
 By applying the `command` decorator to the method, the method name becomes the command name.
 The method parameters must be `CommandContext` and `str`.
 
-Use the overload decorator to provide the method signature to the client.
-Signatures are used to indicate usage.
-The method parameters must be `CommandContext` and the types defined in `pyminehub.mcpe.command.annotation`.
-
-When calling a method, wrapping in the types in `pyminehub.mcpe.command.annotation` will enable overloading.
-The method names may be the same.
+Use the `overload` decorator to provide the method signature to the client.
+Signatures are used to indicate usage of the command.
+The parameters of the method with `overload` decorator must be `CommandContext` and
+the types defined in `pyminehub.mcpe.command.annotation`.
+When calling the method, wrapping in the types in `pyminehub.mcpe.command.annotation` will enable overloading.
+For that reason, The method names may be the same.
 
 ## Client
 
@@ -187,7 +193,7 @@ If some packet is received, proceed to the next.
 
 Please see `test/multiplay.py`, too.
 
-## Config
+## Server Config
 
 If you want to change the setting, edit `src/pyminehub/mcpe/main/server.py`.
 For example, the part of `src/pyminehub/mcpe/main/server.py` is below.
