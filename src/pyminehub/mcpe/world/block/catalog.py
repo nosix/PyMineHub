@@ -42,6 +42,7 @@ block_specs = {
     BlockType.TRAPPED_CHEST: ChestBlockSpec(ItemType.TRAPPED_CHEST),
     BlockType.ENDER_CHEST: ChestBlockSpec(ItemType.ENDER_CHEST),
     BlockType.WEB: BlockSpec(ItemType.WEB, can_pass=True),
+    BlockType.WATER: BlockSpec(None, can_pass=True, can_be_broken=False),
     BlockType.FLOWING_WATER: BlockSpec(None, can_pass=True, can_be_broken=False),
     BlockType.FLOWING_LAVA: BlockSpec(None, can_pass=True, can_be_broken=False),
 }
