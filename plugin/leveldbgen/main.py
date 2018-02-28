@@ -2,7 +2,7 @@ try:
     # noinspection PyUnresolvedReferences
     import leveldb
 except ImportError:
-    from generator import mock as leveldb
+    from leveldbgen import mock as leveldb
 
 from enum import Enum
 from pathlib import Path
@@ -27,7 +27,7 @@ class _Tag(Enum):
     VERSION = 118
 
 
-class ChunkGeneratorPluginImpl(ChunkGeneratorPlugin):
+class LevelDBChunkGeneratorPlugin(ChunkGeneratorPlugin):
 
     _key_codec = CompositeCodec([
         IntData(endian=Endian.LITTLE),
