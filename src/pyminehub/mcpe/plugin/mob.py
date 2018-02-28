@@ -56,4 +56,10 @@ MobAction = Union[MobSpawn, MobMove]
 class MobProcessorPlugin:
 
     def update(self, player_info: Tuple[PlayerInfo, ...], mob_info: Tuple[MobInfo, ...]) -> Tuple[MobAction, ...]:
+        """Update state of mobs.
+
+        :param player_info: current states of players
+        :param mob_info: current states of mobs
+        :return: actions performed by mobs
+        """
         raise NotImplementedError()

@@ -10,4 +10,9 @@ __all__ = [
 class ChunkGeneratorPlugin:
 
     def create(self, position: ChunkPosition) -> Chunk:
+        """Create chunk of specified position.
+
+        :param position: position to generate chunk at
+        :return: see `pyminehub.mcpe.chunk`
+        """
         raise NotImplementedError()
