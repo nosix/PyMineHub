@@ -28,7 +28,7 @@ class ProtocolUnconnectedTestCase(ProtocolTestCase):
                     RakNetPacket(
                         RakNetPacketType.UNCONNECTED_PONG,
                         time_since_start=1831975, server_guid=1326711636852997873, valid_message_data_id=True,
-                        server_id='MCPE;PyMineHub Server;160;1.2.7;0;20;1326711636852997873;PyMineHub;Survival;'
+                        server_id='MCPE;PyMineHub;160;1.2.7;0;20;1326711636852997873;PyMineHub;Survival;'
                     )
                 )
             ]

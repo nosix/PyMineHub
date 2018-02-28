@@ -18,7 +18,7 @@ class _RakNetServerProtocol(AbstractRakNetProtocol, asyncio.DatagramProtocol):
     def __init__(self, handler: GameDataHandler) -> None:
         super().__init__(handler)
         self._sessions = {}  # TODO session timeout
-        self.server_id = 'MCPE;PyMineHub Server;160;1.2.7;0;20;{};{};{};'.format(
+        self.server_id = 'MCPE;PyMineHub;160;1.2.7;0;20;{};{};{};'.format(
             self.guid,
             get_value(ConfigKey.WORLD_NAME),
             get_value(ConfigKey.GAME_MODE).title()
