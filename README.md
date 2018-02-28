@@ -12,161 +12,200 @@ This project will assume that MineCraft is used as an environment of creation, n
   - 2017-09-07-raspbian-stretch-lite.img
 - and later
 
-## Development
+## Testing environment
 
-### Data Length
+- Python 3.6.1
+  - macOS High Sierra 10.13
+- Python 3.5.3
+  - Raspbian stretch lite 2017-09-07
 
-| Mark | Part | Length [bytes] | Note |
-|:---:|:---|---:|:---:|
-| A | MTU | 1492 | B + D + E |
-| B | OpenConnectionRequest1 | 1464 | |
-| C | OpenConnectionRequest1 zero padding | 1446 | |
-| D | IP header | 20 | |
-| E | UDP header | 8 | |
-| F | RakNet weird | 8 | ? | 
-| G | RakNet packet (datagram) header | 4 | |
-| H | Max frame header | 20 | |
-| I | All header | 60 | D + E + F + G + H |
-| J | Max frame payload | 1432 | A - I |
-
-The length of A,B,C,J is an example.
-
-### Module design
-
-#### Dependency
-
-Modules depend only on parents or siblings. Siblings depend only on the above siblings.
+## Trial
 
 ```
-typevar
-queue
-config -> typevar
-value -> config
-binutil
-  converter -> typevar
-  instance -> .[converter]
-  composite -> typevar, .[converter]
-network
-  address -> config
-  codec -> value, binutil.*, .[address]
-  handler -> .[address]
-  server -> .[address, handler]
-  client -> .[address, handler]
-raknet
-  - fragment
-  - frame -> value
-  - packet -> value, network.[address]
-  - channel -> .[frame]
-  - codec -> binutil.*, network.[codec, const], .[frame, packet]
-  - sending -> config, queue, value, network.[handler], .[codec, frame]
-  - session -> value, network.[const, handler], .[channel, codec, fragment, frame, packet, sending]
-  - protocol -> value, network.[address, handler], .[codec, packet, session]
-  - server -> config, network.[address, handler, server], .[packet, protocol, session]
-  - client -> config, network.[address, handler, client], .[packet, protocol, session]
-tcp
-  - protocol -> binutil.[converter, instance], network.[address, handler]
-  - server -> config, network.[address, handler, server], .[protocol]
-  - client -> config, network.[address, handler, client], .[protocol]
-mcpe
-  const
-  geometry -> typevar
-  value -> binutil.[converter], .[const, geometry]
-  resource
-    - loader
-  attribute -> .[const, value]
-  metadata -> .[const, geometry, value]
-  action -> value, mcpe.[const, geometry, value]
-  event -> value, mcpe.[const, geometry, value]
-  chunk -> binutil.*, mcpe.[const, geometry, value]
-  datastore -> config, mcpe.[chunk, geometry, value]
-  command
-    const
-    annotation -> mcpe.[geometry]
-    value -> .[const]
-    api -> typevar, mcpe.[action], .[annotation, const, value]
-    impl -> typevar, mcpe.[action], .[api]
-  plugin
-    command
-    generator -> mcpe.[chunk, geometry]
-    mob -> mcpe.[chunk, const, geometry]
-    player -> mcpe.[const, value]
-    default
-      - generator -> mcpe.[chunk, const, geometry, value], mcpe.plugin.[generator]
-      - mob -> mcpe.[const], mcpe.plugin.[mob]
-      - player -> mcpe.[const, value], mcpe.plugin.[player]
-    loader -> mcpe.command.[api], .[command, default, generator, mob, player]
-  world
-    - clock -> config
-    - interface -> mcpe.[value]
-    - proxy -> mcpe.[action, const, event, resource, value]
-    - item
-      - spec -> mcpe.[const, geometry, value]
-      - catalog -> mcpe.[const], .[spec]
-    - block
-      - spec -> mcpe.[const, geometry, value]
-      - catalog -> mcpe.[const, geometry, value] .[spec]
-      - functional -> mcpe.[const, geometry, value] .[catalog]
-    - generator -> mcpe.[chunk, datastore, geometry], mcpe.plugin.[generator]
-    - inventory -> .[const, value], .[item]
-    - space -> mcpe.[chunk, const, datastore, geometry, value], .[block, generator]
-    - entity
-      - spec -> mcpe.[const, geometry]
-      - instance -> config, mcpe.[action, const, geometry, resource, value], mcpe.world.[inventory], .[spec]
-      - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
-      - pool -> mcpe.[const, datastore, value], .[collision, instance]
-    - server -> config, value,
-                mcpe.[action, attribute, chunk, const, datastore, event, geometry, value],
-                mcpe.plugin.[loader, mob, player],
-                .[clock, entity, generator, interface, item, proxy, space]
-  network
-    - skin
-    - const
-    - value -> binutil.[converter], mcpe.[geometry, value], .[const]
-    - packet
-      - connection -> value, network.[address]
-      - game -> value, mcpe.[const, geometry, value], mcpe.command.[const, value], .[const, value]
-    - reliability -> config, network.[handler], mcpe.network.[packet]
-    - codec
-      - connection -> config, binutil.*, network.*, mcpe.network.[packet]
-      - game -> binutil.*, network.*, mcpe.[const, geometry, value], mcpe.command.[const, value],
-                mcpe.network.[const, packet, value]
-    - player -> mcpe.[const, event, geometry, value], .[value]
-    - session -> networkd.[address, handler], mcpe.[value] .[player]
-    - queue -> value, network.[address, handler], .[codec, packet, reliabiliry]
-    - login -> network.[address], mcpe.[const, event, geometry, metadata, world], mcpe.command.[api]
-               .[const, packet, player, session, value]
-    - handler -> value, network.[address, handler], .[codec, packet, queue, reliability]
-    - server -> config, network.[address, handler], mcpe.[action, const, event, geometry, metadata, value, world],
-                mcpe.command.[api, impl], .[const, handler, login, packet, player, reliability, session, value]
-    - client -> network.[address, client], mcpe.[chunk, const, geometry, value], mcpe.command.[api, const, value],
-                .[const, handler, packet, reliability, skin, value] 
-  main
-    server -> config, raknet, tcp, network.[server],
-              mcpe.[network, datastore, world], mcpe.command.[api], mcpe.plugin.[loader]
-    client -> raknet, tcp, mcpe.[network, client]
-
-- : Hidden from outside modules
+$ git clone https://github.com/nosix/PyMineHub.git
+$ cd PyMineHub
+PyMineHub $ bin/run.sh
+In your environment, Python 3.6.1 is used.
+INFO:pyminehub.config:RAKNET_SERVER_PORT=19132
+INFO:pyminehub.config:TCP_SERVER_PORT=19142
+INFO:pyminehub.config:WORLD_NAME=PyMineHub
+INFO:pyminehub.config:GAME_MODE=SURVIVAL
+INFO:pyminehub.config:SPAWN_MOB=True
+INFO:pyminehub.config:INIT_SPACE=(32, 32)
+INFO:pyminehub.config:PLAYER_SPAWN_POSITION=(256, 56, 256)
+INFO:pyminehub.mcpe.plugin.loader:Plugin is loaded from directory "plugin".
+INFO:pyminehub.mcpe.plugin.loader:AboutCommandProcessor was registered into CommandRegistry.
+INFO:pyminehub.mcpe.plugin.loader:LevelDBChunkGeneratorPlugin overrode ChunkGeneratorPlugin.
+INFO:pyminehub.mcpe.plugin.loader:ActionCommandProcessor was registered into CommandRegistry.
+INFO:pyminehub.mcpe.plugin.loader:GameEventCommandProcessor was registered into CommandRegistry.
 ```
 
-#### Codecs for packet
+Sign-in from Friends tab on MineCraft.
+PyMineHub support MineCraft version 1.2.7 (maybe, later versions as well) and protocol version 160.
+We have confirmed working at version 1.2.10.
 
-- Packet class definition (immutable value object by NamedTuple)
-  - `raknet.packet` module
-  - `raknet.frame` module
-  - `mcpe.network.packet` module
-  - These are based on
-    - `value` module
-- Codec object definition
-  - `raknet.codec` module
-  - `mcpe.network.codec.connection` module
-  - `mcpe.network.codec.batch` module
-  - These are based on
-    - `binutil` module
-    - `network.codec` module
-- Testcase (in test directory)
-  - `codec_*` module
-- Tool (in tool directory)
-  - `tool.decoding` module
+A world of only water is generated. And, birds move randomly.
+If you want to change the generated world and mob movements, use the plugin.
+By default, the source code under the `plugin` directory in the current directory is loaded.
+If you want to change the plugin directory, specify the directory in the `MPH_PLUGIN_ROOT` environment variable.
+To disable the plugin, specify the `MPH_PLUGIN_ROOT` environment variable to be `""`.
+Run `run.sh` with the `-d` option to disable the plugin.
+
+```
+PyMineHub $ rm PyMineHub-p0.db 
+PyMineHub $ bin/run.sh -d
+In your environment, Python 3.6.1 is used.
+INFO:pyminehub.config:RAKNET_SERVER_PORT=19132
+INFO:pyminehub.config:TCP_SERVER_PORT=19142
+INFO:pyminehub.config:WORLD_NAME=PyMineHub
+INFO:pyminehub.config:GAME_MODE=SURVIVAL
+INFO:pyminehub.config:SPAWN_MOB=True
+INFO:pyminehub.config:INIT_SPACE=(32, 32)
+INFO:pyminehub.config:PLAYER_SPAWN_POSITION=(256, 56, 256)
+INFO:pyminehub.mcpe.plugin.loader:PMH_PLUGIN_ROOT=
+INFO:pyminehub.mcpe.plugin.loader:Plugin is disabled.
+```
+
+`PyMineHub-p0.db` is a data file.
+Currently SQLite DB is used, but we might change it (the timing is undecided).
+If `INIT_SPACE` is specified,
+it creates chunks in the area specified at startup and duplicates chunks in this area to other area.
+If `INIT_SPACE` is `None`, chunks are generated when they are needed.
+This is a feature to lower the CPU load during play.
+
+Again, sign-in from Friends tab on MineCraft.
+A world of only grass is generated. And, birds move randomly. 
+The plugin directories are not loaded and the default plugins are used.
+The default plugins are in `src/pyminehub/mcpe/plugin/default`.
+The interface of the plugins are defined in `src/pyminehub/mcpe/plugin`.
+
+- `ChunkGeneratorPlugin`
+  - override
+- `MobProcessorPlugin`
+  - override
+- `PlayerConfigPlugin`
+  - override
+- `ExtraCommandPlugin`
+  - append
+
+When running `run.sh` without the `-d` option (first example),
+`LevelDBChunkGeneratorPlugin` in `plugin` directory override the default plugin.
+But, more than one `ExtraCommandPlugin` will be added.
+
+## Plugin
+
+### ExtraCommandPlugin
+
+This plugin enables the use of the command.
+The plugin return a command processor.
+When the client executes the command, the method of the command processor is executed.
+
+For example, `ActionCommandProcessor` in `plugin/action/main.py` is below.
+
+```python
+from binascii import unhexlify
+from pickle import loads
+from pyminehub.mcpe.command.annotation import String
+from pyminehub.mcpe.command.api import CommandContext, command
+
+class ActionCommandProcessor:
+
+    @command
+    def perform(self, context: CommandContext, args: str) -> None:
+        """Perform action in the world."""
+        self._perform(context, String(args))
+
+    @perform.overload
+    def _perform(self, context: CommandContext, data: String) -> None:
+        action = loads(unhexlify(data))
+        context.perform_action(action)
+```
+
+`ActionCommandProcessor` provide `/perform data` command.
+The command name `perform` is named from method name `perform`.
+By applying the `command` decorator to the method, the method name becomes the command name.
+The method parameters must be `CommandContext` and `str`.
+
+Use the overload decorator to provide the method signature to the client.
+Signatures are used to indicate usage.
+The method parameters must be `CommandContext` and the types defined in `pyminehub.mcpe.command.annotation`.
+
+When calling a method, wrapping in the types in `pyminehub.mcpe.command.annotation` will enable overloading.
+The method names may be the same.
+
+## Client
+
+Not only servers, we also have a simple client.
+
+For example, `ActionCommandClient` in `plugin/action/client.py` is below.
+
+```python
+from binascii import hexlify
+from pickle import dumps
+from typing import Union
+from pyminehub.mcpe.action import Action, ActionType, action_factory
+from pyminehub.mcpe.network import MCPEClient
+from pyminehub.mcpe.geometry import Vector3
+from pyminehub.mcpe.const import MoveMode
+from pyminehub.mcpe.main.client import connect
+
+class ActionCommandMixin:
+
+    @property
+    def client(self) -> MCPEClient:
+        raise NotImplementedError()
+
+    def perform_action(self, action_or_type: Union[Action, ActionType], *args, **kwargs) -> None:
+        action = action_factory.create(action_or_type, *args, **kwargs) \
+            if isinstance(action_or_type, ActionType) else action_or_type
+        data = hexlify(dumps(action)).decode()
+        self.client.execute_command('/perform {}'.format(data))
+
+class ActionCommandClient(MCPEClient, ActionCommandMixin):
+
+    @property
+    def client(self) -> MCPEClient:
+        return self
+
+def run_client():
+    with connect('127.0.0.1', player_name='Taro', client_factory=ActionCommandClient) as client:
+        client.perform_action(
+            ActionType.MOVE_PLAYER, 1, Vector3(256.0, 64.0, 256.0), 0.0, 0.0, 0.0, MoveMode.NORMAL, True, 0, True)
+        client.wait_response(timeout=10)
+        print(client.get_entity())
+```
+
+It connects to the server by method `connect`.
+To extend the client, specify the parameter `client_factory`.
+For the parameter `client_factory`, specify a function that creates an instance of a class that extends `MCPEClient`.
+When the connection to the server is successful,
+the generated instance is bound to the variable `client` specified by `as`.
+
+The method `wait_response` waits for something packet.
+It does not wait for the response of the packet sent immediately before.
+If some packet is received, proceed to the next.
+
+Please see `test/multiplay.py`, too.
+
+## Config
+
+If you want to change the setting, edit `src/pyminehub/mcpe/main/server.py`.
+For example, the part of `src/pyminehub/mcpe/main/server.py` is below.
+
+```python
+if __name__ == '__main__':
+    from pyminehub.config import set_config
+    set_config(game_mode='CREATIVE', spawn_mob=False)
+    set_config(
+        world_name='Small',
+        init_space=(1, 1),
+        player_spawn_position=(0, 56, 0)
+    )
+    # ... snip ...
+```
+
+Calls to `set_config` can be combined in one operation or divided.
+The parameter names is defined in `pyminehub.config`.
 
 ### Reference
 
