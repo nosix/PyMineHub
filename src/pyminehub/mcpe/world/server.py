@@ -146,12 +146,15 @@ class _World(WorldEditor):
             return player.entity_runtime_id  # TODO change other ID
         return tuple(
             PlayerInfo(to_plugin_id(p), p.position, p.pitch, p.yaw, p.head_yaw)
-            for p in self._entity.players)
+            for p in self._entity.players if p.is_living)
 
     def _get_mob_info(self) -> Tuple[MobInfo, ...]:
         return tuple(
-            MobInfo(mob_id, self._entity.get_mob(entity_runtime_id).position, tuple())  # TODO pass chunk data
-            for mob_id, entity_runtime_id in self._mob_id_to_entity_id.items())
+            MobInfo(mob_id, mob.position, tuple())  # TODO pass chunk data
+            for mob_id, mob in iter(
+                (mob_id, self._entity.get_mob(entity_runtime_id))
+                for mob_id, entity_runtime_id in self._mob_id_to_entity_id.items())
+            if mob.is_living)
 
     def _move_player(self, player_runtime_id: EntityRuntimeID) -> None:
         player = self._entity.get_player(player_runtime_id)
