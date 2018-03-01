@@ -1,12 +1,12 @@
 from functools import partial
 from typing import Callable, Dict, Iterator, List, NamedTuple, Optional, Tuple
 
+from pyminehub.mcpe.block import FunctionalBlock
 from pyminehub.mcpe.chunk import Chunk
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.geometry import *
 from pyminehub.mcpe.value import Item, Block, PlacedBlock
-from pyminehub.mcpe.world.block import FunctionalBlock
 from pyminehub.mcpe.world.generator import SpaceGenerator
 
 __all__ = [

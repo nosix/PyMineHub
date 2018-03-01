@@ -1,9 +1,9 @@
 from typing import List, Optional, Sequence, Tuple
 
+from pyminehub.mcpe.block.catalog import block_specs
 from pyminehub.mcpe.const import BlockType
 from pyminehub.mcpe.geometry import Vector3, Face
 from pyminehub.mcpe.value import Item, Block, PlacedBlock
-from pyminehub.mcpe.world.block.catalog import block_specs
 
 __all__ = [
     'FunctionalBlock'
@@ -47,6 +47,10 @@ class FunctionalBlock:
     @property
     def is_switchable(self) -> bool:
         return self._block_spec.is_switchable
+
+    @property
+    def is_on(self) -> bool:
+        return self._block_spec.is_on(self._block)
 
     @property
     def switch_position(self) -> Vector3[int]:

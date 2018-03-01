@@ -81,6 +81,10 @@ class BlockSpec:
     def is_switchable(self) -> bool:
         return self._is_switchable
 
+    def is_on(self, block: Block) -> bool:
+        assert self._is_switchable
+        return False
+
     def can_pass(self, block: Block) -> bool:
         return self._can_pass
 
@@ -345,8 +349,11 @@ class FenceGateBlockSpec(ToExtendUpwardBlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_be_attached_on_ground=True, is_switchable=True)
 
+    def is_on(self, block: Block) -> bool:
+        return bool(block.data & self._DOES_OPEN_MASK)
+
     def can_pass(self, block: Block) -> bool:
-        return bool(block.data ^ self._DOES_OPEN_MASK)
+        return self.is_on(block)
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
@@ -358,6 +365,9 @@ class TrapDoorBlockSpec(BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_pass=True, is_switchable=True)
+
+    def is_on(self, block: Block) -> bool:
+        return bool(block.data & self._DOES_OPEN_MASK)
 
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._DOES_OPEN_MASK)
@@ -413,6 +423,9 @@ class DoorBlockSpec(ToExtendUpwardBlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_pass=True, is_switchable=True)
+
+    def is_on(self, block: Block) -> bool:
+        return not (block.data & self._IS_UPPER_MASK) and block.data & self._DOES_OPEN_MASK
 
     def _get_face(self, block: Block) -> int:
         return block.data & self._FACE_MASK
@@ -494,6 +507,9 @@ class ToggleBlockSpec(BlockSpec):
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, can_pass=True, is_switchable=True)
 
+    def is_on(self, block: Block) -> bool:
+        return bool(block.data & self._TOGGLE_MASK)
+
     def switch(self, block: Block) -> Block:
         return block.copy(data=block.data ^ self._TOGGLE_MASK)
 
@@ -520,6 +536,9 @@ class DaylightDetectorBlockSpec(BlockSpec):
 
     def __init__(self, item_type: Optional[ItemType]) -> None:
         super().__init__(item_type, is_switchable=True)
+
+    def is_on(self, block: Block) -> bool:
+        return block.type is BlockType.DAYLIGHT_DETECTOR_INVERTED
 
     def switch(self, block: Block) -> Block:
         block_type = BlockType.DAYLIGHT_DETECTOR_INVERTED \

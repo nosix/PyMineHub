@@ -1,7 +1,6 @@
 from pyminehub.mcpe.const import WindowType, ItemType
+from pyminehub.mcpe.item import get_item_spec
 from pyminehub.mcpe.value import Item, Inventory
-from pyminehub.mcpe.world.item import get_item_spec
-
 
 __all__ = [
     'ITEM_AIR',

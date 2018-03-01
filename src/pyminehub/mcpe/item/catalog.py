@@ -1,5 +1,5 @@
 from pyminehub.mcpe.const import ItemType, BlockType
-from pyminehub.mcpe.world.item.spec import *
+from pyminehub.mcpe.item.spec import *
 
 __all__ = [
     'get_item_spec'
