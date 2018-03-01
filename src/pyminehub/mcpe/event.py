@@ -138,6 +138,7 @@ _event_specs = {
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
+        ('head_yaw', float),
         ('on_ground', bool)
     ],
     EventType.TIME_UPDATED: [

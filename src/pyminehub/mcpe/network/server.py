@@ -508,7 +508,7 @@ class MCPEServerHandler(MCPEDataHandler):
             event.position,
             event.pitch,
             event.yaw,
-            0.0,
+            event.head_yaw,
             event.on_ground,
             False
         )

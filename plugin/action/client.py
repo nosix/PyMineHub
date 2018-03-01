@@ -169,7 +169,7 @@ class ActionCommandMixin:
             self,
             mob_eid: EntityRuntimeID,
             east: float, height: float, south: float,
-            pitch: float=0.0, yaw: float=0.0,
+            pitch: float=0.0, yaw: float=0.0, head_yaw: float=0.0,
             on_ground: bool=True
     ):
         self.perform_action(
@@ -178,6 +178,7 @@ class ActionCommandMixin:
             Vector3(east, height, south),
             pitch,
             yaw,
+            head_yaw,
             on_ground
         )
 

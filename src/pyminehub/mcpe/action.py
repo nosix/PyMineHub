@@ -110,6 +110,7 @@ _action_specs = {
         ('position', Vector3[float]),
         ('pitch', float),
         ('yaw', float),
+        ('head_yaw', float),
         ('on_ground', bool)
     ],
     ActionType.REMOVE_MOB: [

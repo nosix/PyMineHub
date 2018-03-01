@@ -202,6 +202,7 @@ class _World(WorldEditor):
 
             mob.pitch = revise_angle(action.pitch)
             mob.yaw = revise_angle(action.yaw)
+            mob.head_yaw = revise_angle(action.head_yaw)
             mob.on_ground = action.on_ground
             mob.move(action.position, self._space.revise_position)
 
@@ -212,6 +213,7 @@ class _World(WorldEditor):
                     mob.position,
                     mob.pitch,
                     mob.yaw,
+                    mob.head_yaw,
                     mob.on_ground
                 ))
 
@@ -464,6 +466,7 @@ class _World(WorldEditor):
                 action.position,
                 action.pitch,
                 action.yaw,
+                0.0,
                 True  # TODO set value
             )
         )
