@@ -42,6 +42,9 @@ EntityInfo = NamedTuple('EntityInfo', [
     ('entity_runtime_id', EntityRuntimeID),
     ('name', str),
     ('position', Vector3[float]),
+    ('pitch', float),
+    ('yaw', float),
+    ('head_yaw', float),
     ('owner_runtime_id', Optional[EntityRuntimeID])
 ])
 
@@ -61,11 +64,20 @@ class _MutableEntityInfo:
         self._name = name
         self._metadata = {}
         self._position = Vector3(0, 0, 0)
+        self._pitch = 0.0
+        self._yaw = 0.0
+        self._head_yaw = 0.0
 
     @property
     def value(self) -> EntityInfo:
         return EntityInfo(
-            self._entity_runtime_id, self.name, self._position, self.owner_runtime_id)
+            self._entity_runtime_id,
+            self.name,
+            self.position,
+            self.pitch,
+            self.yaw,
+            self.head_yaw,
+            self.owner_runtime_id)
 
     @property
     def entity_runtime_id(self) -> EntityRuntimeID:
@@ -86,6 +98,30 @@ class _MutableEntityInfo:
     @position.setter
     def position(self, value: Vector3[float]) -> None:
         self._position = value
+
+    @property
+    def pitch(self) -> float:
+        return self._pitch
+
+    @pitch.setter
+    def pitch(self, value: float) -> None:
+        self._pitch = value
+
+    @property
+    def yaw(self) -> float:
+        return self._yaw
+
+    @yaw.setter
+    def yaw(self, value: float) -> None:
+        self._yaw = value
+
+    @property
+    def head_yaw(self) -> float:
+        return self._head_yaw
+
+    @head_yaw.setter
+    def head_yaw(self, value: float) -> None:
+        self._head_yaw = value
 
     @property
     def metadata(self) -> Tuple[EntityMetaData, ...]:
@@ -266,6 +302,8 @@ class _MCPEClientHandler(MCPEDataHandler):
         self._entity_runtime_id = packet.entity_runtime_id
         entity = _MutableEntityInfo(packet.entity_runtime_id, self._player_name)
         entity.position = packet.player_position
+        entity.pitch = packet.pitch
+        entity.yaw = packet.yaw
         self._entities[entity.entity_runtime_id] = entity
 
     def _process_set_time(self, packet: GamePacket, addr: Address) -> None:
@@ -327,6 +365,9 @@ class _MCPEClientHandler(MCPEDataHandler):
         assert packet.entity_runtime_id == packet.entity_unique_id
         entity = _MutableEntityInfo(packet.entity_runtime_id, packet.user_name)
         entity.position = packet.position
+        entity.pitch = packet.pitch
+        entity.yaw = packet.yaw
+        entity.head_yaw = packet.head_yaw
         entity.metadata = packet.metadata
         self._entities[entity.entity_runtime_id] = entity
         if self._listener is not None:
@@ -336,6 +377,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_move_player(self, packet: GamePacket, addr: Address) -> None:
         entity = self._entities[packet.entity_runtime_id]
         entity.position = packet.position
+        entity.pitch = packet.pitch
+        entity.yaw = packet.yaw
+        entity.head_yaw = packet.head_yaw
         self._processed.set()
 
     # noinspection PyUnusedLocal
@@ -352,6 +396,8 @@ class _MCPEClientHandler(MCPEDataHandler):
         name = 'anonymous:{}'.format(packet.entity_type.name)
         entity = _MutableEntityInfo(packet.entity_runtime_id, name)
         entity.position = packet.position
+        entity.pitch = packet.pitch
+        entity.yaw = packet.yaw
         entity.metadata = packet.metadata
         self._entities[entity.entity_runtime_id] = entity
         if self._listener is not None:
@@ -370,6 +416,9 @@ class _MCPEClientHandler(MCPEDataHandler):
     def _process_move_entity(self, packet: GamePacket, addr: Address) -> None:
         entity = self._entities[packet.entity_runtime_id]
         entity.position = packet.position
+        entity.pitch = packet.pitch
+        entity.yaw = packet.yaw
+        entity.head_yaw = packet.head_yaw
         self._processed.set()
 
     # noinspection PyUnusedLocal

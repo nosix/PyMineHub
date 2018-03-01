@@ -89,6 +89,9 @@ class ClientTestCase(TestCase):
                 entity_runtime_id=1,
                 name='Taro',
                 position=Vector3(0.5, 64.625, 0.5),
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
                 owner_runtime_id=None
             ),
         )
@@ -107,6 +110,9 @@ class ClientTestCase(TestCase):
                 entity_runtime_id=1,
                 name='Taro',
                 position=Vector3(0.5, 64.625, 0.5),
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
                 owner_runtime_id=None
             ),
         )
@@ -130,6 +136,9 @@ class ClientTestCase(TestCase):
             entity_runtime_id=1,
             name='Taro',
             position=Vector3(256.0, 64.625, 256.0),
+            pitch=0.0,
+            yaw=0.0,
+            head_yaw=0.0,
             owner_runtime_id=None
         )
         self.assertEqual(expected_entity, client.get_entity(1))
@@ -150,12 +159,18 @@ class ClientTestCase(TestCase):
                 entity_runtime_id=1,
                 name='Taro',
                 position=Vector3(256.0, 64.625, 256.0),
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
                 owner_runtime_id=None
             ),
             EntityInfo(
                 entity_runtime_id=2,
                 name='anonymous:CHICKEN',
                 position=Vector3(256.0, 63.0, 256.0),  # height is adjusted
+                pitch=0.0,
+                yaw=0.0,
+                head_yaw=0.0,
                 owner_runtime_id=1
             )
         )
@@ -167,6 +182,7 @@ class ClientTestCase(TestCase):
             Vector3(257.0, 63.0, 254.0),
             45.0,
             90.0,
+            0.0,
             True
         ))
 
@@ -175,6 +191,9 @@ class ClientTestCase(TestCase):
             entity_runtime_id=2,
             name='anonymous:CHICKEN',
             position=Vector3(257.0, 63.0, 254.0),
+            pitch=45.0,
+            yaw=90.0,
+            head_yaw=0.0,
             owner_runtime_id=1
         )
         self.assertEqual(expected_entity, client.get_entity(2))
