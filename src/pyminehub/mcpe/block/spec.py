@@ -425,7 +425,7 @@ class DoorBlockSpec(ToExtendUpwardBlockSpec):
         super().__init__(item_type, can_pass=True, is_switchable=True)
 
     def is_on(self, block: Block) -> bool:
-        return not (block.data & self._IS_UPPER_MASK) and block.data & self._DOES_OPEN_MASK
+        return not (block.data & self._IS_UPPER_MASK) and bool(block.data & self._DOES_OPEN_MASK)
 
     def _get_face(self, block: Block) -> int:
         return block.data & self._FACE_MASK
