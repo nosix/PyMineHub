@@ -13,7 +13,7 @@ from pyminehub.mcpe.datastore import DataStore
 from pyminehub.mcpe.event import *
 from pyminehub.mcpe.geometry import Vector3, revise_angle
 from pyminehub.mcpe.item import get_item_spec
-from pyminehub.mcpe.plugin.loader import PluginLoader
+from pyminehub.mcpe.plugin.loader import PluginLoader, WorldExtensionRegistry
 from pyminehub.mcpe.plugin.mob import *
 from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
 from pyminehub.mcpe.value import *
@@ -44,12 +44,14 @@ class _World(WorldEditor):
             game_mode: GameMode,
             generator: SpaceGenerator,
             store: DataStore,
+            world_extension: WorldExtensionRegistry,
             mob_processor: MobProcessorPlugin,
             player_config: PlayerConfigPlugin
     ) -> None:
         self._game_mode = game_mode
         self._space = Space(generator, store)
         self._entity = EntityPool(store)
+        self._world_extension = world_extension
         self._mob_processor = mob_processor
         self._player_config = player_config
         self._event_queue = asyncio.Queue()
@@ -82,11 +84,16 @@ class _World(WorldEditor):
     # WorldProxy methods
 
     def terminate(self) -> None:
+        self._world_extension.terminate()
         self._clock_task.cancel()
         self._update_task.cancel()
         self._space.save()
 
     def perform(self, action: Action) -> None:
+        action = self._world_extension.filter_action(action)
+        if action is None:
+            _logger.info('%s was filtered.', action)
+            return
         _logger.debug('>> %s', LogString(action))
         asyncio.get_event_loop().call_soon(
             getattr(self, '_process_' + action.type.name.lower()), action)
@@ -119,19 +126,29 @@ class _World(WorldEditor):
     # local methods
 
     def _notify_event(self, event: Event) -> None:
+        event = self._world_extension.filter_event(event)
+        if event is None:
+            _logger.info('%s was filtered.', event)
+            return
         self._event_queue.put_nowait(event)
 
     def _notify_time(self, mc_time: int) -> None:
         self._notify_event(event_factory.create(EventType.TIME_UPDATED, mc_time))
 
+    def _perform_action(self, action_type: ActionType, *args, **kwargs) -> None:
+        self.perform(action_factory.create(action_type, *args, **kwargs))
+
     async def _next_moment(self) -> None:
         start_time = time.time()
+        self._world_extension.update(self._perform_action)
         if get_value(ConfigKey.SPAWN_MOB):
             self._update_mob()
         run_time = time.time() - start_time
         tick_time = get_value(ConfigKey.WORLD_TICK_TIME)
         if run_time < tick_time:
             await asyncio.sleep(tick_time - run_time)
+        else:
+            _logger.warning('Either plugin is too heavy. (time=%f)', round(run_time, 3))
 
     def _update_mob(self) -> None:
         actions = self._mob_processor.update(
@@ -478,10 +495,11 @@ class _WorldProxyImpl(WorldProxy):
             self,
             generator: SpaceGenerator,
             store: DataStore,
+            world_extension: WorldExtensionRegistry,
             mob_processor: MobProcessorPlugin,
             player_config: PlayerConfigPlugin
     ) -> None:
-        self._world = _World(self.get_game_mode(), generator, store, mob_processor, player_config)
+        self._world = _World(self.get_game_mode(), generator, store, world_extension, mob_processor, player_config)
 
     def terminate(self) -> None:
         self._world.terminate()
@@ -522,6 +540,7 @@ def run(store: DataStore, plugin: PluginLoader) -> WorldProxy:
     world = _WorldProxyImpl(
         generator,
         store,
+        plugin.world_extension,
         plugin.mob_processor,
         plugin.player_config
     )

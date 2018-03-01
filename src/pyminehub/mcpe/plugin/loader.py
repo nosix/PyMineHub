@@ -2,18 +2,22 @@ import importlib
 import sys
 from logging import getLogger
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
+from pyminehub.mcpe.action import Action
 from pyminehub.mcpe.command.api import CommandRegistry
+from pyminehub.mcpe.event import Event
 from pyminehub.mcpe.plugin.command import ExtraCommandPlugin
 from pyminehub.mcpe.plugin.default import *
 from pyminehub.mcpe.plugin.generator import ChunkGeneratorPlugin
 from pyminehub.mcpe.plugin.mob import MobProcessorPlugin
 from pyminehub.mcpe.plugin.player import PlayerConfigPlugin
+from pyminehub.mcpe.plugin.world import WorldExtensionPlugin, PerformAction
 
 __all__ = [
+    'get_plugin_loader',
     'PluginLoader',
-    'get_plugin_loader'
+    'WorldExtensionRegistry'
 ]
 
 
@@ -26,8 +30,40 @@ _PLUGIN_INTERFACES = (
     ChunkGeneratorPlugin,
     MobProcessorPlugin,
     PlayerConfigPlugin,
-    ExtraCommandPlugin
+    ExtraCommandPlugin,
+    WorldExtensionPlugin
 )
+
+
+class WorldExtensionRegistry:
+
+    def __init__(self) -> None:
+        self._extensions = []  # type: List[WorldExtensionPlugin]
+
+    def register(self, plugin: WorldExtensionPlugin) -> None:
+        self._extensions.append(plugin)
+
+    def update(self, perform_action: PerformAction) -> None:
+        for extension in self._extensions:
+            extension.update(perform_action)
+
+    def filter_action(self, action: Action) -> Optional[Action]:
+        for extension in self._extensions:
+            action = extension.filter_action(action)
+            if action is None:
+                break
+        return action
+
+    def filter_event(self, event: Event) -> Optional[Event]:
+        for extension in self._extensions:
+            event = extension.filter_event(event)
+            if event is None:
+                break
+        return event
+
+    def terminate(self) -> None:
+        for extension in self._extensions:
+            extension.terminate()
 
 
 class PluginLoader:
@@ -44,6 +80,7 @@ class PluginLoader:
         self._generator = DefaultChunkGenerator()
         self._mob_processor = DefaultMobProcessor()
         self._player_config = DefaultPlayerConfig()
+        self._world_extension = WorldExtensionRegistry()
         if plugin_directory:
             self._load_plugin(plugin_directory, command)
         else:
@@ -74,6 +111,9 @@ class PluginLoader:
                     if issubclass(attr, PlayerConfigPlugin):
                         self._player_config = instance
                         _logger.info('%s overrode PlayerConfigPlugin.', attr.__name__)
+                    if issubclass(attr, WorldExtensionPlugin):
+                        self._world_extension.register(instance)
+                        _logger.info('%s was registered into WorldExtensionRegistry.', attr.__name__)
                     if command is not None and issubclass(attr, ExtraCommandPlugin):
                         processor = instance.processor
                         command.register_command_processor(processor)
@@ -90,6 +130,10 @@ class PluginLoader:
     @property
     def player_config(self) -> PlayerConfigPlugin:
         return self._player_config
+
+    @property
+    def world_extension(self) -> WorldExtensionRegistry:
+        return self._world_extension
 
 
 def get_plugin_loader(command: Optional[CommandRegistry]=None) -> PluginLoader:
