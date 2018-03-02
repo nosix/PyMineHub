@@ -89,6 +89,8 @@ Then, the interface of the plugins are defined in `src/pyminehub/mcpe/plugin`.
   - override
 - `PlayerConfigPlugin`
   - override
+- `WorldExtensionPlugin`
+  - append
 - `ExtraCommandPlugin`
   - append
 
@@ -98,6 +100,72 @@ In the case of overloading, the last loaded plugin is enabled.
 On the other hand, more than one `ExtraCommandPlugin` will be added, all loaded plugins are enabled.
 
 ## Plugin
+
+The plugin loader imports the module directly under the plugin directory,
+and it reads the class described in those `__all__`.
+Classes need to have plugin's interface in superclass.
+Deleting the description of `__all__` will disable the plugin.
+
+```
+plugin (or directory specified by MPH_PLUGIN_ROOT)
+  xxx_plugin
+    __init__.py
+      __all__ = [...]
+  yyy_plugin
+    __init__.py
+      __all__ = [...]
+```
+
+### ChunkGeneratorPlugin
+
+This plugin is a plugin for generating terrain data.
+
+### MobProcessorPlugin
+
+This plugin is a plugin for controlling the appearance, movement, and extinction of mobs.
+The contents that can be done if there is a demand may increase.
+
+### PlayerConfigPlugin
+
+This plugin is a plugin for setting for each player.
+Although we have set it for extension, we recommend that you do not want to use the current situation.
+The contents that can be done if there is demand may increase.
+
+### WorldExtensionPlugin
+
+This plugin customizes the update of the world.
+You will be able to do the following.
+
+- Change or cancel the received update instruction (`filter_action`)
+- Change or cancel update notification to be sent (`filter_event`)
+- Periodically generate update instructions (`update`)
+
+All update instructions received from the client and all update notifications sent from the world server,
+it passes through `filter` of all loaded `WorldExtensionPlugin`.
+
+```
+Client -> (action a) -> PluginA.filter_action -> (action a') -> PluginB.filter_action -> (action a') -> World Server
+Client <- (event e') <- PluginA.filter_event <- (event e') <- PluginB.filter_event <- (event e) <- World Server
+
+action a : original update instruction
+action a' : modified update instruction
+event e : original update notification
+event e' : modified update notification
+```
+
+It can cancel, when `filter` return `None`.
+
+```
+Client -> (action a) -> PluginA.filter_action -> (None) -> X
+X <- (None) <- PluginB.filter_event <- (event e) <- World Server
+
+action a : original update instruction
+event e : original update notification
+X : processing exit
+```
+
+`update` can generate update instructions.
+`update` is executed at the interval set by` WORLD_TICK_TIME`.
 
 ### ExtraCommandPlugin
 

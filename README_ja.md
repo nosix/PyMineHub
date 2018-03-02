@@ -90,6 +90,8 @@ INFO:pyminehub.mcpe.plugin.loader:Plugin is disabled.
   - 上書き (override)
 - `PlayerConfigPlugin`
   - 上書き (override)
+- `WorldExtensionPlugin`
+  - 追加
 - `ExtraCommandPlugin`
   - 追加
 
@@ -99,6 +101,72 @@ INFO:pyminehub.mcpe.plugin.loader:Plugin is disabled.
 一方、`ExtraCommandPlugin` は複数追加され、読み込まれた全てのプラグインが有効になります。
 
 ## プラグイン
+
+プラグインローダーは、プラグインディレクトリ直下のモジュールをインポートし、
+それらの `__all__` に記述されたクラスを読み込みます。
+クラスは、プラグインのインターフェースをスーパークラスに持つ必要があります。
+`__all__` の記述を削除すれば、そのプラグインは無効になります。
+
+```
+plugin (もしくは、MPH_PLUGIN_ROOT で指定したディレクトリ)
+  xxx_plugin
+    __init__.py
+      __all__ = [...]
+  yyy_plugin
+    __init__.py
+      __all__ = [...]
+```
+
+### ChunkGeneratorPlugin (チャンク生成プラグイン)
+
+このプラグインは地形データを生成するためのプラグインです。
+
+### MobProcessorPlugin (モブ処理プラグイン)
+
+このプラグインはモブの出現、移動、消滅を制御するためのプラグインです。
+要望があれば行える内容は増えるかもしれません。
+
+### PlayerConfigPlugin (プレイヤー設定プラグイン)
+
+このプラグインはプレイヤー毎の設定を行うためのプラグインです。
+拡張するために設けられていますが、現状は使わないことをお勧めします。
+要望があれば行える内容は増えるかもしれません。
+
+### WorldExtensionPlugin (ワールド拡張プラグイン)
+
+このプラグインはワールドの更新をカスタマイズします。
+以下を行える様になります。
+
+- 受信した更新命令を変更、もしくは取り消す (`filter_action`)
+- 送信する更新通知を変更、もしくは取り消す (`filter_event`)
+- 定期的に更新命令を生成する (`update`)
+
+クライアントから受信した全ての更新命令とワールドサーバーから送信された全ての更新通知は、
+読み込まれた全ての `WorldExtensionPlugin` の `filter` を通過します。
+
+```
+クライアント -> (action a) -> PluginA.filter_action -> (action a') -> PluginB.filter_action -> (action a') -> ワールドサーバー
+クライアント <- (event e') <- PluginA.filter_event <- (event e') <- PluginB.filter_event <- (event e) <- ワールドサーバー
+
+action a : 元の更新命令
+action a' : 変更された更新命令
+event e : 元の更新通知
+event e' : 変更された更新通知
+```
+
+`filter` が `None` を返すと取り消せます。
+
+```
+クライアント -> (action a) -> PluginA.filter_action -> (None) -> X
+X <- (None) <- PluginB.filter_event <- (event e) <- ワールドサーバー
+
+action a : 元の更新命令
+event e : 元の更新通知
+X : 処理終了
+```
+
+`update` では更新命令を発生させることができます。
+`WORLD_TICK_TIME` で設定した間隔で、`update` が実行されます。
 
 ### ExtraCommandPlugin (拡張コマンドプラグイン)
 
