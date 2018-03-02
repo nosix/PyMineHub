@@ -53,6 +53,13 @@ mcpe
   event -> value, mcpe.[const, geometry, value]
   chunk -> binutil.*, mcpe.[const, geometry, value]
   datastore -> config, mcpe.[chunk, geometry, value]
+  item
+    - spec -> mcpe.[const, geometry, value]
+    - catalog -> mcpe.[const], .[spec]
+  block
+    - spec -> mcpe.[const, geometry, value]
+    - catalog -> mcpe.[const, geometry, value] .[spec]
+    - functional -> mcpe.[const, geometry, value] .[catalog]
   command
     const
     annotation -> mcpe.[geometry]
@@ -64,6 +71,7 @@ mcpe
     generator -> mcpe.[chunk, geometry]
     mob -> mcpe.[chunk, const, geometry]
     player -> mcpe.[const, value]
+    world -> mcpe.[action, event]
     default
       - generator -> mcpe.[chunk, const, geometry, value], mcpe.plugin.[generator]
       - mob -> mcpe.[const], mcpe.plugin.[mob]
@@ -73,25 +81,18 @@ mcpe
     - clock -> config
     - interface -> mcpe.[value]
     - proxy -> mcpe.[action, const, event, resource, value]
-    - item
-      - spec -> mcpe.[const, geometry, value]
-      - catalog -> mcpe.[const], .[spec]
-    - block
-      - spec -> mcpe.[const, geometry, value]
-      - catalog -> mcpe.[const, geometry, value] .[spec]
-      - functional -> mcpe.[const, geometry, value] .[catalog]
     - generator -> mcpe.[chunk, datastore, geometry], mcpe.plugin.[generator]
-    - inventory -> .[const, value], .[item]
-    - space -> mcpe.[chunk, const, datastore, geometry, value], .[block, generator]
+    - inventory -> mcpe.[item], .[const, value]
+    - space -> mcpe.[block, chunk, const, datastore, geometry, value], .[generator]
     - entity
       - spec -> mcpe.[const, geometry]
       - instance -> config, mcpe.[action, const, geometry, resource, value], mcpe.world.[inventory], .[spec]
       - collision -> mcpe.[event], mcpe.world.[interface], .[instance]
       - pool -> mcpe.[const, datastore, value], .[collision, instance]
     - server -> config, value,
-                mcpe.[action, attribute, chunk, const, datastore, event, geometry, value],
+                mcpe.[action, attribute, chunk, const, datastore, event, geometry, item, value],
                 mcpe.plugin.[loader, mob, player],
-                .[clock, entity, generator, interface, item, proxy, space]
+                .[clock, entity, generator, interface, proxy, space]
   network
     - skin
     - const
