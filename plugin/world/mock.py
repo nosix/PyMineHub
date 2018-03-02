@@ -24,5 +24,8 @@ class GPIOMock:
     def output(self, channel, outmode):
         pass
 
+    def cleanup(self):
+        pass
+
 
 GPIO = GPIOMock()
