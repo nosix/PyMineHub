@@ -19,6 +19,12 @@ This project will assume that MineCraft is used as an environment of creation, n
 - Python 3.5.3
   - Raspbian stretch lite 2017-09-07
 
+## Demo
+
+[![demo1](http://img.youtube.com/vi/ezoJ7GiG7rQ/0.jpg)](http://www.youtube.com/watch?v=ezoJ7GiG7rQ?loop=1&cc_load_policy=1)
+
+[![demo2](http://img.youtube.com/vi/nPKKtxPtl98/0.jpg)](http://www.youtube.com/watch?v=nPKKtxPtl98?loop=1)
+
 ## Trial
 
 First, get the source code and start the server.
