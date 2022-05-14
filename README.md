@@ -1,3 +1,5 @@
+&#x26a0; **This project is finished. There are no plans to update in the future. If you need to update, please use fork.** &#x26a0;
+
 # PyMineHub (PMH)
 
 Multiplay server of Minecraft Pocket Edition
